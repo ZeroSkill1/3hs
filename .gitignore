@@ -2,6 +2,10 @@
 # Prerequisites
 *.d
 
+# Frii
+build/
+romfs/gfx/
+
 # Compiled Object files
 *.slo
 *.lo
@@ -31,4 +35,8 @@
 *.exe
 *.out
 *.app
+*.3dsx
+*.smdh
+*.elf
+
 
