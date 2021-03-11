@@ -23,18 +23,36 @@ bool ui::framenext(ui::Keys& keys)
 	return aptMainLoop();
 }
 
-void ui::framedraw(ui::Widgets& wids, ui::Keys& keys)
+bool ui::framedraw(ui::Widgets& wids, ui::Keys& keys)
 {
 	C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
+	ui::clear(ui::Scr::bottom);
 	ui::clear(ui::Scr::top);
-	C2D_SceneBegin(g_top);
+	bool ret = true;
 
-	for(ui::Widget *wid : wids.widgets)
+	C2D_SceneBegin(g_top);
+	for(ui::Widget *wid : wids.top)
 	{
-		wid->draw(keys);
+		if(!wid->draw(keys, ui::Scr::top))
+		{
+			ret = false;
+			goto exit;
+		}
 	}
 
+	C2D_SceneBegin(g_bot);
+	for(ui::Widget *wid : wids.bot)
+	{
+		if(!wid->draw(keys, ui::Scr::bottom))
+		{
+			ret = false;
+			goto exit;
+		}
+	}
+
+exit:
 	C3D_FrameEnd(0);
+	return ret;
 }
 
 void ui::clear(ui::Scr screen)
@@ -70,11 +88,28 @@ void ui::global_deinit()
 	gfxExit();
 }
 
+void ui::Widgets::clear(ui::Scr target)
+{
+	switch(target)
+	{
+	case ui::Scr::bottom:
+		for(ui::Widget *wid : this->bot)
+			delete wid;
+		this->bot.clear();
+		break;
+
+	case ui::Scr::top:
+		for(ui::Widget *wid : this->top)
+			delete wid;
+		this->top.clear();
+		break;
+	}
+}
+
 void ui::Widgets::clear()
 {
-	for(ui::Widget *wid : this->widgets)
-		delete wid;
-	this->widgets.clear();
+	this->clear(ui::Scr::bottom);
+	this->clear(ui::Scr::top);
 }
 
 ui::Widgets::~Widgets()
@@ -82,13 +117,64 @@ ui::Widgets::~Widgets()
 	this->clear();
 }
 
-void ui::Widgets::push_back(ui::Widget& widget)
+void ui::Widgets::push_back(ui::Widget *widget, Scr target)
 {
-	this->widgets.push_back(&widget);
+	switch(target)
+	{
+	case ui::Scr::bottom:
+		this->bot.push_back(widget);
+		break;
+
+	case ui::Scr::top:
+		this->top.push_back(widget);
+		break;
+	}
+}
+
+void ui::Widgets::push_back(std::string name, ui::Widget *widget, ui::Scr target)
+{
+	widget->name(name);
+	this->push_back(widget, target);
+}
+
+ui::Widget *ui::Widgets::find_by_name(std::string name, ui::Scr target)
+{
+	std::vector<ui::Widget *> *vec;
+	switch(target)
+	{
+	case ui::Scr::bottom:
+		vec = &this->bot;
+		break;
+
+	case ui::Scr::top:
+		vec = &this->top;
+		break;
+	}
+
+	for(ui::Widget *wid : (*vec))
+	{
+		if(wid->formal == name)
+			return wid;
+	}
+	return nullptr;
 }
 
 void ui::draw_at(int x, int y, C2D_Text& txt, u32 flags)
 {
 	// 9 = about the distance between 2 texts
 	C2D_DrawText(&txt, flags, x * 9, y * 9, 0.0f, 0.5f, 0.5f);
+}
+
+void ui::switch_to(ui::Scr target)
+{
+	switch(target)
+	{
+	case ui::Scr::bottom:
+		C2D_SceneTarget(g_bot);
+		break;
+
+	case ui::Scr::top:
+		C2D_SceneTarget(g_top);
+		break;
+	}
 }

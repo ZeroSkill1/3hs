@@ -44,6 +44,16 @@ namespace hs
 	{
 		Category() : Subcategory() { };
 		std::vector<Subcategory> subcategories;
+	
+		Subcategory *operator [] (std::string name)
+		{
+			for(size_t i = 0; i < this->subcategories.size(); ++i)
+			{
+				if(this->subcategories[i].name == name || this->subcategories[i].displayName == name)
+					return &this->subcategories[i];
+			}
+			return nullptr;
+		}
 	} Category;
 
 	typedef struct Index
@@ -54,6 +64,16 @@ namespace hs
 
 		__HS_TITLES_T totalTitles;
 		__HS_SIZE_T size;
+
+		Category *operator [] (std::string name)
+		{
+			for(size_t i = 0; i < this->categories.size(); ++i)
+			{
+				if(this->categories[i].name == name || this->categories[i].displayName == name)
+					return &this->categories[i];
+			}
+			return nullptr;
+		}
 	} Index;
 }
 

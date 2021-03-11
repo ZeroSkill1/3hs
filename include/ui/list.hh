@@ -24,14 +24,14 @@ namespace ui
 	class List : public Widget
 	{
 	public:
-		List(std::function<std::string(T&)> to_str, std::function<void(size_t)> on_select)
+		List(std::function<std::string(T&)> to_str, std::function<bool(size_t)> on_select)
 			: Widget("list"), point(0)
 		{
 			this->on_select = on_select;
 			this->to_str = to_str;
 
 			this->txtbuf = C2D_TextBufNew(TXTBUFSIZ);
-			this->create_text(&this->__arr, ">");
+			this->create_text(&this->arrow, ">");
 		}
 
 		~List()
@@ -69,7 +69,7 @@ namespace ui
 		T& operator [] (size_t index)
 		{ return this->items[index]; }
 
-		void draw(Keys& keys) override
+		bool draw(Keys& keys, Scr target) override
 		{
 			if((keys.kDown & KEY_DOWN) && this->point < this->items.size() - 1)
 				++point;
@@ -78,11 +78,13 @@ namespace ui
 
 			for(size_t i = 0; i < this->items.size(); ++i)
 			{
-				if(i == this->point) ui::draw_at(0, i, this->__arr);
+				if(i == this->point) ui::draw_at(0, i, this->arrow);
 				ui::draw_at(2, i, this->txt[i]);
 			}
 
-			if(keys.kDown & KEY_A) this->on_select(this->point);
+			if(keys.kDown & KEY_A)
+				return this->on_select(this->point);
+			return true;
 		}
 
 
@@ -90,13 +92,13 @@ namespace ui
 		std::vector<C2D_Text> txt;
 		C2D_TextBuf txtbuf;
 
-		C2D_Text __arr;
+		C2D_Text arrow;
 
 		std::vector<T> items;
 		size_t point;
 
 		std::function<std::string(T&)> to_str;
-		std::function<void(size_t)> on_select;
+		std::function<bool(size_t)> on_select;
 
 
 	};

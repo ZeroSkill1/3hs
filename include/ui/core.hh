@@ -48,7 +48,7 @@ namespace ui
 		std::string formal;
 		std::string iden;
 
-		virtual void draw(Keys& keys) = 0;
+		virtual bool draw(Keys& keys, Scr target) = 0;
 
 		void init() { };
 
@@ -60,22 +60,40 @@ namespace ui
 	class Widgets
 	{
 	public:
-		void push_back(Widget& val);
+		void push_back(std::string name, Widget *val, Scr target = Scr::top);
+		void push_back(Widget *val, Scr target = Scr::top);
+
+		void clear(Scr target);
 		void clear();
 
 		~Widgets();
 
-		std::vector<Widget *> widgets;
+		std::vector<Widget *> top;
+		std::vector<Widget *> bot;
+
+		Widget *find_by_name(std::string name, Scr target);
+
+		template <typename T = Widget>
+		T *get(std::string name)
+		{
+			T *ret;
+			if((ret = this->find_by_name(name, Scr::top)) != nullptr)
+				return ret;
+			return this->find_by_name(name, Scr::bottom);
+		}
 	};
 
 
 	void global_deinit();
 	bool global_init();
 
-	void draw_at(int x, int y, C2D_Text& txt, u32 flags = 0);
-	void framedraw(Widgets& wids, Keys& keys);
+	bool framedraw(Widgets& wids, Keys& keys);
 	bool framenext(Keys& keys);
+
+	void draw_at(int x, int y, C2D_Text& txt, u32 flags = 0);
+	void switch_to(Scr target);
 	void clear(Scr screen);
+
 
 	C3D_RenderTarget *top();
 	C3D_RenderTarget *bot();
