@@ -54,7 +54,7 @@ namespace ui
 
 		void create_text(C2D_Text *res, std::string txt)
 		{
-			C2D_TextParse(res, this->txtbuf, txt.c_str());
+			ui::parse_text(res, this->txtbuf, txt);
 			C2D_TextOptimize(res);
 		}
 
@@ -75,6 +75,8 @@ namespace ui
 				++point;
 			if((keys.kDown & KEY_UP) && this->point > 0)
 				--point;
+
+				bad_text("hai",10,10);
 
 			for(size_t i = 0; i < this->items.size(); ++i)
 			{

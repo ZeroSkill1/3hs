@@ -3,6 +3,8 @@
 
 static C3D_RenderTarget *g_top;
 static C3D_RenderTarget *g_bot;
+static C2D_Font g_font;
+
 
 C3D_RenderTarget *ui::bot()
 { return g_bot; }
@@ -78,11 +80,13 @@ bool ui::global_init()
 
 	g_bot = C2D_CreateScreenTarget(GFX_BOTTOM, GFX_LEFT);
 	g_top = C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
+	g_font = C2D_FontLoad(ui::constants::FONT);
 	return true;
 }
 
 void ui::global_deinit()
 {
+	C2D_FontFree(g_font);
 	C2D_Fini();
 	C3D_Fini();
 	gfxExit();
@@ -162,7 +166,7 @@ ui::Widget *ui::Widgets::find_by_name(std::string name, ui::Scr target)
 void ui::draw_at(int x, int y, C2D_Text& txt, u32 flags)
 {
 	// 9 = about the distance between 2 texts
-	C2D_DrawText(&txt, flags, x * 9, y * 9, 0.0f, 0.5f, 0.5f);
+	C2D_DrawText(&txt, flags, x * 9, y * 9, 0.0f, 0.45f, 0.45f);
 }
 
 void ui::switch_to(ui::Scr target)
@@ -177,4 +181,9 @@ void ui::switch_to(ui::Scr target)
 		C2D_SceneTarget(g_top);
 		break;
 	}
+}
+
+void ui::parse_text(C2D_Text *ret, C2D_TextBuf buf, std::string txt)
+{
+	C2D_TextFontParse(ret, g_font, buf, txt.c_str());
 }

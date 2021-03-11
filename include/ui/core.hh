@@ -13,7 +13,7 @@
 #include <string>
 
 #define bad_text(t,x,y) { C2D_TextBuf __b; __b = C2D_TextBufNew(100); \
-	C2D_Text __t; C2D_TextParse(&__t, __b, t); C2D_TextOptimize(&__t); \
+	C2D_Text __t; ui::parse_text(&__t, __b, t); C2D_TextOptimize(&__t); \
 	ui::draw_at(x, y, __t); C2D_TextBufDelete(__b); }
 #define GFX(n) ("romfs:/gfx/" n)
 #define SCREEN_WIDTH 400
@@ -25,6 +25,8 @@ namespace ui
 	{
 		constexpr u32 COLOR_BOT = C2D_Color32(0x68, 0xB0, 0xD8, 0xFF);
 		constexpr u32 COLOR_TOP = C2D_Color32(0x68, 0xB0, 0xD8, 0xFF);
+
+		constexpr char FONT[] = "romfs:/jetbrains_mono.bcfnt";
 	}
 
 	enum class Scr
@@ -90,6 +92,7 @@ namespace ui
 	bool framedraw(Widgets& wids, Keys& keys);
 	bool framenext(Keys& keys);
 
+	void parse_text(C2D_Text *ret, C2D_TextBuf buf, std::string txt);
 	void draw_at(int x, int y, C2D_Text& txt, u32 flags = 0);
 	void switch_to(Scr target);
 	void clear(Scr screen);

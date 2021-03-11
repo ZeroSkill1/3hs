@@ -25,10 +25,6 @@ int main(int argc, char* argv[])
 	ui::global_init();
 	hs::global_init();
 
-	ui::clear(ui::Scr::bottom);
-
-	{ ui::Widgets w; }
-
 	hs::Index indx = hs::Index::get();
 //	if(!index_failed(indx)) return -1;
 

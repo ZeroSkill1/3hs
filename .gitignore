@@ -5,6 +5,7 @@
 # Frii
 build/
 romfs/gfx/
+fonts/
 
 # Compiled Object files
 *.slo
