@@ -9,14 +9,17 @@
 #include <iostream>
 
 using namespace nlohmann;
+typedef ordered_json ojson;
+
 
 // Putting this here instead of making it public
 // Is because nlohmann::json throws a fuckton
 // of warnings and we don't like those
-static json j_req(std::string path, std::string *err = nullptr)
+template <typename J = json>
+static J j_req(std::string path, std::string *err = nullptr)
 {
 	const std::string body = hs::base_req(hs::route(path), err);
-	return ordered_json::parse(body);
+	return J::parse(body);
 }
 
 static size_t curl_write_std_string(char *ptr, size_t size, size_t nmemb, void *userdata)
@@ -58,7 +61,7 @@ std::string hs::route(std::string path)
 hs::Index hs::Index::get()
 {
 	std::string err;
-	json resp = j_req("index", &err);
+	ojson resp = j_req<ojson>("index", &err);
 	Index ret;
 
 	if(err != "")
@@ -72,10 +75,10 @@ hs::Index hs::Index::get()
 	ret.updated = resp["updated_date"].get<std::string>();
 	ret.size = resp["total_size"].get<__HS_SIZE_T>();
 
-	json& cats = resp["entries"];
-	for(json::iterator jcat = cats.begin(); jcat != cats.end(); ++jcat)
+	ojson& cats = resp["entries"];
+	for(ojson::iterator jcat = cats.begin(); jcat != cats.end(); ++jcat)
 	{
-		json& vcat = jcat.value();
+		ojson& vcat = jcat.value();
 		hs::Category cat;
 
 		cat.displayName = vcat["display_name"].get<std::string>();
@@ -85,11 +88,11 @@ hs::Index hs::Index::get()
 		cat.totalTitles = vcat["content_count"].get<__HS_TITLES_T>();
 		cat.size = vcat["size"].get<__HS_SIZE_T>();
 
-		json& scats = vcat["subcategories"];
+		ojson& scats = vcat["subcategories"];
 
-		for(json::iterator jscat = scats.begin(); jscat != scats.end(); ++jscat)
+		for(ojson::iterator jscat = scats.begin(); jscat != scats.end(); ++jscat)
 		{
-			json& vscat = jscat.value();
+			ojson& vscat = jscat.value();
 			hs::Subcategory scat;
 
 			scat.displayName = vscat["display_name"].get<std::string>();
