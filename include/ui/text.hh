@@ -5,7 +5,7 @@
 #include "ui/core.hh"
 
 
-#define TEXT_TXTBUFSIZ 4096
+#define TEXT_TXTBUFSIZ 128
 
 
 namespace ui
@@ -42,11 +42,14 @@ namespace ui
 		bool draw(ui::Keys&, ui::Scr) override;
 		void replace_text(std::string text);
 
+
 	private:
-		_WText text;
 		C2D_TextBuf buf;
+		_WText text;
 
 		void parse_text(C2D_Text *outTxt, C2D_TextBuf buf, std::string inTxt);
+
+
 	};
 }
 

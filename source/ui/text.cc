@@ -1,7 +1,8 @@
 
 #include "ui/text.hh"
 
-//if you want to make multiline text, make a ui::MultiLineText Widget or use a list because I don't want more than one piece of text in this widget
+// If you want to make multiline text, make a ui::MultiLineText Widget or use
+// A list because I don't want more than one piece of text in this widget
 
 ui::Text::Text(WText txt) : Widget("text")
 {
@@ -24,7 +25,8 @@ ui::Text::~Text()
 
 bool ui::Text::draw(ui::Keys& keys, ui::Scr)
 {
-	ui::draw_at_absolute(this->text.x, this->text.y, this->text.text, 0, this->text.sizeX, this->text.sizeY);
+	ui::draw_at_absolute(this->text.x, this->text.y, this->text.text, 0,
+		this->text.sizeX, this->text.sizeY);
 	return true;
 }
 

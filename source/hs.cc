@@ -1,5 +1,5 @@
 
-
+#define JSON_NOEXCEPTION
 #include <3rd/json.hh>
 #include <curl/curl.h>
 #include <malloc.h>
@@ -39,12 +39,13 @@ std::string hs::base_req(std::string url, std::string *err)
 	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
 	curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &body);
-		
+	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10L);
+
 	CURLcode res = curl_easy_perform(curl);
 	curl_easy_cleanup(curl);
 
 	if(res != CURLE_OK && err != nullptr)
-		(*err) = std::string("CURLError (network-") + std::to_string(res) + "): " + curl_easy_strerror(res);
+		(*err) = std::string("(network-") + std::to_string(res) + "): " + curl_easy_strerror(res);
 	return body;
 }
 

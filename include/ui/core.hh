@@ -15,6 +15,13 @@
 #define bad_text(t,x,y) { C2D_TextBuf __b; __b = C2D_TextBufNew(100); \
 	C2D_Text __t; ui::parse_text(&__t, __b, t); C2D_TextOptimize(&__t); \
 	ui::draw_at(x, y, __t); C2D_TextBufDelete(__b); }
+#define quick_global_draw() { ui::Widgets wids; ui::Keys keys; \
+	ui::framenext(keys); ui::framedraw(wids, keys); }
+#define generic_main_loop(w) { ui::Keys k; \
+	while(ui::framenext(k)) ui::framedraw(w,k); }
+#define standalone_main_loop() { ui::Widgets w; \
+	generic_main_loop(w); }
+
 #define GFX(n) ("romfs:/gfx/" n)
 #define SCREEN_WIDTH 400
 
@@ -85,9 +92,9 @@ namespace ui
 		T *get(std::string name)
 		{
 			T *ret;
-			if((ret = (T *)this->find_by_name(name, Scr::top)) != nullptr)
+			if((ret = (T *) this->find_by_name(name, Scr::top)) != nullptr)
 				return ret;
-			return (T *)this->find_by_name(name, Scr::bottom);
+			return (T *) this->find_by_name(name, Scr::bottom);
 		}
 	};
 
