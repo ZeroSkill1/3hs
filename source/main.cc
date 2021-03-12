@@ -9,6 +9,7 @@
 #include <iostream>
 #include <curl/curl.h>
 
+#include <ui/text.hh>
 #include <ui/core.hh>
 #include <ui/list.hh>
 
@@ -30,11 +31,12 @@ int main(int argc, char* argv[])
 	{
 		ui::global_deinit();
 		hs::global_deinit();
-		return 1;
+		return 2;
 	}
 
 	hs::Index indx = hs::Index::get();
-//	if(!index_failed(indx)) return -1;
+// if(!index_failed(indx)) return 3;
+
 
 	while(aptMainLoop())
 	{

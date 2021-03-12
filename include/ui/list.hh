@@ -5,10 +5,9 @@
 #include <ui/core.hh>
 
 #include <functional>
-#include <cstdio>
 
 
-#define TXTBUFSIZ 4096
+#define LIST_TXTBUFSIZ 4096
 
 
 namespace ui
@@ -125,7 +124,7 @@ namespace ui
 			this->on_select = on_select;
 			this->to_str = to_str;
 
-			this->txtbuf = C2D_TextBufNew(TXTBUFSIZ);
+			this->txtbuf = C2D_TextBufNew(LIST_TXTBUFSIZ);
 			this->create_text(&this->arrow, ">");
 		}
 	};
