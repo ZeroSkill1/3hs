@@ -31,14 +31,16 @@ namespace ui
 	class List : public Widget
 	{
 	public:
-		List(std::function<std::string(T&)> to_str, std::function<bool(size_t)> on_select)
+		List(std::function<std::string(T&)> to_str, std::function<bool(T&, size_t)> on_select)
+			: Widget("list"), point(0)
+		{ this->init(to_str, on_select); }
+	
+		List(std::function<std::string(T&)> to_str, std::function<bool(T&, size_t)> on_select, std::vector<T> items)
 			: Widget("list"), point(0)
 		{
-			this->on_select = on_select;
-			this->to_str = to_str;
-
-			this->txtbuf = C2D_TextBufNew(TXTBUFSIZ);
-			this->create_text(&this->arrow, ">");
+			this->init(to_str, on_select);
+			this->items = items;
+			this->text_update();
 		}
 
 		~List()
@@ -49,9 +51,10 @@ namespace ui
 		void text_update()
 		{
 			C2D_TextBufClear(this->txtbuf);
+			this->create_text(&this->arrow, ">");
 			this->txt.clear();
 
-			for(const T& val : this->items)
+			for(T& val : this->items)
 			{
 				std::string str = this->to_str(val);
 				C2D_Text text; this->create_text(&text, str);
@@ -99,7 +102,7 @@ namespace ui
 			}
 
 			if(keys.kDown & KEY_A)
-				return this->on_select(this->point);
+				return this->on_select(this->items[this->point], this->point);
 			return true;
 		}
 
@@ -113,10 +116,18 @@ namespace ui
 		std::vector<T> items;
 		size_t point;
 
+		std::function<bool(T&, size_t)> on_select;
 		std::function<std::string(T&)> to_str;
-		std::function<bool(size_t)> on_select;
+		
 
+		void init(std::function<std::string(T&)> to_str, std::function<bool(T&, size_t)> on_select)
+	 	{
+			this->on_select = on_select;
+			this->to_str = to_str;
 
+			this->txtbuf = C2D_TextBufNew(TXTBUFSIZ);
+			this->create_text(&this->arrow, ">");
+		}
 	};
 }
 
