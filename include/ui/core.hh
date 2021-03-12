@@ -85,9 +85,9 @@ namespace ui
 		T *get(std::string name)
 		{
 			T *ret;
-			if((ret = this->find_by_name(name, Scr::top)) != nullptr)
+			if((ret = (T *)this->find_by_name(name, Scr::top)) != nullptr)
 				return ret;
-			return this->find_by_name(name, Scr::bottom);
+			return (T *)this->find_by_name(name, Scr::bottom);
 		}
 	};
 

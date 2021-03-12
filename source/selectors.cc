@@ -1,9 +1,12 @@
 
 #include "selectors.hh"
+#include "ui/text.hh"
 
 
 int sel::cat(hs::Index& indx)
 {
+	ui::wid()->get<ui::Text>("curr_action_desc")->replace_text("Select a category:");
+
 	ui::Widgets wids;
 	int ret = 1;
 
@@ -30,6 +33,8 @@ int sel::cat(hs::Index& indx)
 
 bool sel::subcat(hs::Index& indx, hs::Category cat, int& id)
 {
+	ui::wid()->get<ui::Text>("curr_action_desc")->replace_text("Select a subcategory:");
+
 	ui::Widgets wids;
 	wids.push_back("subcat_list", new ui::List<hs::Subcategory>(
 		[](hs::Subcategory& other) -> std::string {

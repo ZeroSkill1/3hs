@@ -1,20 +1,20 @@
 
 #include "ui/text.hh"
 
+//if you want to make multiline text, make a ui::MultiLineText Widget or use a list because I don't want more than one piece of text in this widget
 
-ui::Text::Text(ui::WText text)
-	: Widget("text")
+ui::Text::Text(WText txt) : Widget("text")
 {
 	this->buf = C2D_TextBufNew(TEXT_TXTBUFSIZ);
-	this->add_text(text);
-}
 
-ui::Text::Text(std::vector<ui::WText> texts)
-	: Widget("text")
-{
-	this->buf = C2D_TextBufNew(TEXT_TXTBUFSIZ);
-	for(ui::WText& curr : texts)
-		this->add_text(curr);
+	_WText ret;
+	ret.x = txt.x;
+	ret.y = txt.y;
+	ret.sizeX = txt.sizeX;
+	ret.sizeY = txt.sizeY;
+
+	this->parse_text(&ret.text, this->buf, txt.text);
+	this->text = ret;
 }
 
 ui::Text::~Text()
@@ -22,24 +22,9 @@ ui::Text::~Text()
 	C2D_TextBufDelete(this->buf);
 }
 
-
-void ui::Text::add_text(WText text)
-{
-	_WText ret;
-	ret.x = text.x;
-	ret.y = text.y;
-	ret.sizeX = text.sizeX;
-	ret.sizeY = text.sizeY;
-
-	ui::parse_text(&ret.text, this->buf, text.text);
-	C2D_TextOptimize(&ret.text);
-	this->texts.push_back(ret);
-}
-
 bool ui::Text::draw(ui::Keys& keys, ui::Scr)
 {
-	for(ui::_WText& curr : this->texts)
-		ui::draw_at_absolute(curr.x, curr.y, curr.text, 0, curr.sizeX, curr.sizeY);
+	ui::draw_at_absolute(this->text.x, this->text.y, this->text.text, 0, this->text.sizeX, this->text.sizeY);
 	return true;
 }
 
@@ -51,8 +36,25 @@ ui::WText ui::mkWText(std::string text, float x, float y, float sizeX, float siz
 
 ui::WText ui::mk_center_WText(std::string text, float y, float sizeX, float sizeY)
 {
-	float charWidth = ui::char_size()->charWidth;
-	float center_x = (200.0f - ((float)text.length() * ((sizeX * charWidth)) / 2.0f));
+	return { text, ui::get_center_x(text, sizeX), y, sizeX, sizeY };
+}
 
-	return { text, center_x, y, sizeX, sizeY };
+void ui::Text::replace_text(std::string inTxt)
+{
+	C2D_TextBufClear(this->buf);
+	
+	ui::Text::parse_text(&this->text.text, this->buf, inTxt);
+	this->text.x = ui::get_center_x(inTxt, this->text.sizeX);
+}
+
+void ui::Text::parse_text(C2D_Text *outTxt, C2D_TextBuf buf, std::string inTxt)
+{
+	ui::parse_text(outTxt, buf, inTxt);
+	C2D_TextOptimize(outTxt);
+}
+
+float ui::get_center_x(std::string text, float sizeX)
+{
+	float charWidth = ui::char_size()->charWidth;
+	return (200.0f - ((float)text.length() * ((sizeX * charWidth)) / 2.0f));
 }

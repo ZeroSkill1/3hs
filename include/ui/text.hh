@@ -31,23 +31,22 @@ namespace ui
 
 	WText mkWText(std::string text, float x, float y, float sizeX = 0.50f, float sizeY = 0.50f);
 	WText mk_center_WText(std::string text, float y, float sizeX = 0.50f, float sizeY = 0.50f);
-
+	float get_center_x(std::string text, float sizeX);
 
 	class Text : public Widget
 	{
 	public:
-		Text(std::vector<WText> texts);
 		Text(WText text);
 		~Text();
 
 		bool draw(ui::Keys&, ui::Scr) override;
-		void add_text(WText text);
-
+		void replace_text(std::string text);
 
 	private:
-		std::vector<_WText> texts;
+		_WText text;
 		C2D_TextBuf buf;
 
+		void parse_text(C2D_Text *outTxt, C2D_TextBuf buf, std::string inTxt);
 	};
 }
 
