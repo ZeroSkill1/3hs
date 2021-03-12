@@ -3,6 +3,7 @@
 
 static C3D_RenderTarget *g_top;
 static C3D_RenderTarget *g_bot;
+static ui::Widgets g_widgets;
 static C2D_Font g_font;
 
 
@@ -11,6 +12,9 @@ C3D_RenderTarget *ui::bot()
 
 C3D_RenderTarget *ui::top()
 { return g_top; }
+
+ui::Widgets *ui::wid()
+{ return &g_widgets; }
 
 
 bool ui::framenext(ui::Keys& keys)
@@ -33,11 +37,9 @@ bool ui::framedraw(ui::Widgets& wids, ui::Keys& keys)
 	bool ret = true;
 
 	C2D_SceneBegin(g_top);
-
-	
-
 	for(ui::Widget *wid : wids.top)
 	{
+		if(!wid->enabled) continue;
 		if(!wid->draw(keys, ui::Scr::top))
 		{
 			ret = false;
@@ -45,15 +47,38 @@ bool ui::framedraw(ui::Widgets& wids, ui::Keys& keys)
 		}
 	}
 
+	for(ui::Widget *wid : g_widgets.top)
+	{
+		if(!wid->enabled) continue;
+		if(!wid->draw(keys, ui::Scr::top))
+		{
+			ret = false;
+			goto exit;
+		}
+	}
+
+
 	C2D_SceneBegin(g_bot);
 	for(ui::Widget *wid : wids.bot)
 	{
+		if(!wid->enabled) continue;
 		if(!wid->draw(keys, ui::Scr::bottom))
 		{
 			ret = false;
 			goto exit;
 		}
 	}
+
+	for(ui::Widget *wid : g_widgets.bot)
+	{
+		if(!wid->enabled) continue;
+		if(!wid->draw(keys, ui::Scr::bottom))
+		{
+			ret = false;
+			goto exit;
+		}
+	}
+
 
 exit:
 	C3D_FrameEnd(0);

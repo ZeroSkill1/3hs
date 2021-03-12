@@ -56,6 +56,12 @@ namespace ui
 
 		void name(std::string name)
 		{ this->formal = name; }
+
+		bool enabled = true;
+		void toggle()
+		{
+			this->enabled = this->enabled ? false : true;
+		}
 	};
 
 
@@ -100,6 +106,7 @@ namespace ui
 
 	C3D_RenderTarget *top();
 	C3D_RenderTarget *bot();
+	Widgets *wid();
 }
 
 #endif
