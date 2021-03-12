@@ -167,8 +167,8 @@ ui::Widget *ui::Widgets::find_by_name(std::string name, ui::Scr target)
 
 void ui::draw_at(int x, int y, C2D_Text& txt, u32 flags)
 {
-	// 10 = about the distance between 2 texts
-	C2D_DrawText(&txt, flags, x * 10, y * 10, 0.0f, 0.40f, 0.40f);
+	// Sorry for the magic numbers :kek:
+	C2D_DrawText(&txt, C2D_WithColor | flags, x * 12, y * 19, 0.0f, 0.60f, 0.60f, C2D_Color32(0xFE,0xFF,0xFF,0xFF));
 }
 
 void ui::switch_to(ui::Scr target)

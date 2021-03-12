@@ -13,6 +13,13 @@
 
 namespace ui
 {
+	namespace constants
+	{
+		constexpr int CURSOR_DELAY = 7;
+		constexpr int CURSOR_INIT = -4;
+		constexpr int TOP_ITEMS = 2;
+	}
+
 	/**
 	 * typename T: The type of vector to use
 	 * to_str: A callback to convert T to a string
@@ -71,15 +78,24 @@ namespace ui
 
 		bool draw(Keys& keys, Scr target) override
 		{
+			static int last = ui::constants::CURSOR_INIT;
 			if((keys.kDown & KEY_DOWN) && this->point < this->items.size() - 1)
-				++point;
+			{ ++point; last = ui::constants::CURSOR_INIT; }
 			if((keys.kDown & KEY_UP) && this->point > 0)
-				--point;
+			{ --point; last = ui::constants::CURSOR_INIT; }
+			if((keys.kHeld & KEY_UP) && this->point > 0 && last > ui::constants::CURSOR_DELAY)
+			{ --point; last = -1; }
+			if((keys.kHeld & KEY_DOWN) && this->point < this->items.size() - 1 && last > ui::constants::CURSOR_DELAY)
+			{ ++point; last = -1; }
+			++last;
 
-			for(size_t i = 0; i < this->items.size(); ++i)
+
+			for(size_t i = this->point > ui::constants::TOP_ITEMS
+				? this->point - ui::constants::TOP_ITEMS
+				: 0, j = 0; i < this->items.size(); ++i, ++j)
 			{
-				if(i == this->point) ui::draw_at(0, i, this->arrow);
-				ui::draw_at(2, i, this->txt[i]);
+				if(i == this->point) ui::draw_at(0, j, this->arrow);
+				ui::draw_at(2, j, this->txt[i]);
 			}
 
 			if(keys.kDown & KEY_A)
