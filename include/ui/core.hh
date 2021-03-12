@@ -52,7 +52,7 @@ namespace ui
 
 		virtual bool draw(Keys& keys, Scr target) = 0;
 
-		void init() { };
+		virtual void init() { };
 
 		void name(std::string name)
 		{ this->formal = name; }
