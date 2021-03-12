@@ -80,7 +80,9 @@ bool ui::global_init()
 
 	g_bot = C2D_CreateScreenTarget(GFX_BOTTOM, GFX_LEFT);
 	g_top = C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
-	g_font = C2D_FontLoad(ui::constants::FONT);
+	if((g_font = C2D_FontLoad(ui::constants::FONT)) == NULL)
+		return false;
+
 	return true;
 }
 
@@ -165,8 +167,8 @@ ui::Widget *ui::Widgets::find_by_name(std::string name, ui::Scr target)
 
 void ui::draw_at(int x, int y, C2D_Text& txt, u32 flags)
 {
-	// 9 = about the distance between 2 texts
-	C2D_DrawText(&txt, flags, x * 9, y * 9, 0.0f, 0.45f, 0.45f);
+	// 10 = about the distance between 2 texts
+	C2D_DrawText(&txt, flags, x * 10, y * 10, 0.0f, 0.40f, 0.40f);
 }
 
 void ui::switch_to(ui::Scr target)

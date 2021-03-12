@@ -76,8 +76,6 @@ namespace ui
 			if((keys.kDown & KEY_UP) && this->point > 0)
 				--point;
 
-				bad_text("hai",10,10);
-
 			for(size_t i = 0; i < this->items.size(); ++i)
 			{
 				if(i == this->point) ui::draw_at(0, i, this->arrow);

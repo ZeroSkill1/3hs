@@ -20,10 +20,18 @@
 
 int main(int argc, char* argv[])
 {
-	gfxInitDefault();
-	consoleInit(GFX_TOP, NULL);
-	ui::global_init();
-	hs::global_init();
+	romfsInit();
+	if(!ui::global_init())
+	{
+		ui::global_deinit();
+		return 1;
+	}
+	if(!hs::global_init())
+	{
+		ui::global_deinit();
+		hs::global_deinit();
+		return 1;
+	}
 
 	hs::Index indx = hs::Index::get();
 //	if(!index_failed(indx)) return -1;
@@ -37,5 +45,6 @@ int main(int argc, char* argv[])
 
 	hs::global_deinit();
 	ui::global_deinit();
+	romfsExit();
 	return 0;
 }

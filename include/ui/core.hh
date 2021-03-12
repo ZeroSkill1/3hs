@@ -26,7 +26,7 @@ namespace ui
 		constexpr u32 COLOR_BOT = C2D_Color32(0x68, 0xB0, 0xD8, 0xFF);
 		constexpr u32 COLOR_TOP = C2D_Color32(0x68, 0xB0, 0xD8, 0xFF);
 
-		constexpr char FONT[] = "romfs:/jetbrains_mono.bcfnt";
+		constexpr char FONT[] = GFX("JetBrainsMono.bcfnt");
 	}
 
 	enum class Scr

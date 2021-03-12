@@ -121,7 +121,6 @@ static u32 *g_socbuf;
 
 void hs::global_deinit()
 {
-	romfsExit();
 	curl_global_cleanup();
 	socExit();
 	free(g_socbuf);
@@ -138,8 +137,6 @@ bool hs::global_init()
 	}
 
 	curl_global_init(CURL_GLOBAL_ALL);
-	if(R_FAILED(romfsInit()))
-		return false;
 	return true;
 }
 
