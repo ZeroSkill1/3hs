@@ -94,10 +94,10 @@ namespace ui
 
 			for(size_t i = this->point > ui::constants::TOP_ITEMS
 				? this->point - ui::constants::TOP_ITEMS
-				: 0, j = 0; i < this->items.size(); ++i, ++j)
+				: 0, j = 3; i < this->items.size(); ++i, ++j)
 			{
-				if(i == this->point) ui::draw_at(0, j, this->arrow);
-				ui::draw_at(2, j, this->txt[i]);
+				if(i == this->point) ui::draw_at(1, j, this->arrow);
+				ui::draw_at(3, j, this->txt[i]);
 			}
 
 			if(keys.kDown & KEY_A)

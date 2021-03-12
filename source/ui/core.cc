@@ -33,6 +33,9 @@ bool ui::framedraw(ui::Widgets& wids, ui::Keys& keys)
 	bool ret = true;
 
 	C2D_SceneBegin(g_top);
+
+	
+
 	for(ui::Widget *wid : wids.top)
 	{
 		if(!wid->draw(keys, ui::Scr::top))
@@ -168,7 +171,7 @@ ui::Widget *ui::Widgets::find_by_name(std::string name, ui::Scr target)
 void ui::draw_at(int x, int y, C2D_Text& txt, u32 flags)
 {
 	// Sorry for the magic numbers :kek:
-	C2D_DrawText(&txt, C2D_WithColor | flags, x * 12, y * 19, 0.0f, 0.60f, 0.60f, C2D_Color32(0xFE,0xFF,0xFF,0xFF));
+	C2D_DrawText(&txt, C2D_WithColor | flags, x * 12, y * 19, 0.0f, 0.50f, 0.50f, 0xFFFFFFFF);
 }
 
 void ui::switch_to(ui::Scr target)
