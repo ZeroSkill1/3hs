@@ -14,6 +14,7 @@
 #include <ui/list.hh>
 
 #include <hs.hh>
+#include "citro2d.h"
 
 #include "selectors.hh"
 #include "game.hh"
@@ -33,6 +34,10 @@ int main(int argc, char* argv[])
 		hs::global_deinit();
 		return 2;
 	}
+
+	ui::wid()->push_back("header", new ui::Text(ui::mk_center_WText("hShop", 0.0f, 1.0f, 1.0f)), ui::Scr::top);
+	ui::wid()->push_back("header_desc", new ui::Text(ui::mk_center_WText("The ultimate 3DS content preservation service.", 40.0f)), ui::Scr::top);
+	ui::wid()->push_back("curr_action_desc", new ui::Text(ui::mk_center_WText("Select a category:", 60.0f)), ui::Scr::top);
 
 	hs::Index indx = hs::Index::get();
 // if(!index_failed(indx)) return 3;

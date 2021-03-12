@@ -5,6 +5,9 @@ static C3D_RenderTarget *g_top;
 static C3D_RenderTarget *g_bot;
 static ui::Widgets g_widgets;
 static C2D_Font g_font;
+static charWidthInfo_s *cwi;
+
+charWidthInfo_s *ui::char_size() { return cwi; }
 
 
 C3D_RenderTarget *ui::bot()
@@ -111,6 +114,8 @@ bool ui::global_init()
 	if((g_font = C2D_FontLoad(ui::constants::FONT)) == NULL)
 		return false;
 
+	cwi = C2D_FontGetCharWidthInfo(g_font, 435);
+
 	return true;
 }
 
@@ -193,10 +198,16 @@ ui::Widget *ui::Widgets::find_by_name(std::string name, ui::Scr target)
 	return nullptr;
 }
 
-void ui::draw_at(int x, int y, C2D_Text& txt, u32 flags)
+void ui::draw_at(float x, float y, C2D_Text& txt, u32 flags, float sizeX, float sizeY)
 {
 	// Sorry for the magic numbers :kek:
-	C2D_DrawText(&txt, C2D_WithColor | flags, x * 12, y * 19, 0.0f, 0.50f, 0.50f, 0xFFFFFFFF);
+	C2D_DrawText(&txt, C2D_WithColor | flags, x * 12, y * 18, 0.0f, sizeX, sizeY, 0xFFFFFFFF);
+}
+
+void ui::draw_at_absolute(float x, float y, C2D_Text& txt, u32 flags, float sizeX, float sizeY)
+{
+	// Sorry for the magic numbers :kek:
+	C2D_DrawText(&txt, C2D_WithColor | flags, x, y, 0.0f, sizeX, sizeY, 0xFFFFFFFF);
 }
 
 void ui::switch_to(ui::Scr target)

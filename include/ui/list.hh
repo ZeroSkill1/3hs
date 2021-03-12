@@ -50,7 +50,7 @@ namespace ui
 		void text_update()
 		{
 			C2D_TextBufClear(this->txtbuf);
-			this->create_text(&this->arrow, ">");
+			this->create_text(&this->arrow, "→");
 			this->txt.clear();
 
 			for(T& val : this->items)
@@ -94,10 +94,10 @@ namespace ui
 
 			for(size_t i = this->point > ui::constants::TOP_ITEMS
 				? this->point - ui::constants::TOP_ITEMS
-				: 0, j = 3; i < this->items.size(); ++i, ++j)
+				: 0, j = 5; i < this->items.size(); ++i, ++j)
 			{
-				if(i == this->point) ui::draw_at(1, j, this->arrow);
-				ui::draw_at(3, j, this->txt[i]);
+				if(i == this->point) ui::draw_at(1, j, this->arrow, 0, 0.45f, 0.45f);
+				ui::draw_at(3, j, this->txt[i], 0, 0.45f, 0.45f);
 			}
 
 			if(keys.kDown & KEY_A)
@@ -125,7 +125,7 @@ namespace ui
 			this->to_str = to_str;
 
 			this->txtbuf = C2D_TextBufNew(LIST_TXTBUFSIZ);
-			this->create_text(&this->arrow, ">");
+			this->create_text(&this->arrow, "→");
 		}
 	};
 }

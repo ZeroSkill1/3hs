@@ -99,13 +99,15 @@ namespace ui
 	bool framenext(Keys& keys);
 
 	void parse_text(C2D_Text *ret, C2D_TextBuf buf, std::string txt);
-	void draw_at(int x, int y, C2D_Text& txt, u32 flags = 0);
+	void draw_at(float x, float y, C2D_Text& txt, u32 flags = 0, float sizeX = 0.50f, float sizeY = 0.50f);
+	void draw_at_absolute(float x, float y, C2D_Text& txt, u32 flags = 0, float sizeX = 0.50f, float sizeY = 0.50f);
 	void switch_to(Scr target);
 	void clear(Scr screen);
 
 
 	C3D_RenderTarget *top();
 	C3D_RenderTarget *bot();
+	charWidthInfo_s *char_size();
 	Widgets *wid();
 }
 

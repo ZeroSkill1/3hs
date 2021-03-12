@@ -13,19 +13,24 @@ namespace ui
 	typedef struct 
 	{
 		std::string text;
-		int x;
-		int y;
+		float x;
+		float y;
+		float sizeX;
+		float sizeY;
 	} WText;
 
 	typedef struct _WText
 	{
 		C2D_Text text;
-		int x;
-		int y;
+		float x;
+		float y;
+		float sizeX;
+		float sizeY;
 	} _WText;
 
 
-	WText mkWText(std::string text, int x, int y);
+	WText mkWText(std::string text, float x, float y, float sizeX = 0.50f, float sizeY = 0.50f);
+	WText mk_center_WText(std::string text, float y, float sizeX = 0.50f, float sizeY = 0.50f);
 
 
 	class Text : public Widget
