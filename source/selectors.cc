@@ -7,16 +7,14 @@ int sel::cat(hs::Index& indx)
 	ui::Widgets wids;
 	int ret = 1;
 
-	ui::List<std::string> *listWid = new ui::List<std::string>(
-		[](std::string& other) { return other; },
-		[&](size_t index) -> bool {
-			return sel::subcat(indx, (*listWid)[index], ret);
-		}
-	);
-
-	for(hs::Category& cat : indx.categories)
-		listWid->append(cat.displayName);
-	wids.push_back("cat_list", listWid);
+	wids.push_back("cat_list", new ui::List<hs::Category>(
+		[](hs::Category& other) -> std::string {
+			return other.displayName;
+		},
+		[&](hs::Category& cat, size_t) -> bool {
+			return sel::subcat(indx, cat, ret);
+		}, indx.categories
+	));
 
 	ui::Keys keys;
 	while(ui::framenext(keys))
@@ -30,28 +28,17 @@ int sel::cat(hs::Index& indx)
 	return sel::Results::exit;
 }
 
-bool sel::subcat(hs::Index& indx, std::string catstr, int& id)
+bool sel::subcat(hs::Index& indx, hs::Category cat, int& id)
 {
-	hs::Category *cat = indx[catstr];
-	// This shouldn't happen ....
-	if(cat == nullptr)
-	{
-		id = sel::Results::cat_nullptr;
-		return false;
-	}
-
 	ui::Widgets wids;
-
-	ui::List<std::string> *listWid = new ui::List<std::string>(
-		[](std::string& other) { return other; },
-		[&](size_t index) -> bool {
-			return sel::game(catstr, (*listWid)[index], id);
-		}
-	);
-
-	for(hs::Subcategory& sub : cat->subcategories)
-		listWid->append(sub.displayName);
-	wids.push_back("subcat_list", listWid);
+	wids.push_back("subcat_list", new ui::List<hs::Subcategory>(
+		[](hs::Subcategory& other) -> std::string {
+			return other.displayName;
+		},
+		[&](hs::Subcategory& sub, size_t) -> bool {
+			return sel::game(cat.name, sub.name, id);
+		}, cat.subcategories
+	));
 
 	ui::Keys keys;
 	while(ui::framenext(keys))

@@ -22,12 +22,12 @@ namespace sel
 		{
 			cancel = 0,
 			exit = -1,
-			cat_nullptr = -2,
+			cat_nullptr = -2, /* unused */
 		};
 	}
 
 	bool game(std::string cat, std::string subcat, int& id);
-	bool subcat(hs::Index& indx, std::string cat, int& id);
+	bool subcat(hs::Index& indx, hs::Category cat, int& id);
 	/* Returns -x when exit is needed, 0 for NO_GAME = cancel */
 	int cat(hs::Index& indx);
 }
