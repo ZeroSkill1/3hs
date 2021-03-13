@@ -34,6 +34,16 @@ int main(int argc, char* argv[])
 	ui::wid()->push_back("header", new ui::Text(ui::mk_center_WText("hShop", 0.0f, 1.0f, 1.0f)), ui::Scr::top);
 	quick_global_draw();
 
+	if(osGetWifiStrength() == 0)
+	{
+		ui::wid()->get<ui::Text>("curr_action_desc")
+			->replace_text("Please connect to wifi and restart the app");
+		ui::Keys keys; ui::Widgets dummy;
+		// 0 = NO wifi at all
+		while(ui::framenext(keys) && osGetWifiStrength() == 0)
+			ui::framedraw(dummy, keys);
+	}
+
 	if(!hs::global_init())
 	{
 		ui::wid()->get<ui::Text>("curr_action_desc")
@@ -44,6 +54,7 @@ int main(int argc, char* argv[])
 		return 2;
 	}
 
+
 	hs::Index indx;
 	indx = hs::Index::get();
 
@@ -51,7 +62,10 @@ int main(int argc, char* argv[])
 	{
 		ui::wid()->get<ui::Text>("curr_action_desc")
 			->replace_text(std::string("Couldn't load index: ") + index_error(indx));
-		standalone_main_loop(); return 3;
+		standalone_main_loop();
+		ui::global_deinit();
+		hs::global_deinit();
+		return 3;
 	}
 
 

@@ -124,7 +124,9 @@ void hs::global_deinit()
 {
 	curl_global_cleanup();
 	socExit();
-	free(g_socbuf);
+	// This shouldn't happen
+	if(g_socbuf != NULL)
+		free(g_socbuf);
 }
 
 bool hs::global_init()
