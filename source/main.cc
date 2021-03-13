@@ -1,23 +1,15 @@
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <3ds.h>
-#include <stdlib.h>
-#include <malloc.h>
-
-#include <iostream>
-#include <curl/curl.h>
 
 #include <ui/text.hh>
 #include <ui/core.hh>
 #include <ui/list.hh>
 
 #include <hs.hh>
-#include "citro2d.h"
 
 #include "selectors.hh"
 #include "game.hh"
+
 
 
 int main(int argc, char* argv[])

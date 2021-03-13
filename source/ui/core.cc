@@ -3,12 +3,13 @@
 
 static C3D_RenderTarget *g_top;
 static C3D_RenderTarget *g_bot;
+static charWidthInfo_s *cwi;
 static ui::Widgets g_widgets;
 static C2D_Font g_font;
-static charWidthInfo_s *cwi;
 
-charWidthInfo_s *ui::char_size() { return cwi; }
 
+charWidthInfo_s *ui::char_size()
+{ return cwi; }
 
 C3D_RenderTarget *ui::bot()
 { return g_bot; }
@@ -114,8 +115,8 @@ bool ui::global_init()
 	if((g_font = C2D_FontLoad(ui::constants::FONT)) == NULL)
 		return false;
 
+	// Font is monospaced; ever char has the same width
 	cwi = C2D_FontGetCharWidthInfo(g_font, 435);
-
 	return true;
 }
 
@@ -206,7 +207,6 @@ void ui::draw_at(float x, float y, C2D_Text& txt, u32 flags, float sizeX, float 
 
 void ui::draw_at_absolute(float x, float y, C2D_Text& txt, u32 flags, float sizeX, float sizeY)
 {
-	// Sorry for the magic numbers :kek:
 	C2D_DrawText(&txt, C2D_WithColor | flags, x, y, 0.0f, sizeX, sizeY, 0xFFFFFFFF);
 }
 

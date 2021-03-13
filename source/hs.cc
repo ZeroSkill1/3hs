@@ -112,6 +112,27 @@ hs::Index hs::Index::get()
 	return ret;
 }
 
+std::vector<hs::Title> hs::titles_in(std::string cat, std::string subcat)
+{
+	std::vector<hs::Title> ret;
+	json res = j_req<json>(std::string("category/") + cat + "/" + subcat);
+	for(json::iterator it = res.begin(); it != res.end(); ++it)
+	{
+		json& curr = it.value();
+		hs::Title pushable;
+
+		pushable.size = curr["size"].get<__HS_SIZE_T>();
+		pushable.id = curr["id"].get<__HS_ID_T>();
+
+		pushable.subcat = curr["subcategory"].get<std::string>();
+		pushable.tid = curr["title_id"].get<std::string>();
+		pushable.cat = curr["category"].get<std::string>();
+		pushable.name = curr["name"].get<std::string>();
+
+		ret.push_back(pushable);
+	}
+	return ret;
+}
 
 
 #define SOC_ALIGN       0x100000

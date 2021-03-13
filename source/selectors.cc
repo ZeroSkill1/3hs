@@ -41,14 +41,18 @@ bool sel::subcat(hs::Index& indx, hs::Category cat, int& id)
 			return other.displayName;
 		},
 		[&](hs::Subcategory& sub, size_t) -> bool {
-			return sel::game(cat.name, sub.name, id);
+			bool ret = sel::game(cat.name, sub.name, id);
+			ui::wid()->get<ui::Text>("curr_action_desc")->replace_text("Select a subcategory:");
+			if(id == sel::Results::prev)
+			{ id = 0; return true; }
+			return ret;
 		}, cat.subcategories
 	));
 
 	ui::Keys keys;
 	while(ui::framenext(keys))
 	{
-		if(!ui::framedraw(wids, keys))
+		if(!ui::framedraw(wids, keys) || keys.kDown & KEY_B)
 			return true;
 	}
 
@@ -58,5 +62,32 @@ bool sel::subcat(hs::Index& indx, hs::Category cat, int& id)
 
 bool sel::game(std::string cat, std::string subcat, int& id)
 {
-	/* Sub */ return true;
+	ui::wid()->get<ui::Text>("curr_action_desc")->replace_text("Loading..."); quick_global_draw();
+	std::vector<hs::Title> titles = hs::titles_in(cat, subcat);
+	ui::wid()->get<ui::Text>("curr_action_desc")->replace_text("Select a title:");
+
+	ui::Widgets wids;
+	wids.push_back("titles_list", new ui::List<hs::Title>(
+		[](hs::Title& other) -> std::string {
+			return other.name;
+		},
+		[](hs::Title& title, size_t) -> bool {
+			return true;
+		}, titles, 10000
+	));
+
+	ui::Keys keys;
+	while(ui::framenext(keys))
+	{
+		if(!ui::framedraw(wids, keys))
+			return true;
+		if(keys.kDown & KEY_B)
+		{
+			id = sel::Results::prev;
+			return false;
+		}
+	}
+
+	id = sel::Results::cancel;
+	return false;
 }

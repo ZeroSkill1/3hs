@@ -23,6 +23,7 @@ namespace sel
 			cancel = 0,
 			exit = -1,
 			cat_nullptr = -2, /* unused */
+			prev = -3,
 		};
 	}
 

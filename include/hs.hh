@@ -9,6 +9,8 @@
 
 #define __HS_SIZE_T unsigned long long
 #define __HS_TITLES_T unsigned long
+#define __HS_IVER_T unsigned int
+#define __HS_ID_T unsigned long
 
 #define index_failed(i) (i.size == hs::constants::BAD_SIZE)
 #define index_error(i) (i.updated)
@@ -22,13 +24,6 @@ namespace hs
 		constexpr char CA_LOC[] = "romfs:/cacert.pem";
 		constexpr int BAD_SIZE = 0;
 	}
-
-	void global_deinit();
-	bool global_init();
-
-	std::string base_req(std::string url, std::string *err = nullptr);
-	std::string route(std::string path);
-
 
 	typedef struct Subcategory
 	{
@@ -75,6 +70,40 @@ namespace hs
 			return nullptr;
 		}
 	} Index;
+
+	typedef struct Title
+	{
+		std::string subcat;
+		std::string name;
+		std::string tid;
+		std::string cat;
+
+		__HS_SIZE_T size;
+		__HS_ID_T id;
+	} Title;
+
+	typedef struct FullTitle : public Title
+	{
+		FullTitle() : Title() { };
+
+		std::string vstring;
+		std::string desc; /* "" if none */
+		std::string prod; /* prod code */
+
+		std::string updated; /* unix timestamp (as string) */
+		std::string added; /* unix timestamp (as string) */
+
+		__HS_IVER_T version;
+	} FullTitle;
+
+
+	void global_deinit();
+	bool global_init();
+
+	std::string base_req(std::string url, std::string *err = nullptr);
+	std::string route(std::string path);
+
+	std::vector<Title> titles_in(std::string cat, std::string subcat);
 }
 
 #endif

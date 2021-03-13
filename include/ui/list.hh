@@ -7,9 +7,6 @@
 #include <functional>
 
 
-#define LIST_TXTBUFSIZ 4096
-
-
 namespace ui
 {
 	namespace constants
@@ -30,14 +27,14 @@ namespace ui
 	class List : public Widget
 	{
 	public:
-		List(std::function<std::string(T&)> to_str, std::function<bool(T&, size_t)> on_select)
+		List(std::function<std::string(T&)> to_str, std::function<bool(T&, size_t)> on_select, size_t txtbufsz = 4096)
 			: Widget("list"), point(0)
-		{ this->init(to_str, on_select); }
+		{ this->init(to_str, on_select, txtbufsz); }
 	
-		List(std::function<std::string(T&)> to_str, std::function<bool(T&, size_t)> on_select, std::vector<T> items)
+		List(std::function<std::string(T&)> to_str, std::function<bool(T&, size_t)> on_select, std::vector<T> items, size_t txtbufsz = 4096)
 			: Widget("list"), point(0)
 		{
-			this->init(to_str, on_select);
+			this->init(to_str, on_select, txtbufsz);
 			this->items = items;
 			this->text_update();
 		}
@@ -119,12 +116,12 @@ namespace ui
 		std::function<std::string(T&)> to_str;
 		
 
-		void init(std::function<std::string(T&)> to_str, std::function<bool(T&, size_t)> on_select)
+		void init(std::function<std::string(T&)> to_str, std::function<bool(T&, size_t)> on_select, size_t txtbufsize)
 	 	{
 			this->on_select = on_select;
 			this->to_str = to_str;
 
-			this->txtbuf = C2D_TextBufNew(LIST_TXTBUFSIZ);
+			this->txtbuf = C2D_TextBufNew(txtbufsize);
 			this->create_text(&this->arrow, "→");
 		}
 	};
