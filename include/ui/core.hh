@@ -19,12 +19,17 @@
 	ui::framenext(keys); ui::framedraw(wids, keys); }
 #define generic_main_loop(w) { ui::Keys k; \
 	while(ui::framenext(k)) ui::framedraw(w,k); }
+#define generic_main_breaking_loop(w) { ui::Keys k; \
+	while(ui::framenext(k)) if(!ui::framedraw(w,k)) break; }
 #define standalone_main_loop() { ui::Widgets w; \
 	generic_main_loop(w); }
+#define standalone_main_breaking_loop() { ui::Widgets w; \
+	generic_main_breaking_loop(w); }
 
 #define GFX(n) ("romfs:/gfx/" n)
-#define SCREEN_WIDTH 400
 
+#define SCREEN_WIDTH(s) (s == ui::Scr::top ? 400 : 320)
+#define SCREEN_HEIGHT() (240)
 
 namespace ui
 {
@@ -56,10 +61,9 @@ namespace ui
 
 		std::string formal;
 		std::string iden;
+		Scr screen;
 
 		virtual bool draw(Keys& keys, Scr target) = 0;
-
-		virtual void init() { };
 
 		void name(std::string name)
 		{ this->formal = name; }
@@ -112,9 +116,9 @@ namespace ui
 	void clear(Scr screen);
 
 
+	charWidthInfo_s *char_size();
 	C3D_RenderTarget *top();
 	C3D_RenderTarget *bot();
-	charWidthInfo_s *char_size();
 	Widgets *wid();
 }
 

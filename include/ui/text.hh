@@ -29,9 +29,10 @@ namespace ui
 	} _WText;
 
 
+	WText mk_right_WText(std::string text, float y, float pad = 1.0f, float sizeX = 0.50f, float sizeY = 0.50f, ui::Scr scr = ui::Scr::top);
+	WText mk_center_WText(std::string text, float y, float sizeX = 0.50f, float sizeY = 0.50f, ui::Scr scr = ui::Scr::top);
 	WText mkWText(std::string text, float x, float y, float sizeX = 0.50f, float sizeY = 0.50f);
-	WText mk_center_WText(std::string text, float y, float sizeX = 0.50f, float sizeY = 0.50f);
-	float get_center_x(std::string text, float sizeX);
+	float get_center_x(std::string text, float sizeX, ui::Scr scr = ui::Scr::top);
 
 	class Text : public Widget
 	{
@@ -43,7 +44,7 @@ namespace ui
 		void replace_text(std::string text);
 
 
-	private:
+	protected:
 		C2D_TextBuf buf;
 		_WText text;
 

@@ -2,6 +2,7 @@
 #ifndef __ui_list_hh__
 #define __ui_list_hh__
 
+#include <ui/scrollingText.hh>
 #include <ui/core.hh>
 
 #include <functional>

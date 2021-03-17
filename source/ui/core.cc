@@ -3,8 +3,8 @@
 
 static C3D_RenderTarget *g_top;
 static C3D_RenderTarget *g_bot;
-static charWidthInfo_s *cwi;
 static ui::Widgets g_widgets;
+static charWidthInfo_s *cwi;
 static C2D_Font g_font;
 
 
@@ -162,10 +162,12 @@ void ui::Widgets::push_back(ui::Widget *widget, Scr target)
 	switch(target)
 	{
 	case ui::Scr::bottom:
+		widget->screen = ui::Scr::bottom;
 		this->bot.push_back(widget);
 		break;
 
 	case ui::Scr::top:
+		widget->screen = ui::Scr::top;
 		this->top.push_back(widget);
 		break;
 	}

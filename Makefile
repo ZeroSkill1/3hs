@@ -41,7 +41,7 @@ TARGET		:=	3hs
 BUILD		:=	build
 SOURCES		:=	source source/ui
 DATA		:=	data
-INCLUDES	:=	include .
+INCLUDES	:=	include 3rd .
 GRAPHICS	:=	gfx
 ROMFS		:=	romfs
 GFXBUILD	:=	$(ROMFS)/gfx
@@ -71,6 +71,9 @@ LIBS	:= -lcurl -lmbedtls -lmbedx509 -lmbedcrypto -lz -lcitro2d -lcitro3d -lctru 
 #---------------------------------------------------------------------------------
 LIBDIRS	:= $(PORTLIBS) $(CTRULIB)
 
+ifeq (RELEASE,)
+	CFLAGS	+=	-D__NO_UPDATE
+endif
 
 #---------------------------------------------------------------------------------
 # no real need to edit anything past this point unless you need to add additional
