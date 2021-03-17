@@ -39,5 +39,6 @@ fonts/
 *.3dsx
 *.smdh
 *.elf
-
-
+*.cxi
+*.cia
+*.bin
