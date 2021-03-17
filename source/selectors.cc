@@ -73,7 +73,7 @@ bool sel::game(std::string cat, std::string subcat, int& id)
 		},
 		[](hs::Title& title, size_t) -> bool {
 			return true;
-		}, titles, 10000
+		}, titles
 	));
 
 	ui::Keys keys;
@@ -83,7 +83,7 @@ bool sel::game(std::string cat, std::string subcat, int& id)
 			return true;
 		if(keys.kDown & KEY_B)
 		{
-			id = sel::Results::prev;
+	//		id = sel::Results::prev;
 			return false;
 		}
 	}

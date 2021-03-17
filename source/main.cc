@@ -80,19 +80,20 @@ int main(int argc, char* argv[])
 
 #ifndef __NO_UPDATE
 	// If we updated ...
-	if(update_app())
+	llog << "Checking for updates";
+	/*if(update_app())
 	{
 		llog << "Updated from " VERSION;
 		hs::global_deinit();
 		ui::global_deinit();
 		exit_services();
 		return 0;
-	}
+	}*/
 #endif
 
-//	ui::wid()->push_back("test", new ui::ScrollingText(20, 20, "hello! this is a long string that doesn't fit on your screen ...."), ui::Scr::bottom);
-//	ui::wid()->get<ui::ScrollingText>("test")->start_scroll();
-//	standalone_main_loop();
+	ui::wid()->push_back("test", new ui::ScrollingText(20, 20, "hello! this is a long string that doesn't fit on your screen ...."), ui::Scr::bottom);
+	ui::wid()->get<ui::ScrollingText>("test")->start_scroll();
+	standalone_main_loop();
 
 	hs::Index indx;
 	llog << "Fetching index";
@@ -108,7 +109,6 @@ int main(int argc, char* argv[])
 		hs::global_deinit();
 		return 3;
 	}
-
 
 	while(aptMainLoop())
 	{

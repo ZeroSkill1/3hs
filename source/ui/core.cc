@@ -28,6 +28,8 @@ bool ui::framenext(ui::Keys& keys)
 	keys.kHeld = hidKeysHeld();
 	keys.kUp = hidKeysUp();
 
+	hidTouchRead(&keys.touch);
+
 	if(keys.kDown & KEY_START)
 		return false;
 	return aptMainLoop();

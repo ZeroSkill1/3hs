@@ -20,7 +20,7 @@ namespace hs
 {
 	namespace constants
 	{
-		constexpr char BASE_LOC[] = "https://hsho.erista.me/api/";
+		constexpr char BASE_LOC[] = "https://hshop.erista.me/api/";
 		constexpr char CA_LOC[] = "romfs:/cacert.pem";
 		constexpr int BAD_SIZE = 0;
 	}

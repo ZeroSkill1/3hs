@@ -46,6 +46,7 @@ namespace ui
 
 	typedef struct Keys
 	{
+		touchPosition touch;
 		u32 kDown;
 		u32 kHeld;
 		u32 kUp;

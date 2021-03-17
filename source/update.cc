@@ -18,7 +18,7 @@ bool update_app()
 
 	ui::Widgets wids; bool shouldUpdate = false;
 	wids.push_back("confirmation", new ui::Confirm(std::string("Update to version ")
-		+ nver + "?", shouldUpdate));
+		+ nver + "?", shouldUpdate), ui::Scr::bottom);
 	generic_main_breaking_loop(wids);
 
 	if(nver == VERSION)
