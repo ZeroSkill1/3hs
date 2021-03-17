@@ -34,7 +34,7 @@ static size_t curl_install_cia_callback(char *ptr, size_t size, size_t nmemb, vo
 	lverbose << "rwrite(" << rwrite << ") < size * nmemb (" << size * nmemb << ")";
 
 	LightLock_Unlock(&g_mtx);
-	return size * nmemb;
+	return rwrite;
 }
 
 void game::start_mutex()
