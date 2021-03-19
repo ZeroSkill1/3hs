@@ -57,6 +57,9 @@ CFLAGS	:=	-g -Wall -O2 -mword-relocations \
 
 CFLAGS	+=	$(INCLUDE) -DARM11 -D_3DS
 
+ifneq ($(RELEASE),)
+	CFLAGS	+=	-D__RELEASE__
+endif
 
 CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++11
 
@@ -70,10 +73,6 @@ LIBS	:= -lcurl -lmbedtls -lmbedx509 -lmbedcrypto -lz -lcitro2d -lcitro3d -lctru 
 # include and lib
 #---------------------------------------------------------------------------------
 LIBDIRS	:= $(PORTLIBS) $(CTRULIB)
-
-ifeq (RELEASE,)
-	CFLAGS	+=	-D__NO_UPDATE
-endif
 
 #---------------------------------------------------------------------------------
 # no real need to edit anything past this point unless you need to add additional

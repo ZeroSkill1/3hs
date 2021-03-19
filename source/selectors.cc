@@ -83,7 +83,7 @@ bool sel::game(std::string cat, std::string subcat, int& id)
 			return true;
 		if(keys.kDown & KEY_B)
 		{
-	//		id = sel::Results::prev;
+			id = sel::Results::prev;
 			return false;
 		}
 	}

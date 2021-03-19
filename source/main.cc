@@ -15,6 +15,11 @@
 #include "update.hh"
 #include "game.hh"
 
+#ifdef __RELEASE__
+# define LOG_LEVEL plog::info
+#else
+# define LOG_LEVEL plog::verbose
+#endif
 
 void init_services()
 {
@@ -40,7 +45,7 @@ int main(int argc, char* argv[])
 {
 	init_services();
 	ensure_logs_dir();
-	plog::init(plog::verbose, "/3ds/3hs/3hs.log");
+	plog::init(LOG_LEVEL, "/3ds/3hs/3hs.log");
 
 	if(!ui::global_init())
 	{
@@ -67,6 +72,23 @@ int main(int argc, char* argv[])
 			ui::framedraw(dummy, keys);
 	}
 
+#ifdef __RELEASE__
+	// Check if luma is installed
+	// 1. Citra is used; not compatible
+	// 2. Other cfw used; not supported
+    Handle lumaCheck;
+	if (R_FAILED(svcConnectToPort(&lumaCheck, "hb:ldr"))) {
+		lfatal << "Luma3DS is not installed, user is using an unsupported CFW or running in Citra";
+		ui::wid()->get<ui::Text>("curr_action_desc")->replace_text("Luma3DS is not installed on this system");
+		ui::wid()->push_back("msg1", new ui::Text(ui::mk_center_WText("Please install Luma3DS on a real 3DS", 78.0f)), ui::Scr::top);
+		standalone_main_breaking_loop();
+		ui::global_deinit();
+		hs::global_deinit();
+		return 3;
+	}
+	svcCloseHandle(lumaCheck);
+#endif
+
 	if(!hs::global_init())
 	{
 		lfatal << "hs::global_init() failed";
@@ -78,7 +100,7 @@ int main(int argc, char* argv[])
 		return 2;
 	}
 
-#ifndef __NO_UPDATE
+#ifdef __RELEASE__
 	// If we updated ...
 	llog << "Checking for updates";
 	if(update_app())

@@ -5,7 +5,7 @@
 ui::ScrollingText::ScrollingText(float x, float y, std::string text)
 	: Widget("scrolling_text"), rtext(text), max(text.size()), x(x), y(y)
 {
-	this->buf = C2D_TextBufNew(STEXT_BUFSIZ);
+	this->buf = C2D_TextBufNew(text.size() + 1);
 	this->replace_text(text);
 }
 
@@ -44,6 +44,7 @@ bool ui::ScrollingText::draw(ui::Keys&, ui::Scr)
 void ui::ScrollingText::replace_text(std::string str)
 {
 	C2D_TextBufClear(this->buf);
+	this->buf = C2D_TextBufResize(this->buf, str.size() + 1);
 	ui::parse_text(&this->text, this->buf, str);
 	C2D_TextOptimize(&this->text);
 }
