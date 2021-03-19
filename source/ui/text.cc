@@ -31,7 +31,7 @@ ui::WText ui::mkWText(std::string text, float x, float y, float sizeX, float siz
 {
 	return { callback, text, sizeX, sizeY, x, y };
 }
-#include <3rd/log.hh>
+
 ui::WText ui::mk_center_WText(std::string text, float y, float sizeX, float sizeY, ui::Scr screen)
 {
 	return ui::mkWText(text, 0, y, sizeX, sizeY, [screen](WText *self) -> void {
