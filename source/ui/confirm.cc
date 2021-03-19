@@ -10,13 +10,12 @@ ui::Confirm::Confirm(std::string label, bool& res)
 	this->parse_text(&this->no, this->buf, CONFIRM_NO);
 	this->parse_text(&this->usr, this->buf, label);
 
-	this->yx = ui::get_center_x(CONFIRM_YES, 0.5f, ui::Scr::bottom) - 40;
-	this->nx = ui::get_center_x(CONFIRM_NO, 0.5f, ui::Scr::bottom) + 40;
-	this->ux = ui::get_center_x(label, 0.5f, ui::Scr::bottom);
+	this->yx = ui::get_center_x(&this->yes, constants::FSIZE, constants::FSIZE, ui::Scr::bottom) - 40;
+	this->nx = ui::get_center_x(&this->no, constants::FSIZE, constants::FSIZE, ui::Scr::bottom) + 40;
+	this->ux = ui::get_center_x(&this->usr, constants::FSIZE, constants::FSIZE, ui::Scr::bottom);
 
-	float chl = ui::char_size()->charWidth;
-	this->yfx = ui::get_center_x(CONFIRM_YES, 0.5f, ui::Scr::bottom) - 40 + (chl * CONFIRM_YES_LEN);
-	this->nfx = ui::get_center_x(CONFIRM_NO, 0.5f, ui::Scr::bottom) + 40 + (chl * CONFIRM_NO_LEN);
+	this->yfx = ui::get_center_x(&this->yes, constants::FSIZE, constants::FSIZE, ui::Scr::bottom) - 40 + ui::text_width(&this->yes);
+	this->nfx = ui::get_center_x(&this->no, constants::FSIZE, constants::FSIZE, ui::Scr::bottom) + 40 + ui::text_width(&this->no);
 }
 
 static bool close_enough(u16 cmp, u16 cmpto, u16 max)

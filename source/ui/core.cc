@@ -4,12 +4,8 @@
 static C3D_RenderTarget *g_top;
 static C3D_RenderTarget *g_bot;
 static ui::Widgets g_widgets;
-static charWidthInfo_s *cwi;
 static C2D_Font g_font;
 
-
-charWidthInfo_s *ui::char_size()
-{ return cwi; }
 
 C3D_RenderTarget *ui::bot()
 { return g_bot; }
@@ -114,11 +110,9 @@ bool ui::global_init()
 
 	g_bot = C2D_CreateScreenTarget(GFX_BOTTOM, GFX_LEFT);
 	g_top = C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
-	if((g_font = C2D_FontLoad(ui::constants::FONT)) == NULL)
-		return false;
+//	if((g_font = C2D_FontLoad(ui::constants::FONT)) == NULL)
+//		return false;
 
-	// Font is monospaced; ever char has the same width
-	cwi = C2D_FontGetCharWidthInfo(g_font, 435);
 	return true;
 }
 

@@ -28,8 +28,8 @@
 
 #define GFX(n) ("romfs:/gfx/" n)
 
-#define SCREEN_WIDTH(s) (s == ui::Scr::top ? 400 : 320)
-#define SCREEN_HEIGHT() (240)
+#define SCREEN_WIDTH(s) (s == ui::Scr::top ? 400.0f : 320.0f)
+#define SCREEN_HEIGHT() (240.0f)
 
 namespace ui
 {
@@ -39,6 +39,7 @@ namespace ui
 		constexpr u32 COLOR_TOP = C2D_Color32(0x1C, 0x20, 0x21, 0xFF);
 
 		constexpr char FONT[] = GFX("JetBrainsMono.bcfnt");
+		constexpr float FSIZE = 0.65f;
 	}
 
 	enum class Scr
@@ -111,13 +112,12 @@ namespace ui
 	bool framenext(Keys& keys);
 
 	void parse_text(C2D_Text *ret, C2D_TextBuf buf, std::string txt);
-	void draw_at(float x, float y, C2D_Text& txt, u32 flags = 0, float sizeX = 0.50f, float sizeY = 0.50f);
-	void draw_at_absolute(float x, float y, C2D_Text& txt, u32 flags = 0, float sizeX = 0.50f, float sizeY = 0.50f);
+	void draw_at(float x, float y, C2D_Text& txt, u32 flags = 0, float sizeX = constants::FSIZE, float sizeY = constants::FSIZE);
+	void draw_at_absolute(float x, float y, C2D_Text& txt, u32 flags = 0, float sizeX = constants::FSIZE, float sizeY = constants::FSIZE);
 	void switch_to(Scr target);
 	void clear(Scr screen);
 
 
-	charWidthInfo_s *char_size();
 	C3D_RenderTarget *top();
 	C3D_RenderTarget *bot();
 	Widgets *wid();

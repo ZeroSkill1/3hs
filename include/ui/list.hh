@@ -12,6 +12,7 @@ namespace ui
 {
 	namespace constants
 	{
+		constexpr int MAX_PER_SCREEN = 10;
 		constexpr int CURSOR_DELAY = 7;
 		constexpr int CURSOR_INIT = -4;
 		constexpr int TOP_ITEMS = 2;
@@ -92,10 +93,11 @@ namespace ui
 
 			for(size_t i = this->point > ui::constants::TOP_ITEMS
 				? this->point - ui::constants::TOP_ITEMS
-				: 0, j = 5; i < this->items.size(); ++i, ++j)
+				: 0, j = 4, k = 0; i < this->items.size()
+				&& k < constants::MAX_PER_SCREEN; ++i, ++j)
 			{
-				if(i == this->point) ui::draw_at(1, j, this->arrow, 0, 0.45f, 0.45f);
-				ui::draw_at(3, j, this->txt[i], 0, 0.45f, 0.45f);
+				if(i == this->point) ui::draw_at(1, j, this->arrow, 0);
+				ui::draw_at(2, j, this->txt[i], 0);
 			}
 
 			if(keys.kDown & KEY_A)

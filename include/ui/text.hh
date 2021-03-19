@@ -22,10 +22,12 @@ namespace ui
 	} WText;
 	static void __empty(WText*){}
 
-	WText mkWText(std::string text, float x, float y, float sizeX = 0.50f, float sizeY = 0.50f, std::function<void(WText *)> callback = __empty);
-	WText mk_right_WText(std::string text, float y, float pad = 1.0f, float sizeX = 0.50f, float sizeY = 0.50f, ui::Scr scr = ui::Scr::top);
-	WText mk_center_WText(std::string text, float y, float sizeX = 0.50f, float sizeY = 0.50f, ui::Scr scr = ui::Scr::top);
-	float get_center_x(std::string text, float sizeX, ui::Scr scr = ui::Scr::top);
+	WText mkWText(std::string text, float x, float y, float sizeX = constants::FSIZE, float sizeY = constants::FSIZE, std::function<void(WText *)> callback = __empty);
+	WText mk_right_WText(std::string text, float y, float pad = 1.0f, float sizeX = constants::FSIZE, float sizeY = constants::FSIZE, ui::Scr scr = ui::Scr::top);
+	WText mk_center_WText(std::string text, float y, float sizeX = constants::FSIZE, float sizeY = constants::FSIZE, ui::Scr scr = ui::Scr::top);
+	float text_width(C2D_Text *text, float sizeX = constants::FSIZE, float sizeY = constants::FSIZE);
+	float get_center_x(C2D_Text *text, float sizeX, float sizeY, ui::Scr scr = ui::Scr::top);
+
 
 	class Text : public Widget
 	{

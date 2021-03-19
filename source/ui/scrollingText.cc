@@ -33,8 +33,8 @@ bool ui::ScrollingText::draw(ui::Keys&, ui::Scr)
 		}
 
 		++this->offset;
-		this->toff += this->toff > ui::char_size()->charWidth ?
-			0 : 1;
+//		this->toff += this->toff > ui::char_size()->charWidth ?
+//			0 : 1;
 	}
 
 	ui::draw_at_absolute(this->x - this->toff, this->y, this->text);
