@@ -78,7 +78,7 @@ namespace hs
 		std::string tid;
 		std::string cat;
 
-		__HS_SIZE_T size;
+		__HS_SIZE_T size; /* Filesize */
 		__HS_ID_T id;
 	} Title;
 
@@ -86,7 +86,7 @@ namespace hs
 	{
 		FullTitle() : Title() { };
 
-		std::string vstring;
+		std::string vstring; /* Readable version string */
 		std::string desc; /* "" if none */
 		std::string prod; /* prod code */
 
@@ -104,6 +104,10 @@ namespace hs
 	std::string route(std::string path);
 
 	std::vector<Title> titles_in(std::string cat, std::string subcat);
+	std::string get_title_download(__HS_ID_T id);
+	Title title_meta(__HS_ID_T id);
+
+	typedef __HS_ID_T id_t;
 }
 
 #endif

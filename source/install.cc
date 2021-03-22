@@ -1,5 +1,5 @@
 
-#include "game.hh"
+#include "install.hh"
 
 #include <curl/curl.h>
 #include <3rd/log.hh>
@@ -7,18 +7,10 @@
 static LightLock g_mtx;
 
 
-void game::game(int id)
-{
-	/* TODO: Implement game downloading/installing logic here */
-}
-
-
 static size_t curl_install_cia_callback(char *ptr, size_t size, size_t nmemb, void *userdata)
 {
 	game::__cb_data *data = (game::__cb_data *) userdata;
 	LightLock_Lock(&g_mtx);
-
-	lverbose << "Got " << (nmemb * size) << "b of title data, curr offset = " << data->offset;
 
 	u32 written = 0;
 	u32 rwrite = 0;
@@ -26,12 +18,10 @@ static size_t curl_install_cia_callback(char *ptr, size_t size, size_t nmemb, vo
 	// We only get one chance to use this data
 	do
 	{
-		lverbose << "Gonna write " << size * nmemb << " of title data";
 		FSFILE_Write(data->handle, &written, data->offset, ptr, size * nmemb, FS_WRITE_FLUSH);
 		data->offset += written;
 		rwrite += written;
 	} while (rwrite < size * nmemb);
-	lverbose << "rwrite(" << rwrite << ") < size * nmemb (" << size * nmemb << ")";
 
 	LightLock_Unlock(&g_mtx);
 	return rwrite;
@@ -58,6 +48,8 @@ void game::single_install_thread(std::string from, Handle ciaHandle, size_t offs
 			+ "-" + std::to_string(to)).c_str());
 		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 	}
+
+	linfo << "Downloading/installing from " << offset << "b to " << to << "b";
 
 	game::__cb_data data;
 	data.handle = ciaHandle;

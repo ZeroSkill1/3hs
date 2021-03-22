@@ -134,6 +134,11 @@ std::vector<hs::Title> hs::titles_in(std::string cat, std::string subcat)
 	return ret;
 }
 
+hs::Title hs::title_meta(__HS_ID_T id)
+{
+	return hs::Title { };
+}
+
 
 #define SOC_ALIGN       0x100000
 #define SOC_BUFFERSIZE  0x10000

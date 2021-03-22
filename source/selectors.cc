@@ -2,20 +2,31 @@
 #include "selectors.hh"
 #include "ui/text.hh"
 
+#include "install.hh"
 
-int sel::cat(hs::Index& indx)
+
+long sel::cat(hs::Index& indx)
 {
 	ui::wid()->get<ui::Text>("curr_action_desc")->replace_text("Select a category:");
 
 	ui::Widgets wids;
-	int ret = 1;
+	long ret = 1;
 
 	wids.push_back("cat_list", new ui::List<hs::Category>(
 		[](hs::Category& other) -> std::string {
 			return other.displayName;
 		},
-		[&](hs::Category& cat, size_t) -> bool {
-			return sel::subcat(indx, cat, ret);
+		[&](hs::Category& cat, size_t) -> ui::Results {
+			bool rret = sel::subcat(indx, cat, ret);
+			
+			// We found a game we want to install; let main handle it
+			if(ret > 0) return ui::Results::quit_no_end;
+
+			// User wants to quit
+			if(!rret) return ui::Results::quit_no_end;
+
+			// This shouldn't happen (?)
+			return ui::Results::go_on;
 		}, indx.categories
 	));
 
@@ -31,7 +42,7 @@ int sel::cat(hs::Index& indx)
 	return sel::Results::exit;
 }
 
-bool sel::subcat(hs::Index& indx, hs::Category cat, int& id)
+bool sel::subcat(hs::Index& indx, hs::Category cat, long& id)
 {
 	ui::wid()->get<ui::Text>("curr_action_desc")->replace_text("Select a subcategory:");
 
@@ -40,12 +51,23 @@ bool sel::subcat(hs::Index& indx, hs::Category cat, int& id)
 		[](hs::Subcategory& other) -> std::string {
 			return other.displayName;
 		},
-		[&](hs::Subcategory& sub, size_t) -> bool {
+		[&](hs::Subcategory& sub, size_t) -> ui::Results {
 			bool ret = sel::game(cat.name, sub.name, id);
 			ui::wid()->get<ui::Text>("curr_action_desc")->replace_text("Select a subcategory:");
+			
+			// We found an id we want to install
+			if(id > 0) return ui::Results::quit_loop;
+
+			// We want to go to the previous one (this one)
+			// Reset id and keep going
 			if(id == sel::Results::prev)
-			{ id = 0; return true; }
-			return ret;
+			{ id = 0; return ui::Results::end_early; }
+
+			// User wants to quit
+			if(!ret) return ui::Results::quit_no_end;
+
+			// Nothing happened (?)
+			return ui::Results::end_early;
 		}, cat.subcategories
 	));
 
@@ -60,7 +82,7 @@ bool sel::subcat(hs::Index& indx, hs::Category cat, int& id)
 	return false;
 }
 
-bool sel::game(std::string cat, std::string subcat, int& id)
+bool sel::game(std::string cat, std::string subcat, long& id)
 {
 	ui::wid()->get<ui::Text>("curr_action_desc")->replace_text("Loading..."); quick_global_draw();
 	std::vector<hs::Title> titles = hs::titles_in(cat, subcat);
@@ -71,8 +93,12 @@ bool sel::game(std::string cat, std::string subcat, int& id)
 		[](hs::Title& other) -> std::string {
 			return other.name;
 		},
-		[](hs::Title& title, size_t) -> bool {
-			return true;
+		[&](hs::Title& title, size_t) -> ui::Results {
+			id = title.id;
+
+			// After installing we want to go on in the game
+			// Selector for that category
+			return ui::Results::end_early;
 		}, titles
 	));
 
@@ -90,4 +116,38 @@ bool sel::game(std::string cat, std::string subcat, int& id)
 
 	id = sel::Results::cancel;
 	return false;
+}
+
+void sel::game(hs::id_t id)
+{
+	hs::Title meta = hs::title_meta(id);
+
+	/* Actually install */
+
+	/* Balances ranges */
+	size_t ranges[NUMTHREADS];
+	for(size_t i = 0; i < NUMTHREADS; ++i)
+	{
+		size_t now = (meta.size / NUMTHREADS) * (i + 1);
+		ranges[i] = now;
+	}
+
+	std::tuple<size_t, size_t> rrange[NUMTHREADS];
+	rrange[0] = std::make_tuple(0, ranges[0]);
+
+	for(size_t i = 1; i < NUMTHREADS - 1; ++i)
+		rrange[i] = std::make_tuple(ranges[i - 1] + 1, ranges[i]);
+
+	rrange[NUMTHREADS - 1] = std::make_tuple(ranges[NUMTHREADS - 2] + 1, meta.size);
+
+	/* rrange:
+	 * Size: 3347
+	 * 0 -> 1673
+	 * 1674-> 3347
+	 * * * * * * */
+
+	game::start_mutex();
+
+	game::clean_mutex();
+
 }

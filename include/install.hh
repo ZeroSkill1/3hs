@@ -17,7 +17,6 @@ namespace game
 	void single_install_thread(std::string from, Handle cia, size_t offset = 0, size_t to = 0);
 	void clean_mutex();
 	void start_mutex();
-	void game(int id);
 }
 
 #endif

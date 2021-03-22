@@ -15,7 +15,7 @@ ui::ScrollingText::~ScrollingText()
 }
 
 
-bool ui::ScrollingText::draw(ui::Keys&, ui::Scr)
+ui::Results ui::ScrollingText::draw(ui::Keys&, ui::Scr)
 {
 	if(this->scrolling)
 	{
@@ -38,7 +38,7 @@ bool ui::ScrollingText::draw(ui::Keys&, ui::Scr)
 	}
 
 	ui::draw_at_absolute(this->x - this->toff, this->y, this->text);
-	return true;
+	return ui::Results::go_on;
 }
 
 void ui::ScrollingText::replace_text(std::string str)

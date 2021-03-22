@@ -23,7 +23,7 @@ namespace ui
 		Confirm(std::string label, bool& res);
 
 		void parse_text(C2D_Text *outTxt, C2D_TextBuf buf, std::string inTxt);
-		bool draw(ui::Keys&, ui::Scr) override;
+		ui::Results draw(ui::Keys&, ui::Scr) override;
 
 
 	private:

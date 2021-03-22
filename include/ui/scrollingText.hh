@@ -16,7 +16,7 @@ namespace ui
 		ScrollingText(float x, float y, std::string str);
 		~ScrollingText();
 
-		bool draw(ui::Keys&, ui::Scr) override;
+		ui::Results draw(ui::Keys&, ui::Scr) override;
 		void replace_text(std::string str);
 
 		void start_scroll();

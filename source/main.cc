@@ -4,6 +4,7 @@
 #include <sys/stat.h>
 
 #include <ui/scrollingText.hh>
+#include <ui/konami.hh>
 #include <ui/text.hh>
 #include <ui/core.hh>
 #include <ui/list.hh>
@@ -13,7 +14,8 @@
 
 #include "selectors.hh"
 #include "update.hh"
-#include "game.hh"
+
+#include "ui/sprite.hh"
 
 #ifdef __RELEASE__
 # define LOG_LEVEL plog::info
@@ -58,7 +60,10 @@ int main(int argc, char* argv[])
 	ui::wid()->push_back("header_desc", new ui::Text(ui::mk_center_WText("The ultimate 3DS content preservation service.", 30.0f)), ui::Scr::top);
 	ui::wid()->push_back("curr_action_desc", new ui::Text(ui::mk_center_WText("Loading...", 45.0f)), ui::Scr::top);
 	ui::wid()->push_back("header", new ui::Text(ui::mk_center_WText("hShop", 0.0f, 1.0f, 1.0f)), ui::Scr::top);
+	ui::wid()->push_back("konami", new ui::Konami(), ui::Scr::top);
 	quick_global_draw();
+
+//	ui::wid()->get<ui::Konami>("konami")->show_bunny();
 
 	if(osGetWifiStrength() == 0)
 	{
@@ -121,6 +126,7 @@ int main(int argc, char* argv[])
 	llog << "Fetching index";
 	indx = hs::Index::get();
 
+
 	if(index_failed(indx))
 	{
 		lfatal << "Failed to fetch index, dns fucked? Server down? " << index_error(indx);
@@ -134,9 +140,11 @@ int main(int argc, char* argv[])
 
 	while(aptMainLoop())
 	{
-		int id = sel::cat(indx);
+		long id = sel::cat(indx);
+		linfo << "Broke out of game select loop, result code/id: " << id;
+
 		if(id < 0) break;
-		if(id != 0) game::game(id);
+		if(id != 0) sel::game(id);
 	}
 
 	hs::global_deinit();

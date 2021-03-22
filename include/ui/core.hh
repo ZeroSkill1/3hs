@@ -27,6 +27,7 @@
 	generic_main_breaking_loop(w); }
 
 #define GFX(n) ("romfs:/gfx/" n)
+#define SHEET(n) GFX(n ".t3x")
 
 #define SCREEN_WIDTH(s) (s == ui::Scr::top ? 400.0f : 320.0f)
 #define SCREEN_HEIGHT() (240.0f)
@@ -44,6 +45,14 @@ namespace ui
 
 	enum class Scr
 	{ bottom, top };
+
+	enum class Results
+	{
+		quit_loop,   // Quit the loop; just end it now
+		go_on,       // Normal exit
+		end_early,   // Stop render loop; don't end frame
+		quit_no_end, // Quit the loop and don't end the frame
+	};
 
 	typedef struct Keys
 	{
@@ -65,7 +74,11 @@ namespace ui
 		std::string iden;
 		Scr screen;
 
-		virtual bool draw(Keys& keys, Scr target) = 0;
+		virtual Results draw(Keys& keys, Scr target) = 0;
+
+		// MAKE SURE TO RETURN ui::Results::end IN Widget::draw(...)
+		void end_early()
+		{ C3D_FrameEnd(0); }
 
 		void name(std::string name)
 		{ this->formal = name; }
@@ -92,7 +105,10 @@ namespace ui
 		std::vector<Widget *> top;
 		std::vector<Widget *> bot;
 
+		/* -1 = not found */
+		int find_index_by_name(std::string name, Scr target);
 		Widget *find_by_name(std::string name, Scr target);
+		void delete_by_name(std::string name, Scr target);
 
 		template <typename T = Widget>
 		T *get(std::string name)
@@ -114,6 +130,7 @@ namespace ui
 	void parse_text(C2D_Text *ret, C2D_TextBuf buf, std::string txt);
 	void draw_at(float x, float y, C2D_Text& txt, u32 flags = 0, float sizeX = constants::FSIZE, float sizeY = constants::FSIZE);
 	void draw_at_absolute(float x, float y, C2D_Text& txt, u32 flags = 0, float sizeX = constants::FSIZE, float sizeY = constants::FSIZE);
+	ui::Results draw_widgets(std::vector<ui::Widget *> wids, ui::Keys& keys);
 	void switch_to(Scr target);
 	void clear(Scr screen);
 

@@ -1,6 +1,14 @@
 
 #include "ui/core.hh"
 
+#define DO_WIDS_DRAW(wids) { \
+	ui::Results res = ui::draw_widgets(wids, keys); switch(res) { \
+	case ui::Results::quit_loop   : ret = false; goto exit; \
+	case ui::Results::end_early   : return true; \
+	case ui::Results::quit_no_end : return false; \
+	case ui::Results::go_on       : break; }}
+
+
 static C3D_RenderTarget *g_top;
 static C3D_RenderTarget *g_bot;
 static ui::Widgets g_widgets;
@@ -31,6 +39,18 @@ bool ui::framenext(ui::Keys& keys)
 	return aptMainLoop();
 }
 
+ui::Results ui::draw_widgets(std::vector<ui::Widget *> wids, ui::Keys& keys)
+{
+	for(ui::Widget *wid : wids)
+	{
+		if(!wid->enabled) continue;
+		ui::Results ret = wid->draw(keys, ui::Scr::top);
+		if(ret != ui::Results::go_on)
+			return ret;
+	}
+	return ui::Results::go_on;
+}
+
 bool ui::framedraw(ui::Widgets& wids, ui::Keys& keys)
 {
 	C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
@@ -38,48 +58,14 @@ bool ui::framedraw(ui::Widgets& wids, ui::Keys& keys)
 	ui::clear(ui::Scr::top);
 	bool ret = true;
 
+
 	C2D_SceneBegin(g_top);
-	for(ui::Widget *wid : wids.top)
-	{
-		if(!wid->enabled) continue;
-		if(!wid->draw(keys, ui::Scr::top))
-		{
-			ret = false;
-			goto exit;
-		}
-	}
-
-	for(ui::Widget *wid : g_widgets.top)
-	{
-		if(!wid->enabled) continue;
-		if(!wid->draw(keys, ui::Scr::top))
-		{
-			ret = false;
-			goto exit;
-		}
-	}
-
+	DO_WIDS_DRAW(g_widgets.top);
+	DO_WIDS_DRAW(wids.top);
 
 	C2D_SceneBegin(g_bot);
-	for(ui::Widget *wid : wids.bot)
-	{
-		if(!wid->enabled) continue;
-		if(!wid->draw(keys, ui::Scr::bottom))
-		{
-			ret = false;
-			goto exit;
-		}
-	}
-
-	for(ui::Widget *wid : g_widgets.bot)
-	{
-		if(!wid->enabled) continue;
-		if(!wid->draw(keys, ui::Scr::bottom))
-		{
-			ret = false;
-			goto exit;
-		}
-	}
+	DO_WIDS_DRAW(g_widgets.bot);
+	DO_WIDS_DRAW(wids.bot);
 
 
 exit:
@@ -118,7 +104,8 @@ bool ui::global_init()
 
 void ui::global_deinit()
 {
-	C2D_FontFree(g_font);
+//	if(g_font != NULL)
+//		C2D_FontFree(g_font);
 	C2D_Fini();
 	C3D_Fini();
 	gfxExit();
@@ -175,7 +162,15 @@ void ui::Widgets::push_back(std::string name, ui::Widget *widget, ui::Scr target
 	this->push_back(widget, target);
 }
 
-ui::Widget *ui::Widgets::find_by_name(std::string name, ui::Scr target)
+void ui::Widgets::delete_by_name(std::string name, ui::Scr target)
+{
+	int index = this->find_index_by_name(name, target);
+	if(index == -1) return;
+	std::vector<ui::Widget *> *vec = &(target == ui::Scr::bottom ? this->bot : this->top);
+	vec->erase(vec->begin() + index);
+}
+
+int ui::Widgets::find_index_by_name(std::string name, ui::Scr target)
 {
 	std::vector<ui::Widget *> *vec;
 	switch(target)
@@ -189,12 +184,20 @@ ui::Widget *ui::Widgets::find_by_name(std::string name, ui::Scr target)
 		break;
 	}
 
-	for(ui::Widget *wid : (*vec))
+	for(size_t i = 0; i < vec->size(); ++i)
 	{
-		if(wid->formal == name)
-			return wid;
+		if((*vec)[i]->formal == name)
+			return i;
 	}
-	return nullptr;
+	return -1;
+}
+
+ui::Widget *ui::Widgets::find_by_name(std::string name, ui::Scr target)
+{
+	int index = this->find_index_by_name(name, target);
+	if(index == -1) return nullptr;
+	return target == ui::Scr::bottom
+		? this->bot[index] : this->top[index];
 }
 
 void ui::draw_at(float x, float y, C2D_Text& txt, u32 flags, float sizeX, float sizeY)

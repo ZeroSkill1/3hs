@@ -9,6 +9,7 @@
 
 #include <string>
 
+#define NUMTHREADS 2
 
 
 namespace sel
@@ -27,10 +28,12 @@ namespace sel
 		};
 	}
 
-	bool game(std::string cat, std::string subcat, int& id);
-	bool subcat(hs::Index& indx, hs::Category cat, int& id);
+	bool game(std::string cat, std::string subcat, long& id);
+	bool subcat(hs::Index& indx, hs::Category cat, long& id);
 	/* Returns -x when exit is needed, 0 for NO_GAME = cancel */
-	int cat(hs::Index& indx);
+	long cat(hs::Index& indx);
+
+	void game(hs::id_t id);
 }
 
 #endif

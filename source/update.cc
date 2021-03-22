@@ -7,7 +7,7 @@
 #include <ui/confirm.hh>
 #include <ui/core.hh>
 
-#include "game.hh"
+#include "install.hh"
 
 
 bool update_app()

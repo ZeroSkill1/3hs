@@ -18,6 +18,9 @@ namespace ui
 		constexpr int TOP_ITEMS = 2;
 	}
 
+#define list_onsel_cb std::function<ui::Results(T&, size_t)>
+#define list_tostr_cb std::function<std::string(T&)>
+
 	/**
 	 * typename T: The type of vector to use
 	 * to_str: A callback to convert T to a string
@@ -29,11 +32,11 @@ namespace ui
 	class List : public Widget
 	{
 	public:
-		List(std::function<std::string(T&)> to_str, std::function<bool(T&, size_t)> on_select, size_t txtbufsz = 4096)
+		List(list_tostr_cb to_str, list_onsel_cb on_select, size_t txtbufsz = 4096)
 			: Widget("list"), point(0)
 		{ this->init(to_str, on_select, txtbufsz); }
 	
-		List(std::function<std::string(T&)> to_str, std::function<bool(T&, size_t)> on_select, std::vector<T> items, size_t txtbufsz = 4096)
+		List(list_tostr_cb to_str, list_onsel_cb on_select, std::vector<T> items, size_t txtbufsz = 4096)
 			: Widget("list"), point(0)
 		{
 			this->init(to_str, on_select, txtbufsz);
@@ -77,7 +80,7 @@ namespace ui
 		T& operator [] (size_t index)
 		{ return this->items[index]; }
 
-		bool draw(Keys& keys, Scr target) override
+		ui::Results draw(Keys& keys, Scr target) override
 		{
 			static int last = ui::constants::CURSOR_INIT;
 			if((keys.kDown & KEY_DOWN) && this->point < this->items.size() - 1)
@@ -102,7 +105,7 @@ namespace ui
 
 			if(keys.kDown & KEY_A)
 				return this->on_select(this->items[this->point], this->point);
-			return true;
+			return ui::Results::go_on;
 		}
 
 
@@ -115,11 +118,11 @@ namespace ui
 		std::vector<T> items;
 		size_t point;
 
-		std::function<bool(T&, size_t)> on_select;
-		std::function<std::string(T&)> to_str;
+		list_onsel_cb on_select;
+		list_tostr_cb to_str;
 		
 
-		void init(std::function<std::string(T&)> to_str, std::function<bool(T&, size_t)> on_select, size_t txtbufsize)
+		void init(list_tostr_cb to_str, list_onsel_cb on_select, size_t txtbufsize)
 	 	{
 			this->on_select = on_select;
 			this->to_str = to_str;

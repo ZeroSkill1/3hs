@@ -2,6 +2,9 @@
 #include "ui/confirm.hh"
 #include <3rd/log.hh>
 
+#define END(r) { this->returns = r; return ui::Results::quit_loop; }
+
+
 ui::Confirm::Confirm(std::string label, bool& res)
 	: Widget("confirm"), returns(res)
 {
@@ -23,37 +26,22 @@ static bool close_enough(u16 cmp, u16 cmpto, u16 max)
 	return (cmp > cmpto && cmp < max);
 }
 
-bool ui::Confirm::draw(ui::Keys& keys, ui::Scr)
+ui::Results ui::Confirm::draw(ui::Keys& keys, ui::Scr)
 {
 	if(keys.kDown & KEY_A)
-	{
-		this->returns = true;
-		return false;
-	}
-
+		END(true);
 	if(keys.kDown & KEY_B)
-	{
-		this->returns = false;
-		return false;
-	}
-
+		END(false);
 	if(keys.touch.px >= this->yx && keys.touch.px <= this->yfx && close_enough(keys.touch.py, SCREEN_HEIGHT() / 2, 15))
-	{
-		this->returns = true;
-		return false;
-	}
-
+		END(true);
 	if(keys.touch.px >= this->nx && keys.touch.px <= this->nfx && close_enough(keys.touch.py, SCREEN_HEIGHT() / 2, 15))
-	{
-		this->returns = false;
-		return false;
-	}
+		END(false);
 
 	ui::draw_at_absolute(this->ux, (SCREEN_HEIGHT() / 2) - 20, this->usr);
 	ui::draw_at_absolute(this->yx, (SCREEN_HEIGHT() / 2), this->yes);
 	ui::draw_at_absolute(this->nx, (SCREEN_HEIGHT() / 2), this->no);
 
-	return true;
+	return ui::Results::go_on;
 }
 
 void ui::Confirm::parse_text(C2D_Text *outTxt, C2D_TextBuf buf, std::string inTxt)

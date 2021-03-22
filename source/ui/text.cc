@@ -19,11 +19,11 @@ ui::Text::~Text()
 	C2D_TextBufDelete(this->buf);
 }
 
-bool ui::Text::draw(ui::Keys&, ui::Scr)
+ui::Results ui::Text::draw(ui::Keys&, ui::Scr)
 {
 	ui::draw_at_absolute(this->text.x, this->text.y, this->text.ctext, 0,
 		this->text.sizeX, this->text.sizeY);
-	return true;
+	return ui::Results::go_on;
 }
 
 

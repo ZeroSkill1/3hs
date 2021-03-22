@@ -42,7 +42,7 @@ BUILD		:=	build
 SOURCES		:=	source source/ui
 DATA		:=	data
 INCLUDES	:=	include 3rd .
-GRAPHICS	:=	gfx
+GRAPHICS	:=	gfx gfx/bun
 ROMFS		:=	romfs
 GFXBUILD	:=	$(ROMFS)/gfx
 
@@ -51,20 +51,24 @@ GFXBUILD	:=	$(ROMFS)/gfx
 #---------------------------------------------------------------------------------
 ARCH	:=	-march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft
 
-CFLAGS	:=	-g -Wall -O2 -mword-relocations \
+CFLAGS	:=	-Wall -O2 -mword-relocations \
 			-ffunction-sections \
 			$(ARCH)
 
 CFLAGS	+=	$(INCLUDE) -DARM11 -D_3DS
 
-ifneq ($(RELEASE),)
+ASFLAGS	:=	$(ARCH)
+LDFLAGS	=	-specs=3dsx.specs $(ARCH) -Wl,-Map,$(notdir $*.map)
+
+ifeq ($(RELEASE),)
+	ASFLAGS	+=	-g
+	LDFLAGS	+=	-g
+	CFLAGS	+=	-g
+else
 	CFLAGS	+=	-D__RELEASE__
 endif
 
 CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++11
-
-ASFLAGS	:=	-g $(ARCH)
-LDFLAGS	=	-specs=3dsx.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
 
 LIBS	:= -lcurl -lmbedtls -lmbedx509 -lmbedcrypto -lz -lcitro2d -lcitro3d -lctru -lm
 
