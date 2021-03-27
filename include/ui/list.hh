@@ -6,6 +6,18 @@
 #include <ui/core.hh>
 
 #include <functional>
+#include <3rd/log.hh>
+
+
+#define list_onsel_cb std::function<ui::Results(T&, size_t)>
+#define list_onch_cb std::function<void(T&, size_t)>
+#define list_tostr_cb std::function<std::string(T&)>
+
+#define __exec_onch() this->on_change(this->items[this->point], this->point)
+
+#define LIST_ARR ("→")
+// Unicode ......
+#define LIST_ARR_SIZ 3
 
 
 namespace ui
@@ -17,9 +29,6 @@ namespace ui
 		constexpr int CURSOR_INIT = -4;
 		constexpr int TOP_ITEMS = 2;
 	}
-
-#define list_onsel_cb std::function<ui::Results(T&, size_t)>
-#define list_tostr_cb std::function<std::string(T&)>
 
 	/**
 	 * typename T: The type of vector to use
@@ -41,12 +50,34 @@ namespace ui
 		{
 			this->init(to_str, on_select, txtbufsz);
 			this->items = items;
-			this->text_update();
+			this->update_text_reg();
 		}
 
 		~List()
 		{
 			C2D_TextBufDelete(this->txtbuf);
+		}
+
+		void set_on_change(list_onch_cb cb)
+		{
+			this->on_change = cb;
+		}
+
+		size_t combined_len()
+		{
+			size_t ret = 0;
+			for(T& val : this->items)
+				ret += this->to_str(val).size();
+
+			lverbose << "Created textbuf of size: " << ret + LIST_ARR_SIZ;
+			return ret + LIST_ARR_SIZ;
+		}
+
+		void update_text_reg()
+		{
+			C2D_TextBufClear(this->txtbuf);
+			this->txtbuf = C2D_TextBufResize(this->txtbuf, this->combined_len() + 1);
+			this->text_update();
 		}
 
 		void text_update()
@@ -84,23 +115,23 @@ namespace ui
 		{
 			static int last = ui::constants::CURSOR_INIT;
 			if((keys.kDown & KEY_DOWN) && this->point < this->items.size() - 1)
-			{ ++point; last = ui::constants::CURSOR_INIT; }
+			{ ++point; last = ui::constants::CURSOR_INIT; __exec_onch(); }
 			if((keys.kDown & KEY_UP) && this->point > 0)
-			{ --point; last = ui::constants::CURSOR_INIT; }
+			{ --point; last = ui::constants::CURSOR_INIT; __exec_onch(); }
 			if((keys.kHeld & KEY_UP) && this->point > 0 && last > ui::constants::CURSOR_DELAY)
-			{ --point; last = -1; }
+			{ --point; last = -1; __exec_onch(); }
 			if((keys.kHeld & KEY_DOWN) && this->point < this->items.size() - 1 && last > ui::constants::CURSOR_DELAY)
-			{ ++point; last = -1; }
+			{ ++point; last = -1; __exec_onch(); }
 			++last;
 
 
 			for(size_t i = this->point > ui::constants::TOP_ITEMS
 				? this->point - ui::constants::TOP_ITEMS
 				: 0, j = 4, k = 0; i < this->items.size()
-				&& k < constants::MAX_PER_SCREEN; ++i, ++j)
+				&& k < constants::MAX_PER_SCREEN; ++i, ++j, ++k)
 			{
 				if(i == this->point) ui::draw_at(1, j, this->arrow, 0);
-				ui::draw_at(2, j, this->txt[i], 0);
+				ui::draw_at(3, j, this->txt[i], 0);
 			}
 
 			if(keys.kDown & KEY_A)
@@ -118,16 +149,16 @@ namespace ui
 		std::vector<T> items;
 		size_t point;
 
+		list_onch_cb on_change = [](T&,size_t){};
 		list_onsel_cb on_select;
 		list_tostr_cb to_str;
-		
 
 		void init(list_tostr_cb to_str, list_onsel_cb on_select, size_t txtbufsize)
 	 	{
 			this->on_select = on_select;
 			this->to_str = to_str;
 
-			this->txtbuf = C2D_TextBufNew(txtbufsize);
+			this->txtbuf = C2D_TextBufNew(this->combined_len() + 1);
 			this->create_text(&this->arrow, "→");
 		}
 	};

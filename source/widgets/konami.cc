@@ -1,5 +1,6 @@
 
-#include "ui/konami.hh"
+#include "widgets/konami.hh"
+#include "build/bun.h"
 #include "ui/text.hh"
 
 #include <3rd/log.hh>
@@ -44,7 +45,7 @@ void ui::Konami::show_bunny()
 	linfo << "User found easter egg :blobaww:";
 	this->currKey = 0;
 
-	ui::StandaloneSprite *bunny = new ui::StandaloneSprite(SHEET("bun"), 0);
+	ui::StandaloneSprite *bunny = new ui::StandaloneSprite(SHEET("bun"), bun_bun_idx);
 	bunny->get_sprite()->set_pos(
 		SCREEN_WIDTH(ui::Scr::top) / 2 - BUN_X / 2 - 20, 0
 	);

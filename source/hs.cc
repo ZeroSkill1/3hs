@@ -99,6 +99,7 @@ hs::Index hs::Index::get()
 			scat.displayName = vscat["display_name"].get<std::string>();
 			scat.desc = vscat["description"].get<std::string>();
 			scat.name = jscat.key();
+			scat.cat = cat.name;
 
 			scat.totalTitles = vscat["content_count"].get<__HS_TITLES_T>();
 			scat.size = vscat["size"].get<__HS_SIZE_T>();
@@ -150,7 +151,7 @@ void hs::global_deinit()
 {
 	curl_global_cleanup();
 	socExit();
-	// This shouldn't happen
+	// g_socbuf shouldn't be NULL
 	if(g_socbuf != NULL)
 		free(g_socbuf);
 }

@@ -39,7 +39,7 @@ include $(DEVKITARM)/3ds_rules
 #---------------------------------------------------------------------------------
 TARGET		:=	3hs
 BUILD		:=	build
-SOURCES		:=	source source/ui
+SOURCES		:=	source source/ui source/widgets
 DATA		:=	data
 INCLUDES	:=	include 3rd .
 GRAPHICS	:=	gfx gfx/bun
@@ -60,11 +60,7 @@ CFLAGS	+=	$(INCLUDE) -DARM11 -D_3DS
 ASFLAGS	:=	$(ARCH)
 LDFLAGS	=	-specs=3dsx.specs $(ARCH) -Wl,-Map,$(notdir $*.map)
 
-ifeq ($(RELEASE),)
-	ASFLAGS	+=	-g
-	LDFLAGS	+=	-g
-	CFLAGS	+=	-g
-else
+ifneq ($(RELEASE),)
 	CFLAGS	+=	-D__RELEASE__
 endif
 
@@ -178,6 +174,15 @@ endif
 all: $(BUILD) $(GFXBUILD) $(DEPSDIR) $(ROMFS_T3XFILES) $(ROMFS_FONTFILES) $(T3XHFILES)
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
 
+cia: $(BUILD) $(GFXBUILD) $(DEPSDIR) $(ROMFS_T3XFILES) $(ROMFS_FONTFILES) $(T3XHFILES)
+	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
+	@3dstool -ctf romfs cia_stuff/romfs.bin --romfs-dir romfs
+	@makerom -f ncch -o $(TARGET).cxi -target t -elf $(TARGET).elf -icon cia_stuff/icon.smdh -banner cia_stuff/banner.bnr -rsf cia_stuff/$(TARGET).rsf -romfs cia_stuff/romfs.bin
+	@echo built ... $(TARGET).cxi
+	@makerom -f cia -o $(TARGET).cia -i $(TARGET).cxi:0:0 -ignoresign
+	@echo built ... $(TARGET).cia
+
+
 $(BUILD):
 	@mkdir -p $@
 
@@ -194,7 +199,7 @@ endif
 #---------------------------------------------------------------------------------
 clean:
 	@echo clean ...
-	@rm -fr $(BUILD) $(TARGET).3dsx $(OUTPUT).smdh $(TARGET).elf $(GFXBUILD)
+	@rm -fr $(BUILD) $(TARGET).3dsx $(OUTPUT).smdh $(TARGET).elf $(GFXBUILD) $(OUTPUT).cxi $(OUTPUT).cia cia_stuff/romfs.bin
 
 #---------------------------------------------------------------------------------
 $(GFXBUILD)/%.t3x	$(BUILD)/%.h	:	%.t3s

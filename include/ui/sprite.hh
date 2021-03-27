@@ -14,14 +14,14 @@ namespace ui
 	{
 	public:
 		Sprite() : ui::Widget("sprite") { }
-		Sprite(ui::CSprite sprite);
+		Sprite(c2d::Sprite sprite);
 
 		ui::Results draw(ui::Keys&, ui::Scr) override;
-		void set_sprite(ui::CSprite sprite);
+		void set_sprite(c2d::Sprite sprite);
 
 
 	protected:
-		ui::CSprite sprite;
+		c2d::Sprite sprite;
 
 
 	};
@@ -32,11 +32,11 @@ namespace ui
 		StandaloneSprite(std::string name, size_t index);
 		~StandaloneSprite();
 
-		ui::CSprite *get_sprite();
+		c2d::Sprite *get_sprite();
 
 
 	private:
-		ui::CSpriteSheet sheet;
+		c2d::SpriteSheet sheet;
 
 
 

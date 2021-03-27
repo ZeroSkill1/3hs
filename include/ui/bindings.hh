@@ -8,33 +8,45 @@
 #include <string>
 
 
-namespace ui
+namespace c2d
 {
-	class CSpriteSheet
+	typedef struct Dimensions
+	{
+		float height;
+		float width;
+	} Dimensions;
+
+	template <typename T>
+	class BaseWrap
 	{
 	public:
-		CSpriteSheet(C2D_SpriteSheet sheet);
-		CSpriteSheet() { }
+		T nhandle;
 
-		static CSpriteSheet from_file(std::string name);
-
-		size_t count();
-		void free();
-
-		C2D_Sprite _get_sprite(size_t index);
-
-		C2D_SpriteSheet sheet;
-
-
+		T *handle()
+		{
+			return &this->nhandle;
+		}
 	};
 
-	class CSprite
+	class SpriteSheet : public BaseWrap<C2D_SpriteSheet>
 	{
 	public:
-		CSprite(C2D_Sprite sprite);
-		CSprite() { }
+		SpriteSheet(C2D_SpriteSheet sheet);
+		SpriteSheet() { }
 
-		static CSprite from_sheet(CSpriteSheet *sheet, size_t index);
+		static SpriteSheet from_file(std::string name);
+
+		size_t size();
+		void free();
+	};
+
+	class Sprite : public BaseWrap<C2D_Sprite>
+	{
+	public:
+		Sprite(C2D_Sprite sprite);
+		Sprite() { }
+
+		static Sprite from_sheet(SpriteSheet *sheet, size_t index);
 
 		void set_rotation_degrees(float degrees);
 		void set_center_raw(float x, float y);
@@ -47,10 +59,50 @@ namespace ui
 		void set_depth(float depth);
 		void rotate(float radians);
 		bool draw();
+	};
 
-		C2D_Sprite sprite;
+	class TextBuf : public BaseWrap<C2D_TextBuf>
+	{
+	public:
+		TextBuf(size_t size);
+		TextBuf();
+
+		void realloc(size_t siz);
+		size_t size();
+		void clear();
+		void free();
 
 
+	private:
+		void alloc(size_t siz);
+
+
+	};
+
+	class Font : public BaseWrap<C2D_Font>
+	{
+	public:
+		Font(std::string name);
+		void free();
+	};
+
+	class Text : public BaseWrap<C2D_Text>
+	{
+	public:
+		Text(TextBuf buf, Font font, std::string text);
+		Text(TextBuf buf, std::string text);
+		Text() { }
+
+		void parse(TextBuf buf, Font font, std::string text);
+		void parse(TextBuf buf, std::string text);
+		void optimize();
+
+		void draw(float x, float y, float z, u32 color, float scalex, float scaley, u32 flags = C2D_WithColor);
+		void draw(float x, float y, float z, float scalex, float scaley, u32 flags);
+		void draw(float x, float y, u32 color, float scalex, float scaley);
+		void draw(float x, float y, float scalex, float scaley);
+
+		Dimensions dimensions(float scalex, float scaley);
 	};
 }
 

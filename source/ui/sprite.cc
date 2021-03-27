@@ -2,7 +2,7 @@
 #include "ui/sprite.hh"
 
 
-ui::Sprite::Sprite(ui::CSprite sprite)
+ui::Sprite::Sprite(c2d::Sprite sprite)
 	: Widget("sprite"), sprite(sprite)
 {
 
@@ -14,7 +14,7 @@ ui::Results ui::Sprite::draw(ui::Keys&, ui::Scr)
 	return ui::Results::go_on;
 }
 
-void ui::Sprite::set_sprite(ui::CSprite sprite)
+void ui::Sprite::set_sprite(c2d::Sprite sprite)
 {
 	this->sprite = sprite;
 }
@@ -24,8 +24,8 @@ void ui::Sprite::set_sprite(ui::CSprite sprite)
 ui::StandaloneSprite::StandaloneSprite(std::string name, size_t index)
 	: Sprite()
 {
-	this->sheet = ui::CSpriteSheet::from_file(name);
-	this->set_sprite(ui::CSprite::from_sheet(&this->sheet, index));
+	this->sheet = c2d::SpriteSheet::from_file(name);
+	this->set_sprite(c2d::Sprite::from_sheet(&this->sheet, index));
 }
 
 ui::StandaloneSprite::~StandaloneSprite()
@@ -33,7 +33,7 @@ ui::StandaloneSprite::~StandaloneSprite()
 	this->sheet.free();
 }
 
-ui::CSprite *ui::StandaloneSprite::get_sprite()
+c2d::Sprite *ui::StandaloneSprite::get_sprite()
 {
 	return &this->sprite;
 }

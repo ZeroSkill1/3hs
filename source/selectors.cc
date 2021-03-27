@@ -1,5 +1,7 @@
 
 #include "selectors.hh"
+
+#include "widgets/meta.hh"
 #include "ui/text.hh"
 
 #include "install.hh"
@@ -18,7 +20,8 @@ long sel::cat(hs::Index& indx)
 		},
 		[&](hs::Category& cat, size_t) -> ui::Results {
 			bool rret = sel::subcat(indx, cat, ret);
-			
+			ui::wid()->get<ui::Text>("curr_action_desc")->replace_text("Select a category:");
+
 			// We found a game we want to install; let main handle it
 			if(ret > 0) return ui::Results::quit_no_end;
 
@@ -29,6 +32,12 @@ long sel::cat(hs::Index& indx)
 			return ui::Results::go_on;
 		}, indx.categories
 	));
+
+	ui::CatMeta *meta = new ui::CatMeta(indx.categories[0]);
+	wids.push_back(meta, ui::Scr::bottom);
+	wids.get<ui::List<hs::Category>>("cat_list")->set_on_change([&meta](hs::Category& cat, size_t) -> void {
+		meta->update_cat(cat);
+	});
 
 	ui::Keys keys;
 	while(ui::framenext(keys))
@@ -71,6 +80,12 @@ bool sel::subcat(hs::Index& indx, hs::Category cat, long& id)
 		}, cat.subcategories
 	));
 
+	ui::SubMeta *meta = new ui::SubMeta(cat.subcategories[0]);
+	wids.push_back(meta, ui::Scr::bottom);
+	wids.get<ui::List<hs::Subcategory>>("subcat_list")->set_on_change([&meta](hs::Subcategory& sub, size_t) -> void {
+		meta->update_sub(sub);
+	});
+
 	ui::Keys keys;
 	while(ui::framenext(keys))
 	{
@@ -101,6 +116,12 @@ bool sel::game(std::string cat, std::string subcat, long& id)
 			return ui::Results::end_early;
 		}, titles
 	));
+
+	ui::TitleMeta *meta = new ui::TitleMeta(titles[0]);
+	wids.push_back(meta, ui::Scr::bottom);
+	wids.get<ui::List<hs::Title>>("titles_list")->set_on_change([&meta](hs::Title& title, size_t) -> void {
+		meta->update_title(title);
+	});
 
 	ui::Keys keys;
 	while(ui::framenext(keys))

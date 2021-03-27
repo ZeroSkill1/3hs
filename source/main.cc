@@ -4,10 +4,12 @@
 #include <sys/stat.h>
 
 #include <ui/scrollingText.hh>
-#include <ui/konami.hh>
 #include <ui/text.hh>
 #include <ui/core.hh>
 #include <ui/list.hh>
+
+#include <widgets/konami.hh>
+#include <widgets/meta.hh>
 
 #include <3rd/log.hh>
 #include <hs.hh>
@@ -63,8 +65,6 @@ int main(int argc, char* argv[])
 	ui::wid()->push_back("konami", new ui::Konami(), ui::Scr::top);
 	quick_global_draw();
 
-//	ui::wid()->get<ui::Konami>("konami")->show_bunny();
-
 	if(osGetWifiStrength() == 0)
 	{
 		lwarning << "No wifi found, waiting for wifi";
@@ -81,8 +81,9 @@ int main(int argc, char* argv[])
 	// Check if luma is installed
 	// 1. Citra is used; not compatible
 	// 2. Other cfw used; not supported
-    Handle lumaCheck;
-	if (R_FAILED(svcConnectToPort(&lumaCheck, "hb:ldr"))) {
+	Handle lumaCheck;
+	if(R_FAILED(svcConnectToPort(&lumaCheck, "hb:ldr")))
+	{
 		lfatal << "Luma3DS is not installed, user is using an unsupported CFW or running in Citra";
 		ui::wid()->get<ui::Text>("curr_action_desc")->replace_text("Luma3DS is not installed on this system");
 		ui::wid()->push_back("msg1", new ui::Text(ui::mk_center_WText("Please install Luma3DS on a real 3DS", 78.0f)), ui::Scr::top);
@@ -126,7 +127,6 @@ int main(int argc, char* argv[])
 	llog << "Fetching index";
 	indx = hs::Index::get();
 
-
 	if(index_failed(indx))
 	{
 		lfatal << "Failed to fetch index, dns fucked? Server down? " << index_error(indx);
@@ -138,6 +138,7 @@ int main(int argc, char* argv[])
 		return 3;
 	}
 
+	ui::setup_meta(&indx);
 	while(aptMainLoop())
 	{
 		long id = sel::cat(indx);
@@ -147,8 +148,8 @@ int main(int argc, char* argv[])
 		if(id != 0) sel::game(id);
 	}
 
-	hs::global_deinit();
-	ui::global_deinit();
-	exit_services();
+//	hs::global_deinit();
+//	ui::global_deinit();
+//	exit_services();
 	return 0;
 }

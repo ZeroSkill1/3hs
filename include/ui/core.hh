@@ -6,11 +6,13 @@
 #include <citro2d.h>
 #include <3ds.h>
 
-#include <iostream>
+#include <sstream>
 #include <cstdarg>
 #include <memory>
 #include <vector>
 #include <string>
+
+#include "bindings.hh"
 
 #define bad_text(t,x,y) { C2D_TextBuf __b; __b = C2D_TextBufNew(100); \
 	C2D_Text __t; ui::parse_text(&__t, __b, t); C2D_TextOptimize(&__t); \
@@ -25,6 +27,9 @@
 	generic_main_loop(w); }
 #define standalone_main_breaking_loop() { ui::Widgets w; \
 	generic_main_breaking_loop(w); }
+
+#define GRID_AL_X(x) (x*12)
+#define GRID_AL_Y(y) (y*18)
 
 #define GFX(n) ("romfs:/gfx/" n)
 #define SHEET(n) GFX(n ".t3x")
@@ -127,9 +132,15 @@ namespace ui
 	bool framedraw(Widgets& wids, Keys& keys);
 	bool framenext(Keys& keys);
 
+	void parse_text(c2d::Text *ret, c2d::TextBuf buf, std::string txt);
 	void parse_text(C2D_Text *ret, C2D_TextBuf buf, std::string txt);
-	void draw_at(float x, float y, C2D_Text& txt, u32 flags = 0, float sizeX = constants::FSIZE, float sizeY = constants::FSIZE);
+
+	void draw_at_absolute(float x, float y, c2d::Text& txt, u32 flags = 0, float sizeX = constants::FSIZE, float sizeY = constants::FSIZE);
+	void draw_at(float x, float y, c2d::Text& txt, u32 flags = 0, float sizeX = constants::FSIZE, float sizeY = constants::FSIZE);
+
 	void draw_at_absolute(float x, float y, C2D_Text& txt, u32 flags = 0, float sizeX = constants::FSIZE, float sizeY = constants::FSIZE);
+	void draw_at(float x, float y, C2D_Text& txt, u32 flags = 0, float sizeX = constants::FSIZE, float sizeY = constants::FSIZE);
+
 	ui::Results draw_widgets(std::vector<ui::Widget *> wids, ui::Keys& keys);
 	void switch_to(Scr target);
 	void clear(Scr screen);
@@ -138,6 +149,36 @@ namespace ui
 	C3D_RenderTarget *top();
 	C3D_RenderTarget *bot();
 	Widgets *wid();
+
+	template <typename T>
+	std::string floating_prec(T inte, int prec = 2)
+	{
+		std::ostringstream ss; ss.precision(prec);
+		ss << std::fixed << inte; return ss.str();
+	}
+
+	template <typename T>
+	std::string human_readable_size(T inte)
+	{
+		// Sorry for this mess.....
+		if(inte < 1024) return std::to_string(inte) + " B"; /* < 1 KiB */
+		if(inte < 1024 * 1024) /* < 1 MiB */
+			return floating_prec<float>((float) inte / 1024) + " KiB";
+		if(inte < 1024 * 1024 * 1024) /* < 1 GiB */
+			return floating_prec<float>((float) inte / 1024 / 1024) + " MiB";
+		if(inte < (long long) 1024 * 1024 * 1024 * 1024) /* < 1TiB */
+			return floating_prec<float>((float) inte / 1024 / 1024 / 1024) + " GiB";
+		return floating_prec<float>((float) inte / 1024 / 1024 / 1024 / 1024) + " TiB";
+	}
+
+	template <typename T>
+	std::string human_readable_size_block(T inte)
+	{
+		std::string ret = human_readable_size<T>(inte);
+		ret += std::string(" (") + std::to_string(inte / 1024 / 128)
+			+ " blocks)";
+		return ret;
+	}
 }
 
 #endif

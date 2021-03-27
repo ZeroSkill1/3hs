@@ -25,7 +25,7 @@ namespace hs
 		constexpr int BAD_SIZE = 0;
 	}
 
-	typedef struct Subcategory
+	typedef struct BaseCategory
 	{
 		std::string displayName;
 		std::string name;
@@ -33,11 +33,17 @@ namespace hs
 
 		__HS_TITLES_T totalTitles;
 		__HS_SIZE_T size;
+	} BaseCategory;
+
+	typedef struct Subcategory : BaseCategory
+	{
+		Subcategory() : BaseCategory() { }
+		std::string cat;
 	} Subcategory;
 
-	typedef struct Category : public Subcategory
+	typedef struct Category : public BaseCategory
 	{
-		Category() : Subcategory() { };
+		Category() : BaseCategory() { }
 		std::vector<Subcategory> subcategories;
 	
 		Subcategory *operator [] (std::string name)

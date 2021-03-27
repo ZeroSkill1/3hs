@@ -2,7 +2,7 @@
 #include "ui/core.hh"
 
 #define DO_WIDS_DRAW(wids) { \
-	ui::Results res = ui::draw_widgets(wids, keys); switch(res) { \
+	switch(ui::draw_widgets(wids, keys)) { \
 	case ui::Results::quit_loop   : ret = false; goto exit; \
 	case ui::Results::end_early   : return true; \
 	case ui::Results::quit_no_end : return false; \
@@ -12,7 +12,6 @@
 static C3D_RenderTarget *g_top;
 static C3D_RenderTarget *g_bot;
 static ui::Widgets g_widgets;
-static C2D_Font g_font;
 
 
 C3D_RenderTarget *ui::bot()
@@ -96,16 +95,12 @@ bool ui::global_init()
 
 	g_bot = C2D_CreateScreenTarget(GFX_BOTTOM, GFX_LEFT);
 	g_top = C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
-//	if((g_font = C2D_FontLoad(ui::constants::FONT)) == NULL)
-//		return false;
 
 	return true;
 }
 
 void ui::global_deinit()
 {
-//	if(g_font != NULL)
-//		C2D_FontFree(g_font);
 	C2D_Fini();
 	C3D_Fini();
 	gfxExit();
@@ -203,13 +198,24 @@ ui::Widget *ui::Widgets::find_by_name(std::string name, ui::Scr target)
 void ui::draw_at(float x, float y, C2D_Text& txt, u32 flags, float sizeX, float sizeY)
 {
 	// Sorry for the magic numbers :kek:
-	C2D_DrawText(&txt, C2D_WithColor | flags, x * 12, y * 18, 0.0f, sizeX, sizeY, 0xFFFFFFFF);
+	C2D_DrawText(&txt, C2D_WithColor | flags, GRID_AL_X(x), GRID_AL_Y(y), 0.0f, sizeX, sizeY, 0xFFFFFFFF);
+}
+
+void ui::draw_at(float x, float y, c2d::Text& txt, u32 flags, float sizeX, float sizeY)
+{
+	txt.draw(GRID_AL_X(x), GRID_AL_Y(y), 0xFFFFFFFF, sizeX, sizeY);
 }
 
 void ui::draw_at_absolute(float x, float y, C2D_Text& txt, u32 flags, float sizeX, float sizeY)
 {
 	C2D_DrawText(&txt, C2D_WithColor | flags, x, y, 0.0f, sizeX, sizeY, 0xFFFFFFFF);
 }
+
+void ui::draw_at_absolute(float x, float y, c2d::Text& txt, u32 flags, float sizeX, float sizeY)
+{
+	txt.draw(x, y, 0xFFFFFFFF, sizeX, sizeY);
+}
+
 
 void ui::switch_to(ui::Scr target)
 {
@@ -227,5 +233,10 @@ void ui::switch_to(ui::Scr target)
 
 void ui::parse_text(C2D_Text *ret, C2D_TextBuf buf, std::string txt)
 {
-	C2D_TextFontParse(ret, g_font, buf, txt.c_str());
+	C2D_TextParse(ret, buf, txt.c_str());
+}
+
+void ui::parse_text(c2d::Text *ret, c2d::TextBuf buf, std::string txt)
+{
+	ret->parse(buf, txt);
 }
