@@ -3,9 +3,8 @@
 *.d
 
 # Frii
-build/
 romfs/gfx/
-fonts/
+build/
 dumps/
 
 # Compiled Object files
@@ -42,5 +41,3 @@ dumps/
 *.elf
 *.cxi
 *.cia
-*.bin
-

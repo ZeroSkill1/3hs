@@ -31,7 +31,7 @@
 #define GRID_AL_X(x) (x*12)
 #define GRID_AL_Y(y) (y*18)
 
-#define GFX(n) ("romfs:/gfx/" n)
+#define GFX(n) "romfs:/gfx/" n
 #define SHEET(n) GFX(n ".t3x")
 
 #define SCREEN_WIDTH(s) (s == ui::Scr::top ? 400.0f : 320.0f)
@@ -44,7 +44,6 @@ namespace ui
 		constexpr u32 COLOR_BOT = C2D_Color32(0x1C, 0x20, 0x21, 0xFF);
 		constexpr u32 COLOR_TOP = C2D_Color32(0x1C, 0x20, 0x21, 0xFF);
 
-		constexpr char FONT[] = GFX("JetBrainsMono.bcfnt");
 		constexpr float FSIZE = 0.65f;
 	}
 

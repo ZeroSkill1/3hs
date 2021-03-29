@@ -9,11 +9,11 @@
 #include <3rd/log.hh>
 
 
-#define list_onsel_cb std::function<ui::Results(T&, size_t)>
-#define list_onch_cb std::function<void(T&, size_t)>
+#define list_onsel_cb std::function<ui::Results(List<T> *, size_t)>
+#define list_onch_cb std::function<void(List<T> *, size_t)>
 #define list_tostr_cb std::function<std::string(T&)>
 
-#define __exec_onch() this->on_change(this->items[this->point], this->point)
+#define __exec_onch() this->on_change(this, this->point)
 
 #define LIST_ARR ("→")
 // Unicode ......
@@ -108,6 +108,9 @@ namespace ui
 			this->txt.push_back(text);
 		}
 
+		T& at(size_t index)
+		{ return (*this)[index]; }
+
 		T& operator [] (size_t index)
 		{ return this->items[index]; }
 
@@ -135,7 +138,7 @@ namespace ui
 			}
 
 			if(keys.kDown & KEY_A)
-				return this->on_select(this->items[this->point], this->point);
+				return this->on_select(this, this->point); //this->items[this->point], this->point);
 			return ui::Results::go_on;
 		}
 
@@ -149,7 +152,7 @@ namespace ui
 		std::vector<T> items;
 		size_t point;
 
-		list_onch_cb on_change = [](T&,size_t){};
+		list_onch_cb on_change = [](List<T>*,size_t){};
 		list_onsel_cb on_select;
 		list_tostr_cb to_str;
 

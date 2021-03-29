@@ -14,10 +14,9 @@
 #include <3rd/log.hh>
 #include <hs.hh>
 
-#include "selectors.hh"
 #include "update.hh"
-
-#include "ui/sprite.hh"
+#include "seed.hh"
+#include "next.hh"
 
 #ifdef __RELEASE__
 # define LOG_LEVEL plog::info
@@ -49,6 +48,7 @@ int main(int argc, char* argv[])
 {
 	init_services();
 	ensure_logs_dir();
+	init_seeddb();
 	plog::init(LOG_LEVEL, "/3ds/3hs/3hs.log");
 
 	if(!ui::global_init())
@@ -60,7 +60,7 @@ int main(int argc, char* argv[])
 
 	ui::wid()->push_back("version", new ui::Text(ui::mk_right_WText(VERSION, 3.0f, 5.0f, ui::constants::FSIZE, ui::constants::FSIZE, ui::Scr::bottom)), ui::Scr::bottom);
 	ui::wid()->push_back("header_desc", new ui::Text(ui::mk_center_WText("The ultimate 3DS content preservation service.", 30.0f)), ui::Scr::top);
-	ui::wid()->push_back("curr_action_desc", new ui::Text(ui::mk_center_WText("Loading...", 45.0f)), ui::Scr::top);
+	ui::wid()->push_back("curr_action_desc", new ui::Text(ui::mk_center_WText("Loading ...", 45.0f)), ui::Scr::top);
 	ui::wid()->push_back("header", new ui::Text(ui::mk_center_WText("hShop", 0.0f, 1.0f, 1.0f)), ui::Scr::top);
 	ui::wid()->push_back("konami", new ui::Konami(), ui::Scr::top);
 	quick_global_draw();
@@ -119,10 +119,6 @@ int main(int argc, char* argv[])
 	}
 #endif
 
-//	ui::wid()->push_back("test", new ui::ScrollingText(20, 20, "hello! this is a long string that doesn't fit on your screen ...."), ui::Scr::bottom);
-//	ui::wid()->get<ui::ScrollingText>("test")->start_scroll();
-//	standalone_main_loop();
-
 	hs::Index indx;
 	llog << "Fetching index";
 	indx = hs::Index::get();
@@ -139,17 +135,36 @@ int main(int argc, char* argv[])
 	}
 
 	ui::setup_meta(&indx);
+
+	// Old logic was cursed, made it a bit better :blobaww:
 	while(aptMainLoop())
 	{
-		long id = sel::cat(indx);
-		linfo << "Broke out of game select loop, result code/id: " << id;
+cat:
+		std::string cat = next::sel_cat(indx);
+		// User wants to exit app
+		if(cat == next_cat_exit) break;
+		llog << "NEXT(c): " << cat;
 
-		if(id < 0) break;
-		if(id != 0) sel::game(id);
+sub:
+		std::string sub = next::sel_sub(indx, cat);
+		if(sub == next_sub_back) goto cat;
+		if(sub == next_sub_exit) break;
+		llog << "NEXT(s): " << sub;
+
+ gam:
+		long int id = next::sel_gam(cat, sub);
+		if(id == next_gam_back) goto sub;
+		if(id == next_gam_exit) break;
+		llog << "NEXT(g): " << id;
+
+		/* INSTALL */
+		goto gam;
+
 	}
 
-//	hs::global_deinit();
-//	ui::global_deinit();
-//	exit_services();
+	llog << "Sayonara, app deinit";
+	hs::global_deinit();
+	ui::global_deinit();
+	exit_services();
 	return 0;
 }

@@ -38,22 +38,27 @@ include $(DEVKITARM)/3ds_rules
 #     - <libctru folder>/default_icon.png
 #---------------------------------------------------------------------------------
 TARGET		:=	3hs
-BUILD		:=	build
+BUILD			:=	build
 SOURCES		:=	source source/ui source/widgets
-DATA		:=	data
+DATA			:=	data
 INCLUDES	:=	include 3rd .
 GRAPHICS	:=	gfx gfx/bun
-ROMFS		:=	romfs
+ROMFS			:=	romfs
 GFXBUILD	:=	$(ROMFS)/gfx
+
+CIA_PREFIX			:=	cia_stuff
+ICON						:=	$(CIA_PREFIX)/icon.png
+APP_TITLE				:=	3hs
+APP_DESCRIPTION	:=	An on-device client for hShop
+APP_AUTHOR			:=	TimmSkiller & MyPasswordIsWeak
 
 #---------------------------------------------------------------------------------
 # options for code generation
 #---------------------------------------------------------------------------------
 ARCH	:=	-march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft
 
-CFLAGS	:=	-Wall -O2 -mword-relocations \
-			-ffunction-sections \
-			$(ARCH)
+CFLAGS	:= -pedantic -Wall -O2 -mword-relocations \
+			-ffunction-sections $(ARCH) \
 
 CFLAGS	+=	$(INCLUDE) -DARM11 -D_3DS
 
@@ -139,8 +144,11 @@ export HFILES	:=	$(PICAFILES:.v.pica=_shbin.h) $(SHLISTFILES:.shlist=_shbin.h) \
 			$(addsuffix .h,$(subst .,_,$(BINFILES))) \
 			$(GFXFILES:.t3s=.h)
 
+# We use isystem here because
+# citro3d has a **fuckton**
+# Of warnings because pedantic
 export INCLUDE	:=	$(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
-			$(foreach dir,$(LIBDIRS),-I$(dir)/include) \
+			$(foreach dir,$(LIBDIRS),-isystem$(dir)/include) \
 			-I$(CURDIR)/$(BUILD)
 
 export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib)
@@ -170,17 +178,26 @@ endif
 
 .PHONY: all clean
 
+INT_ALL 	:=	$(BUILD) $(GFXBUILD) $(DEPSDIR) $(ROMFS_T3XFILES) $(ROMFS_FONTFILES) $(T3XHFILES)
+REAL_ALL	:=	$(INT_ALL)
+ifeq ($(RELEASE),)
+	REAL_ALL	:=	$(REAL_ALL) _build_all
+else
+	REAL_ALL	:=	$(REAL_ALL) cia
+endif
+
 #---------------------------------------------------------------------------------
-all: $(BUILD) $(GFXBUILD) $(DEPSDIR) $(ROMFS_T3XFILES) $(ROMFS_FONTFILES) $(T3XHFILES)
+all: $(REAL_ALL)
+_build_all:
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
 
-cia: $(BUILD) $(GFXBUILD) $(DEPSDIR) $(ROMFS_T3XFILES) $(ROMFS_FONTFILES) $(T3XHFILES)
+cia: $(INT_ALL)
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
-	@3dstool -ctf romfs cia_stuff/romfs.bin --romfs-dir romfs
-	@makerom -f ncch -o $(TARGET).cxi -target t -elf $(TARGET).elf -icon cia_stuff/icon.smdh -banner cia_stuff/banner.bnr -rsf cia_stuff/$(TARGET).rsf -romfs cia_stuff/romfs.bin
-	@echo built ... $(TARGET).cxi
-	@makerom -f cia -o $(TARGET).cia -i $(TARGET).cxi:0:0 -ignoresign
-	@echo built ... $(TARGET).cia
+	$(SILENTCMD) 3dstool -ctf romfs $(CIA_PREFIX)/romfs.bin --romfs-dir romfs
+	$(SILENTCMD) makerom -f ncch -o $(TARGET).cxi -target t -elf $(TARGET).elf -icon $(CIA_PREFIX)/icon.smdh -banner $(CIA_PREFIX)/banner.bnr -rsf $(CIA_PREFIX)/$(TARGET).rsf -romfs $(CIA_PREFIX)/romfs.bin
+	$(SILENTMSG) built ... $(TARGET).cxi
+	$(SILENTCMD) makerom -f cia -o $(TARGET).cia -i $(TARGET).cxi:0:0 -ignoresign
+	$(SILENTMSG) built ... $(TARGET).cia
 
 
 $(BUILD):

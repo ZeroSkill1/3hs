@@ -2,7 +2,6 @@
 #ifndef __hs_hh__
 #define __hs_hh__
 
-#include <exception>
 #include <string>
 #include <vector>
 
@@ -27,8 +26,8 @@ namespace hs
 
 	typedef struct BaseCategory
 	{
-		std::string displayName;
-		std::string name;
+		std::string displayName; /* Display */
+		std::string name; /* Internal */
 		std::string desc;
 
 		__HS_TITLES_T totalTitles;

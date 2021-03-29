@@ -61,6 +61,7 @@
 		"forward_list": "cpp",
 		"list": "cpp",
 		"cinttypes": "cpp",
-		"valarray": "cpp"
+		"valarray": "cpp",
+		"mutex": "cpp"
 	}
 }
