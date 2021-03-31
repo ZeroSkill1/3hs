@@ -174,7 +174,7 @@ namespace ui
 	std::string human_readable_size_block(T inte)
 	{
 		std::string ret = human_readable_size<T>(inte);
-		ret += std::string(" (") + std::to_string(inte / 1024 / 128)
+		ret += std::string(" (") + std::to_string((T) std::round((double) inte / 1024 / 128))
 			+ " blocks)";
 		return ret;
 	}

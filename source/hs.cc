@@ -5,8 +5,15 @@
 #include <malloc.h>
 #include <3ds.h>
 
-#include <hs.hh>
 #include <iostream>
+#include <hs.hh>
+
+#include <3rd/log.hh>
+
+#define JT_SET_PROP(j,s,pj,ps,T) \
+	s. ps = j[ pj ].get< T >()
+#define JS_SET_PROP(j,s,pj,ps) \
+	JT_SET_PROP(j,s,pj,ps,std::string)
 
 using namespace nlohmann;
 typedef ordered_json ojson;
@@ -45,7 +52,12 @@ std::string hs::base_req(std::string url, std::string *err)
 	curl_easy_cleanup(curl);
 
 	if(res != CURLE_OK && err != nullptr)
+	{
 		(*err) = std::string("(network-") + std::to_string(res) + "): " + curl_easy_strerror(res);
+		lerror << "libcurl error(" << res << "): " << curl_easy_strerror(res);
+	}
+
+	lverbose << url << " says " << body;
 	return body;
 }
 
@@ -135,9 +147,16 @@ std::vector<hs::Title> hs::titles_in(std::string cat, std::string subcat)
 	return ret;
 }
 
-hs::Title hs::title_meta(__HS_ID_T id)
+hs::FullTitle hs::title_meta(__HS_ID_T id)
 {
-	return hs::Title { };
+	json res = j_req<json>(std::string("title/") + std::to_string(id));
+	hs::FullTitle ret;
+
+	/* TODO: Create actual FullTitle here */
+
+	JT_SET_PROP(res, ret, "size", size, __HS_SIZE_T);
+
+	return ret;
 }
 
 

@@ -110,7 +110,7 @@ namespace hs
 
 	std::vector<Title> titles_in(std::string cat, std::string subcat);
 	std::string get_title_download(__HS_ID_T id);
-	Title title_meta(__HS_ID_T id);
+	FullTitle title_meta(__HS_ID_T id);
 
 	typedef __HS_ID_T id_t;
 }

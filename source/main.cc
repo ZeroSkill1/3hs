@@ -14,6 +14,7 @@
 #include <3rd/log.hh>
 #include <hs.hh>
 
+#include "install.hh"
 #include "update.hh"
 #include "seed.hh"
 #include "next.hh"
@@ -158,6 +159,8 @@ sub:
 		llog << "NEXT(g): " << id;
 
 		/* INSTALL */
+		hs::Title meta = hs::title_meta(id);
+		game::install_cia(&meta);
 		goto gam;
 
 	}
