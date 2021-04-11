@@ -9,7 +9,7 @@
 #define INT_TO_STR(i) INT_TO_STR_(i)
 #define INT_TO_STR_(i) #i
 
-#define MK_UA(MA,MI,PA) "hShop (3DS/CTR/CTR; ARM64) 3hs/" MA "." MI "." PA
+#define MK_UA(MA,MI,PA) "hShop (3DS/CTR/KTR; ARM64) 3hs/" MA "." MI "." PA
 #define MK_CURL_PARAM(u) "User-Agent: " u
 
 #define FULL_VERSION INT_TO_STR(VERSION_MAJOR) "." INT_TO_STR(VERSION_MINOR) "." INT_TO_STR(VERSION_PATCH)
