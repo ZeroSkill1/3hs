@@ -152,6 +152,10 @@ int main(int argc, char* argv[])
 
 	ui::setup_meta(&indx);
 
+	hs::Title meta = hs::title_meta(3126);
+	game::single_thread_install(&meta);
+	goto done;
+
 	// Old logic was cursed, made it a bit better :blobaww:
 	while(aptMainLoop())
 	{
@@ -180,6 +184,8 @@ sub:
 		goto gam;
 
 	}
+
+done:
 
 	llog << "Sayonara, app deinit";
 	hs::global_deinit();

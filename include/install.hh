@@ -10,11 +10,15 @@
 
 // We could probably get away with less
 #define STKSZ (4 * 1024)
+#define DBUFSZ (4 * 1024)
 
 namespace game
 {
 	typedef struct __cb_data
 	{
+		char databuf[DBUFSZ];
+		size_t bufsiz;
+
 		Handle handle;
 		u64 offset;
 	} __cb_data;

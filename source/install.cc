@@ -4,28 +4,72 @@
 #include <net_common.hh>
 #include <curl/curl.h>
 #include <3rd/log.hh>
+#include <malloc.h>
 
 static LightLock g_mtx;
 
 
+static Result write_to_fd(game::__cb_data *cdata, void *data, u32 *write, size_t size, u32 flags = FS_WRITE_FLUSH)
+{
+	return FSFILE_Write(cdata->handle, write, cdata->offset, data, size, FS_WRITE_FLUSH);
+}
+
+/*static void __sum(game::__cb_data *data, u32 written, u32 size, u32 nmemb, Result res)
+{
+	lverbose << "Write summary";
+	lverbose << "====================";
+	lverbose << "data->handle : " << data->handle;
+	lverbose << "written      : " << written;
+	lverbose << "data->offset : " << data->offset;
+	lverbose << "size * nmemb : " << size * nmemb;
+	lverbose << "result       : " << std::hex << res;
+	lverbose << "====================";
+}*/
+
 static size_t curl_install_cia_callback(char *ptr, size_t size, size_t nmemb, void *userdata)
 {
 	game::__cb_data *data = (game::__cb_data *) userdata;
-	lverbose << "RECV: " << size * nmemb;
-
+	size = size * nmemb; // Don't want to write this the entire time...
 	u32 written = 0;
-	u32 rwrite = 0;
-	// Write until everything is written;
-	// We only get one chance to use this data
-//	do
-//	{
-		lverbose << "FSFILE_Write(...): " << std::hex << FSFILE_Write(data->handle, &written, data->offset, ptr, size * nmemb, 0);
-		FSFILE_Flush(data->handle);
-		data->offset += written;
-		rwrite += written;
-//	} while (rwrite < size * nmemb);
+	u32 doff = 0;
+	Result res;
 
-	lverbose << "Rwrite: " << rwrite << ", (write: " << written << "), should be: " << nmemb * size;
+	// We can write from the buffer
+	if(data->bufsiz + size > DBUFSZ)
+	{
+		char *write = new char[DBUFSZ];
+		memcpy(write, data->databuf, data->bufsiz);
+		memcpy(write + data->bufsiz, ptr, DBUFSZ - data->bufsiz);
+
+		size -= DBUFSZ - data->bufsiz;
+		doff = DBUFSZ - data->bufsiz;
+		data->bufsiz = 0;
+
+		if(R_FAILED(res = write_to_fd(data, write, &written, DBUFSZ)))
+		{
+			lerror << "Failed writing(0): " << std::hex << res;
+			return 0;
+		}
+
+		delete [] write;
+	}
+
+	// Split it up
+	for(size_t i = 0; i < size / DBUFSZ; ++i)
+	{
+		if(R_FAILED(write_to_fd(data, ptr + doff, &written, DBUFSZ)))
+		{
+			lerror << "Failed writing(1): " << std::hex << res;
+			return 0;
+		}
+		size -= written;
+		doff += written;
+		written = 0;
+	}
+
+	// Copy rest in buffer
+	memcpy(data->databuf + data->bufsiz, ptr + doff, size);
+	data->bufsiz += size;
 	return size * nmemb;
 }
 
@@ -115,6 +159,7 @@ void game::single_thread_install(hs::Title *meta)
 	Handle cia;
 
 	llog << "Start CIA res: " << std::hex << AM_StartCiaInstall(dest, &cia);
+	lverbose << "cia handle: " << cia;
 	game::single_install_thread(hs::get_download_link(meta), cia);
 	llog << "Install res: " << std::hex << AM_FinishCiaInstall(cia);
 }

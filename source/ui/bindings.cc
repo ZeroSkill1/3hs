@@ -16,9 +16,7 @@ c2d::Sprite c2d::Sprite::from_sheet(c2d::SpriteSheet *sheet, size_t index)
 
 bool c2d::Sprite::draw()
 {
-	if(!C2D_DrawSprite(&this->nhandle))
-		std::exit(1);
-	return true;
+	return C2D_DrawSprite(&this->nhandle);
 }
 
 void c2d::Sprite::rotate(float radians)
