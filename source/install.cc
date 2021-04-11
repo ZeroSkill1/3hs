@@ -1,6 +1,7 @@
 
 #include "install.hh"
 
+#include <net_common.hh>
 #include <curl/curl.h>
 #include <3rd/log.hh>
 
@@ -10,26 +11,37 @@ static LightLock g_mtx;
 static size_t curl_install_cia_callback(char *ptr, size_t size, size_t nmemb, void *userdata)
 {
 	game::__cb_data *data = (game::__cb_data *) userdata;
-	LightLock_Lock(&g_mtx);
+	lverbose << "RECV: " << size * nmemb;
 
 	u32 written = 0;
 	u32 rwrite = 0;
 	// Write until everything is written;
 	// We only get one chance to use this data
-	do
-	{
-		FSFILE_Write(data->handle, &written, data->offset, ptr, size * nmemb, FS_WRITE_FLUSH);
+//	do
+//	{
+		lverbose << "FSFILE_Write(...): " << std::hex << FSFILE_Write(data->handle, &written, data->offset, ptr, size * nmemb, 0);
+		FSFILE_Flush(data->handle);
 		data->offset += written;
 		rwrite += written;
-	} while (rwrite < size * nmemb);
+//	} while (rwrite < size * nmemb);
 
+	lverbose << "Rwrite: " << rwrite << ", (write: " << written << "), should be: " << nmemb * size;
+	return size * nmemb;
+}
+
+static size_t curl_install_cia_callback_safe(char *ptr, size_t size, size_t nmemb, void *userdata)
+{
+	LightLock_Lock(&g_mtx);
+	size_t ret = curl_install_cia_callback(ptr, size, nmemb, userdata);
 	LightLock_Unlock(&g_mtx);
-	return rwrite;
+	return ret;
 }
 
 void game::start_mutex()
 {
 	LightLock_Init(&g_mtx);
+	// This shouldn't be necessairy, we'll do it anyways
+	LightLock_Unlock(&g_mtx);
 }
 
 void game::clean_mutex()
@@ -37,30 +49,32 @@ void game::clean_mutex()
 	close(g_mtx);
 }
 
-void game::single_install_thread(std::string from, Handle ciaHandle, size_t offset, size_t to)
+void game::single_install_thread(std::string url, Handle ciaHandle, size_t from, size_t to)
 {
 	CURL *curl = curl_easy_init();
 
 	struct curl_slist *headers = NULL;
-	if(offset != 0 && to != 0)
+	headers = curl_slist_append(headers, CURL_UA);
+	if(from != 0 && to != 0)
 	{
-		curl_slist_append(headers, (std::string("Range: bytes=") + std::to_string(offset)
+		headers = curl_slist_append(headers, (std::string("Range: bytes=") + std::to_string(from)
 			+ "-" + std::to_string(to)).c_str());
-		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 	}
-
-	linfo << "Downloading/installing from " << offset << "b to " << to << "b";
+	curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 
 	game::__cb_data data;
 	data.handle = ciaHandle;
-	data.offset = offset;
+	data.offset = from;
 
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_install_cia_callback);
-	curl_easy_setopt(curl, CURLOPT_URL, from.c_str());
+	curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &data);
 
-	curl_easy_perform(curl);
-	if(headers != NULL) curl_slist_free_all(headers);
+	CURLcode res = curl_easy_perform(curl);
+	if(res != CURLE_OK)
+	{
+		lerror << "Curl error: " << res;
+	}
 	curl_easy_cleanup(curl);
 }
 
@@ -68,12 +82,7 @@ void game::balance_range(const hs::Title *meta, game::balance_t *rrange, size_t 
 {
 	size_t *ranges = new size_t[size];
 	for(size_t i = 0; i < size; ++i)
-	{
-		size_t now = (meta->size / size) * (i + 1);
-		lverbose << "Now[" << i <<"]: " << now << ", meta->size: " << meta->size
-			<< ", size: " << size;
-		ranges[i] = now;
-	}
+		ranges[i] = (meta->size / size) * (i + 1);
 
 	rrange[0] = std::make_tuple(0, ranges[0]);
 
@@ -92,9 +101,22 @@ void game::balance_range(const hs::Title *meta, game::balance_t *rrange, size_t 
 
 static void install_cia_thread(void *arg)
 {
-	game::balance_t *balance = (game::balance_t *) arg;
-	size_t from, to; std::tie(from, to) = *balance;
-	llog << "NEW THREAD";
+	game::__install_cia_thread_data *data = (game::__install_cia_thread_data *) arg;
+	llog << "FROM: " << std::get<0>(data->balance) << "-" << std::get<1>(data->balance);
+	game::single_install_thread(hs::get_download_link(data->meta), data->cia,
+		std::get<0 /* from */>(data->balance), std::get<1 /* to */>(data->balance));
+	delete data;
+}
+
+void game::single_thread_install(hs::Title *meta)
+{
+	/* TODO: Same as game::install_cia(...) */
+	FS_MediaType dest = MEDIATYPE_SD;
+	Handle cia;
+
+	llog << "Start CIA res: " << std::hex << AM_StartCiaInstall(dest, &cia);
+	game::single_install_thread(hs::get_download_link(meta), cia);
+	llog << "Install res: " << std::hex << AM_FinishCiaInstall(cia);
 }
 
 void game::install_cia(const hs::Title *meta, size_t threads)
@@ -112,20 +134,43 @@ void game::install_cia(const hs::Title *meta, size_t threads)
 		}
 	}
 
+	/* TODO: Get install location from cat (?), tid (?) */
+	/* TODO: Test if we have all the required space */
+	/* TODO: Cancel cia installation */
+	FS_MediaType dest = MEDIATYPE_SD;
+	Handle cia;
+
+	AM_StartCiaInstall(dest, &cia);
+	start_mutex();
+
 	s32 thpr = 0; svcGetThreadPriority(&thpr, CUR_THREAD_HANDLE);
-	for(size_t i = 0; i < threads - 1; ++i)
-		rthreads[i] = threadCreate(install_cia_thread, (void *) &balance[i + 1], 0, thpr - 1, -2, false);
+	for(size_t i = 0; i < threads; ++i)
+	{
+		// Prepare a struct to pass, gets freed in the thread, we can just make it a pointer so it doesn't auto delete
+		game::__install_cia_thread_data *data = new game::__install_cia_thread_data;
+		data->balance = balance[i + 1];
+		data->written = 0;
+		data->cia = cia;
+
+		rthreads[i] = threadCreate(install_cia_thread, (void *) data, 0, thpr - 1, -2, false);
+	}
 
 	/* TODO: Create a struct to pass on to all threads to ensure there is no
 			Race condition here (time taken > U64_MAX), make the main thread (this one!)
 			Write to a progress bar while waiting */
+	for(unsigned long long i = 1; i != 0; ++i); // Waits for i to overflow
+	llog << "TIMER IS DONE.";
 
 	// Ensure thread is finished (it should already be at this point) + free
 	for(size_t i = 0; i < threads; ++i)
 	{
 		threadJoin(rthreads[i], U64_MAX);
 		threadFree(rthreads[i]);
-	}	
+		linfo << "Killed thread " << i;
+	}
+
+	AM_FinishCiaInstall(cia);
+	clean_mutex();
 
 	// i think this is unnecessairy?
 	// delete [] rthreads;

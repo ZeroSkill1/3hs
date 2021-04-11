@@ -28,8 +28,8 @@
 #define standalone_main_breaking_loop() { ui::Widgets w; \
 	generic_main_breaking_loop(w); }
 
-#define GRID_AL_X(x) (x*12)
-#define GRID_AL_Y(y) (y*18)
+#define GRID_AL_X(x) ((x)*12)
+#define GRID_AL_Y(y) ((y)*18)
 
 #define GFX(n) "romfs:/gfx/" n
 #define SHEET(n) GFX(n ".t3x")
@@ -174,10 +174,12 @@ namespace ui
 	std::string human_readable_size_block(T inte)
 	{
 		std::string ret = human_readable_size<T>(inte);
-		ret += std::string(" (") + std::to_string((T) std::round((double) inte / 1024 / 128))
-			+ " blocks)";
-		return ret;
+		T blk = (double) inte / 1024 / 128;
+		blk = blk == 0 ? 1 : blk;
+
+		return ret + std::string(" (") + std::to_string(blk) + " blocks)";
 	}
 }
 
 #endif
+

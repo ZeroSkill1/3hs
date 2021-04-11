@@ -56,6 +56,11 @@
 #   if defined(_POSIX_THREADS)
 #       include <pthread.h>
 #   endif
+ /* @change */
+#   if defined(_3DS)
+#      include <3ds/synchronization.h>
+#   endif
+ /* @endchange */
 #   if PLOG_ENABLE_WCHAR_INPUT
 #       include <iconv.h>
 #   endif
@@ -445,6 +450,12 @@ namespace plog
                             RTEMS_INHERIT_PRIORITY, 1, &m_sync);
 #elif defined(_POSIX_THREADS)
                 ::pthread_mutex_init(&m_sync, 0);
+
+/* @change */
+#elif defined(_3DS)
+								LightLock_Init(&m_sync);
+/* @endchange */
+
 #endif
             }
 
@@ -456,6 +467,10 @@ namespace plog
                 rtems_semaphore_delete(m_sync);
 #elif defined(_POSIX_THREADS)
                 ::pthread_mutex_destroy(&m_sync);
+/* @change */
+#elif defined(_3DS)
+								close(m_sync);
+/* @endchange */
 #endif
             }
 
@@ -470,6 +485,11 @@ namespace plog
                 rtems_semaphore_obtain(m_sync, RTEMS_WAIT, RTEMS_NO_TIMEOUT);
 #elif defined(_POSIX_THREADS)
                 ::pthread_mutex_lock(&m_sync);
+/* @change */
+#elif defined(_3DS)
+								LightLock_Lock(&m_sync);
+/* @endchange */
+
 #endif
             }
 
@@ -481,6 +501,10 @@ namespace plog
                 rtems_semaphore_release(m_sync);
 #elif defined(_POSIX_THREADS)
                 ::pthread_mutex_unlock(&m_sync);
+/* @change */
+#elif defined(_3DS)
+								LightLock_Unlock(&m_sync);
+/* @endchange */
 #endif
             }
 
@@ -491,6 +515,10 @@ namespace plog
             rtems_id m_sync;
 #elif defined(_POSIX_THREADS)
             pthread_mutex_t m_sync;
+/* @change */
+#elif defined(_3DS)
+						LightLock m_sync;
+/* @endchange */
 #endif
         };
 

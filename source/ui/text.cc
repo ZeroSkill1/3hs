@@ -47,6 +47,11 @@ ui::WText ui::mk_right_WText(std::string text, float y, float pad, float sizeX, 
 	});
 }
 
+ui::WText ui::mk_left_WText(std::string text, float y, float pad, float sizeX, float sizeY)
+{
+	return ui::mkWText(text, pad, y, sizeX, sizeY, [](WText *) -> void { });
+}
+
 void ui::Text::replace_text(std::string inTxt)
 {
 	C2D_TextBufClear(this->buf);
@@ -69,9 +74,19 @@ float ui::get_center_x(C2D_Text *txt, float sizeX, float sizeY, ui::Scr screen)
 	return ((SCREEN_WIDTH(screen) / 2) - (width / 2.0f));
 }
 
+float ui::get_center_x_txt(std::string txt, float sizeX, float sizeY, ui::Scr screen)
+{
+	C2D_TextBuf buf = C2D_TextBufNew(txt.size() + 1);
+	C2D_Text text; ui::parse_text(&text, buf, txt);
+
+	float width = ui::text_width(&text, sizeX, sizeY);
+	C2D_TextBufDelete(buf);
+
+	return ((SCREEN_WIDTH(screen) / 2) - (width / 2.0f));
+}
+
 float ui::text_width(C2D_Text *txt, float sizeX, float sizeY)
 {
-	float width;
-	C2D_TextGetDimensions(txt, sizeX, sizeY, &width, NULL);
+	float width; C2D_TextGetDimensions(txt, sizeX, sizeY, &width, NULL);
 	return width;
 }

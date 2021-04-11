@@ -11,19 +11,18 @@
 #define __HS_IVER_T unsigned int
 #define __HS_ID_T unsigned long
 
-#define index_failed(i) (i.size == hs::constants::BAD_SIZE)
+#define index_failed(i) (i.size == HS_BAD_SIZE)
 #define index_error(i) (i.updated)
+
+#define HS_CDN_BASE_API "https://download4.erista.me/" // This one has https :/
+#define HS_CDN_BASE     "http://download4.erista.me/"
+#define HS_BASE_LOC     "https://hshop.erista.me/api/"
+#define HS_CA_LOC       "romfs:/cacert.pem"
+#define HS_BAD_SIZE     0
 
 
 namespace hs
 {
-	namespace constants
-	{
-		constexpr char BASE_LOC[] = "https://hshop.erista.me/api/";
-		constexpr char CA_LOC[] = "romfs:/cacert.pem";
-		constexpr int BAD_SIZE = 0;
-	}
-
 	typedef struct BaseCategory
 	{
 		std::string displayName; /* Display */
@@ -44,7 +43,7 @@ namespace hs
 	{
 		Category() : BaseCategory() { }
 		std::vector<Subcategory> subcategories;
-	
+
 		Subcategory *operator [] (std::string name)
 		{
 			for(size_t i = 0; i < this->subcategories.size(); ++i)
@@ -106,6 +105,8 @@ namespace hs
 	bool global_init();
 
 	std::string base_req(std::string url, std::string *err = nullptr);
+	std::string get_download_link(hs::Title *title);
+	std::string get_token(hs::Title *title);
 	std::string route(std::string path);
 
 	std::vector<Title> titles_in(std::string cat, std::string subcat);

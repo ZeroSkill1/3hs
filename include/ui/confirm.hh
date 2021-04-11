@@ -2,6 +2,7 @@
 #ifndef __ui_confirm_hh__
 #define __ui_confirm_hh__
 
+#include "ui/button.hh"
 #include "ui/core.hh"
 #include "ui/text.hh"
 
@@ -22,22 +23,13 @@ namespace ui
 	public:
 		Confirm(std::string label, bool& res);
 
-		void parse_text(C2D_Text *outTxt, C2D_TextBuf buf, std::string inTxt);
 		ui::Results draw(ui::Keys&, ui::Scr) override;
 
 
 	private:
-		C2D_TextBuf buf;
-		C2D_Text usr;
-		C2D_Text yes;
-		C2D_Text no;
-
-		float ux;
-		float yx;
-		float nx;
-
-		float yfx;
-		float nfx;
+		ui::Button yes;
+		ui::Button no;
+		ui::Text usr;
 
 		bool& returns;
 
@@ -47,3 +39,4 @@ namespace ui
 
 
 #endif
+

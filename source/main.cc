@@ -4,6 +4,8 @@
 #include <sys/stat.h>
 
 #include <ui/scrollingText.hh>
+#include <ui/confirm.hh>
+#include <ui/button.hh>
 #include <ui/text.hh>
 #include <ui/core.hh>
 #include <ui/list.hh>
@@ -11,11 +13,13 @@
 #include <widgets/konami.hh>
 #include <widgets/meta.hh>
 
+#include <net_common.hh>
 #include <3rd/log.hh>
 #include <hs.hh>
 
 #include "install.hh"
 #include "update.hh"
+#include "about.hh"
 #include "seed.hh"
 #include "next.hh"
 
@@ -51,11 +55,13 @@ int main(int argc, char* argv[])
 	ensure_logs_dir();
 	init_seeddb();
 	plog::init(LOG_LEVEL, "/3ds/3hs/3hs.log");
+	linfo << "App version: " FULL_VERSION;
 
 	if(!ui::global_init())
 	{
 		lfatal << "ui::global_init() failed, this should **never** happen";
 		ui::global_deinit();
+		exit_services();
 		return 1;
 	}
 
@@ -64,14 +70,20 @@ int main(int argc, char* argv[])
 	ui::wid()->push_back("curr_action_desc", new ui::Text(ui::mk_center_WText("Loading ...", 45.0f)), ui::Scr::top);
 	ui::wid()->push_back("header", new ui::Text(ui::mk_center_WText("hShop", 0.0f, 1.0f, 1.0f)), ui::Scr::top);
 	ui::wid()->push_back("konami", new ui::Konami(), ui::Scr::top);
+
+	ui::wid()->push_back("about", new ui::Button("About", C2D_Color32(0x32, 0x35, 0x36, 0xFF), 10, 210, 80, 230), ui::Scr::bottom);
+	ui::wid()->get<ui::Button>("about")->set_on_click([]() -> ui::Results {
+		show_about(); return ui::Results::end_early;
+	});
+
 	quick_global_draw();
+
 
 	if(osGetWifiStrength() == 0)
 	{
 		lwarning << "No wifi found, waiting for wifi";
 
-		ui::wid()->get<ui::Text>("curr_action_desc")
-			->replace_text("Please connect to wifi and restart the app");
+		ui::wid()->get<ui::Text>("curr_action_desc")->replace_text("Please connect to wifi and restart the app");
 		ui::Keys keys; ui::Widgets dummy;
 		// 0 = NO wifi at all
 		while(ui::framenext(keys) && osGetWifiStrength() == 0)
@@ -91,6 +103,7 @@ int main(int argc, char* argv[])
 		standalone_main_breaking_loop();
 		ui::global_deinit();
 		hs::global_deinit();
+		exit_services();
 		return 3;
 	}
 	svcCloseHandle(lumaCheck);
@@ -104,6 +117,7 @@ int main(int argc, char* argv[])
 		standalone_main_loop();
 		ui::global_deinit();
 		hs::global_deinit();
+		exit_services();
 		return 2;
 	}
 
@@ -132,6 +146,7 @@ int main(int argc, char* argv[])
 		standalone_main_loop();
 		ui::global_deinit();
 		hs::global_deinit();
+		exit_services();
 		return 3;
 	}
 
@@ -160,7 +175,8 @@ sub:
 
 		/* INSTALL */
 		hs::Title meta = hs::title_meta(id);
-		game::install_cia(&meta);
+		game::single_thread_install(&meta);
+//		game::install_cia(&meta);
 		goto gam;
 
 	}

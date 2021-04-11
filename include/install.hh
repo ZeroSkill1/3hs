@@ -19,22 +19,25 @@ namespace game
 		u64 offset;
 	} __cb_data;
 
- 
 	typedef std::tuple<size_t /* From */, size_t /* To */> balance_t;
 
 	typedef struct __install_cia_thread_data
 	{
-		balance_t balance;		
+		balance_t balance;
+		hs::Title *meta;
 		size_t written;
+		Handle cia;
 	} __install_cia_thread_data;
 
-	/* balance_t rrange = array */
-	void balance_range(const hs::Title *meta, balance_t *rrange, size_t size);
-	void install_cia(const hs::Title *meta, size_t threads = 2);
 
-	void single_install_thread(std::string from, Handle cia, size_t offset = 0, size_t to = 0);
+	void balance_range(const hs::Title *meta, game::balance_t *rrange, size_t size);
+	void install_cia(const hs::Title *meta, size_t threads = 2);
+	void single_thread_install(hs::Title *meta);
+
+	void single_install_thread(std::string url, Handle ciaHandle, size_t from = 0, size_t to = 0);
 	void clean_mutex();
 	void start_mutex();
 }
 
 #endif
+

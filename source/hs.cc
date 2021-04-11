@@ -29,6 +29,14 @@ static J j_req(std::string path, std::string *err = nullptr)
 	return J::parse(body);
 }
 
+template <typename J = json>
+static J j_abs_req(std::string url, std::string *err = nullptr)
+{
+	const std::string body = hs::base_req(url, err);
+	return J::parse(body);
+}
+
+
 static size_t curl_write_std_string(char *ptr, size_t size, size_t nmemb, void *userdata)
 {
 	std::string *str = (std::string *) userdata;
@@ -42,14 +50,16 @@ std::string hs::base_req(std::string url, std::string *err)
 	std::string body;
 
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_write_std_string);
-	curl_easy_setopt(curl, CURLOPT_CAINFO, hs::constants::CA_LOC);
 	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+	curl_easy_setopt(curl, CURLOPT_CAINFO, HS_CA_LOC);
 	curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &body);
 	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10L);
 
 	CURLcode res = curl_easy_perform(curl);
 	curl_easy_cleanup(curl);
+
+	long code = 0; curl_easy_getinfo (curl, CURLINFO_RESPONSE_CODE, &code); lverbose << "Status: " << code;
 
 	if(res != CURLE_OK && err != nullptr)
 	{
@@ -63,14 +73,14 @@ std::string hs::base_req(std::string url, std::string *err)
 
 std::string hs::route(std::string path)
 {
-	return std::string(constants::BASE_LOC) + path;
+	return std::string(HS_BASE_LOC) + path;
 }
 
 
 /**
- * IF this fails `ret.size` will be `hs::constants::BAD_SIZE` and
- * `ret.updated` will be the error string
- **/
+ * IF this fails `ret.size` will be `HS_BAD_SIZE` and
+ * `ret.updated` will be the error string (use the macros
+ * index_failed(...) and index_error(...)) */
 hs::Index hs::Index::get()
 {
 	std::string err;
@@ -79,7 +89,7 @@ hs::Index hs::Index::get()
 
 	if(err != "")
 	{
-		ret.size = constants::BAD_SIZE;
+		ret.size = HS_BAD_SIZE;
 		ret.updated = err;
 		return ret;
 	}
@@ -155,10 +165,22 @@ hs::FullTitle hs::title_meta(__HS_ID_T id)
 	/* TODO: Create actual FullTitle here */
 
 	JT_SET_PROP(res, ret, "size", size, __HS_SIZE_T);
+	JT_SET_PROP(res, ret, "id", id, __HS_ID_T);
 
 	return ret;
 }
 
+std::string hs::get_token(hs::Title *title)
+{
+	return j_abs_req<json>(std::string(HS_CDN_BASE_API "content/request?id=")
+		+ std::to_string(title->id))["token"].get<std::string>();
+}
+
+std::string hs::get_download_link(hs::Title *title)
+{
+	return std::string(HS_CDN_BASE "content/") + std::to_string(title->id)
+		+ "?token=" + hs::get_token(title);
+}
 
 #define SOC_ALIGN       0x100000
 #define SOC_BUFFERSIZE  0x10000

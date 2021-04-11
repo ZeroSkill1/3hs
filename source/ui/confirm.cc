@@ -1,51 +1,41 @@
 
 #include "ui/confirm.hh"
-#include <3rd/log.hh>
 
+#define widdraw(w) { ui::Results res; if((res = w.draw(keys,target)) != ui::Results::go_on) return res; }
 #define END(r) { this->returns = r; return ui::Results::quit_loop; }
+#define fs ui::constants::FSIZE
 
 
 ui::Confirm::Confirm(std::string label, bool& res)
-	: Widget("confirm"), returns(res)
+	: Widget("confirm"),
+		yes(
+			CONFIRM_YES, C2D_Color32(0x32, 0xcd, 0x32, 0xff), 75,
+			SCREEN_HEIGHT() / 2 - 10, 150,
+			SCREEN_HEIGHT() / 2 + 10
+		),
+		no(
+			CONFIRM_NO, C2D_Color32(0xdc, 0x14, 0x3c, 0xff), 175,
+			SCREEN_HEIGHT() / 2 - 10, 250, 
+			SCREEN_HEIGHT() / 2 + 10
+		),
+		usr(ui::mk_center_WText(label, SCREEN_HEIGHT() / 2 - 40, constants::FSIZE, constants::FSIZE,
+			ui::Scr::bottom)),
+		returns(res)
 {
-	this->buf = C2D_TextBufNew(CONFIRM_LEN + label.size());
-	this->parse_text(&this->yes, this->buf, CONFIRM_YES);
-	this->parse_text(&this->no, this->buf, CONFIRM_NO);
-	this->parse_text(&this->usr, this->buf, label);
-
-	this->yx = ui::get_center_x(&this->yes, constants::FSIZE, constants::FSIZE, ui::Scr::bottom) - 40;
-	this->nx = ui::get_center_x(&this->no, constants::FSIZE, constants::FSIZE, ui::Scr::bottom) + 40;
-	this->ux = ui::get_center_x(&this->usr, constants::FSIZE, constants::FSIZE, ui::Scr::bottom);
-
-	this->yfx = ui::get_center_x(&this->yes, constants::FSIZE, constants::FSIZE, ui::Scr::bottom) - 40 + ui::text_width(&this->yes);
-	this->nfx = ui::get_center_x(&this->no, constants::FSIZE, constants::FSIZE, ui::Scr::bottom) + 40 + ui::text_width(&this->no);
+	this->yes.set_on_click([&]() END(true));
+	this->no.set_on_click([&]() END(false));
 }
 
-static bool close_enough(u16 cmp, u16 cmpto, u16 max)
-{
-	return (cmp > cmpto && cmp < max);
-}
-
-ui::Results ui::Confirm::draw(ui::Keys& keys, ui::Scr)
+ui::Results ui::Confirm::draw(ui::Keys& keys, ui::Scr target)
 {
 	if(keys.kDown & KEY_A)
 		END(true);
 	if(keys.kDown & KEY_B)
 		END(false);
-	if(keys.touch.px >= this->yx && keys.touch.px <= this->yfx && close_enough(keys.touch.py, SCREEN_HEIGHT() / 2, 15))
-		END(true);
-	if(keys.touch.px >= this->nx && keys.touch.px <= this->nfx && close_enough(keys.touch.py, SCREEN_HEIGHT() / 2, 15))
-		END(false);
 
-	ui::draw_at_absolute(this->ux, (SCREEN_HEIGHT() / 2) - 20, this->usr);
-	ui::draw_at_absolute(this->yx, (SCREEN_HEIGHT() / 2), this->yes);
-	ui::draw_at_absolute(this->nx, (SCREEN_HEIGHT() / 2), this->no);
-
+	widdraw(this->usr);
+	widdraw(this->yes);
+	widdraw(this->no);
 	return ui::Results::go_on;
 }
 
-void ui::Confirm::parse_text(C2D_Text *outTxt, C2D_TextBuf buf, std::string inTxt)
-{
-	ui::parse_text(outTxt, buf, inTxt);
-	C2D_TextOptimize(outTxt);
-}
