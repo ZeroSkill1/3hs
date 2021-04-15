@@ -9,68 +9,79 @@
 static LightLock g_mtx;
 
 
-static Result write_to_fd(game::__cb_data *cdata, void *data, u32 *write, size_t size, u32 flags = FS_WRITE_FLUSH)
+static Result write_to_fd(game::cia_net_data *cdata, u32 *written, u32 flags = FS_WRITE_FLUSH)
 {
-	return FSFILE_Write(cdata->handle, write, cdata->offset, data, size, FS_WRITE_FLUSH);
+	return FSFILE_Write(cdata->cia, written, cdata->index, cdata->buffer, CIA_NET_BUFSIZE, flags);
 }
 
-/*static void __sum(game::__cb_data *data, u32 written, u32 size, u32 nmemb, Result res)
+static void __sum(game::cia_net_data *data, size_t size, size_t avail, u32 written, Result res)
 {
 	lverbose << "Write summary";
 	lverbose << "====================";
-	lverbose << "data->handle : " << data->handle;
-	lverbose << "written      : " << written;
-	lverbose << "data->offset : " << data->offset;
-	lverbose << "size * nmemb : " << size * nmemb;
-	lverbose << "result       : " << std::hex << res;
+	lverbose << "data->cia     : " << data->cia;
+	lverbose << "rsize         : " << size;
+	lverbose << "data->index   : " << data->index;
+	lverbose << "data->bufSize : " << data->bufSize;
+	lverbose << "available     : " << avail;
+	lverbose << "written       : " << written;
+	lverbose << "result        : " << std::hex << res;
 	lverbose << "====================";
-}*/
+}
 
 static size_t curl_install_cia_callback(char *ptr, size_t size, size_t nmemb, void *userdata)
 {
-	game::__cb_data *data = (game::__cb_data *) userdata;
-	size = size * nmemb; // Don't want to write this the entire time...
-	u32 written = 0;
-	u32 doff = 0;
-	Result res;
+		game::cia_net_data *udata = (game::cia_net_data *) userdata;
+		size_t rsize = size * nmemb;
+		size_t avail = rsize; // This will decrement
+		size_t srcPos = 0; // From where in `ptr` do we want to copy?
 
-	// We can write from the buffer
-	if(data->bufsiz + size > DBUFSZ)
-	{
-		char *write = new char[DBUFSZ];
-		memcpy(write, data->databuf, data->bufsiz);
-		memcpy(write + data->bufsiz, ptr, DBUFSZ - data->bufsiz);
-
-		size -= DBUFSZ - data->bufsiz;
-		doff = DBUFSZ - data->bufsiz;
-		data->bufsiz = 0;
-
-		if(R_FAILED(res = write_to_fd(data, write, &written, DBUFSZ)))
+		// We need to split it up in chunks ...
+		while(avail != 0)
 		{
-			lerror << "Failed writing(0): " << std::hex << res;
-			return 0;
+			// How many bytes do we still need to write to the buffer to get it completed?
+			size_t remainder = CIA_NET_BUFSIZE - udata->bufSize;
+			// Remainder = 100
+			// available = 200
+			// First round: write remainding 100 bytes, available-=100, clear buffer
+			// Second round: write 100 bytes to buffer and do nothing after
+			size_t cpySize = remainder > avail ? avail : remainder;
+
+			lverbose << "Copying into udata->buffer " << cpySize << " bytes, srcPos=" << srcPos << ",bufSize=" << udata->bufSize;
+
+			// Copy the remainder in, if we don't have enough to fill it in completely
+			// Just fill what we can
+			memcpy(udata->buffer + udata->bufSize, ptr + srcPos, cpySize);
+			udata->bufSize += cpySize;
+			avail -= cpySize;
+
+			// Hey! we need to clear the buffer
+			if(udata->bufSize == CIA_NET_BUFSIZE)
+			{
+				// How many bytes did we write? Should always be CIA_NET_BUFSIZE
+				u32 written = 0; Result res = write_to_fd(udata, &written);
+				__sum(udata, rsize, avail, written, res);
+
+				if(R_FAILED(res))
+				{
+					lerror << "Failed writing data: " << std::hex << res;
+					return 0;
+				}
+
+				udata->index += udata->bufSize; // = CIA_NET_BUFSIZE
+				udata->bufSize = 0;
+			}
 		}
 
-		delete [] write;
-	}
+	// Success!
+	return rsize;
+}
 
-	// Split it up
-	for(size_t i = 0; i < size / DBUFSZ; ++i)
-	{
-		if(R_FAILED(write_to_fd(data, ptr + doff, &written, DBUFSZ)))
-		{
-			lerror << "Failed writing(1): " << std::hex << res;
-			return 0;
-		}
-		size -= written;
-		doff += written;
-		written = 0;
-	}
-
-	// Copy rest in buffer
-	memcpy(data->databuf + data->bufsiz, ptr + doff, size);
-	data->bufsiz += size;
-	return size * nmemb;
+int potential_exit_callback(void *clientp, curl_off_t dltotal, curl_off_t dlnow, curl_off_t ultotal, curl_off_t ulnow)
+{
+	hidScanInput();
+	if(hidKeysDown() & KEY_B)
+		return 1;
+	return 0;
 }
 
 static size_t curl_install_cia_callback_safe(char *ptr, size_t size, size_t nmemb, void *userdata)
@@ -95,6 +106,7 @@ void game::clean_mutex()
 
 void game::single_install_thread(std::string url, Handle ciaHandle, size_t from, size_t to)
 {
+	static_assert(CIA_NET_BUFSIZE % 64 == 0, "$CIA_NET_BUFSIZE must be divisable by 64");
 	CURL *curl = curl_easy_init();
 
 	struct curl_slist *headers = NULL;
@@ -106,11 +118,12 @@ void game::single_install_thread(std::string url, Handle ciaHandle, size_t from,
 	}
 	curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 
-	game::__cb_data data;
-	data.handle = ciaHandle;
-	data.offset = from;
+	game::cia_net_data data;
+	data.cia = ciaHandle;
 
+//	curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, potential_exit_callback);
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_install_cia_callback);
+	curl_easy_setopt(curl, CURLOPT_BUFFERSIZE, CIA_NET_BUFSIZE);
 	curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &data);
 
@@ -147,6 +160,7 @@ static void install_cia_thread(void *arg)
 {
 	game::__install_cia_thread_data *data = (game::__install_cia_thread_data *) arg;
 	llog << "FROM: " << std::get<0>(data->balance) << "-" << std::get<1>(data->balance);
+
 	game::single_install_thread(hs::get_download_link(data->meta), data->cia,
 		std::get<0 /* from */>(data->balance), std::get<1 /* to */>(data->balance));
 	delete data;
@@ -160,7 +174,9 @@ void game::single_thread_install(hs::Title *meta)
 
 	llog << "Start CIA res: " << std::hex << AM_StartCiaInstall(dest, &cia);
 	lverbose << "cia handle: " << cia;
+
 	game::single_install_thread(hs::get_download_link(meta), cia);
+
 	llog << "Install res: " << std::hex << AM_FinishCiaInstall(cia);
 }
 

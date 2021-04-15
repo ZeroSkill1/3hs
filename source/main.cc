@@ -152,7 +152,7 @@ int main(int argc, char* argv[])
 
 	ui::setup_meta(&indx);
 
-	hs::Title meta = hs::title_meta(3126);
+	hs::Title meta = hs::title_meta(3309);
 	game::single_thread_install(&meta);
 	goto done;
 
@@ -180,7 +180,6 @@ sub:
 		/* INSTALL */
 		hs::Title meta = hs::title_meta(id);
 		game::single_thread_install(&meta);
-//		game::install_cia(&meta);
 		goto gam;
 
 	}
