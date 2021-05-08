@@ -16,13 +16,13 @@ bool update_app()
 	linfo << "Fetched new version " << nver << " from " << UP_VERSION;
 	linfo << "Current app version is " << VERSION;
 
+	if(nver == VERSION)
+		return false;
+
 	ui::Widgets wids; bool shouldUpdate = false;
 	wids.push_back("confirmation", new ui::Confirm(std::string("Update to version ")
 		+ nver + "?", shouldUpdate), ui::Scr::bottom);
 	generic_main_breaking_loop(wids);
-
-	if(nver == VERSION)
-		return false;
 
 	if(!shouldUpdate)
 	{
@@ -30,13 +30,8 @@ bool update_app()
 		return false;
 	}
 
-	Handle cia; AM_StartCiaInstall(MEDIATYPE_SD, &cia);
-	game::start_mutex();
-
 	linfo << "Updating from url: " << UP_CIA(nver) << " ...";
-	game::single_install_thread(UP_CIA(nver), cia);
-	game::clean_mutex();
-	AM_FinishCiaInstall(cia);
+	install_net_cia(UP_CIA(nver));
 	return true;
 }
 
@@ -79,3 +74,4 @@ std::string get_latest_version_string()
 {
 	return get_url_content(UP_VERSION);
 }
+

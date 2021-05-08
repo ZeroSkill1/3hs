@@ -41,3 +41,6 @@ dumps/
 *.elf
 *.cxi
 *.cia
+
+# Ctags
+tags
