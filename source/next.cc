@@ -41,7 +41,7 @@ std::string next::sel_cat(hs::Index& index)
 	}
 
 	// User pressed [START]
-	return next_cat_exit; 
+	return next_cat_exit;
 }
 
 std::string next::sel_sub(hs::Index& index, std::string cat)

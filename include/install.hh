@@ -2,6 +2,7 @@
 #ifndef __game_hh__
 #define __game_hh__
 
+#include <functional>
 #include <string>
 #include <hs.hh>
 #include <3ds.h>
@@ -14,8 +15,12 @@
 #define NET_OK(r) ((r) == 0)
 
 
-Result install_net_cia(std::string url, FS_MediaType dest = MEDIATYPE_SD);
-Result install_hs_cia(hs::Title *meta);
+typedef std::function<void(u64 /* done */, u64 /* total */)> prog_func;
+static void default_prog_func(u64, u64)
+{ }
+
+Result install_net_cia(std::string url, prog_func prog = default_prog_func, FS_MediaType dest = MEDIATYPE_SD);
+Result install_hs_cia(hs::Title *meta, prog_func prog = default_prog_func);
 
 #endif
 

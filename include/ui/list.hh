@@ -4,14 +4,8 @@
 
 #include <ui/scrollingText.hh>
 #include <ui/core.hh>
-
 #include <functional>
 #include <3rd/log.hh>
-
-
-#define list_onsel_cb std::function<ui::Results(List<T> *, size_t)>
-#define list_onch_cb std::function<void(List<T> *, size_t)>
-#define list_tostr_cb std::function<std::string(T&)>
 
 #define __exec_onch() this->on_change(this, this->point)
 
@@ -25,6 +19,7 @@ namespace ui
 	namespace constants
 	{
 		constexpr int MAX_PER_SCREEN = 10;
+		constexpr int SUPER_OFF = MAX_PER_SCREEN;
 		constexpr int CURSOR_DELAY = 7;
 		constexpr int CURSOR_INIT = -4;
 		constexpr int TOP_ITEMS = 2;
@@ -41,6 +36,11 @@ namespace ui
 	class List : public Widget
 	{
 	public:
+		using list_onsel_cb = std::function<ui::Results(List<T> *, size_t)>;
+		using list_onch_cb = std::function<void(List<T> *, size_t)>;
+		using list_tostr_cb = std::function<std::string(T&)>;
+
+
 		List(list_tostr_cb to_str, list_onsel_cb on_select, size_t txtbufsz = 4096)
 			: Widget("list"), point(0)
 		{ this->init(to_str, on_select, txtbufsz); }
@@ -117,14 +117,25 @@ namespace ui
 		ui::Results draw(Keys& keys, Scr target) override
 		{
 			static int last = ui::constants::CURSOR_INIT;
+
 			if((keys.kDown & KEY_DOWN) && this->point < this->items.size() - 1)
 			{ ++point; last = ui::constants::CURSOR_INIT; __exec_onch(); }
-			if((keys.kDown & KEY_UP) && this->point > 0)
+			else if((keys.kDown & KEY_UP) && this->point > 0)
 			{ --point; last = ui::constants::CURSOR_INIT; __exec_onch(); }
-			if((keys.kHeld & KEY_UP) && this->point > 0 && last > ui::constants::CURSOR_DELAY)
-			{ --point; last = -1; __exec_onch(); }
-			if((keys.kHeld & KEY_DOWN) && this->point < this->items.size() - 1 && last > ui::constants::CURSOR_DELAY)
+			else if((keys.kDown & KEY_LEFT) && this->point >= ui::constants::SUPER_OFF)
+			{ point -= ui::constants::SUPER_OFF; last = ui::constants::CURSOR_INIT; __exec_onch(); }
+			else if((keys.kDown & KEY_RIGHT) && this->point < this->min(this->items.size(), ui::constants::SUPER_OFF))
+			{ point += ui::constants::SUPER_OFF; last = ui::constants::CURSOR_INIT; __exec_onch(); }
+
+			else if((keys.kHeld & KEY_DOWN) && this->point < this->items.size() - 1 && last > ui::constants::CURSOR_DELAY)
 			{ ++point; last = -1; __exec_onch(); }
+			else if((keys.kHeld & KEY_UP) && this->point > 0 && last > ui::constants::CURSOR_DELAY)
+			{ --point; last = -1; __exec_onch(); }
+			else if((keys.kHeld & KEY_LEFT) && this->point >= ui::constants::SUPER_OFF && last > ui::constants::CURSOR_DELAY)
+			{ point -= ui::constants::SUPER_OFF; last = -3; __exec_onch(); }
+			else if((keys.kHeld & KEY_RIGHT) && this->point < this->min(this->items.size(), ui::constants::SUPER_OFF) && last > ui::constants::CURSOR_DELAY)
+			{ point += ui::constants::SUPER_OFF; last = -3; __exec_onch(); }
+
 			++last;
 
 
@@ -138,7 +149,7 @@ namespace ui
 			}
 
 			if(keys.kDown & KEY_A)
-				return this->on_select(this, this->point); //this->items[this->point], this->point);
+				return this->on_select(this, this->point);
 			return ui::Results::go_on;
 		}
 
@@ -156,6 +167,12 @@ namespace ui
 		list_onsel_cb on_select;
 		list_tostr_cb to_str;
 
+		size_t min(size_t base, size_t other)
+		{
+			if(other > base) return 0;
+			return base - other;
+		}
+
 		void init(list_tostr_cb to_str, list_onsel_cb on_select, size_t txtbufsize)
 	 	{
 			this->on_select = on_select;
@@ -167,5 +184,5 @@ namespace ui
 	};
 }
 
-
+#undef __exec_onch
 #endif

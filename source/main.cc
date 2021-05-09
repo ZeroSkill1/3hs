@@ -1,9 +1,8 @@
 
 #include <3ds.h>
 
-#include <sys/stat.h>
-
 #include <ui/scrollingText.hh>
+#include <ui/progress_bar.hh>
 #include <ui/confirm.hh>
 #include <ui/button.hh>
 #include <ui/text.hh>
@@ -152,6 +151,7 @@ int main(int argc, char* argv[])
 
 	ui::setup_meta(&indx);
 
+
 	// Old logic was cursed, made it a bit better :blobaww:
 	while(aptMainLoop())
 	{
@@ -173,12 +173,30 @@ sub:
 		if(id == next_gam_exit) break;
 		llog << "NEXT(g): " << id;
 
-		/* INSTALL */
-		hs::Title meta = hs::title_meta(id);
-		install_hs_cia(&meta);
-		goto gam;
+		{
+			/* INSTALL */
+			ui::Widgets wids;
+			ui::ProgressBar *bar = new ui::ProgressBar(0, 1); // = 0%
+			wids.push_back("prog_bar", bar, ui::Scr::bottom);
+			bar->set_mib_type();
+			single_draw(wids);
+
+			hs::Title meta = hs::title_meta(id);
+			Result res = install_hs_cia(&meta, [&wids, bar](u64 now, u64 total) -> void {
+				bar->update(now, total);
+				bar->activate_text();
+				single_draw(wids);
+			});
+
+			((void) res);
+
+			// TODO: Display potential errors here
+
+			goto gam;
+		}
 
 	}
+
 
 	llog << "Sayonara, app deinit";
 	hs::global_deinit();

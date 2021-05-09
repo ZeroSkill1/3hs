@@ -3,6 +3,7 @@
 *.d
 
 # Frii
+cia_stuff/romfs.bin
 romfs/gfx/
 build/
 dumps/

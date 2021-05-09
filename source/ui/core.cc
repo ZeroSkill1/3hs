@@ -1,8 +1,8 @@
 
 #include "ui/core.hh"
 
-#define DO_WIDS_DRAW(wids) { \
-	switch(ui::draw_widgets(wids, keys)) { \
+#define DO_WIDS_DRAW(wids, keys, target) { \
+	switch(ui::draw_widgets(wids, keys, target)) { \
 	case ui::Results::quit_loop   : ret = false; goto exit; \
 	case ui::Results::end_early   : return true; \
 	case ui::Results::quit_no_end : return false; \
@@ -38,12 +38,12 @@ bool ui::framenext(ui::Keys& keys)
 	return aptMainLoop();
 }
 
-ui::Results ui::draw_widgets(std::vector<ui::Widget *> wids, ui::Keys& keys)
+ui::Results ui::draw_widgets(std::vector<ui::Widget *> wids, ui::Keys& keys, ui::Scr target)
 {
 	for(ui::Widget *wid : wids)
 	{
 		if(!wid->enabled) continue;
-		ui::Results ret = wid->draw(keys, ui::Scr::top);
+		ui::Results ret = wid->draw(keys, target);
 		if(ret != ui::Results::go_on)
 			return ret;
 	}
@@ -59,12 +59,12 @@ bool ui::framedraw(ui::Widgets& wids, ui::Keys& keys)
 
 
 	C2D_SceneBegin(g_top);
-	DO_WIDS_DRAW(g_widgets.top);
-	DO_WIDS_DRAW(wids.top);
+	DO_WIDS_DRAW(g_widgets.top, keys, ui::Scr::top);
+	DO_WIDS_DRAW(wids.top, keys, ui::Scr::top);
 
 	C2D_SceneBegin(g_bot);
-	DO_WIDS_DRAW(g_widgets.bot);
-	DO_WIDS_DRAW(wids.bot);
+	DO_WIDS_DRAW(g_widgets.bot, keys, ui::Scr::bottom);
+	DO_WIDS_DRAW(wids.bot, keys, ui::Scr::bottom);
 
 
 exit:
@@ -141,11 +141,13 @@ void ui::Widgets::push_back(ui::Widget *widget, Scr target)
 	{
 	case ui::Scr::bottom:
 		widget->screen = ui::Scr::bottom;
+		widget->pre_push();
 		this->bot.push_back(widget);
 		break;
 
 	case ui::Scr::top:
 		widget->screen = ui::Scr::top;
+		widget->pre_push();
 		this->top.push_back(widget);
 		break;
 	}

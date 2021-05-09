@@ -26,7 +26,6 @@ ui::Results ui::Text::draw(ui::Keys&, ui::Scr)
 	return ui::Results::go_on;
 }
 
-
 ui::WText ui::mkWText(std::string text, float x, float y, float sizeX, float sizeY, std::function<void(WText *)> callback)
 {
 	return { callback, text, sizeX, sizeY, x, y };

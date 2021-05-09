@@ -22,6 +22,8 @@ namespace ui
 
 		ui::Results draw(ui::Keys&, ui::Scr) override;
 
+		void toggle_click();
+
 
 	private:
 		c2d::TextBuf buf;
@@ -29,9 +31,12 @@ namespace ui
 
 		button_on_click on_click = [](){return ui::Results::go_on;};
 
+		bool clickable = true;
+
 		float x1, x2;
 		float y1, y2;
 		u32 color;
+
 
 	};
 }

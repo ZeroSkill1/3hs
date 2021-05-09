@@ -19,6 +19,8 @@
 	ui::draw_at(x, y, __t); C2D_TextBufDelete(__b); }
 #define quick_global_draw() { ui::Widgets wids; ui::Keys keys; \
 	ui::framenext(keys); ui::framedraw(wids, keys); }
+#define single_draw(wids) { ui::Keys keys; \
+		ui::framenext(keys);  ui::framedraw(wids, keys); }
 #define generic_main_loop(w) { ui::Keys k; \
 	while(ui::framenext(k)) ui::framedraw(w,k); }
 #define generic_main_breaking_loop(w) { ui::Keys k; \
@@ -79,6 +81,7 @@ namespace ui
 		Scr screen;
 
 		virtual Results draw(Keys& keys, Scr target) = 0;
+		virtual void pre_push() { }
 
 		// MAKE SURE TO RETURN ui::Results::end IN Widget::draw(...)
 		void end_early()
@@ -140,7 +143,7 @@ namespace ui
 	void draw_at_absolute(float x, float y, C2D_Text& txt, u32 flags = 0, float sizeX = constants::FSIZE, float sizeY = constants::FSIZE);
 	void draw_at(float x, float y, C2D_Text& txt, u32 flags = 0, float sizeX = constants::FSIZE, float sizeY = constants::FSIZE);
 
-	ui::Results draw_widgets(std::vector<ui::Widget *> wids, ui::Keys& keys);
+	ui::Results draw_widgets(std::vector<ui::Widget *> wids, ui::Keys& keys, ui::Scr target = ui::Scr::top);
 	void switch_to(Scr target);
 	void clear(Scr screen);
 

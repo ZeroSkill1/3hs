@@ -29,10 +29,15 @@ ui::Results ui::Button::draw(ui::Keys& keys, ui::Scr)
 		 ((this->y2 - this->y1) / 2) + (this->y1 - (this->label.dimensions(
 		ui::constants::FSIZE, ui::constants::FSIZE).height / 2)), this->label);
 
-	if(keys.touch.px >= this->x1 && keys.touch.px <= this->x2 &&
+	if(this->clickable && keys.touch.px >= this->x1 && keys.touch.px <= this->x2 &&
 			keys.touch.py >= this->y1 && keys.touch.py <= this->y2)
 		return this->on_click();
 
 	return ui::Results::go_on;
+}
+
+void ui::Button::toggle_click()
+{
+	this->clickable = this->clickable ? false : true;
 }
 
