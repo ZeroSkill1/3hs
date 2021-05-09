@@ -94,8 +94,8 @@ static const std::map<Result, std::map<Result, const char *>> ERR_LOOKUP({
 		RM_HTTP, {
 			{ 60 , "Failed to verify TLS certificate" },
 			{ 70 , "Network unavailable"              },
-			{ 102, "Wrong context handle"            },
-			{ 105, "Request timed out"               },
+			{ 102, "Wrong context handle"             },
+			{ 105, "Request timed out"                },
 		}
 	},
 	{
