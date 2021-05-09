@@ -1,6 +1,7 @@
 
 #include <3ds.h>
 
+#include <ui/press_to_continue.hh>
 #include <ui/scrollingText.hh>
 #include <ui/progress_bar.hh>
 #include <ui/confirm.hh>
@@ -18,6 +19,7 @@
 
 #include "install.hh"
 #include "update.hh"
+#include "error.hh"
 #include "about.hh"
 #include "seed.hh"
 #include "next.hh"
@@ -31,6 +33,7 @@
 void init_services()
 {
 	romfsInit();
+	aptInit();
 	fsInit();
 	amInit();
 }
@@ -38,6 +41,7 @@ void init_services()
 void exit_services()
 {
 	romfsExit();
+	aptExit();
 	fsExit();
 	amExit();
 }
@@ -53,6 +57,7 @@ int main(int argc, char* argv[])
 	init_services();
 	ensure_logs_dir();
 	init_seeddb();
+
 	plog::init(LOG_LEVEL, "/3ds/3hs/3hs.log");
 	linfo << "App version: " FULL_VERSION;
 
@@ -76,6 +81,7 @@ int main(int argc, char* argv[])
 	});
 
 	quick_global_draw();
+
 
 
 	if(osGetWifiStrength() == 0)
@@ -181,20 +187,53 @@ sub:
 			bar->set_mib_type();
 			single_draw(wids);
 
-			hs::Title meta = hs::title_meta(id);
+			hs::FullTitle meta = hs::title_meta(id);
 			Result res = install_hs_cia(&meta, [&wids, bar](u64 now, u64 total) -> void {
 				bar->update(now, total);
 				bar->activate_text();
 				single_draw(wids);
 			});
 
-			((void) res);
+			// Error!
+			if(res != 0)
+			{
+				ui::Widgets errs;
+				errs.push_back(new ui::PressToContinue(KEY_A));
+				error_container err = get_error(res);
+				report_error(err, "User was installing (" + meta.tid + ") (" + std::to_string(id) + ")");
 
-			// TODO: Display potential errors here
+				constexpr float base = 70.0f;
+				ui::Text *text = new ui::Text(ui::mk_center_WText("Press A to continue", SCREEN_HEIGHT() - 20.0f));
+				float height = ui::text_height(&text->gtext().ctext) - 3.0f;
+				errs.push_back(text);
+
+				if(err.type == ErrType_curl)
+				{
+					ui::wid()->get<ui::Text>("curr_action_desc")->replace_text("CURL Error");
+					errs.push_back(new ui::Text(ui::mk_center_WText(format_err(err.sDesc, err.iDesc),
+						base + height)));
+				}
+
+				else if(err.type == ErrType_3ds)
+				{
+					ui::wid()->get<ui::Text>("curr_action_desc")->replace_text("3DS System Error");
+					errs.push_back(new ui::Text(ui::mk_center_WText(format_err(err.sDesc, err.iDesc),
+						base + height)));
+					errs.push_back(new ui::Text(ui::mk_center_WText("Result Code: 0x" + pad8code(err.full),
+						base + (height * 2))));
+					errs.push_back(new ui::Text(ui::mk_center_WText("Level: " + format_err(err.sLvl, err.iLvl),
+						base + (height * 3))));
+					errs.push_back(new ui::Text(ui::mk_center_WText("Summary: " + format_err(err.sSum, err.iSum),
+						base + (height * 4))));
+					errs.push_back(new ui::Text(ui::mk_center_WText("Module: " + format_err(err.sMod, err.iMod),
+						base + (height * 5))));
+				}
+
+				generic_main_breaking_loop(errs);
+			}
 
 			goto gam;
 		}
-
 	}
 
 

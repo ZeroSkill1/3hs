@@ -10,6 +10,10 @@
 
 #include <3rd/log.hh>
 
+#define JS_SET_NULLABLE_PROP(j,s,pj,ps) \
+	JT_SET_NULLABLE_PROP(j,s,pj,ps,std::string)
+#define JT_SET_NULLABLE_PROP(j,s,pj,ps,T) \
+	if(!j[ pj ].is_null()) s. ps = j[ pj ].get< T >()
 #define JT_SET_PROP(j,s,pj,ps,T) \
 	s. ps = j[ pj ].get< T >()
 #define JS_SET_PROP(j,s,pj,ps) \
@@ -162,8 +166,18 @@ hs::FullTitle hs::title_meta(__HS_ID_T id)
 	json res = j_req<json>(std::string("title/") + std::to_string(id));
 	hs::FullTitle ret;
 
-	/* TODO: Create actual FullTitle here */
+	JS_SET_NULLABLE_PROP(res, ret, "description", desc);
 
+	JS_SET_PROP(res, ret, "version_string", vstring);
+	JS_SET_PROP(res, ret, "updated_date", updated);
+	JS_SET_PROP(res, ret, "subcategory", subcat);
+	JS_SET_PROP(res, ret, "product_code", prod);
+	JS_SET_PROP(res, ret, "added_date", added);
+	JS_SET_PROP(res, ret, "title_id", tid);
+	JS_SET_PROP(res, ret, "category", cat);
+	JS_SET_PROP(res, ret, "name", name);
+
+	JT_SET_PROP(res, ret, "version", version, __HS_IVER_T);
 	JT_SET_PROP(res, ret, "size", size, __HS_SIZE_T);
 	JT_SET_PROP(res, ret, "id", id, __HS_ID_T);
 

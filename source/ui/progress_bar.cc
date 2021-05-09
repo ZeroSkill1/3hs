@@ -24,7 +24,7 @@ ui::ProgressBar::ProgressBar()
 { this->setup(); }
 
 ui::ProgressBar::~ProgressBar()
-{ ui::wid()->get<ui::Button>("about")->toggle_click(); }
+{ ui::wid()->for_each("button", [](ui::Widget *wid) -> void { ((ui::Button *) wid)->toggle_click(); }); }
 
 
 void ui::ProgressBar::update(u64 part, u64 total)
@@ -69,7 +69,7 @@ ui::Results ui::ProgressBar::draw(ui::Keys&, ui::Scr target)
 
 void ui::ProgressBar::setup()
 {
-	ui::wid()->get<ui::Button>("about")->toggle_click();
+	ui::wid()->for_each("button", [](ui::Widget *wid) -> void { ((ui::Button *) wid)->toggle_click(); });
 }
 
 void ui::ProgressBar::set_postfix(std::function<std::string(u64)> cb)

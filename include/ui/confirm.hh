@@ -37,6 +37,5 @@ namespace ui
 	};
 }
 
-
 #endif
 

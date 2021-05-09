@@ -31,7 +31,7 @@ bool update_app()
 	}
 
 	linfo << "Updating from url: " << UP_CIA(nver) << " ...";
-	install_net_cia(UP_CIA(nver));
+	install_net_cia(UP_CIA(nver), default_prog_func, true);
 	return true;
 }
 

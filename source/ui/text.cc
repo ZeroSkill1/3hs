@@ -26,6 +26,9 @@ ui::Results ui::Text::draw(ui::Keys&, ui::Scr)
 	return ui::Results::go_on;
 }
 
+ui::WText& ui::Text::gtext()
+{ return this->text; }
+
 ui::WText ui::mkWText(std::string text, float x, float y, float sizeX, float sizeY, std::function<void(WText *)> callback)
 {
 	return { callback, text, sizeX, sizeY, x, y };
@@ -88,4 +91,10 @@ float ui::text_width(C2D_Text *txt, float sizeX, float sizeY)
 {
 	float width; C2D_TextGetDimensions(txt, sizeX, sizeY, &width, NULL);
 	return width;
+}
+
+float ui::text_height(C2D_Text *txt, float sizeX, float sizeY)
+{
+	float height; C2D_TextGetDimensions(txt, sizeX, sizeY, NULL, &height);
+	return height;
 }

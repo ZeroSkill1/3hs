@@ -124,6 +124,21 @@ void ui::Widgets::clear(ui::Scr target)
 	}
 }
 
+static void for_each_widget(std::vector<ui::Widget *> *wids, std::string type, std::function<void(ui::Widget *)> cb)
+{
+	for(ui::Widget *wid : *wids)
+	{
+		if(wid->iden == type)
+			cb(wid);
+	}
+}
+
+void ui::Widgets::for_each(std::string type, std::function<void(ui::Widget *)> cb)
+{
+	for_each_widget(&this->top, type, cb);
+	for_each_widget(&this->bot, type, cb);
+}
+
 void ui::Widgets::clear()
 {
 	this->clear(ui::Scr::bottom);

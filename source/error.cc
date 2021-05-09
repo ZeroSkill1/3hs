@@ -1,6 +1,7 @@
 // vim: foldmethod=syntax
 
 #include <curl/curl.h>
+#include <3rd/log.hh>
 #include <3ds.h>
 
 #include <map>
@@ -21,9 +22,9 @@ static const std::map<Result, std::map<Result, const char *>> ERR_LOOKUP({
 	},
 	{
 		RM_OS, {
-			{ 1, "Out of synchronization object"              },
-			{ 2, "Out of shared memory objects"               },
-			{ 9, "Out of session objects"                     },
+			{ 1 , "Out of synchronization object"             },
+			{ 2 , "Out of shared memory objects"              },
+			{ 9 , "Out of session objects"                    },
 			{ 10, "Not enough memory for allocation"          },
 			{ 20, "Wrong permissions for unprivileged access" },
 			{ 26, "Session closed by remote process"          },
@@ -66,12 +67,12 @@ static const std::map<Result, std::map<Result, const char *>> ERR_LOOKUP({
 	},
 	{
 		RM_AM, {
-			{ 4, "Wrong installation state"              },
-			{ 37, "Invalid NCCH"                         },
-			{ 39, "Invalid or outdated title version"    },
-			{ 41, "Error type 1"                         },
-			{ 43, "Database does not exist"              },
-			{ 44, "Attempted to delete system title"     },
+			{ 4  , "Wrong installation state"            },
+			{ 37 , "Invalid NCCH"                        },
+			{ 39 , "Invalid or outdated title version"   },
+			{ 41 , "Error type 1"                        },
+			{ 43 , "Database does not exist"             },
+			{ 44 , "Attempted to delete system title"    },
 			{ 101, "Error type -1"                       },
 			{ 102, "Error type -2"                       },
 			{ 103, "Error type -3"                       },
@@ -91,8 +92,8 @@ static const std::map<Result, std::map<Result, const char *>> ERR_LOOKUP({
 	},
 	{
 		RM_HTTP, {
-			{ 60, "Failed to verify TLS certificate" },
-			{ 70, "Network unavailable"              },
+			{ 60 , "Failed to verify TLS certificate" },
+			{ 70 , "Network unavailable"              },
 			{ 102, "Wrong context handle"            },
 			{ 105, "Request timed out"               },
 		}
@@ -110,6 +111,11 @@ static const std::map<Result, std::map<Result, const char *>> ERR_LOOKUP({
 	{
 		RM_QTM, {
 			{ 8, "Camera busy" },
+		}
+	},
+	{
+		RM_APPLICATION, {
+			{ 0, "Can't install n3ds exclusive games on an o3ds" },
 		}
 	},
 });
@@ -308,5 +314,39 @@ error_container get_error(Result res)
 	}
 
 	return ret;
+}
+
+std::string pad8code(Result code)
+{
+	char errpad[9]; snprintf(errpad, 9, "%08lX", code);
+	return errpad;
+}
+
+std::string format_err(std::string msg, Result code)
+{
+	return msg + " (" + std::to_string(code) + ")";
+}
+
+void report_error(error_container& container, std::string note)
+{
+	lerror << "===========================";
+	lerror << "| ERROR REPORT            |";
+	lerror << "===========================";
+	if(note != "") { lerror << "Note        : " << note; }
+	lerror << "Type        : " << (container.type == ErrType_curl ? "curl" : "3DS");
+	if(container.type == ErrType_curl)
+	{
+		lerror << "Error Code  : " << container.iDesc;
+		lerror << "Description : " << container.sDesc;
+	}
+	else
+	{
+		lerror << "Result Code : 0x" << pad8code(container.full);
+		lerror << "Description : " << format_err(container.sDesc, container.iDesc);
+		lerror << "Module      : " << format_err(container.sMod, container.iMod);
+		lerror << "Level       : " << format_err(container.sLvl, container.iLvl);
+		lerror << "Summary     : " << format_err(container.sSum, container.iSum);
+	}
+	lerror << "===========================";
 }
 

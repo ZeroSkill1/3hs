@@ -6,6 +6,7 @@
 #include <citro2d.h>
 #include <3ds.h>
 
+#include <functional>
 #include <sstream>
 #include <cstdarg>
 #include <memory>
@@ -116,6 +117,8 @@ namespace ui
 		int find_index_by_name(std::string name, Scr target);
 		Widget *find_by_name(std::string name, Scr target);
 		void delete_by_name(std::string name, Scr target);
+
+		void for_each(std::string type, std::function<void(Widget *)> cb);
 
 		template <typename T = Widget>
 		T *get(std::string name)

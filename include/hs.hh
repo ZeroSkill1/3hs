@@ -98,6 +98,8 @@ namespace hs
 		std::string added; /* unix timestamp (as string) */
 
 		__HS_IVER_T version;
+
+		// We could probably add download count, don't feel like it
 	} FullTitle;
 
 

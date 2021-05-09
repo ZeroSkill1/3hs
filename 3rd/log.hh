@@ -27,3 +27,6 @@
 #define lverbose PLOG(plog::verbose)
 
 #define llog linfo
+
+#define EQUAL(x) #x "=" << x
+

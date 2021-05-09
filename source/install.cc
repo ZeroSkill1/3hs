@@ -83,7 +83,6 @@ static int progress_cb(void *clientp, curl_off_t totalDl, curl_off_t nowDl, curl
 
 static Result i_install_net_cia(std::string url, Handle ciaHandle, prog_func prog, size_t from = 0, size_t to = 0)
 {
-	/* TODO: Test if we have all the required space */
 	/* TODO: Check if cia is installed and give optional reinstall */
 
 	static_assert(CIA_NET_BUFSIZE % 64 == 0, "$CIA_NET_BUFSIZE must be divisable by 64");
@@ -150,11 +149,31 @@ static FS_MediaType detect_dest(hs::Title *meta)
 		? MEDIATYPE_NAND : MEDIATYPE_SD;
 }
 
+static Result get_free_space(FS_MediaType media, u64 *size)
+{
+	FS_ArchiveResource resource;
+	Result res;
+
+	if(media == MEDIATYPE_NAND && R_FAILED(res = FSUSER_GetNandArchiveResource(&resource)))
+		return res;
+
+	else if(R_FAILED(res = FSUSER_GetSdmcArchiveResource(&resource)))
+		return res;
+
+	*size = resource.clusterSize * resource.freeClusters;
+	return res;
+}
+
 // public api
 
-Result install_net_cia(std::string url, prog_func prog, FS_MediaType dest)
+Result install_net_cia(std::string url, prog_func prog, bool reinstallable, std::string tid, FS_MediaType dest)
 {
-	Handle cia = 0; Result ret;
+	if(!reinstallable && tid != "")
+	{
+
+	}
+
+	Handle cia; Result ret;
 	linfo << "Installing cia from <" << url << "> on " << (dest == MEDIATYPE_NAND ? "NAND" : "SD");
 	ret = AM_StartCiaInstall(dest, &cia); linfo << "AM_StartCiaInstall(...): " << ret;
 	if(R_FAILED(ret)) return ret;
@@ -163,15 +182,33 @@ Result install_net_cia(std::string url, prog_func prog, FS_MediaType dest)
 	if(ret == CURLE_ABORTED_BY_CALLBACK)
 		return AM_CancelCIAInstall(cia);
 	else if(ret != 0) // If everything went ok in i_install_net_cia, we return a 0
-		return ret;
+	{ AM_CancelCIAInstall(cia); return ret; }
 
 	ret = AM_FinishCiaInstall(cia);
 	linfo << "AM_FinishCiaInstall(...): " << ret;
 	return ret;
 }
 
-Result install_hs_cia(hs::Title *meta, prog_func prog)
+Result install_hs_cia(hs::FullTitle *meta, prog_func prog, bool reinstallable)
 {
-	return install_net_cia(hs::get_download_link(meta), prog, detect_dest(meta));
+	FS_MediaType media = detect_dest(meta);
+	u64 freeSpace = 0;
+	Result res;
+
+	if(R_FAILED(res = get_free_space(media, &freeSpace)))
+		return res;
+
+	if(meta->size > freeSpace)
+		return 0xC86044D2; // = partion full
+
+	// Check if we are NOT on a n3ds and the game is n3ds exclusive
+	bool isNew = false;
+	if(R_FAILED(res = APT_CheckNew3DS(&isNew)))
+		return res;
+
+	if(!isNew && meta->prod.rfind("KTR-", 0) == 0)
+		return MAKERESULT(RL_PERMANENT, RS_NOTSUPPORTED, RM_APPLICATION, 0); // = Unsupported platform
+
+	return install_net_cia(hs::get_download_link(meta), prog, reinstallable, meta->tid, detect_dest(meta));
 }
 

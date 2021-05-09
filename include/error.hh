@@ -30,5 +30,11 @@ typedef struct error_container
 	Result full;
 } error_container;
 
+
+void report_error(error_container& container, std::string note = "");
+std::string format_err(std::string msg, Result code);
+error_container get_error(Result res);
+std::string pad8code(Result code);
+
 #endif
 
