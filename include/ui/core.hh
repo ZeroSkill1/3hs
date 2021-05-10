@@ -84,10 +84,6 @@ namespace ui
 		virtual Results draw(Keys& keys, Scr target) = 0;
 		virtual void pre_push() { }
 
-		// MAKE SURE TO RETURN ui::Results::end IN Widget::draw(...)
-		void end_early()
-		{ C3D_FrameEnd(0); }
-
 		void name(std::string name)
 		{ this->formal = name; }
 
@@ -120,7 +116,7 @@ namespace ui
 
 		void for_each(std::string type, std::function<void(Widget *)> cb);
 
-		template <typename T = Widget>
+		template <typename T>
 		T *get(std::string name)
 		{
 			T *ret;
@@ -149,6 +145,7 @@ namespace ui
 	ui::Results draw_widgets(std::vector<ui::Widget *> wids, ui::Keys& keys, ui::Scr target = ui::Scr::top);
 	void switch_to(Scr target);
 	void clear(Scr screen);
+	void end_frame();
 
 
 	C3D_RenderTarget *top();

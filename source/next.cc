@@ -6,6 +6,8 @@
 #include <ui/list.hh>
 #include <ui/text.hh>
 
+#include "queue.hh"
+
 
 std::string next::sel_cat(hs::Index& index)
 {
@@ -18,7 +20,7 @@ std::string next::sel_cat(hs::Index& index)
 	ui::Widgets widgets;
 	widgets.push_back("list", new ui::List<hs::Category>(
 		[](hs::Category& cat) -> std::string { return cat.displayName; },
-		[&ret](ui::List<hs::Category> *self, size_t index) -> ui::Results {
+		[&ret](ui::List<hs::Category> *self, size_t index, u32) -> ui::Results {
 			ret = self->at(index).name; return ui::Results::quit_loop;
 		}, index.categories
 	));
@@ -58,7 +60,7 @@ std::string next::sel_sub(hs::Index& index, std::string cat)
 	ui::Widgets widgets;
 	widgets.push_back("list", new ui::List<hs::Subcategory>(
 		[](hs::Subcategory& cat) -> std::string { return cat.displayName; },
-		[&](ui::List<hs::Subcategory> *self, size_t index) {
+		[&](ui::List<hs::Subcategory> *self, size_t index, u32) {
 			ret = self->at(index).name; return ui::Results::quit_loop;
 		}, rcat->subcategories
 	));
@@ -98,12 +100,22 @@ long int next::sel_gam(std::string cat, std::string sub)
 	long int ret;
 
 	ui::Widgets widgets;
-	widgets.push_back("list", new ui::List<hs::Title>(
+	ui::List<hs::Title> *list = new ui::List<hs::Title>(
 		[](hs::Title& title) -> std::string { return title.name; },
-		[&](ui::List<hs::Title> *self, size_t index) -> ui::Results {
-			ret = self->at(index).id; return ui::Results::quit_no_end;
+		[&](ui::List<hs::Title> *self, size_t index, u32 keys) -> ui::Results {
+			if(keys & KEY_A)
+			{
+				ret = self->at(index).id;
+				return ui::Results::quit_no_end;
+			}
+			else if(keys & KEY_Y)
+				queue_add(self->at(index).id);
+
+			return ui::Results::go_on;
 		}, titles
-	));
+	); widgets.push_back("list", list);
+	list->add_button(KEY_Y);
+
 
 	ui::TitleMeta *meta = new ui::TitleMeta();
 	if(titles.size() > 0) meta->update_title(titles[0]);

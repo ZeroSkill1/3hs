@@ -20,9 +20,8 @@
 void show_about()
 {
 	/* Destroy */
+	ui::wid()->for_each("button", [](ui::Widget *widget) -> void { ((ui::Button *) widget)->toggle(); });
 	ui::wid()->get<ui::Text>("curr_action_desc")->toggle();
-	ui::wid()->get<ui::Button>("about")->toggle();
-
 
 	ui::Widgets wids;
 	wids.push_back("back", new ui::Button("Back", C2D_Color32(0x32, 0x35, 0x36, 0xFF), 240, 210, 310, 230), ui::Scr::bottom);
@@ -34,9 +33,7 @@ void show_about()
 
 	ui::StandaloneSprite *logo = new ui::StandaloneSprite(SHEET("logo"), logo_logo_idx);
 	logo->get_sprite()->set_pos(
-		SCREEN_WIDTH(ui::Scr::top) / 2 - LOGO_X / 2, SCREEN_HEIGHT() - LOGO_Y - 40
-	);
-	wids.push_back("logo", logo);
+		SCREEN_WIDTH(ui::Scr::top) / 2 - LOGO_X / 2, SCREEN_HEIGHT() - LOGO_Y - 40); wids.push_back("logo", logo);
 
 	wids.push_back("credits", new ui::Text(ui::mk_center_WText("Credits:", GRID_AL_Y(1), fsize, fsize, ui::Scr::bottom)), ui::Scr::bottom);
 	add_cred("MyPasswordIsWeak: Programming", 1);
@@ -47,7 +44,7 @@ void show_about()
 
 
 	/* Restore */
+	ui::wid()->for_each("button", [](ui::Widget *widget) -> void { ((ui::Button *) widget)->toggle(); });
 	ui::wid()->get<ui::Text>("curr_action_desc")->toggle();
-	ui::wid()->get<ui::Button>("about")->toggle();
 }
 

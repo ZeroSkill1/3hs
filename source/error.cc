@@ -116,6 +116,7 @@ static const std::map<Result, std::map<Result, const char *>> ERR_LOOKUP({
 	{
 		RM_APPLICATION, {
 			{ 0, "Can't install n3ds exclusive games on an o3ds" },
+			{ 1, "Cancelled"                                     },
 		}
 	},
 });

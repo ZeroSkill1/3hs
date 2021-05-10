@@ -36,20 +36,19 @@ namespace ui
 	class List : public Widget
 	{
 	public:
-		using list_onsel_cb = std::function<ui::Results(List<T> *, size_t)>;
+		using list_onsel_cb = std::function<ui::Results(List<T> *, size_t, u32)>;
 		using list_onch_cb = std::function<void(List<T> *, size_t)>;
 		using list_tostr_cb = std::function<std::string(T&)>;
 
 
-		List(list_tostr_cb to_str, list_onsel_cb on_select, size_t txtbufsz = 4096)
-			: Widget("list"), point(0)
-		{ this->init(to_str, on_select, txtbufsz); }
+		List(list_tostr_cb to_str, list_onsel_cb on_select)
+			: Widget("list"), items({ }), point(0)
+		{ this->init(to_str, on_select); }
 	
-		List(list_tostr_cb to_str, list_onsel_cb on_select, std::vector<T> items, size_t txtbufsz = 4096)
-			: Widget("list"), point(0)
+		List(list_tostr_cb to_str, list_onsel_cb on_select, std::vector<T>& items_)
+			: Widget("list"), items(items_), point(0)
 		{
-			this->init(to_str, on_select, txtbufsz);
-			this->items = items;
+			this->init(to_str, on_select);
 			this->update_text_reg();
 		}
 
@@ -72,6 +71,15 @@ namespace ui
 			lverbose << "Created textbuf of size: " << ret + LIST_ARR_SIZ;
 			return ret + LIST_ARR_SIZ;
 		}
+
+		void set_pointer(size_t ni)
+		{ this->point = ni; }
+
+		const size_t& get_pointer()
+		{ return this->point; }
+
+		bool out_of_bounds(size_t index)
+		{ return index >= this->items.size(); }
 
 		void update_text_reg()
 		{
@@ -148,10 +156,13 @@ namespace ui
 				ui::draw_at(3, j, this->txt[i], 0);
 			}
 
-			if(keys.kDown & KEY_A)
-				return this->on_select(this, this->point);
+			if(keys.kDown & this->buttonCombo)
+				return this->on_select(this, this->point, keys.kDown);
 			return ui::Results::go_on;
 		}
+
+		void add_button(u32 key)
+		{ this->buttonCombo |= key; }
 
 
 	private:
@@ -160,12 +171,14 @@ namespace ui
 
 		C2D_Text arrow;
 
-		std::vector<T> items;
+		std::vector<T>& items;
 		size_t point;
 
 		list_onch_cb on_change = [](List<T>*,size_t){};
 		list_onsel_cb on_select;
 		list_tostr_cb to_str;
+
+		u32 buttonCombo = KEY_A;
 
 		size_t min(size_t base, size_t other)
 		{
@@ -173,7 +186,7 @@ namespace ui
 			return base - other;
 		}
 
-		void init(list_tostr_cb to_str, list_onsel_cb on_select, size_t txtbufsize)
+		void init(list_tostr_cb to_str, list_onsel_cb on_select)
 	 	{
 			this->on_select = on_select;
 			this->to_str = to_str;

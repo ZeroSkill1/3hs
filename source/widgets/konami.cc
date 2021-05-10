@@ -28,7 +28,7 @@ ui::Results ui::Konami::draw(ui::Keys& keys, ui::Scr)
 {
 	if(this->currKey == KONCODE_SIZE)
 	{
-		this->end_early();
+		ui::end_frame();
 		this->show_bunny();
 		return ui::Results::end_early;
 	}

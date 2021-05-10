@@ -180,8 +180,8 @@ Result install_net_cia(std::string url, prog_func prog, bool reinstallable, std:
 
 	ret = i_install_net_cia(url, cia, prog);
 	if(ret == CURLE_ABORTED_BY_CALLBACK)
-		return AM_CancelCIAInstall(cia);
-	else if(ret != 0) // If everything went ok in i_install_net_cia, we return a 0
+		ret = MAKERESULT(RL_INFO, RS_CANCELED, RM_APPLICATION, 1); // = Cancelled
+	if(!NET_OK(ret)) // If everything went ok in i_install_net_cia, we return a 0
 	{ AM_CancelCIAInstall(cia); return ret; }
 
 	ret = AM_FinishCiaInstall(cia);

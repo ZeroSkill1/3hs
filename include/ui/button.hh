@@ -29,7 +29,7 @@ namespace ui
 		c2d::TextBuf buf;
 		c2d::Text label;
 
-		button_on_click on_click = [](){return ui::Results::go_on;};
+		button_on_click on_click = [](){ return ui::Results::go_on; };
 
 		bool clickable = true;
 

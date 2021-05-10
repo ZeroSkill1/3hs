@@ -24,6 +24,9 @@ ui::Widgets *ui::wid()
 { return &g_widgets; }
 
 
+void ui::end_frame()
+{ C3D_FrameEnd(0); }
+
 bool ui::framenext(ui::Keys& keys)
 {
 	hidScanInput();

@@ -19,6 +19,7 @@
 
 #include "install.hh"
 #include "update.hh"
+#include "queue.hh"
 #include "error.hh"
 #include "about.hh"
 #include "seed.hh"
@@ -76,8 +77,14 @@ int main(int argc, char* argv[])
 	ui::wid()->push_back("konami", new ui::Konami(), ui::Scr::top);
 
 	ui::wid()->push_back("about", new ui::Button("About", C2D_Color32(0x32, 0x35, 0x36, 0xFF), 10, 210, 80, 230), ui::Scr::bottom);
+	ui::wid()->push_back("queue", new ui::Button("Queue", C2D_Color32(0x32, 0x35, 0x36, 0xFF), 90, 210, 160, 230), ui::Scr::bottom);
+
 	ui::wid()->get<ui::Button>("about")->set_on_click([]() -> ui::Results {
-		show_about(); return ui::Results::end_early;
+		ui::end_frame(); show_about(); return ui::Results::end_early;
+	});
+
+	ui::wid()->get<ui::Button>("queue")->set_on_click([]() -> ui::Results {
+		ui::end_frame(); show_queue(); return ui::Results::end_early;
 	});
 
 	quick_global_draw();
@@ -157,7 +164,6 @@ int main(int argc, char* argv[])
 
 	ui::setup_meta(&indx);
 
-
 	// Old logic was cursed, made it a bit better :blobaww:
 	while(aptMainLoop())
 	{
@@ -179,61 +185,8 @@ sub:
 		if(id == next_gam_exit) break;
 		llog << "NEXT(g): " << id;
 
-		{
-			/* INSTALL */
-			ui::Widgets wids;
-			ui::ProgressBar *bar = new ui::ProgressBar(0, 1); // = 0%
-			wids.push_back("prog_bar", bar, ui::Scr::bottom);
-			bar->set_mib_type();
-			single_draw(wids);
-
-			hs::FullTitle meta = hs::title_meta(id);
-			Result res = install_hs_cia(&meta, [&wids, bar](u64 now, u64 total) -> void {
-				bar->update(now, total);
-				bar->activate_text();
-				single_draw(wids);
-			});
-
-			// Error!
-			if(res != 0)
-			{
-				ui::Widgets errs;
-				errs.push_back(new ui::PressToContinue(KEY_A));
-				error_container err = get_error(res);
-				report_error(err, "User was installing (" + meta.tid + ") (" + std::to_string(id) + ")");
-
-				constexpr float base = 70.0f;
-				ui::Text *text = new ui::Text(ui::mk_center_WText("Press A to continue", SCREEN_HEIGHT() - 20.0f));
-				float height = ui::text_height(&text->gtext().ctext) - 3.0f;
-				errs.push_back(text);
-
-				if(err.type == ErrType_curl)
-				{
-					ui::wid()->get<ui::Text>("curr_action_desc")->replace_text("CURL Error");
-					errs.push_back(new ui::Text(ui::mk_center_WText(format_err(err.sDesc, err.iDesc),
-						base + height)));
-				}
-
-				else if(err.type == ErrType_3ds)
-				{
-					ui::wid()->get<ui::Text>("curr_action_desc")->replace_text("3DS System Error");
-					errs.push_back(new ui::Text(ui::mk_center_WText(format_err(err.sDesc, err.iDesc),
-						base + height)));
-					errs.push_back(new ui::Text(ui::mk_center_WText("Result Code: 0x" + pad8code(err.full),
-						base + (height * 2))));
-					errs.push_back(new ui::Text(ui::mk_center_WText("Level: " + format_err(err.sLvl, err.iLvl),
-						base + (height * 3))));
-					errs.push_back(new ui::Text(ui::mk_center_WText("Summary: " + format_err(err.sSum, err.iSum),
-						base + (height * 4))));
-					errs.push_back(new ui::Text(ui::mk_center_WText("Module: " + format_err(err.sMod, err.iMod),
-						base + (height * 5))));
-				}
-
-				generic_main_breaking_loop(errs);
-			}
-
-			goto gam;
-		}
+		process_hs(id);
+		goto gam;
 	}
 
 
