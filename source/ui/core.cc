@@ -6,8 +6,8 @@
 #endif
 
 
-#define DO_WIDS_DRAW(wids, keys, target) { \
-	switch(ui::draw_widgets(wids, keys, target)) { \
+#define DO_WIDS_DRAW(wids, keys, target, for_fg) { \
+	switch(ui::draw_widgets(wids, keys, target, for_fg)) { \
 	case ui::Results::quit_loop   : ret = false; goto exit; \
 	case ui::Results::end_early   : return true; \
 	case ui::Results::quit_no_end : return false; \
@@ -46,11 +46,13 @@ bool ui::framenext(ui::Keys& keys)
 	return aptMainLoop();
 }
 
-ui::Results ui::draw_widgets(std::vector<ui::Widget *> wids, ui::Keys& keys, ui::Scr target)
+ui::Results ui::draw_widgets(std::vector<ui::Widget *> wids, ui::Keys& keys, ui::Scr target, bool fg)
 {
 	for(ui::Widget *wid : wids)
 	{
 		if(!wid->enabled) continue;
+		else if(wid->forceFg && !fg) continue;
+		else if(!wid->forceFg && fg) continue;
 		ui::Results ret = wid->draw(keys, target);
 		if(ret != ui::Results::go_on)
 			return ret;
@@ -67,12 +69,14 @@ bool ui::framedraw(ui::Widgets& wids, ui::Keys& keys)
 
 
 	C2D_SceneBegin(g_top);
-	DO_WIDS_DRAW(g_widgets.top, keys, ui::Scr::top);
-	DO_WIDS_DRAW(wids.top, keys, ui::Scr::top);
+	DO_WIDS_DRAW(g_widgets.top, keys, ui::Scr::top, false);
+	DO_WIDS_DRAW(wids.top, keys, ui::Scr::top, false);
+	DO_WIDS_DRAW(g_widgets.top, keys, ui::Scr::top, true); // Second iter
 
 	C2D_SceneBegin(g_bot);
-	DO_WIDS_DRAW(g_widgets.bot, keys, ui::Scr::bottom);
-	DO_WIDS_DRAW(wids.bot, keys, ui::Scr::bottom);
+	DO_WIDS_DRAW(g_widgets.bot, keys, ui::Scr::bottom, false);
+	DO_WIDS_DRAW(wids.bot, keys, ui::Scr::bottom, false);
+	DO_WIDS_DRAW(g_widgets.bot, keys, ui::Scr::bottom, true); // Second iter
 
 
 exit:

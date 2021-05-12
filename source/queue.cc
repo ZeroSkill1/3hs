@@ -1,6 +1,8 @@
 
 #include "queue.hh"
 
+#include <widgets/indicators.hh>
+
 #include <ui/press_to_continue.hh>
 #include <ui/do_after_frames.hh>
 #include <ui/progress_bar.hh>
@@ -74,8 +76,7 @@ Result process_hs(hs::FullTitle meta)
 		bar->activate_text();
 		single_draw(wids);
 	});
-
-	// Error!
+// Error!
 	if(!NET_OK(res))
 	{
 		ui::Widgets errs;
@@ -84,7 +85,7 @@ Result process_hs(hs::FullTitle meta)
 		report_error(err, "User was installing (" + meta.tid + ") (" + std::to_string(meta.id) + ")");
 
 		constexpr float base = 70.0f;
-		ui::Text *text = new ui::Text(ui::mk_center_WText("Press " GLYPH_A " to continue", SCREEN_HEIGHT() - 20.0f));
+		ui::Text *text = new ui::Text(ui::mk_center_WText("Press " GLYPH_A " to continue", SCREEN_HEIGHT() - 30.0f));
 		float height = ui::text_height(&text->gtext().ctext) - 3.0f;
 		errs.push_back(text);
 
@@ -111,6 +112,7 @@ Result process_hs(hs::FullTitle meta)
 		generic_main_breaking_loop(errs);
 	}
 
+	ui::wid()->get<ui::FreeSpaceIndicator>("size_indicator")->update();
 	return res;
 }
 

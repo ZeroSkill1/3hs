@@ -10,6 +10,7 @@
 #include <ui/core.hh>
 #include <ui/list.hh>
 
+#include <widgets/indicators.hh>
 #include <widgets/konami.hh>
 #include <widgets/meta.hh>
 
@@ -41,8 +42,7 @@ void init_services()
 }
 
 void exit_services()
-{
-	romfsExit();
+{ romfsExit();
 	aptExit();
 	fsExit();
 	amExit();
@@ -72,18 +72,21 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
+	ui::FreeSpaceIndicator *freeSpace = new ui::FreeSpaceIndicator();
+
 	ui::wid()->push_back("version", new ui::Text(ui::mk_right_WText(VERSION, 3.0f, 5.0f, ui::constants::FSIZE, ui::constants::FSIZE, ui::Scr::bottom)), ui::Scr::bottom);
 	ui::wid()->push_back("header_desc", new ui::Text(ui::mk_center_WText("The ultimate 3DS content preservation service.", 30.0f)), ui::Scr::top);
 	ui::wid()->push_back("curr_action_desc", new ui::Text(ui::mk_center_WText("Loading ...", 45.0f)), ui::Scr::top);
 	ui::wid()->push_back("header", new ui::Text(ui::mk_center_WText("hShop", 0.0f, 1.0f, 1.0f)), ui::Scr::top);
 	ui::wid()->push_back("konami", new ui::Konami(), ui::Scr::top);
+	ui::wid()->push_back("size_indicator", freeSpace);
 
 	ui::wid()->push_back("settings", new ui::Button("Settings", 10, 180, 100, 200), ui::Scr::bottom);
 	ui::wid()->push_back("about", new ui::Button("About", 10, 210, 80, 230), ui::Scr::bottom);
 	ui::wid()->push_back("queue", new ui::Button("Queue", 90, 210, 160, 230), ui::Scr::bottom);
 
 
-	ui::wid()->get<ui::Button>("settings")->set_on_click([]() -> ui::Results {
+	ui::wid()->get<ui::Button>("settings")->set_on_click([&freeSpace]() -> ui::Results {
 		ui::end_frame(); show_settings(); return ui::Results::end_early;
 	});
 

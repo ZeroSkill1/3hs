@@ -49,6 +49,7 @@
 #define SCREEN_WIDTH(s) (s == ui::Scr::top ? 400.0f : 320.0f)
 #define SCREEN_HEIGHT() (240.0f)
 
+
 namespace ui
 {
 	namespace constants
@@ -109,11 +110,14 @@ namespace ui
 		void name(std::string name)
 		{ this->formal = name; }
 
+		bool forceFg = false;
 		bool enabled = true;
+
+		void force_foreground()
+		{ this->forceFg = true; }
+
 		void toggle()
-		{
-			this->enabled = this->enabled ? false : true;
-		}
+		{ this->enabled = this->enabled ? false : true; }
 	};
 
 
@@ -164,7 +168,7 @@ namespace ui
 	void draw_at_absolute(float x, float y, C2D_Text& txt, u32 flags = 0, float sizeX = constants::FSIZE, float sizeY = constants::FSIZE);
 	void draw_at(float x, float y, C2D_Text& txt, u32 flags = 0, float sizeX = constants::FSIZE, float sizeY = constants::FSIZE);
 
-	ui::Results draw_widgets(std::vector<ui::Widget *> wids, ui::Keys& keys, ui::Scr target = ui::Scr::top);
+	ui::Results draw_widgets(std::vector<ui::Widget *> wids, ui::Keys& keys, ui::Scr target = ui::Scr::top, bool fg = false);
 	void switch_to(Scr target);
 	void clear(Scr screen);
 	void end_frame();

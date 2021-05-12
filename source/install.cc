@@ -2,6 +2,7 @@
 #include "install.hh"
 #include "seed.hh"
 
+#include <widgets/indicators.hh>
 #include <net_common.hh>
 #include <curl/curl.h>
 #include <3rd/log.hh>
@@ -141,46 +142,27 @@ static Result i_install_net_cia(std::string url, Handle ciaHandle, prog_func pro
 }
 
 // https://www.3dbrew.org/wiki/Titles#Title_IDs
-static FS_MediaType detect_dest(hs::Title *meta)
+static Destination detect_dest(hs::Title *meta)
 {
 	u16 cat = std::stoul(meta->tid.substr(4, 4), nullptr, 16);
 	// Install on nand on (DlpChild, System, TWL), else install on SD
 	return (cat & (0x1 | 0x10 | 0x8000))
-		? MEDIATYPE_NAND : MEDIATYPE_SD;
+		? (cat & 0x8000 ? DEST_TWLNand : DEST_CTRNand)
+		: DEST_Sdmc;
 }
 
-static bool is_twl(hs::Title *meta)
+static FS_MediaType to_mediatype(Destination dest)
 {
-	u16 cat = std::stoul(meta->tid.substr(4, 4), nullptr, 16);
-	// 0x8000 = TWL
-	return (cat & (0x8000));
-}
-
-static Result get_free_space(FS_MediaType media, u64 *size, bool isTwl = false)
-{
-	FS_ArchiveResource resource;
-	Result res;
-
-	if(isTwl && R_FAILED(res = FSUSER_GetArchiveResource(&resource, SYSTEM_MEDIATYPE_CTR_NAND)))
-		return res;
-
-	if(media == MEDIATYPE_NAND && R_FAILED(res = FSUSER_GetArchiveResource(&resource, SYSTEM_MEDIATYPE_TWL_NAND)))
-		return res;
-
-	else if(R_FAILED(res = FSUSER_GetArchiveResource(&resource, SYSTEM_MEDIATYPE_SD)))
-		return res;
-
-	*size = resource.clusterSize * resource.freeClusters;
-	return res;
+	return dest == DEST_Sdmc ? MEDIATYPE_SD : MEDIATYPE_NAND;
 }
 
 static Result i_install_hs_cia(hs::FullTitle *meta, prog_func prog, bool reinstallable)
 {
-	FS_MediaType media = detect_dest(meta);
+	Destination media = detect_dest(meta);
 	u64 freeSpace = 0;
 	Result res;
 
-	if(R_FAILED(res = get_free_space(media, &freeSpace, is_twl(meta))))
+	if(R_FAILED(res = get_free_space(media, &freeSpace)))
 		return res;
 
 	if(meta->size > freeSpace)
@@ -194,7 +176,7 @@ static Result i_install_hs_cia(hs::FullTitle *meta, prog_func prog, bool reinsta
 	if(!isNew && meta->prod.rfind("KTR-", 0) == 0)
 		return MAKERESULT(RL_PERMANENT, RS_NOTSUPPORTED, RM_APPLICATION, 0); // = Unsupported platform
 
-	return install_net_cia(hs::get_download_link(meta), prog, reinstallable, meta->tid, detect_dest(meta));
+	return install_net_cia(hs::get_download_link(meta), prog, reinstallable, meta->tid, to_mediatype(media));
 }
 
 
@@ -227,4 +209,5 @@ Result install_hs_cia(hs::FullTitle *meta, prog_func prog, bool reinstallable)
 {
 	return i_install_hs_cia(meta, prog, reinstallable);
 }
+
 
