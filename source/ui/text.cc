@@ -98,3 +98,101 @@ float ui::text_height(C2D_Text *txt, float sizeX, float sizeY)
 	float height; C2D_TextGetDimensions(txt, sizeX, sizeY, NULL, &height);
 	return height;
 }
+
+// WrapText
+
+ui::WrapText::WrapText(std::string text_)
+	: Widget("wrap_text"), text(text_) { }
+
+ui::WrapText::WrapText()
+	: Widget("wrap_text") { }
+
+ui::WrapText::~WrapText()
+{
+	C2D_TextBufDelete(this->buf);
+}
+
+void ui::WrapText::pre_push()
+{
+	if(this->buf == NULL) this->buf = C2D_TextBufNew(this->text.size() + 1);
+	else
+	{
+		C2D_TextBufClear(this->buf);
+		this->buf = C2D_TextBufResize(this->buf, this->text.size());
+		this->lines.clear();
+	}
+
+	int width = SCREEN_WIDTH(this->screen);
+	int lines = (this->text.size() / (width - this->pad)) + 1;
+	this->lines.reserve(lines * sizeof(C2D_Text));
+
+	std::string cur;
+//	float curWidth = this->baseY;
+
+	for(size_t i = 0; i < this->text.size(); ++i)
+	{
+		// TODO: Fix actual wrap
+		if(/*(int) curWidth % (int) (width - this->pad) == 0) || */this->text[i] == '\n')
+		{
+//			curWidth = this->baseY;
+			this->push_str(cur);
+			cur.clear();
+			if(this->text[i] == '\n')
+				continue;
+		}
+
+		cur.push_back(this->text[i]);
+//		charWidthInfo_s *ch = C2D_FontGetCharWidthInfo(NULL, this->text[i]);
+//		if(ch != NULL) curWidth += ch->charWidth;
+	}
+	if(cur.size() > 0) this->push_str(cur);
+}
+
+void ui::WrapText::push_str(std::string str)
+{
+	C2D_Text txt;
+
+	ui::parse_text(&txt, this->buf, str);
+	C2D_TextOptimize(&txt);
+
+	this->lines.push_back(txt);
+}
+
+ui::Results ui::WrapText::draw(ui::Keys&, ui::Scr)
+{
+	size_t lhei = 0;
+	if(this->lines.size() > 0)
+		lhei = ui::text_height(&this->lines[0]);
+
+	for(size_t i = 0; i < this->lines.size(); ++i)
+	{
+		if(this->drawCenter)
+		{
+			ui::draw_at_absolute(ui::get_center_x(&this->lines[i], ui::constants::FSIZE,
+				ui::constants::FSIZE, this->screen), this->baseY + (lhei * i), this->lines[i]);
+		}
+		else
+			ui::draw_at_absolute(this->pad, this->baseY + (lhei * i), this->lines[i]);
+	}
+
+	return ui::Results::go_on;
+}
+
+void ui::WrapText::replace_text(std::string txt)
+{
+	this->text = txt;
+	this->pre_push();
+}
+
+void ui::WrapText::set_pad(float pad)
+{
+	if(pad < SCREEN_WIDTH(this->screen))
+		this->pad = pad;
+}
+
+void ui::WrapText::set_basey(float baseY)
+{ if(baseY > 0) this->baseY = baseY; }
+
+void ui::WrapText::center()
+{ this->drawCenter = true; }
+

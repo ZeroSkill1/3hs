@@ -31,6 +31,15 @@
 #define standalone_main_breaking_loop() { ui::Widgets w; \
 	generic_main_breaking_loop(w); }
 
+// Button glyphs
+#define GLYPH_A "\uE000"
+#define GLYPH_B "\uE001"
+#define GLYPH_X "\uE002"
+#define GLYPH_Y "\uE003"
+#define GLYPH_L "\uE004"
+#define GLYPH_R "\uE005"
+#define GLYPH_DPAD "\uE006"
+
 #define GRID_AL_X(x) ((x)*12)
 #define GRID_AL_Y(y) ((y)*18)
 
@@ -46,6 +55,19 @@ namespace ui
 	{
 		constexpr u32 COLOR_BOT = C2D_Color32(0x1C, 0x20, 0x21, 0xFF);
 		constexpr u32 COLOR_TOP = C2D_Color32(0x1C, 0x20, 0x21, 0xFF);
+		constexpr u32 COLOR_BTN = C2D_Color32(0x32, 0x35, 0x36, 0xFF);
+		constexpr u32 COLOR_TXT = C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF);
+		constexpr u32 COLOR_BAR_BG = C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF);
+		constexpr u32 COLOR_BAR_FG = C2D_Color32(0x00, 0xD2, 0x03, 0xFF);
+
+#ifdef USE_SETTINGS_H
+		constexpr u32 COLOR_BOT_LI = C2D_Color32(0xEE, 0xEE, 0xEE, 0xFF);
+		constexpr u32 COLOR_TOP_LI = C2D_Color32(0xEE, 0xEE, 0xEE, 0xFF);
+		constexpr u32 COLOR_BTN_LI = C2D_Color32(0xDE, 0xDE, 0xDE, 0xFF);
+		constexpr u32 COLOR_TXT_LI = C2D_Color32(0x00, 0x00, 0x00, 0xFF);
+		constexpr u32 COLOR_BAR_BG_LI = C2D_Color32(0xDE, 0xDE, 0xDE, 0xFF);
+		constexpr u32 COLOR_BAR_FG_LI = C2D_Color32(0xD0, 0xD0, 0xD0, 0xFF);
+#endif
 
 		constexpr float FSIZE = 0.65f;
 	}

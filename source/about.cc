@@ -8,7 +8,7 @@
 
 #include "build/logo.h"
 
-// $ file gfx/img/logo.png 
+// $ file gfx/img/logo.png
 // gfx/img/logo.png: PNG image data, 48 x 48, 8-bit/color RGBA, non-interlaced
 #define LOGO_X (48)
 #define LOGO_Y (48)
@@ -24,7 +24,7 @@ void show_about()
 	ui::wid()->get<ui::Text>("curr_action_desc")->toggle();
 
 	ui::Widgets wids;
-	wids.push_back("back", new ui::Button("Back", C2D_Color32(0x32, 0x35, 0x36, 0xFF), 240, 210, 310, 230), ui::Scr::bottom);
+	wids.push_back("back", new ui::Button("Back", 240, 210, 310, 230), ui::Scr::bottom);
 	wids.get<ui::Button>("back")->set_on_click([]() -> ui::Results {
 		return ui::Results::quit_loop;
 	});

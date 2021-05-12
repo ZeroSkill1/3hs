@@ -1,9 +1,16 @@
 
 #include "ui/button.hh"
 
+#ifdef USE_SETTINGS_H
+# include "settings.hh"
+# define BTN_CLR (get_settings()->isLightMode ? ui::constants::COLOR_BTN_LI : ui::constants::COLOR_BTN)
+#else
+# define BTN_CLR ui::constants::COLOR_BTN
+#endif
 
-ui::Button::Button(std::string label, u32 color, float x1, float y1, float x2, float y2)
-	: Widget("button"), x1(x1), x2(x2), y1(y1), y2(y2), color(color)
+
+ui::Button::Button(std::string label, float x1, float y1, float x2, float y2)
+	: Widget("button"), x1(x1), x2(x2), y1(y1), y2(y2)
 {
 	this->change_label(label);
 }
@@ -22,7 +29,7 @@ void ui::Button::set_on_click(button_on_click cb)
 
 ui::Results ui::Button::draw(ui::Keys& keys, ui::Scr)
 {
-	C2D_DrawRectSolid(this->x1, this->y1, 0, this->x2 - this->x1, this->y2 - this->y1, this->color);
+	C2D_DrawRectSolid(this->x1, this->y1, 0, this->x2 - this->x1, this->y2 - this->y1, BTN_CLR);
 	// "Works but cursed"
 	ui::draw_at_absolute((((this->x2 - this->x1) / 2) - (this->label.dimensions(
 		ui::constants::FSIZE, ui::constants::FSIZE).width / 2)) + this->x1,

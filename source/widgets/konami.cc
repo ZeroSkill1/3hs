@@ -5,7 +5,7 @@
 
 #include <3rd/log.hh>
 
-// $ file gfx/img/bun.png 
+// $ file gfx/img/bun.png
 // gfx/img/bun.png: PNG image data, 150 x 150, 8-bit/color RGBA, non-interlaced
 #define BUN_X (150)
 #define BUN_Y (150)

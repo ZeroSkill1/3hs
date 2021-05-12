@@ -1,6 +1,11 @@
 
 #include "ui/core.hh"
 
+#ifdef USE_SETTINGS_H
+	#include "settings.hh"
+#endif
+
+
 #define DO_WIDS_DRAW(wids, keys, target) { \
 	switch(ui::draw_widgets(wids, keys, target)) { \
 	case ui::Results::quit_loop   : ret = false; goto exit; \
@@ -77,16 +82,27 @@ exit:
 
 void ui::clear(ui::Scr screen)
 {
+#ifdef USE_SETTINGS_H
+	#define CTOP (get_settings()->isLightMode ? ui::constants::COLOR_TOP_LI : ui::constants::COLOR_TOP)
+	#define CBOT (get_settings()->isLightMode ? ui::constants::COLOR_BOT_LI : ui::constants::COLOR_BOT)
+#else
+	#define CTOP ui::constants::COLOR_TOP
+	#define CBOT ui::constants::COLOR_BOT
+#endif
+
 	switch(screen)
 	{
 	case ui::Scr::top:
-		C2D_TargetClear(g_top, ui::constants::COLOR_TOP);
+		C2D_TargetClear(g_top, CTOP);
 		break;
 
 	case ui::Scr::bottom:
-		C2D_TargetClear(g_bot, ui::constants::COLOR_BOT);
+		C2D_TargetClear(g_bot, CBOT);
 		break;
 	}
+
+#undef CTOP
+#undef CBOT
 }
 
 bool ui::global_init()
@@ -215,26 +231,35 @@ ui::Widget *ui::Widgets::find_by_name(std::string name, ui::Scr target)
 		? this->bot[index] : this->top[index];
 }
 
+
+#ifdef USE_SETTINGS_H
+# define TXT_CLR (get_settings()->isLightMode ? ui::constants::COLOR_TXT_LI : ui::constants::COLOR_TXT)
+#else
+# define TXT_CLR ui::constants::COLOR_TXT
+#endif
+
 void ui::draw_at(float x, float y, C2D_Text& txt, u32 flags, float sizeX, float sizeY)
 {
 	// Sorry for the magic numbers :kek:
-	C2D_DrawText(&txt, C2D_WithColor | flags, GRID_AL_X(x), GRID_AL_Y(y), 0.0f, sizeX, sizeY, 0xFFFFFFFF);
+	C2D_DrawText(&txt, C2D_WithColor | flags, GRID_AL_X(x), GRID_AL_Y(y), 0.0f, sizeX, sizeY, TXT_CLR);
 }
 
 void ui::draw_at(float x, float y, c2d::Text& txt, u32 flags, float sizeX, float sizeY)
 {
-	txt.draw(GRID_AL_X(x), GRID_AL_Y(y), 0xFFFFFFFF, sizeX, sizeY);
+	txt.draw(GRID_AL_X(x), GRID_AL_Y(y), TXT_CLR, sizeX, sizeY);
 }
 
 void ui::draw_at_absolute(float x, float y, C2D_Text& txt, u32 flags, float sizeX, float sizeY)
 {
-	C2D_DrawText(&txt, C2D_WithColor | flags, x, y, 0.0f, sizeX, sizeY, 0xFFFFFFFF);
+	C2D_DrawText(&txt, C2D_WithColor | flags, x, y, 0.0f, sizeX, sizeY, TXT_CLR);
 }
 
 void ui::draw_at_absolute(float x, float y, c2d::Text& txt, u32 flags, float sizeX, float sizeY)
 {
-	txt.draw(x, y, 0xFFFFFFFF, sizeX, sizeY);
+	txt.draw(x, y, TXT_CLR, sizeX, sizeY);
 }
+
+#undef TXT_CLR
 
 
 void ui::switch_to(ui::Scr target)

@@ -4,7 +4,7 @@
 
 #define VERSION "v" FULL_VERSION
 
-#define UP_BASE "http://192.168.2.12/3hs-update" /* TMP */ 
+#define UP_BASE "http://192.168.2.12/3hs-update" /* TMP */
 #define UP_CIA(v) (std::string(UP_BASE) + "/app-" + v + ".cia")
 #define UP_VERSION (UP_BASE "/version")
 

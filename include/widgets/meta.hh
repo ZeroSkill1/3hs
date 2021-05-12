@@ -26,7 +26,7 @@ namespace ui
 
 	private:
 		void init_other();
-	
+
 		c2d::TextBuf cbuf;
 		c2d::Text cname;
 		c2d::Text csize;
@@ -103,3 +103,4 @@ namespace ui
 }
 
 #endif
+

@@ -7,8 +7,14 @@
 #define Y_OFFSET 30
 #define Y_LEN 30
 
-#define BG_COLOR C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF) // #FFFFFF
-#define FG_COLOR C2D_Color32(0x00, 0xD2, 0x03, 0xFF) // #00D203
+#ifdef USE_SETTINGS_H
+# include "settings.hh"
+# define BG_COLOR (get_settings()->isLightMode ? ui::constants::COLOR_BAR_BG_LI : ui::constants::COLOR_BAR_BG)
+# define FG_COLOR (get_settings()->isLightMode ? ui::constants::COLOR_BAR_FG_LI : ui::constants::COLOR_BAR_FG)
+#else
+# define BG_COLOR ui::constants::COLOR_BAR_BG
+# define FG_COLOR ui::constants::COLOR_BAR_FG
+#endif
 
 
 ui::ProgressBar::ProgressBar(u64 part_, u64 total_)

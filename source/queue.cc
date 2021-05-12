@@ -23,7 +23,7 @@ std::vector<hs::FullTitle> *queue()
 
 void queue_add(hs::FullTitle meta)
 {
-	g_queue.push_back(meta);	
+	g_queue.push_back(meta);
 }
 
 void queue_add(long int id)
@@ -52,16 +52,16 @@ void queue_process_all()
 {
 	for(hs::FullTitle& meta : g_queue)
 	{
-		if(!process_hs(meta))
+		if(!NET_OK(process_hs(meta)))
 			break;
 	}
 	queue_clear();
 }
 
-bool process_hs(long int id)
+Result process_hs(long int id)
 { return process_hs(hs::title_meta(id)); }
 
-bool process_hs(hs::FullTitle meta)
+Result process_hs(hs::FullTitle meta)
 {
 	ui::Widgets wids;
 	ui::ProgressBar *bar = new ui::ProgressBar(0, 1); // = 0%
@@ -76,7 +76,7 @@ bool process_hs(hs::FullTitle meta)
 	});
 
 	// Error!
-	if(res != 0)
+	if(!NET_OK(res))
 	{
 		ui::Widgets errs;
 		errs.push_back(new ui::PressToContinue(KEY_A));
@@ -84,20 +84,18 @@ bool process_hs(hs::FullTitle meta)
 		report_error(err, "User was installing (" + meta.tid + ") (" + std::to_string(meta.id) + ")");
 
 		constexpr float base = 70.0f;
-		ui::Text *text = new ui::Text(ui::mk_center_WText("Press A to continue", SCREEN_HEIGHT() - 20.0f));
+		ui::Text *text = new ui::Text(ui::mk_center_WText("Press " GLYPH_A " to continue", SCREEN_HEIGHT() - 20.0f));
 		float height = ui::text_height(&text->gtext().ctext) - 3.0f;
 		errs.push_back(text);
 
 		if(err.type == ErrType_curl)
 		{
-			ui::wid()->get<ui::Text>("curr_action_desc")->replace_text("CURL Error");
 			errs.push_back(new ui::Text(ui::mk_center_WText(format_err(err.sDesc, err.iDesc),
 				base + height)));
 		}
 
 		else if(err.type == ErrType_3ds)
 		{
-			ui::wid()->get<ui::Text>("curr_action_desc")->replace_text("3DS System Error");
 			errs.push_back(new ui::Text(ui::mk_center_WText(format_err(err.sDesc, err.iDesc),
 				base + height)));
 			errs.push_back(new ui::Text(ui::mk_center_WText("Result Code: 0x" + pad8code(err.full),
@@ -113,7 +111,25 @@ bool process_hs(hs::FullTitle meta)
 		generic_main_breaking_loop(errs);
 	}
 
-	return !(res == MAKERESULT(RL_INFO, RS_CANCELED, RM_APPLICATION, 1));
+	return res;
+}
+
+static void queue_is_empty(bool toggle = true)
+{
+	ui::Widgets wids;
+
+	ui::WrapText *msg = new ui::WrapText("Queue is empty\nPress " GLYPH_A " to go back\nTip: press " GLYPH_Y " to add a title to the queue");
+	msg->center(); msg->set_basey((SCREEN_HEIGHT() / 2) - 30);
+	wids.push_back(msg);
+
+	wids.push_back(new ui::PressToContinue(KEY_A));
+	generic_main_breaking_loop(wids);
+
+	if(toggle)
+	{
+		ui::wid()->for_each("button", [](ui::Widget *widget) -> void { ((ui::Button *) widget)->toggle(); });
+		ui::wid()->get<ui::Text>("curr_action_desc")->toggle();
+	}
 }
 
 void show_queue()
@@ -121,6 +137,9 @@ void show_queue()
 	ui::wid()->for_each("button", [](ui::Widget *widget) -> void { ((ui::Button *) widget)->toggle(); });
 	ui::wid()->get<ui::Text>("curr_action_desc")->toggle();
 
+	// Queue is empty :craig:
+	if(g_queue.size() == 0)
+		return queue_is_empty();
 
 	ui::Widgets wids;
 	ui::List<hs::FullTitle> *list = new ui::List<hs::FullTitle>(
@@ -149,23 +168,29 @@ void show_queue()
 	});
 
 
-	wids.push_back("back", new ui::Button("Back", C2D_Color32(0x32, 0x35, 0x36, 0xFF), 240, 210, 310, 230), ui::Scr::bottom);
+	wids.push_back("back", new ui::Button("Back", 240, 210, 310, 230), ui::Scr::bottom);
 	wids.get<ui::Button>("back")->set_on_click([]() -> ui::Results {
 		return ui::Results::quit_loop;
 	});
 
-	wids.push_back("install_all", new ui::Button("Install All", C2D_Color32(0x32, 0x35, 0x36, 0xFF), 10, 180, 100, 200), ui::Scr::bottom);
+	wids.push_back("install_all", new ui::Button("Install All", 10, 180, 100, 200), ui::Scr::bottom);
 	wids.get<ui::Button>("install_all")->set_on_click([list]() -> ui::Results {
 		queue_process_all(); list->update_text_reg();
-		return ui::Results::go_on;
+		queue_is_empty(false);
+		return ui::Results::quit_loop;
 	});
 
-	ui::Button *installSel = new ui::Button("Install Selected", C2D_Color32(0x32, 0x35, 0x36, 0xFF), 10, 210, 150, 230);
+	ui::Button *installSel = new ui::Button("Install Selected", 10, 210, 150, 230);
 	wids.push_back("install_sel", installSel, ui::Scr::bottom);
 
 	installSel->set_on_click([list]() -> ui::Results {
 		if(list->out_of_bounds(list->get_pointer())) return ui::Results::go_on;
 		queue_process(list->get_pointer()); list->update_text_reg();
+		if(g_queue.size() == 0)
+		{
+			queue_is_empty(false);
+			return ui::Results::quit_loop;
+		}
 		return ui::Results::go_on;
 	}); installSel->toggle_click();
 	wids.push_back(new ui::DoAfterFrames(20, [installSel]() -> ui::Results {

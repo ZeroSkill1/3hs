@@ -53,6 +53,38 @@ namespace ui
 
 
 	};
+
+	class WrapText : public Widget
+	{
+	public:
+		WrapText(std::string text);
+		WrapText();
+		~WrapText();
+
+		ui::Results draw(ui::Keys&, ui::Scr) override;
+		void replace_text(std::string text);
+		void pre_push() override;
+
+		WText& gtext();
+
+		void set_basey(float baseY);
+		void set_pad(float pad);
+		void center();
+
+
+	protected:
+		std::vector<C2D_Text> lines;
+		C2D_TextBuf buf = NULL;
+		std::string text;
+
+		bool drawCenter = false;
+		float baseY = 1.0f;
+		float pad = 1.0f;
+
+		void push_str(std::string str);
+
+
+	};
 }
 
 #endif

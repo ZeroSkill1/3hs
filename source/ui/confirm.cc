@@ -9,13 +9,13 @@
 ui::Confirm::Confirm(std::string label, bool& res)
 	: Widget("confirm"),
 		yes(
-			CONFIRM_YES, C2D_Color32(0x32, 0xcd, 0x32, 0xff), 75,
+			CONFIRM_YES, 75,
 			SCREEN_HEIGHT() / 2 - 10, 150,
 			SCREEN_HEIGHT() / 2 + 10
 		),
 		no(
-			CONFIRM_NO, C2D_Color32(0xdc, 0x14, 0x3c, 0xff), 175,
-			SCREEN_HEIGHT() / 2 - 10, 250, 
+			CONFIRM_NO, 175,
+			SCREEN_HEIGHT() / 2 - 10, 250,
 			SCREEN_HEIGHT() / 2 + 10
 		),
 		usr(ui::mk_center_WText(label, SCREEN_HEIGHT() / 2 - 40, constants::FSIZE, constants::FSIZE,

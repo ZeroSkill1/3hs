@@ -114,13 +114,13 @@ static Result i_install_net_cia(std::string url, Handle ciaHandle, prog_func pro
 	CURLcode res = curl_easy_perform(curl);
 	curl_easy_cleanup(curl);
 
-	if(res != CURLE_OK && data.err == 0)
+	if(res != CURLE_OK)
 	{
 		lerror << "curl_easy_perform(...): " << res;
 		return (Result) res;
 	}
 
-	if(data.err == 0)
+	if(data.err != 0)
 	{
 		lerror << "FSFILE_Write(...): " << std::hex << data.err;
 		return data.err;
@@ -149,20 +149,54 @@ static FS_MediaType detect_dest(hs::Title *meta)
 		? MEDIATYPE_NAND : MEDIATYPE_SD;
 }
 
-static Result get_free_space(FS_MediaType media, u64 *size)
+static bool is_twl(hs::Title *meta)
+{
+	u16 cat = std::stoul(meta->tid.substr(4, 4), nullptr, 16);
+	// 0x8000 = TWL
+	return (cat & (0x8000));
+}
+
+static Result get_free_space(FS_MediaType media, u64 *size, bool isTwl = false)
 {
 	FS_ArchiveResource resource;
 	Result res;
 
-	if(media == MEDIATYPE_NAND && R_FAILED(res = FSUSER_GetNandArchiveResource(&resource)))
+	if(isTwl && R_FAILED(res = FSUSER_GetArchiveResource(&resource, SYSTEM_MEDIATYPE_CTR_NAND)))
 		return res;
 
-	else if(R_FAILED(res = FSUSER_GetSdmcArchiveResource(&resource)))
+	if(media == MEDIATYPE_NAND && R_FAILED(res = FSUSER_GetArchiveResource(&resource, SYSTEM_MEDIATYPE_TWL_NAND)))
+		return res;
+
+	else if(R_FAILED(res = FSUSER_GetArchiveResource(&resource, SYSTEM_MEDIATYPE_SD)))
 		return res;
 
 	*size = resource.clusterSize * resource.freeClusters;
 	return res;
 }
+
+static Result i_install_hs_cia(hs::FullTitle *meta, prog_func prog, bool reinstallable)
+{
+	FS_MediaType media = detect_dest(meta);
+	u64 freeSpace = 0;
+	Result res;
+
+	if(R_FAILED(res = get_free_space(media, &freeSpace, is_twl(meta))))
+		return res;
+
+	if(meta->size > freeSpace)
+		return MAKERESULT(RL_TEMPORARY, RS_OUTOFRESOURCE, RM_APPLICATION, 2); // = too little space
+
+	// Check if we are NOT on a n3ds and the game is n3ds exclusive
+	bool isNew = false;
+	if(R_FAILED(res = APT_CheckNew3DS(&isNew)))
+		return res;
+
+	if(!isNew && meta->prod.rfind("KTR-", 0) == 0)
+		return MAKERESULT(RL_PERMANENT, RS_NOTSUPPORTED, RM_APPLICATION, 0); // = Unsupported platform
+
+	return install_net_cia(hs::get_download_link(meta), prog, reinstallable, meta->tid, detect_dest(meta));
+}
+
 
 // public api
 
@@ -180,7 +214,7 @@ Result install_net_cia(std::string url, prog_func prog, bool reinstallable, std:
 
 	ret = i_install_net_cia(url, cia, prog);
 	if(ret == CURLE_ABORTED_BY_CALLBACK)
-		ret = MAKERESULT(RL_INFO, RS_CANCELED, RM_APPLICATION, 1); // = Cancelled
+	{ AM_CancelCIAInstall(cia); return MAKERESULT(RL_FATAL, RS_CANCELED, RM_APPLICATION, 1); } // = Cancelled
 	if(!NET_OK(ret)) // If everything went ok in i_install_net_cia, we return a 0
 	{ AM_CancelCIAInstall(cia); return ret; }
 
@@ -191,24 +225,6 @@ Result install_net_cia(std::string url, prog_func prog, bool reinstallable, std:
 
 Result install_hs_cia(hs::FullTitle *meta, prog_func prog, bool reinstallable)
 {
-	FS_MediaType media = detect_dest(meta);
-	u64 freeSpace = 0;
-	Result res;
-
-	if(R_FAILED(res = get_free_space(media, &freeSpace)))
-		return res;
-
-	if(meta->size > freeSpace)
-		return 0xC86044D2; // = partion full
-
-	// Check if we are NOT on a n3ds and the game is n3ds exclusive
-	bool isNew = false;
-	if(R_FAILED(res = APT_CheckNew3DS(&isNew)))
-		return res;
-
-	if(!isNew && meta->prod.rfind("KTR-", 0) == 0)
-		return MAKERESULT(RL_PERMANENT, RS_NOTSUPPORTED, RM_APPLICATION, 0); // = Unsupported platform
-
-	return install_net_cia(hs::get_download_link(meta), prog, reinstallable, meta->tid, detect_dest(meta));
+	return i_install_hs_cia(meta, prog, reinstallable);
 }
 

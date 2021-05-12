@@ -2,13 +2,13 @@
 #ifndef __queue_hh__
 #define __queue_hh__
 
+#include <3ds/types.h>
 #include <vector>
 
 #include "hs.hh"
 
-// Returns FALSE if the user cancelled, else returns TRUE
-bool process_hs(hs::FullTitle meta);
-bool process_hs(long int id);
+Result process_hs(hs::FullTitle meta);
+Result process_hs(long int id);
 
 void queue_add(hs::FullTitle meta);
 void queue_process(size_t index);

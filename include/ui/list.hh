@@ -44,7 +44,7 @@ namespace ui
 		List(list_tostr_cb to_str, list_onsel_cb on_select)
 			: Widget("list"), items({ }), point(0)
 		{ this->init(to_str, on_select); }
-	
+
 		List(list_tostr_cb to_str, list_onsel_cb on_select, std::vector<T>& items_)
 			: Widget("list"), items(items_), point(0)
 		{

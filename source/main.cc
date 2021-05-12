@@ -17,6 +17,7 @@
 #include <3rd/log.hh>
 #include <hs.hh>
 
+#include "settings.hh"
 #include "install.hh"
 #include "update.hh"
 #include "queue.hh"
@@ -58,6 +59,7 @@ int main(int argc, char* argv[])
 	init_services();
 	ensure_logs_dir();
 	init_seeddb();
+	ensure_settings();
 
 	plog::init(LOG_LEVEL, "/3ds/3hs/3hs.log");
 	linfo << "App version: " FULL_VERSION;
@@ -76,8 +78,14 @@ int main(int argc, char* argv[])
 	ui::wid()->push_back("header", new ui::Text(ui::mk_center_WText("hShop", 0.0f, 1.0f, 1.0f)), ui::Scr::top);
 	ui::wid()->push_back("konami", new ui::Konami(), ui::Scr::top);
 
-	ui::wid()->push_back("about", new ui::Button("About", C2D_Color32(0x32, 0x35, 0x36, 0xFF), 10, 210, 80, 230), ui::Scr::bottom);
-	ui::wid()->push_back("queue", new ui::Button("Queue", C2D_Color32(0x32, 0x35, 0x36, 0xFF), 90, 210, 160, 230), ui::Scr::bottom);
+	ui::wid()->push_back("settings", new ui::Button("Settings", 10, 180, 100, 200), ui::Scr::bottom);
+	ui::wid()->push_back("about", new ui::Button("About", 10, 210, 80, 230), ui::Scr::bottom);
+	ui::wid()->push_back("queue", new ui::Button("Queue", 90, 210, 160, 230), ui::Scr::bottom);
+
+
+	ui::wid()->get<ui::Button>("settings")->set_on_click([]() -> ui::Results {
+		ui::end_frame(); show_settings(); return ui::Results::end_early;
+	});
 
 	ui::wid()->get<ui::Button>("about")->set_on_click([]() -> ui::Results {
 		ui::end_frame(); show_about(); return ui::Results::end_early;
@@ -87,8 +95,12 @@ int main(int argc, char* argv[])
 		ui::end_frame(); show_queue(); return ui::Results::end_early;
 	});
 
-	quick_global_draw();
+	// TODO: Add time & date widget
+	// TODO: Add net status widget
+	// TODO: Add search button
+	// TODO: Add logs button
 
+	quick_global_draw();
 
 
 	if(osGetWifiStrength() == 0)
@@ -190,7 +202,7 @@ sub:
 	}
 
 
-	llog << "Sayonara, app deinit";
+	llog << "Goodbye, app deinit";
 	hs::global_deinit();
 	ui::global_deinit();
 	exit_services();

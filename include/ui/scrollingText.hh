@@ -26,7 +26,7 @@ namespace ui
 
 	private:
 		void impl_replace_text(std::string str);
-	
+
 		std::string rtext;
 		C2D_TextBuf buf;
 		C2D_Text text;
