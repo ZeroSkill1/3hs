@@ -27,7 +27,7 @@ Result get_free_space(Destination media, u64 *size)
 	case DEST_Sdmc: res = FSUSER_GetArchiveResource(&resource, SYSTEM_MEDIATYPE_SD); break;
 	}
 
-	if(!R_FAILED(res)) *size = resource.clusterSize * resource.freeClusters;
+	if(!R_FAILED(res)) *size = (u64) resource.clusterSize * (u64) resource.freeClusters;
 	return res;
 }
 
