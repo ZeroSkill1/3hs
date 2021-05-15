@@ -1,13 +1,14 @@
 
 #include "about.hh"
 
-#include "ui/image_button.hh"
 #include "ui/button.hh"
 #include "ui/sprite.hh"
 #include "ui/core.hh"
 #include "ui/text.hh"
 
 #include "build/logo.h"
+
+#include "util.hh"
 
 // $ file gfx/img/logo.png
 // gfx/img/logo.png: PNG image data, 48 x 48, 8-bit/color RGBA, non-interlaced
@@ -20,10 +21,7 @@
 
 void show_about()
 {
-	/* Destroy */
-	ui::wid()->for_each("button", [](ui::Widget *widget) -> void { ((ui::Button *) widget)->toggle(); });
-	ui::wid()->for_each("image_button", [](ui::Widget *widget) -> void { ((ui::ImageButton *) widget)->toggle(); });
-	ui::wid()->get<ui::Text>("curr_action_desc")->toggle();
+	toggle_focus();
 
 	ui::Widgets wids;
 	wids.push_back("back", new ui::Button("Back", 240, 210, 310, 230), ui::Scr::bottom);
@@ -44,11 +42,6 @@ void show_about()
 	add_cred("Laswell: Design", 4);
 
 	generic_main_breaking_loop(wids);
-
-
-	/* Restore */
-	ui::wid()->for_each("button", [](ui::Widget *widget) -> void { ((ui::Button *) widget)->toggle(); });
-	ui::wid()->for_each("image_button", [](ui::Widget *widget) -> void { ((ui::ImageButton *) widget)->toggle(); });
-	ui::wid()->get<ui::Text>("curr_action_desc")->toggle();
+	toggle_focus();
 }
 

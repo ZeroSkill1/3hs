@@ -5,7 +5,6 @@
 # include "settings.hh"
 # define BTN_CLR (get_settings()->isLightMode ? ui::constants::COLOR_BTN_LI : ui::constants::COLOR_BTN)
 # define BTN_IMG (get_settings()->isLightMode ? this->light : this->dark)
-
 #else
 # define BTN_CLR ui::constants::COLOR_BTN
 #endif
@@ -32,7 +31,7 @@ void ui::ImageButton::init(c2d::SpriteSheet sheet, int light_idx, int dark_idx, 
 	this->light.set_pos(x1, y1);
 }
 
-void ui::ImageButton::set_on_click(button_on_click cb)
+void ui::ImageButton::set_on_click(image_button_on_click cb)
 {
 	this->on_click = cb;
 }

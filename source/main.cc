@@ -93,52 +93,38 @@ int main(int argc, char* argv[])
 	ui::wid()->push_back("curr_action_desc", new ui::Text(ui::mk_center_WText("Loading ...", 45.0f)), ui::Scr::top);
 	ui::wid()->push_back("header", new ui::Text(ui::mk_center_WText("hShop", 0.0f, 1.0f, 1.0f)), ui::Scr::top);
 	ui::wid()->push_back("size_indicator", new ui::FreeSpaceIndicator());
+	ui::wid()->push_back("konami", new ui::Konami(), ui::Scr::top);
+	ui::wid()->push_back("net_indicator", new ui::NetIndicator());
+
 #ifdef __RELEASE__
 	ui::wid()->push_back("batt_indicator", new ui::BatteryIndicator());
 #endif
 
-	ui::wid()->push_back("konami", new ui::Konami(), ui::Scr::top);
-	ui::wid()->push_back("net_indicator", new ui::NetIndicator());
-
-	ui::wid()->push_back(
-		"settings", 
-		new ui::ImageButton
-		(
+	ui::wid()->push_back("settings", 
+		new ui::ImageButton(
 			SHEET("settings_icon"), 
 			settings_icon_settings_light_idx, 
 			settings_icon_settings_dark_idx, 
 			10, 210, 30, 230
-		), 
-		ui::Scr::bottom
+		), ui::Scr::bottom
 	);
 
-	ui::wid()->push_back
-	(
-		"about",
-		new ui::ImageButton
-		(
+	ui::wid()->push_back("about",
+		new ui::ImageButton(
 			SHEET("about_icon"),
 			about_icon_about_light_idx,
 			about_icon_about_dark_idx,
-			40,
-			210,
-			60,
-			230
-		),
-		ui::Scr::bottom
+			40, 210, 60, 230
+		), ui::Scr::bottom
 	);
 
-	ui::wid()->push_back
-	(
-		"search", 
-		new ui::ImageButton
-		(
+	ui::wid()->push_back("search", 
+		new ui::ImageButton(
 			SHEET("search_icon"),
 			search_icon_search_light_idx,
 			search_icon_search_dark_idx,
 			70, 210, 90, 230
-		),
-		ui::Scr::bottom
+		), ui::Scr::bottom
 	);
 
 	ui::wid()->push_back("queue", new ui::Button("Queue", 100, 210, 170, 230), ui::Scr::bottom);

@@ -6,7 +6,6 @@
 #include <ui/press_to_continue.hh>
 #include <ui/do_after_frames.hh>
 #include <ui/progress_bar.hh>
-#include <ui/image_button.hh>
 #include <ui/button.hh>
 #include <ui/list.hh>
 #include <ui/text.hh>
@@ -18,6 +17,7 @@
 
 #include "install.hh"
 #include "error.hh"
+#include "util.hh"
 
 static std::vector<hs::FullTitle> g_queue;
 std::vector<hs::FullTitle> *queue()
@@ -66,6 +66,8 @@ Result process_hs(long int id)
 
 Result process_hs(hs::FullTitle meta)
 {
+	toggle_focus();
+
 	ui::Widgets wids;
 	ui::ProgressBar *bar = new ui::ProgressBar(0, 1); // = 0%
 	wids.push_back("prog_bar", bar, ui::Scr::bottom);
@@ -77,7 +79,8 @@ Result process_hs(hs::FullTitle meta)
 		bar->activate_text();
 		single_draw(wids);
 	});
-// Error!
+
+	// Error!
 	if(!NET_OK(res))
 	{
 		ui::Widgets errs;
@@ -114,6 +117,7 @@ Result process_hs(hs::FullTitle meta)
 	}
 
 	ui::wid()->get<ui::FreeSpaceIndicator>("size_indicator")->update();
+	toggle_focus();
 	return res;
 }
 
@@ -128,19 +132,12 @@ static void queue_is_empty(bool toggle = true)
 	wids.push_back(new ui::PressToContinue(KEY_A));
 	generic_main_breaking_loop(wids);
 
-	if(toggle)
-	{
-		ui::wid()->for_each("button", [](ui::Widget *widget) -> void { ((ui::Button *) widget)->toggle(); });
-		ui::wid()->for_each("image_button", [](ui::Widget *widget) -> void { ((ui::ImageButton *) widget)->toggle(); });
-		ui::wid()->get<ui::Text>("curr_action_desc")->toggle();
-	}
+	if(toggle) toggle_focus();
 }
 
 void show_queue()
 {
-	ui::wid()->for_each("button", [](ui::Widget *widget) -> void { ((ui::Button *) widget)->toggle(); });
-	ui::wid()->for_each("image_button", [](ui::Widget *widget) -> void { ((ui::ImageButton *) widget)->toggle(); });
-	ui::wid()->get<ui::Text>("curr_action_desc")->toggle();
+	toggle_focus();
 
 	// Queue is empty :craig:
 	if(g_queue.size() == 0)
@@ -204,10 +201,6 @@ void show_queue()
 
 
 	generic_main_breaking_loop(wids);
-
-
-	ui::wid()->for_each("button", [](ui::Widget *widget) -> void { ((ui::Button *) widget)->toggle(); });
-	ui::wid()->for_each("image_button", [](ui::Widget *widget) -> void { ((ui::ImageButton *) widget)->toggle(); });
-	ui::wid()->get<ui::Text>("curr_action_desc")->toggle();
+	toggle_focus();
 }
 

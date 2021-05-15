@@ -1,6 +1,6 @@
 
 #include "settings.hh"
-#include <ui/image_button.hh>
+
 #include <ui/button.hh>
 #include <ui/text.hh>
 #include <ui/core.hh>
@@ -10,6 +10,8 @@
 #include <stdio.h>
 
 #include <string>
+
+#include "util.hh"
 
 static Settings g_settings;
 
@@ -102,10 +104,7 @@ static void update_settings_ID(SettingsId ID)
 
 void show_settings()
 {
-	ui::wid()->for_each("button", [](ui::Widget *widget) -> void { ((ui::Button *) widget)->toggle(); });
-	ui::wid()->for_each("image_button", [](ui::Widget *widget) -> void { ((ui::ImageButton *) widget)->toggle(); });
-	ui::wid()->get<ui::Text>("curr_action_desc")->toggle();
-
+	toggle_focus();
 	ui::Widgets wids;
 	ui::Text *value;
 
@@ -138,9 +137,6 @@ void show_settings()
 	wids.push_back(list);
 
 	generic_main_breaking_loop(wids);
-
-	ui::wid()->for_each("button", [](ui::Widget *widget) -> void { ((ui::Button *) widget)->toggle(); });
-	ui::wid()->for_each("image_button", [](ui::Widget *widget) -> void { ((ui::ImageButton *) widget)->toggle(); });
-	ui::wid()->get<ui::Text>("curr_action_desc")->toggle();
+	toggle_focus();
 }
 

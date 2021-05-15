@@ -17,7 +17,6 @@ namespace ui
 		ProgressBar(u64 part, u64 total);
 		ProgressBar(u64 total);
 		ProgressBar();
-		~ProgressBar();
 
 		ui::Results draw(ui::Keys&, ui::Scr) override;
 
@@ -38,8 +37,6 @@ namespace ui
 
 		std::function<std::string(u64, u64)> serialize = [](u64 n, u64) { return std::to_string(n); };
 		std::function<std::string(u64)> postfix = [](u64) { return ""; };
-
-		void setup();
 
 
 	};

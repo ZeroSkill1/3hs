@@ -1,7 +1,5 @@
 
 #include "ui/progress_bar.hh"
-#include "ui/image_button.hh"
-#include "ui/button.hh"
 #include "ui/text.hh"
 
 #define X_OFFSET 10
@@ -20,21 +18,15 @@
 
 ui::ProgressBar::ProgressBar(u64 part_, u64 total_)
 	: Widget("progress_bar"), part(part_), total(total_)
-{ this->setup(); }
+{ }
 
 ui::ProgressBar::ProgressBar(u64 total_)
 	: Widget("progress_bar"), total(total_)
-{ this->setup(); }
+{ }
 
 ui::ProgressBar::ProgressBar()
 	: Widget("progress_bar")
-{ this->setup(); }
-
-ui::ProgressBar::~ProgressBar()
-{ 
-	ui::wid()->for_each("button", [](ui::Widget *wid) -> void { ((ui::Button *) wid)->toggle_click(); }); 
-	ui::wid()->for_each("image_button", [](ui::Widget *wid) -> void { ((ui::ImageButton *) wid)->toggle_click(); }); 
-}
+{ }
 
 
 void ui::ProgressBar::update(u64 part, u64 total)
@@ -75,12 +67,6 @@ ui::Results ui::ProgressBar::draw(ui::Keys&, ui::Scr target)
 	}
 
 	return ui::Results::go_on;
-}
-
-void ui::ProgressBar::setup()
-{
-	ui::wid()->for_each("button", [](ui::Widget *wid) -> void { ((ui::Button *) wid)->toggle_click(); });
-	ui::wid()->for_each("image_button", [](ui::Widget *wid) -> void { ((ui::ImageButton *) wid)->toggle_click(); }); 
 }
 
 void ui::ProgressBar::set_postfix(std::function<std::string(u64)> cb)

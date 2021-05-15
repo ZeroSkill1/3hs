@@ -7,11 +7,11 @@
 
 #include <functional>
 
-#define button_on_click std::function<ui::Results()>
-
 
 namespace ui
 {
+	typedef std::function<ui::Results()> button_on_click;
+
 	class Button : public Widget
 	{
 	public:

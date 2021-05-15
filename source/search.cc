@@ -4,13 +4,13 @@
 #include <widgets/meta.hh>
 
 #include <ui/press_to_continue.hh>
-#include <ui/image_button.hh>
 #include <ui/button.hh>
 #include <ui/swkbd.hh>
 #include <ui/text.hh>
 #include <ui/list.hh>
 
 #include "queue.hh"
+#include "util.hh"
 #include "hs.hh"
 
 
@@ -25,19 +25,13 @@ static void search_is_empty(std::string prev)
 	wids.push_back(new ui::PressToContinue(KEY_A));
 	generic_main_breaking_loop(wids);
 
-	ui::wid()->for_each("button", [](ui::Widget *widget) -> void { ((ui::Button *) widget)->toggle(); });
-	ui::wid()->for_each("image_button", [](ui::Widget *widget) -> void { ((ui::ImageButton *) widget)->toggle(); });
-	ui::wid()->get<ui::Text>("curr_action_desc")->replace_text(prev);
+	toggle_focus(prev);
 }
 
 
 void show_search()
 {
-	std::string prev = ui::wid()->get<ui::Text>("curr_action_desc")->value();
-
-	ui::wid()->for_each("button", [](ui::Widget *widget) -> void { ((ui::Button *) widget)->toggle(); });
-	ui::wid()->for_each("image_button", [](ui::Widget *widget) -> void { ((ui::ImageButton *) widget)->toggle(); });
-	ui::wid()->get<ui::Text>("curr_action_desc")->replace_text("Search for content");
+	std::string prev = toggle_focus("Search for content");
 	quick_global_draw();
 
 	std::string query;
@@ -93,10 +87,6 @@ void show_search()
 
 
 	generic_main_breaking_loop(wids);
-
-
-	ui::wid()->for_each("button", [](ui::Widget *widget) -> void { ((ui::Button *) widget)->toggle(); });
-	ui::wid()->for_each("image_button", [](ui::Widget *widget) -> void { ((ui::ImageButton *) widget)->toggle(); });
-	ui::wid()->get<ui::Text>("curr_action_desc")->replace_text(prev);
+	toggle_focus(prev);
 }
 
