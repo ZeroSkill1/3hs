@@ -1,28 +1,19 @@
 
 #include "widgets/meta.hh"
 
-#define T_NAME "Name"
-#define T_CAT  "Category"
-#define T_TID  "Title ID"
-#define T_ID   "Landing ID"
-#define T_SIZE "Size"
+#define D_TTL_TITLE "Total Titles"
+#define D_DESC      "Description"
+#define D_LID       "Landing ID"
+#define D_CAT       "Category"
+#define D_TID       "Title ID"
+#define D_NAME      "Name"
+#define D_SIZE      "Size"
 
 #define T_LEN ((14*5)+1)
 #define T_LONG this->cid
 
-#define S_NAME  "Name"
-#define S_CAT   "Category"
-#define S_SIZE  "Size"
-#define S_TITLE "Total Titles"
-#define S_DESC  "Description"
-
 #define S_LEN ((14*5)+1)
 #define S_LONG this->cdesc
-
-#define C_NAME  "Name"
-#define C_SIZE  "Size"
-#define C_TITLE "Total Titles"
-#define C_DESC  "Description"
 
 #define C_LEN ((14*4)+1)
 #define C_LONG this->cdesc
@@ -92,19 +83,19 @@ void ui::TitleMeta::init_other()
 {
 	this->cbuf.realloc(T_LEN);
 
-	this->cname.parse(this->cbuf, T_NAME);
+	this->cname.parse(this->cbuf, D_NAME);
 	this->cname.optimize();
 
-	this->ccat.parse(this->cbuf, T_CAT);
+	this->ccat.parse(this->cbuf, D_CAT);
 	this->ccat.optimize();
 
-	this->ctid.parse(this->cbuf, T_TID);
+	this->ctid.parse(this->cbuf, D_TID);
 	this->ctid.optimize();
 
-	this->cid.parse(this->cbuf, T_ID);
+	this->cid.parse(this->cbuf, D_LID);
 	this->cid.optimize();
 
-	this->csize.parse(this->cbuf, T_SIZE);
+	this->csize.parse(this->cbuf, D_SIZE);
 	this->csize.optimize();
 
 	this->sname.move(moff, GRID_AL_Y(1));
@@ -160,19 +151,19 @@ void ui::SubMeta::init_other()
 {
 	this->cbuf.realloc(S_LEN);
 
-	this->cname.parse(this->cbuf, S_NAME);
+	this->cname.parse(this->cbuf, D_NAME);
 	this->cname.optimize();
 
-	this->ccat.parse(this->cbuf, S_CAT);
+	this->ccat.parse(this->cbuf, D_CAT);
 	this->ccat.optimize();
 
-	this->csize.parse(this->cbuf, S_SIZE);
+	this->csize.parse(this->cbuf, D_SIZE);
 	this->csize.optimize();
 
-	this->ctitle.parse(this->cbuf, S_TITLE);
+	this->ctitle.parse(this->cbuf, D_TTL_TITLE);
 	this->ctitle.optimize();
 
-	this->cdesc.parse(this->cbuf, S_DESC);
+	this->cdesc.parse(this->cbuf, D_DESC);
 	this->cdesc.optimize();
 
 	this->sname.move(moff, GRID_AL_Y(1));
@@ -225,16 +216,16 @@ void ui::CatMeta::init_other()
 {
 	this->cbuf.realloc(C_LEN);
 
-	this->cname.parse(this->cbuf, C_NAME);
+	this->cname.parse(this->cbuf, D_NAME);
 	this->cname.optimize();
 
-	this->csize.parse(this->cbuf, C_SIZE);
+	this->csize.parse(this->cbuf, D_SIZE);
 	this->csize.optimize();
 
-	this->ctitle.parse(this->cbuf, C_TITLE);
+	this->ctitle.parse(this->cbuf, D_TTL_TITLE);
 	this->ctitle.optimize();
 
-	this->cdesc.parse(this->cbuf, C_DESC);
+	this->cdesc.parse(this->cbuf, D_DESC);
 	this->cdesc.optimize();
 
 	this->sname.move(moff, GRID_AL_Y(1));
