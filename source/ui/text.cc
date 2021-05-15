@@ -19,6 +19,9 @@ ui::Text::~Text()
 	C2D_TextBufDelete(this->buf);
 }
 
+std::string ui::Text::value()
+{ return this->text.text; }
+
 ui::Results ui::Text::draw(ui::Keys&, ui::Scr)
 {
 	ui::draw_at_absolute(this->text.x, this->text.y, this->text.ctext, 0,

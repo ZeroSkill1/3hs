@@ -6,6 +6,7 @@
 #include <ui/progress_bar.hh>
 #include <ui/confirm.hh>
 #include <ui/button.hh>
+#include <ui/swkbd.hh>
 #include <ui/text.hh>
 #include <ui/core.hh>
 #include <ui/list.hh>
@@ -21,6 +22,7 @@
 #include "settings.hh"
 #include "install.hh"
 #include "update.hh"
+#include "search.hh"
 #include "queue.hh"
 #include "error.hh"
 #include "about.hh"
@@ -35,6 +37,10 @@
 
 void init_services()
 {
+#ifdef __RELEASE__ // Not implmented in citra
+	mcuHwcInit();
+#endif
+
 	romfsInit();
 	aptInit();
 	fsInit();
@@ -42,7 +48,12 @@ void init_services()
 }
 
 void exit_services()
-{ romfsExit();
+{
+#ifdef __RELEASE__
+	mcuHwcExit();
+#endif
+
+	romfsExit();
 	aptExit();
 	fsExit();
 	amExit();
@@ -72,22 +83,31 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	ui::FreeSpaceIndicator *freeSpace = new ui::FreeSpaceIndicator();
-
 	ui::wid()->push_back("version", new ui::Text(ui::mk_right_WText(VERSION, 3.0f, 5.0f, ui::constants::FSIZE, ui::constants::FSIZE, ui::Scr::bottom)), ui::Scr::bottom);
 	ui::wid()->push_back("header_desc", new ui::Text(ui::mk_center_WText("The ultimate 3DS content preservation service.", 30.0f)), ui::Scr::top);
 	ui::wid()->push_back("curr_action_desc", new ui::Text(ui::mk_center_WText("Loading ...", 45.0f)), ui::Scr::top);
 	ui::wid()->push_back("header", new ui::Text(ui::mk_center_WText("hShop", 0.0f, 1.0f, 1.0f)), ui::Scr::top);
+	ui::wid()->push_back("size_indicator", new ui::FreeSpaceIndicator());
+#ifdef __RELEASE__
+	ui::wid()->push_back("batt_indicator", new ui::BatteryIndicator());
+#endif
+
 	ui::wid()->push_back("konami", new ui::Konami(), ui::Scr::top);
-	ui::wid()->push_back("size_indicator", freeSpace);
+	ui::wid()->push_back("net_indicator", new ui::NetIndicator());
 
 	ui::wid()->push_back("settings", new ui::Button("Settings", 10, 180, 100, 200), ui::Scr::bottom);
+	ui::wid()->push_back("search", new ui::Button("Search", 110, 180, 190, 200), ui::Scr::bottom);
 	ui::wid()->push_back("about", new ui::Button("About", 10, 210, 80, 230), ui::Scr::bottom);
 	ui::wid()->push_back("queue", new ui::Button("Queue", 90, 210, 160, 230), ui::Scr::bottom);
 
 
-	ui::wid()->get<ui::Button>("settings")->set_on_click([&freeSpace]() -> ui::Results {
-		ui::end_frame(); show_settings(); return ui::Results::end_early;
+	ui::wid()->get<ui::Button>("settings")->set_on_click([]() -> ui::Results {
+		ui::end_frame(); show_settings(); ui::wid()->get<ui::FreeSpaceIndicator>("size_indicator")->update(); // Setting may have changed
+		return ui::Results::end_early;
+	});
+
+	ui::wid()->get<ui::Button>("search")->set_on_click([]() -> ui::Results {
+		ui::end_frame(); show_search(); return ui::Results::end_early;
 	});
 
 	ui::wid()->get<ui::Button>("about")->set_on_click([]() -> ui::Results {
@@ -104,7 +124,6 @@ int main(int argc, char* argv[])
 	// TODO: Add logs button
 
 	quick_global_draw();
-
 
 	if(osGetWifiStrength() == 0)
 	{

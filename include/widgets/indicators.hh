@@ -5,6 +5,8 @@
 #include <ui/core.hh>
 #include <ui/text.hh>
 
+#define NET_SPRITE_BUF_LEN 4
+
 
 enum Destination
 {
@@ -36,6 +38,32 @@ namespace ui
 
 	class NetIndicator : public Widget
 	{
+	public:
+		NetIndicator();
+
+		ui::Results draw(Keys&, Scr) override;
+
+
+	private:
+		c2d::Sprite sprite[NET_SPRITE_BUF_LEN];
+		c2d::SpriteSheet sheet;
+
+
+	};
+
+	class BatteryIndicator : public Widget
+	{
+	public:
+		BatteryIndicator();
+
+		ui::Results draw(Keys&, Scr) override;
+		void update();
+
+
+	private:
+		ui::Text percentage;
+		u8 level;
+
 
 	};
 }

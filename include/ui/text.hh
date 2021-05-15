@@ -42,6 +42,7 @@ namespace ui
 		ui::Results draw(ui::Keys&, ui::Scr) override;
 		void replace_text(std::string text);
 
+		std::string value();
 		WText& gtext();
 
 

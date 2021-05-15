@@ -112,6 +112,7 @@ namespace hs
 	std::string route(std::string path);
 
 	std::vector<Title> titles_in(std::string cat, std::string subcat);
+	std::vector<hs::Title> search(std::string query);
 	std::string get_title_download(__HS_ID_T id);
 	FullTitle title_meta(__HS_ID_T id);
 

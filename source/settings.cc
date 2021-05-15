@@ -44,7 +44,7 @@ void ensure_settings()
 enum SettingsId
 {
 	ID_LightMode, ID_Resumable,
-	ID_FreeSpace,
+	ID_FreeSpace, ID_Battery,
 };
 
 typedef struct SettingInfo
@@ -59,6 +59,7 @@ static std::vector<SettingInfo> g_settings_info =
 	{ "Light Mode"               , "Turn on light mode. This will change\nthe way most ui elements look."                           , ID_LightMode },
 	{ "Resume Downloads"         , "Should we start where we\nleft off downloading the first time\nif we failed the first try?"     , ID_Resumable },
 	{ "Load Free Space indicator", "Load the free space indicator.\nBootup time should be shorter\nif you disable this on large SDs", ID_FreeSpace },
+	{ "Show Battery"             , "Toggle visability of battery in\ntop right corner"                                              , ID_Battery   },
 };
 
 static std::string serialize_id(SettingsId ID)
@@ -71,6 +72,8 @@ static std::string serialize_id(SettingsId ID)
 		return g_settings.resumeDownloads ? "true" : "false";
 	case ID_FreeSpace:
 		return g_settings.loadFreeSpace ? "true" : "false";
+	case ID_Battery:
+		return g_settings.showBattery ? "true" : "false";
 	default:
 		return "Unknown";
 	}
@@ -89,6 +92,9 @@ static void update_settings_ID(SettingsId ID)
 		break;
 	case ID_FreeSpace:
 		g_settings.loadFreeSpace = !g_settings.loadFreeSpace;
+		break;
+	case ID_Battery:
+		g_settings.showBattery = !g_settings.showBattery;
 		break;
 	}
 	save_settings();

@@ -39,6 +39,7 @@ void show_about()
 	add_cred("MyPasswordIsWeak: Programming", 1);
 	add_cred("TimmSkiller: Programming", 2);
 	add_cred("CremeChocolate: Art", 3);
+	add_cred("Laswell: Design", 4);
 
 	generic_main_breaking_loop(wids);
 

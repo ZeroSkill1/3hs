@@ -210,4 +210,3 @@ Result install_hs_cia(hs::FullTitle *meta, prog_func prog, bool reinstallable)
 	return i_install_hs_cia(meta, prog, reinstallable);
 }
 
-

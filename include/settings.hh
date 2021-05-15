@@ -4,12 +4,15 @@
 
 #define SETTINGS_LOCATION "/3ds/3hs/settings"
 
+
 typedef struct Settings
 {
 	char _magic[4] = { '3', 'H', 'S', 'S' };
 	bool isLightMode = false;
 	bool resumeDownloads = true; // TODO: Implement this (resumable downloads)
 	bool loadFreeSpace = true;
+	bool showBattery = true;
+	bool showNet = true;
 } Settings;
 
 
