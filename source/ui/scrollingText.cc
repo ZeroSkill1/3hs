@@ -40,7 +40,7 @@ ui::Results ui::ScrollingText::draw(ui::Keys&, ui::Scr)
 		if(this->index > this->rtext.size())
 		{
 			this->impl_replace_text(this->rtext);
-			this->offset = -60;
+			this->offset = -80;
 			this->index = 0;
 		}
 

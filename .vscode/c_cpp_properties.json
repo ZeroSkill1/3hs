@@ -4,12 +4,14 @@
             "name": "Linux",
             "includePath": [
                 "${default}",
-				"/opt/devkitpro/devkitARM/arm-none-eabi/include",
-				"/opt/devkitpro/libctru/include",
-				"${workspaceFolder}/3rd",
-				"${workspaceFolder}"
+                "/opt/devkitpro/devkitARM/arm-none-eabi/include",
+                "/opt/devkitpro/libctru/include",
+                "${workspaceFolder}/3rd",
+                "${workspaceFolder}"
             ],
-            "defines": [],
+            "defines": [
+                "USE_SETTINGS_H"
+            ],
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "c11",
             "cppStandard": "c++14",

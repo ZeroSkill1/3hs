@@ -1,6 +1,7 @@
 
 #include "about.hh"
 
+#include "ui/image_button.hh"
 #include "ui/button.hh"
 #include "ui/sprite.hh"
 #include "ui/core.hh"
@@ -21,6 +22,7 @@ void show_about()
 {
 	/* Destroy */
 	ui::wid()->for_each("button", [](ui::Widget *widget) -> void { ((ui::Button *) widget)->toggle(); });
+	ui::wid()->for_each("image_button", [](ui::Widget *widget) -> void { ((ui::ImageButton *) widget)->toggle(); });
 	ui::wid()->get<ui::Text>("curr_action_desc")->toggle();
 
 	ui::Widgets wids;
@@ -46,6 +48,7 @@ void show_about()
 
 	/* Restore */
 	ui::wid()->for_each("button", [](ui::Widget *widget) -> void { ((ui::Button *) widget)->toggle(); });
+	ui::wid()->for_each("image_button", [](ui::Widget *widget) -> void { ((ui::ImageButton *) widget)->toggle(); });
 	ui::wid()->get<ui::Text>("curr_action_desc")->toggle();
 }
 

@@ -2,6 +2,7 @@
 #include <3ds.h>
 
 #include <ui/press_to_continue.hh>
+#include <ui/image_button.hh>
 #include <ui/scrollingText.hh>
 #include <ui/progress_bar.hh>
 #include <ui/confirm.hh>
@@ -18,6 +19,10 @@
 #include <net_common.hh>
 #include <3rd/log.hh>
 #include <hs.hh>
+
+#include "build/settings_icon.h"
+#include "build/search_icon.h"
+#include "build/about_icon.h"
 
 #include "settings.hh"
 #include "install.hh"
@@ -95,23 +100,60 @@ int main(int argc, char* argv[])
 	ui::wid()->push_back("konami", new ui::Konami(), ui::Scr::top);
 	ui::wid()->push_back("net_indicator", new ui::NetIndicator());
 
-	ui::wid()->push_back("settings", new ui::Button("Settings", 10, 180, 100, 200), ui::Scr::bottom);
-	ui::wid()->push_back("search", new ui::Button("Search", 110, 180, 190, 200), ui::Scr::bottom);
-	ui::wid()->push_back("about", new ui::Button("About", 10, 210, 80, 230), ui::Scr::bottom);
-	ui::wid()->push_back("queue", new ui::Button("Queue", 90, 210, 160, 230), ui::Scr::bottom);
+	ui::wid()->push_back(
+		"settings", 
+		new ui::ImageButton
+		(
+			SHEET("settings_icon"), 
+			settings_icon_settings_light_idx, 
+			settings_icon_settings_dark_idx, 
+			10, 210, 30, 230
+		), 
+		ui::Scr::bottom
+	);
 
+	ui::wid()->push_back
+	(
+		"about",
+		new ui::ImageButton
+		(
+			SHEET("about_icon"),
+			about_icon_about_light_idx,
+			about_icon_about_dark_idx,
+			40,
+			210,
+			60,
+			230
+		),
+		ui::Scr::bottom
+	);
 
-	ui::wid()->get<ui::Button>("settings")->set_on_click([]() -> ui::Results {
+	ui::wid()->push_back
+	(
+		"search", 
+		new ui::ImageButton
+		(
+			SHEET("search_icon"),
+			search_icon_search_light_idx,
+			search_icon_search_dark_idx,
+			70, 210, 90, 230
+		),
+		ui::Scr::bottom
+	);
+
+	ui::wid()->push_back("queue", new ui::Button("Queue", 100, 210, 170, 230), ui::Scr::bottom);
+
+	ui::wid()->get<ui::ImageButton>("settings")->set_on_click([]() -> ui::Results {
 		ui::end_frame(); show_settings(); ui::wid()->get<ui::FreeSpaceIndicator>("size_indicator")->update(); // Setting may have changed
 		return ui::Results::end_early;
 	});
 
-	ui::wid()->get<ui::Button>("search")->set_on_click([]() -> ui::Results {
-		ui::end_frame(); show_search(); return ui::Results::end_early;
+	ui::wid()->get<ui::ImageButton>("about")->set_on_click([]() -> ui::Results {
+		ui::end_frame(); show_about(); return ui::Results::end_early;
 	});
 
-	ui::wid()->get<ui::Button>("about")->set_on_click([]() -> ui::Results {
-		ui::end_frame(); show_about(); return ui::Results::end_early;
+	ui::wid()->get<ui::ImageButton>("search")->set_on_click([]() -> ui::Results {
+		ui::end_frame(); show_search(); return ui::Results::end_early;
 	});
 
 	ui::wid()->get<ui::Button>("queue")->set_on_click([]() -> ui::Results {
