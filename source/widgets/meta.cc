@@ -1,6 +1,8 @@
 
 #include "widgets/meta.hh"
 
+//D = Description, T = Title, C = Category, S = Subcategory
+
 #define D_TTL_TITLE "Total Titles"
 #define D_DESC      "Description"
 #define D_LID       "Landing ID"
@@ -9,13 +11,11 @@
 #define D_NAME      "Name"
 #define D_SIZE      "Size"
 
-#define T_LEN ((14*5)+1)
-#define T_LONG this->cid
-
-#define S_LEN ((14*5)+1)
-#define S_LONG this->cdesc
-
+#define T_S_LEN ((14*5)+1)
 #define C_LEN ((14*4)+1)
+
+#define T_LONG this->cid
+#define S_LONG this->cdesc
 #define C_LONG this->cdesc
 
 #define twidth(n) (n.dimensions(tlen,tlen).width+moff)
@@ -81,7 +81,7 @@ void ui::TitleMeta::update_title(hs::Title title)
 
 void ui::TitleMeta::init_other()
 {
-	this->cbuf.realloc(T_LEN);
+	this->cbuf.realloc(T_S_LEN);
 
 	this->cname.parse(this->cbuf, D_NAME);
 	this->cname.optimize();
@@ -149,7 +149,7 @@ void ui::SubMeta::update_sub(hs::Subcategory sub)
 
 void ui::SubMeta::init_other()
 {
-	this->cbuf.realloc(S_LEN);
+	this->cbuf.realloc(T_S_LEN);
 
 	this->cname.parse(this->cbuf, D_NAME);
 	this->cname.optimize();
