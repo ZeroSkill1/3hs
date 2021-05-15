@@ -1,6 +1,6 @@
 
 #include "settings.hh"
-
+#include <ui/image_button.hh>
 #include <ui/button.hh>
 #include <ui/text.hh>
 #include <ui/core.hh>
@@ -103,6 +103,7 @@ static void update_settings_ID(SettingsId ID)
 void show_settings()
 {
 	ui::wid()->for_each("button", [](ui::Widget *widget) -> void { ((ui::Button *) widget)->toggle(); });
+	ui::wid()->for_each("image_button", [](ui::Widget *widget) -> void { ((ui::ImageButton *) widget)->toggle(); });
 	ui::wid()->get<ui::Text>("curr_action_desc")->toggle();
 
 	ui::Widgets wids;
@@ -139,6 +140,7 @@ void show_settings()
 	generic_main_breaking_loop(wids);
 
 	ui::wid()->for_each("button", [](ui::Widget *widget) -> void { ((ui::Button *) widget)->toggle(); });
+	ui::wid()->for_each("image_button", [](ui::Widget *widget) -> void { ((ui::ImageButton *) widget)->toggle(); });
 	ui::wid()->get<ui::Text>("curr_action_desc")->toggle();
 }
 

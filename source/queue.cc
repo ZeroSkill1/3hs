@@ -6,6 +6,7 @@
 #include <ui/press_to_continue.hh>
 #include <ui/do_after_frames.hh>
 #include <ui/progress_bar.hh>
+#include <ui/image_button.hh>
 #include <ui/button.hh>
 #include <ui/list.hh>
 #include <ui/text.hh>
@@ -130,6 +131,7 @@ static void queue_is_empty(bool toggle = true)
 	if(toggle)
 	{
 		ui::wid()->for_each("button", [](ui::Widget *widget) -> void { ((ui::Button *) widget)->toggle(); });
+		ui::wid()->for_each("image_button", [](ui::Widget *widget) -> void { ((ui::ImageButton *) widget)->toggle(); });
 		ui::wid()->get<ui::Text>("curr_action_desc")->toggle();
 	}
 }
@@ -137,6 +139,7 @@ static void queue_is_empty(bool toggle = true)
 void show_queue()
 {
 	ui::wid()->for_each("button", [](ui::Widget *widget) -> void { ((ui::Button *) widget)->toggle(); });
+	ui::wid()->for_each("image_button", [](ui::Widget *widget) -> void { ((ui::ImageButton *) widget)->toggle(); });
 	ui::wid()->get<ui::Text>("curr_action_desc")->toggle();
 
 	// Queue is empty :craig:
@@ -204,6 +207,7 @@ void show_queue()
 
 
 	ui::wid()->for_each("button", [](ui::Widget *widget) -> void { ((ui::Button *) widget)->toggle(); });
+	ui::wid()->for_each("image_button", [](ui::Widget *widget) -> void { ((ui::ImageButton *) widget)->toggle(); });
 	ui::wid()->get<ui::Text>("curr_action_desc")->toggle();
 }
 

@@ -203,7 +203,7 @@ namespace ui
 		T blk = (double) inte / 1024 / 128;
 		blk = blk == 0 ? 1 : blk;
 
-		return ret + std::string(" (") + std::to_string(blk) + " blocks)";
+		return ret + std::string(" (") + std::to_string(blk) + (blk == 1 ? " block)" : " blocks)");
 	}
 }
 
