@@ -1,5 +1,6 @@
 
 #include "ui/progress_bar.hh"
+#include "ui/image_button.hh"
 #include "ui/button.hh"
 #include "ui/text.hh"
 
@@ -30,7 +31,10 @@ ui::ProgressBar::ProgressBar()
 { this->setup(); }
 
 ui::ProgressBar::~ProgressBar()
-{ ui::wid()->for_each("button", [](ui::Widget *wid) -> void { ((ui::Button *) wid)->toggle_click(); }); }
+{ 
+	ui::wid()->for_each("button", [](ui::Widget *wid) -> void { ((ui::Button *) wid)->toggle_click(); }); 
+	ui::wid()->for_each("image_button", [](ui::Widget *wid) -> void { ((ui::ImageButton *) wid)->toggle_click(); }); 
+}
 
 
 void ui::ProgressBar::update(u64 part, u64 total)
@@ -76,6 +80,7 @@ ui::Results ui::ProgressBar::draw(ui::Keys&, ui::Scr target)
 void ui::ProgressBar::setup()
 {
 	ui::wid()->for_each("button", [](ui::Widget *wid) -> void { ((ui::Button *) wid)->toggle_click(); });
+	ui::wid()->for_each("image_button", [](ui::Widget *wid) -> void { ((ui::ImageButton *) wid)->toggle_click(); }); 
 }
 
 void ui::ProgressBar::set_postfix(std::function<std::string(u64)> cb)
