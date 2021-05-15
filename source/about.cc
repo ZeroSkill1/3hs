@@ -29,7 +29,13 @@ void show_about()
 		return ui::Results::quit_loop;
 	});
 
-	wids.push_back("banner", new ui::Text(ui::mk_center_WText("Thank you for using 3hs, a 3ds client for hShop", SCREEN_HEIGHT() / 2 - 10)));
+	wids.push_back("banner", new ui::WrapText(
+		"Thank you for using 3hs, a 3ds client for hShop\n"
+		"You can get this software for free at\n"
+		"https://hshop.erista.me/"));
+	wids.get<ui::WrapText>("banner")->set_basey(
+		SCREEN_HEIGHT() / 2 - 30);
+	wids.get<ui::WrapText>("banner")->center();
 
 	ui::StandaloneSprite *logo = new ui::StandaloneSprite(SHEET("logo"), logo_logo_idx);
 	logo->get_sprite()->set_pos(
