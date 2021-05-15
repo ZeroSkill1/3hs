@@ -46,8 +46,9 @@ void ui::Konami::show_bunny()
 	this->currKey = 0;
 
 	ui::StandaloneSprite *bunny = new ui::StandaloneSprite(SHEET("bun"), bun_bun_idx);
+	bunny->get_sprite()->set_center(0.5f, 0.0f);
 	bunny->get_sprite()->set_pos(
-		SCREEN_WIDTH(ui::Scr::top) / 2 - BUN_X / 2 - 20, 0
+		(SCREEN_WIDTH(this->screen) / 2) + (BUN_X / 8), SCREEN_HEIGHT() - BUN_Y
 	);
 
 	ui::Widgets wids;
