@@ -7,7 +7,7 @@
 #include <functional>
 #include <3rd/log.hh>
 
-#define __exec_onch() this->on_change(this, this->point)
+#define exec_onch() this->on_change(this, this->point)
 
 #define LIST_ARR ("→")
 // Unicode ......
@@ -127,22 +127,22 @@ namespace ui
 			static int last = ui::constants::CURSOR_INIT;
 
 			if((keys.kDown & KEY_DOWN) && this->point < this->items.size() - 1)
-			{ ++point; last = ui::constants::CURSOR_INIT; __exec_onch(); }
+			{ ++point; last = ui::constants::CURSOR_INIT; exec_onch(); }
 			else if((keys.kDown & KEY_UP) && this->point > 0)
-			{ --point; last = ui::constants::CURSOR_INIT; __exec_onch(); }
+			{ --point; last = ui::constants::CURSOR_INIT; exec_onch(); }
 			else if((keys.kDown & KEY_LEFT) && this->point >= ui::constants::SUPER_OFF)
-			{ point -= ui::constants::SUPER_OFF; last = ui::constants::CURSOR_INIT; __exec_onch(); }
+			{ point -= ui::constants::SUPER_OFF; last = ui::constants::CURSOR_INIT; exec_onch(); }
 			else if((keys.kDown & KEY_RIGHT) && this->point < this->min(this->items.size(), ui::constants::SUPER_OFF))
-			{ point += ui::constants::SUPER_OFF; last = ui::constants::CURSOR_INIT; __exec_onch(); }
+			{ point += ui::constants::SUPER_OFF; last = ui::constants::CURSOR_INIT; exec_onch(); }
 
 			else if((keys.kHeld & KEY_DOWN) && this->point < this->items.size() - 1 && last > ui::constants::CURSOR_DELAY)
-			{ ++point; last = -1; __exec_onch(); }
+			{ ++point; last = -1; exec_onch(); }
 			else if((keys.kHeld & KEY_UP) && this->point > 0 && last > ui::constants::CURSOR_DELAY)
-			{ --point; last = -1; __exec_onch(); }
+			{ --point; last = -1; exec_onch(); }
 			else if((keys.kHeld & KEY_LEFT) && this->point >= ui::constants::SUPER_OFF && last > ui::constants::CURSOR_DELAY)
-			{ point -= ui::constants::SUPER_OFF; last = -3; __exec_onch(); }
+			{ point -= ui::constants::SUPER_OFF; last = -3; exec_onch(); }
 			else if((keys.kHeld & KEY_RIGHT) && this->point < this->min(this->items.size(), ui::constants::SUPER_OFF) && last > ui::constants::CURSOR_DELAY)
-			{ point += ui::constants::SUPER_OFF; last = -3; __exec_onch(); }
+			{ point += ui::constants::SUPER_OFF; last = -3; exec_onch(); }
 
 			++last;
 
@@ -197,5 +197,6 @@ namespace ui
 	};
 }
 
-#undef __exec_onch
+#undef exec_onch
 #endif
+

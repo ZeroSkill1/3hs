@@ -15,9 +15,6 @@
 
 #include "bindings.hh"
 
-#define bad_text(t,x,y) { C2D_TextBuf __b; __b = C2D_TextBufNew(100); \
-	C2D_Text __t; ui::parse_text(&__t, __b, t); C2D_TextOptimize(&__t); \
-	ui::draw_at(x, y, __t); C2D_TextBufDelete(__b); }
 #define quick_global_draw() { ui::Widgets wids; ui::Keys keys; \
 	ui::framenext(keys); ui::framedraw(wids, keys); }
 #define single_draw(wids) { ui::Keys keys; \

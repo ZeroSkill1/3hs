@@ -5,12 +5,6 @@
 #include <string>
 #include <vector>
 
-
-#define __HS_SIZE_T unsigned long long
-#define __HS_TITLES_T unsigned long
-#define __HS_IVER_T unsigned int
-#define __HS_ID_T unsigned long
-
 #define index_failed(i) (i.size == HS_BAD_SIZE)
 #define index_error(i) (i.updated)
 
@@ -23,14 +17,19 @@
 
 namespace hs
 {
+	typedef unsigned long long size_t;
+	typedef unsigned long count_t;
+	typedef unsigned int iver_t;
+	typedef unsigned long id_t;
+
 	typedef struct BaseCategory
 	{
 		std::string displayName; /* Display */
 		std::string name; /* Internal */
 		std::string desc;
 
-		__HS_TITLES_T totalTitles;
-		__HS_SIZE_T size;
+		count_t totalTitles;
+		size_t size;
 	} BaseCategory;
 
 	typedef struct Subcategory : BaseCategory
@@ -61,8 +60,8 @@ namespace hs
 		std::vector<Category> categories;
 		std::string updated;
 
-		__HS_TITLES_T totalTitles;
-		__HS_SIZE_T size;
+		count_t totalTitles;
+		size_t size;
 
 		Category *operator [] (std::string name)
 		{
@@ -82,8 +81,8 @@ namespace hs
 		std::string tid;
 		std::string cat;
 
-		__HS_SIZE_T size; /* Filesize */
-		__HS_ID_T id;
+		size_t size; /* Filesize */
+		id_t id;
 	} Title;
 
 	typedef struct FullTitle : public Title
@@ -97,7 +96,7 @@ namespace hs
 		std::string updated; /* unix timestamp (as string) */
 		std::string added; /* unix timestamp (as string) */
 
-		__HS_IVER_T version;
+		iver_t version;
 
 		// We could probably add download count, don't feel like it
 	} FullTitle;
@@ -113,10 +112,8 @@ namespace hs
 
 	std::vector<Title> titles_in(std::string cat, std::string subcat);
 	std::vector<hs::Title> search(std::string query);
-	std::string get_title_download(__HS_ID_T id);
-	FullTitle title_meta(__HS_ID_T id);
-
-	typedef __HS_ID_T id_t;
+	std::string get_title_download(id_t id);
+	FullTitle title_meta(id_t id);
 }
 
 #endif

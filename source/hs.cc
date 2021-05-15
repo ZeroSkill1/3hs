@@ -98,9 +98,9 @@ hs::Index hs::Index::get()
 		return ret;
 	}
 
-	ret.totalTitles = resp["total_title_count"].get<__HS_TITLES_T>();
+	ret.totalTitles = resp["total_title_count"].get<hs::count_t>();
 	ret.updated = resp["updated_date"].get<std::string>();
-	ret.size = resp["total_size"].get<__HS_SIZE_T>();
+	ret.size = resp["total_size"].get<hs::size_t>();
 
 	ojson& cats = resp["entries"];
 	for(ojson::iterator jcat = cats.begin(); jcat != cats.end(); ++jcat)
@@ -112,8 +112,8 @@ hs::Index hs::Index::get()
 		cat.desc = vcat["description"].get<std::string>();
 		cat.name = jcat.key();
 
-		cat.totalTitles = vcat["content_count"].get<__HS_TITLES_T>();
-		cat.size = vcat["size"].get<__HS_SIZE_T>();
+		cat.totalTitles = vcat["content_count"].get<hs::count_t>();
+		cat.size = vcat["size"].get<hs::size_t>();
 
 		ojson& scats = vcat["subcategories"];
 
@@ -127,8 +127,8 @@ hs::Index hs::Index::get()
 			scat.name = jscat.key();
 			scat.cat = cat.name;
 
-			scat.totalTitles = vscat["content_count"].get<__HS_TITLES_T>();
-			scat.size = vscat["size"].get<__HS_SIZE_T>();
+			scat.totalTitles = vscat["content_count"].get<hs::count_t>();
+			scat.size = vscat["size"].get<hs::size_t>();
 
 			cat.subcategories.push_back(scat);
 		}
@@ -155,8 +155,8 @@ std::vector<hs::Title> hs::search(std::string query)
 		json& curr = it.value();
 		hs::Title pushable;
 
-		pushable.size = curr["size"].get<__HS_SIZE_T>();
-		pushable.id = curr["id"].get<__HS_ID_T>();
+		pushable.size = curr["size"].get<hs::size_t>();
+		pushable.id = curr["id"].get<hs::id_t>();
 
 		pushable.subcat = curr["subcategory"].get<std::string>();
 		pushable.tid = curr["title_id"].get<std::string>();
@@ -179,8 +179,8 @@ std::vector<hs::Title> hs::titles_in(std::string cat, std::string subcat)
 		json& curr = it.value();
 		hs::Title pushable;
 
-		pushable.size = curr["size"].get<__HS_SIZE_T>();
-		pushable.id = curr["id"].get<__HS_ID_T>();
+		pushable.size = curr["size"].get<hs::size_t>();
+		pushable.id = curr["id"].get<hs::id_t>();
 
 		pushable.subcat = curr["subcategory"].get<std::string>();
 		pushable.tid = curr["title_id"].get<std::string>();
@@ -192,7 +192,7 @@ std::vector<hs::Title> hs::titles_in(std::string cat, std::string subcat)
 	return ret;
 }
 
-hs::FullTitle hs::title_meta(__HS_ID_T id)
+hs::FullTitle hs::title_meta(hs::id_t id)
 {
 	json res = j_req<json>(std::string("title/") + std::to_string(id));
 	hs::FullTitle ret;
@@ -208,9 +208,9 @@ hs::FullTitle hs::title_meta(__HS_ID_T id)
 	JS_SET_PROP(res, ret, "category", cat);
 	JS_SET_PROP(res, ret, "name", name);
 
-	JT_SET_PROP(res, ret, "version", version, __HS_IVER_T);
-	JT_SET_PROP(res, ret, "size", size, __HS_SIZE_T);
-	JT_SET_PROP(res, ret, "id", id, __HS_ID_T);
+	JT_SET_PROP(res, ret, "version", version, hs::iver_t);
+	JT_SET_PROP(res, ret, "size", size, hs::size_t);
+	JT_SET_PROP(res, ret, "id", id, hs::id_t);
 
 	return ret;
 }
