@@ -1,6 +1,6 @@
 
-#ifndef __ui_swkbd_hh__
-#define __ui_swkbd_hh__
+#ifndef inc_ui_swkbd_hh
+#define inc_ui_swkbd_hh
 
 #include "ui/core.hh"
 

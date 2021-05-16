@@ -1,6 +1,6 @@
 
-#ifndef __util_hh__
-#define __util_hh__
+#ifndef inc_util_hh
+#define inc_util_hh
 
 #include <string>
 

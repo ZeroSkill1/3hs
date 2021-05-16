@@ -1,6 +1,6 @@
 
-#ifndef __update_hh__
-#define __update_hh__
+#ifndef inc_update_hh
+#define inc_update_hh
 
 #define VERSION "v" FULL_VERSION
 

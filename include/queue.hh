@@ -1,6 +1,6 @@
 
-#ifndef __queue_hh__
-#define __queue_hh__
+#ifndef inc_queue_hh
+#define inc_queue_hh
 
 #include <3ds/types.h>
 #include <vector>

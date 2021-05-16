@@ -1,6 +1,6 @@
 
-#ifndef __hs_hh__
-#define __hs_hh__
+#ifndef inc_hs_hh
+#define inc_hs_hh
 
 #include <string>
 #include <vector>
@@ -17,10 +17,10 @@
 
 namespace hs
 {
-	typedef unsigned long long size_t;
-	typedef unsigned long count_t;
-	typedef unsigned int iver_t;
-	typedef unsigned long id_t;
+	typedef unsigned long long hsize;
+	typedef unsigned long hcount;
+	typedef unsigned int hiver;
+	typedef unsigned long hid;
 
 	typedef struct BaseCategory
 	{
@@ -28,8 +28,8 @@ namespace hs
 		std::string name; /* Internal */
 		std::string desc;
 
-		count_t totalTitles;
-		size_t size;
+		hcount totalTitles;
+		hsize size;
 	} BaseCategory;
 
 	typedef struct Subcategory : BaseCategory
@@ -60,8 +60,8 @@ namespace hs
 		std::vector<Category> categories;
 		std::string updated;
 
-		count_t totalTitles;
-		size_t size;
+		hcount totalTitles;
+		hsize size;
 
 		Category *operator [] (std::string name)
 		{
@@ -81,8 +81,8 @@ namespace hs
 		std::string tid;
 		std::string cat;
 
-		size_t size; /* Filesize */
-		id_t id;
+		hsize size; /* Filesize */
+		hid id;
 	} Title;
 
 	typedef struct FullTitle : public Title
@@ -96,7 +96,7 @@ namespace hs
 		std::string updated; /* unix timestamp (as string) */
 		std::string added; /* unix timestamp (as string) */
 
-		iver_t version;
+		hiver version;
 
 		// We could probably add download count, don't feel like it
 	} FullTitle;

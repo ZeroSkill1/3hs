@@ -1,6 +1,6 @@
 
-#ifndef __ui_button_hh__
-#define __ui_button_hh__
+#ifndef inc_ui_button_hh_
+#define inc_ui_button_hh_
 
 #include "ui/bindings.hh"
 #include "ui/core.hh"

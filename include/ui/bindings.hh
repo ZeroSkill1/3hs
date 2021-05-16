@@ -1,6 +1,6 @@
 
-#ifndef __ui_bindings_hh__
-#define __ui_bindings_hh__
+#ifndef inc_ui_bindings_hh
+#define inc_ui_bindings_hh
 
 #include <citro3d.h>
 #include <citro2d.h>

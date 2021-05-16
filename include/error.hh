@@ -1,6 +1,6 @@
 
-#ifndef __error_hh__
-#define __error_hh__
+#ifndef inc_error_hh
+#define inc_error_hh
 
 #include <string>
 

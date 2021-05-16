@@ -1,6 +1,6 @@
 
-#ifndef __ui_do_after_frames_hh__
-#define __ui_do_after_frames_hh__
+#ifndef inc_ui_do_after_frames_hh
+#define inc_ui_do_after_frames_hh
 
 #include "ui/core.hh"
 

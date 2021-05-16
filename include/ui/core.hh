@@ -1,6 +1,6 @@
 
-#ifndef __ui_core_hh__
-#define __ui_core_hh__
+#ifndef inc_ui_core_hh
+#define inc_ui_core_hh
 
 #include <citro3d.h>
 #include <citro2d.h>

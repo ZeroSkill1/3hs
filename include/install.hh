@@ -1,6 +1,6 @@
 
-#ifndef __game_hh__
-#define __game_hh__
+#ifndef inc_game_hh
+#define inc_game_hh
 
 #include <functional>
 #include <string>

@@ -1,6 +1,6 @@
 
-#ifndef __ui_sprite_hh__
-#define __ui_sprite_hh__
+#ifndef inc_ui_sprite_hh
+#define inc_ui_sprite_hh
 
 #include "ui/bindings.hh"
 #include "ui/core.hh"

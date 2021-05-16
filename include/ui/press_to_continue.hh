@@ -1,6 +1,6 @@
 
-#ifndef __ui_press_to_continue_hh__
-#define __ui_press_to_continue_hh__
+#ifndef inc_ui_press_to_continue_hh
+#define inc_ui_press_to_continue_hh
 
 #include "ui/core.hh"
 

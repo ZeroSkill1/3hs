@@ -1,6 +1,6 @@
 
-#ifndef __ui_konami_hh__
-#define __ui_konami_hh__
+#ifndef inc_ui_konami_hh
+#define inc_ui_konami_hh
 
 #include "ui/bindings.hh"
 #include "ui/sprite.hh"

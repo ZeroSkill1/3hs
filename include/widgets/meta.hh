@@ -1,6 +1,6 @@
 
-#ifndef __ui_meta_hh__
-#define __ui_meta_hh__
+#ifndef inc_ui_meta_hh
+#define inc_ui_meta_hh
 
 #include "ui/scrollingText.hh"
 #include "ui/core.hh"

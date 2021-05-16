@@ -1,6 +1,6 @@
 
-#ifndef __net_common_hh__
-#define __net_common_hh__
+#ifndef inc_net_common_hh
+#define inc_net_common_hh
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 0

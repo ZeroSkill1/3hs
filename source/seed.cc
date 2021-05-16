@@ -5,7 +5,7 @@
 #include <3ds.h>
 #include <map>
 
-static std::map<u64 /* tid */, _Seed /* seed */> g_seeddb;
+static std::map<u64 /* tid */, Seed /* seed */> g_seeddb;
 
 
 // from FBI:

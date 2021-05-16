@@ -118,6 +118,8 @@ ui::WrapText::~WrapText()
 void ui::WrapText::pre_push()
 {
 	if(this->buf == NULL) this->buf = C2D_TextBufNew(this->text.size() + 1);
+
+
 	else
 	{
 		C2D_TextBufClear(this->buf);
@@ -127,7 +129,7 @@ void ui::WrapText::pre_push()
 
 	int width = SCREEN_WIDTH(this->screen);
 	int lines = (this->text.size() / (width - this->pad)) + 1;
-	this->lines.reserve(lines * sizeof(C2D_Text));
+	this->lines.clear(); this->lines.reserve(lines * sizeof(C2D_Text));
 
 	std::string cur;
 //	float curWidth = this->baseY;
@@ -194,8 +196,14 @@ void ui::WrapText::set_pad(float pad)
 }
 
 void ui::WrapText::set_basey(float baseY)
-{ if(baseY > 0) this->baseY = baseY; }
+{
+	if(baseY > 0) this->baseY = baseY;
+}
 
 void ui::WrapText::center()
-{ this->drawCenter = true; }
+{
+	this->drawCenter = true;
+	this->pad = 0;
+	this->pre_push();
+}
 

@@ -34,7 +34,7 @@
 #include "seed.hh"
 #include "next.hh"
 
-#ifdef __RELEASE__
+#ifdef RELEASE
 # define LOG_LEVEL plog::info
 #else
 # define LOG_LEVEL plog::verbose
@@ -42,7 +42,7 @@
 
 void init_services()
 {
-#ifdef __RELEASE__ // Not implmented in citra
+#ifdef RELEASE // Not implmented in citra
 	mcuHwcInit();
 #endif
 
@@ -54,7 +54,7 @@ void init_services()
 
 void exit_services()
 {
-#ifdef __RELEASE__
+#ifdef RELEASE
 	mcuHwcExit();
 #endif
 
@@ -96,15 +96,15 @@ int main(int argc, char* argv[])
 	ui::wid()->push_back("konami", new ui::Konami(), ui::Scr::top);
 	ui::wid()->push_back("net_indicator", new ui::NetIndicator());
 
-#ifdef __RELEASE__
+#ifdef RELEASE
 	ui::wid()->push_back("batt_indicator", new ui::BatteryIndicator());
 #endif
 
-	ui::wid()->push_back("settings", 
+	ui::wid()->push_back("settings",
 		new ui::ImageButton(
-			SHEET("settings_icon"), 
-			settings_icon_settings_light_idx, 
-			settings_icon_settings_dark_idx, 
+			SHEET("settings_icon"),
+			settings_icon_settings_light_idx,
+			settings_icon_settings_dark_idx,
 			10, 210, 30, 230
 		), ui::Scr::bottom
 	);
@@ -118,7 +118,7 @@ int main(int argc, char* argv[])
 		), ui::Scr::bottom
 	);
 
-	ui::wid()->push_back("search", 
+	ui::wid()->push_back("search",
 		new ui::ImageButton(
 			SHEET("search_icon"),
 			search_icon_search_light_idx,
@@ -164,7 +164,7 @@ int main(int argc, char* argv[])
 			ui::framedraw(dummy, keys);
 	}
 
-#ifdef __RELEASE__
+#ifdef RELEASE
 	// Check if luma is installed
 	// 1. Citra is used; not compatible
 	// 2. Other cfw used; not supported
@@ -195,7 +195,7 @@ int main(int argc, char* argv[])
 		return 2;
 	}
 
-#ifdef __RELEASE__
+#ifdef RELEASE
 	// If we updated ...
 	llog << "Checking for updates";
 	if(update_app())

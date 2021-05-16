@@ -1,6 +1,6 @@
 
-#ifndef __ui_text_hh__
-#define __ui_text_hh__
+#ifndef inc_ui_text_hh
+#define inc_ui_text_hh
 
 #include "ui/core.hh"
 

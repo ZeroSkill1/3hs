@@ -1,6 +1,6 @@
 
-#ifndef __ui_progress_bar_hh__
-#define __ui_progress_bar_hh__
+#ifndef inc_ui_progress_bar_hh
+#define inc_ui_progress_bar_hh
 
 #include <ui/bindings.hh>
 #include <ui/core.hh>

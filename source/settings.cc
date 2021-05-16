@@ -37,7 +37,7 @@ void ensure_settings()
 		Settings nset; fread(&nset, sizeof(Settings), 1, settings);
 		fclose(settings);
 
-		if(memcmp(nset._magic, "3HSS", 4) == 0)
+		if(memcmp(nset.magic, "3HSS", 4) == 0)
 			g_settings = nset;
 		else save_settings();
 	}

@@ -1,6 +1,6 @@
 
-#ifndef __ui_confirm_hh__
-#define __ui_confirm_hh__
+#ifndef inc_ui_confirm_hh
+#define inc_ui_confirm_hh
 
 #include "ui/button.hh"
 #include "ui/core.hh"

@@ -1,6 +1,6 @@
 
-#ifndef __ui_image_button_hh__
-#define __ui_image_button_hh__
+#ifndef inc_ui_image_button_hh
+#define inc_ui_image_button_hh
 
 #include "ui/bindings.hh"
 #include "ui/sprite.hh"

@@ -1,6 +1,6 @@
 
-#ifndef __search_hh__
-#define __search_hh__
+#ifndef inc_search_hh
+#define inc_search_hh
 
 void show_search();
 

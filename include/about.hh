@@ -1,6 +1,6 @@
 
-#ifndef __about_hh__
-#define __about_hh__
+#ifndef inc_about_hh
+#define inc_about_hh
 
 void show_about();
 

@@ -1,6 +1,6 @@
 
-#ifndef __widgets_indicators_hh__
-#define __widgets_indicators_hh__
+#ifndef inc_widgets_indicators_hh
+#define inc_widgets_indicators_hh
 
 #include <ui/core.hh>
 #include <ui/text.hh>

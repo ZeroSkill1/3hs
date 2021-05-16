@@ -1,6 +1,6 @@
 
-#ifndef __next_hh__
-#define __next_hh__
+#ifndef inc_next_hh
+#define inc_next_hh
 
 #include "hs.hh"
 
