@@ -127,22 +127,24 @@ namespace ui
 			static int last = ui::constants::CURSOR_INIT;
 
 			if((keys.kDown & KEY_DOWN) && this->point < this->items.size() - 1)
-			{ ++point; last = ui::constants::CURSOR_INIT; exec_onch(); }
+			{ ++this->point; last = ui::constants::CURSOR_INIT; exec_onch(); }
 			else if((keys.kDown & KEY_UP) && this->point > 0)
-			{ --point; last = ui::constants::CURSOR_INIT; exec_onch(); }
+			{ --this->point; last = ui::constants::CURSOR_INIT; exec_onch(); }
 			else if((keys.kDown & KEY_LEFT) && this->point >= ui::constants::SUPER_OFF)
-			{ point -= ui::constants::SUPER_OFF; last = ui::constants::CURSOR_INIT; exec_onch(); }
+			{ this->point -= ui::constants::SUPER_OFF; last = ui::constants::CURSOR_INIT; exec_onch(); }
 			else if((keys.kDown & KEY_RIGHT) && this->point < this->min(this->items.size(), ui::constants::SUPER_OFF))
-			{ point += ui::constants::SUPER_OFF; last = ui::constants::CURSOR_INIT; exec_onch(); }
+			{ this->point += ui::constants::SUPER_OFF; last = ui::constants::CURSOR_INIT; exec_onch(); }
+			else if(keys.kDown & KEY_RIGHT) { this->point = this->items.size() - 1; }
+			else if(keys.kDown & KEY_LEFT) { this->point = 0; }
 
 			else if((keys.kHeld & KEY_DOWN) && this->point < this->items.size() - 1 && last > ui::constants::CURSOR_DELAY)
-			{ ++point; last = -1; exec_onch(); }
+			{ ++this->point; last = -1; exec_onch(); }
 			else if((keys.kHeld & KEY_UP) && this->point > 0 && last > ui::constants::CURSOR_DELAY)
-			{ --point; last = -1; exec_onch(); }
+			{ --this->point; last = -1; exec_onch(); }
 			else if((keys.kHeld & KEY_LEFT) && this->point >= ui::constants::SUPER_OFF && last > ui::constants::CURSOR_DELAY)
-			{ point -= ui::constants::SUPER_OFF; last = -3; exec_onch(); }
+			{ this->point -= ui::constants::SUPER_OFF; last = -3; exec_onch(); }
 			else if((keys.kHeld & KEY_RIGHT) && this->point < this->min(this->items.size(), ui::constants::SUPER_OFF) && last > ui::constants::CURSOR_DELAY)
-			{ point += ui::constants::SUPER_OFF; last = -3; exec_onch(); }
+			{ this->point += ui::constants::SUPER_OFF; last = -3; exec_onch(); }
 
 			++last;
 

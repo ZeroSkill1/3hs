@@ -31,6 +31,7 @@
 #include "queue.hh"
 #include "error.hh"
 #include "about.hh"
+#include "util.hh"
 #include "seed.hh"
 #include "next.hh"
 
@@ -247,7 +248,9 @@ sub:
 		if(id == next_gam_exit) break;
 		llog << "NEXT(g): " << id;
 
+		toggle_focus();
 		process_hs(id);
+		toggle_focus();
 		goto gam;
 	}
 

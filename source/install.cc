@@ -115,16 +115,18 @@ static Result i_install_net_cia(std::string url, Handle ciaHandle, prog_func pro
 	CURLcode res = curl_easy_perform(curl);
 	curl_easy_cleanup(curl);
 
-	if(res != CURLE_OK)
-	{
-		lerror << "curl_easy_perform(...): " << res;
-		return (Result) res;
-	}
-
+	// If we have an error here, a potentional curl error will
+	// most likely be a reaction to this error, so its more imporant
 	if(data.err != 0)
 	{
 		lerror << "FSFILE_Write(...): " << std::hex << data.err;
 		return data.err;
+	}
+
+	if(res != CURLE_OK)
+	{
+		lerror << "curl_easy_perform(...): " << res;
+		return (Result) res;
 	}
 
 	// One final write...

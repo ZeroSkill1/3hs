@@ -25,7 +25,7 @@ static void search_is_empty(std::string prev)
 	wids.push_back(new ui::PressToContinue(KEY_A));
 	generic_main_breaking_loop(wids);
 
-	toggle_focus(prev);
+	swap_desc(prev);
 }
 
 
@@ -44,6 +44,8 @@ void show_search()
 	search.push_back(keyboard);
 	single_draw(search);
 
+	toggle_focus();
+
 	SwkbdResult result = keyboard->get_result();
 	if(keyboard->get_button() != SWKBD_BUTTON_CONFIRM || query.size() < 2 || (
 			result == SWKBD_INVALID_INPUT || result ==  SWKBD_OUTOFMEM ||
@@ -51,7 +53,6 @@ void show_search()
 		)) return search_is_empty(prev);
 
 	ui::Widgets wids;
-	long int id = 0;
 
 	ui::wid()->get<ui::Text>("curr_action_desc")->replace_text("Loading ...");
 	quick_global_draw(); std::vector<hs::Title> titles = hs::search(query);
@@ -66,8 +67,11 @@ void show_search()
 			if(keys & KEY_B) return ui::Results::quit_loop;
 			if(keys & KEY_A)
 			{
-				id = self->at(index).id;
-				return ui::Results::quit_no_end;
+				ui::end_frame();
+				toggle_focus();
+				process_hs(self->at(index).id);
+				toggle_focus();
+				return ui::Results::end_early;
 			}
 			else if(keys & KEY_Y)
 				queue_add(self->at(index).id);
@@ -87,6 +91,6 @@ void show_search()
 
 
 	generic_main_breaking_loop(wids);
-	toggle_focus(prev);
+	swap_desc(prev);
 }
 

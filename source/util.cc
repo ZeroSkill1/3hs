@@ -22,6 +22,14 @@ static void toggle_btn_konami()
 }
 
 
+std::string swap_desc(std::string text)
+{
+	ui::Text *action = ui::wid()->get<ui::Text>("curr_action_desc");
+	std::string ret = action->value();
+	action->replace_text(text);
+	return ret;
+}
+
 std::string toggle_focus(std::string text)
 {
 	toggle_btn_konami();

@@ -47,17 +47,21 @@ void queue_clear()
 void queue_process(size_t index)
 {
 	if(g_queue.size() < index) return;
+	toggle_focus();
 	process_hs(g_queue[index]);
+	toggle_focus();
 	queue_remove(index);
 }
 
 void queue_process_all()
 {
+	toggle_focus();
 	for(hs::FullTitle& meta : g_queue)
 	{
 		if(!NET_OK(process_hs(meta)))
 			break;
 	}
+	toggle_focus();
 	queue_clear();
 }
 
@@ -66,8 +70,6 @@ Result process_hs(long int id)
 
 Result process_hs(hs::FullTitle meta)
 {
-	toggle_focus();
-
 	ui::Widgets wids;
 	ui::ProgressBar *bar = new ui::ProgressBar(0, 1); // = 0%
 	wids.push_back("prog_bar", bar, ui::Scr::bottom);
@@ -117,7 +119,6 @@ Result process_hs(hs::FullTitle meta)
 	}
 
 	ui::wid()->get<ui::FreeSpaceIndicator>("size_indicator")->update();
-	toggle_focus();
 	return res;
 }
 
