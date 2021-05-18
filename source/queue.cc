@@ -172,12 +172,12 @@ void show_queue()
 
 
 	wids.push_back("back", new ui::Button("Back", 240, 210, 310, 230), ui::Scr::bottom);
-	wids.get<ui::Button>("back")->set_on_click([]() -> ui::Results {
+	wids.get<ui::Button>("back")->set_on_click([](bool) -> ui::Results {
 		return ui::Results::quit_loop;
 	});
 
 	wids.push_back("install_all", new ui::Button("Install All", 10, 180, 100, 200), ui::Scr::bottom);
-	wids.get<ui::Button>("install_all")->set_on_click([list]() -> ui::Results {
+	wids.get<ui::Button>("install_all")->set_on_click([list](bool) -> ui::Results {
 		queue_process_all(); list->update_text_reg();
 		queue_is_empty(false);
 		return ui::Results::quit_loop;
@@ -186,7 +186,7 @@ void show_queue()
 	ui::Button *installSel = new ui::Button("Install Selected", 10, 210, 150, 230);
 	wids.push_back("install_sel", installSel, ui::Scr::bottom);
 
-	installSel->set_on_click([list]() -> ui::Results {
+	installSel->set_on_click([list](bool) -> ui::Results {
 		if(list->out_of_bounds(list->get_pointer())) return ui::Results::go_on;
 		queue_process(list->get_pointer()); list->update_text_reg();
 		if(g_queue.size() == 0)

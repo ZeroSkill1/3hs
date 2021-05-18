@@ -25,7 +25,7 @@ void show_about()
 
 	ui::Widgets wids;
 	wids.push_back("back", new ui::Button("Back", 240, 210, 310, 230), ui::Scr::bottom);
-	wids.get<ui::Button>("back")->set_on_click([]() -> ui::Results {
+	wids.get<ui::Button>("back")->set_on_click([](bool) -> ui::Results {
 		return ui::Results::quit_loop;
 	});
 

@@ -22,8 +22,8 @@ ui::Confirm::Confirm(std::string label, bool& res)
 			ui::Scr::bottom)),
 		returns(res)
 {
-	this->yes.set_on_click([&]() END(true));
-	this->no.set_on_click([&]() END(false));
+	this->yes.set_on_click([&](bool) END(true));
+	this->no.set_on_click([&](bool) END(false));
 }
 
 ui::Results ui::Confirm::draw(ui::Keys& keys, ui::Scr target)

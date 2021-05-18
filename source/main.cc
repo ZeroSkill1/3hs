@@ -22,7 +22,7 @@
 
 #include "build/settings_icon.h"
 #include "build/search_icon.h"
-#include "build/about_icon.h"
+#include "build/more_icon.h"
 
 #include "settings.hh"
 #include "install.hh"
@@ -31,6 +31,7 @@
 #include "queue.hh"
 #include "error.hh"
 #include "about.hh"
+#include "more.hh"
 #include "util.hh"
 #include "seed.hh"
 #include "next.hh"
@@ -110,11 +111,11 @@ int main(int argc, char* argv[])
 		), ui::Scr::bottom
 	);
 
-	ui::wid()->push_back("about",
+	ui::wid()->push_back("more",
 		new ui::ImageButton(
-			SHEET("about_icon"),
-			about_icon_about_light_idx,
-			about_icon_about_dark_idx,
+			SHEET("more_icon"),
+			more_icon_more_light_idx,
+			more_icon_more_dark_idx,
 			40, 210, 60, 230
 		), ui::Scr::bottom
 	);
@@ -135,21 +136,20 @@ int main(int argc, char* argv[])
 		return ui::Results::end_early;
 	});
 
-	ui::wid()->get<ui::ImageButton>("about")->set_on_click([]() -> ui::Results {
-		ui::end_frame(); show_about(); return ui::Results::end_early;
+	ui::wid()->get<ui::ImageButton>("more")->set_on_click([]() -> ui::Results {
+		ui::end_frame(); show_more(); return ui::Results::end_early;
 	});
 
 	ui::wid()->get<ui::ImageButton>("search")->set_on_click([]() -> ui::Results {
 		ui::end_frame(); show_search(); return ui::Results::end_early;
 	});
 
-	ui::wid()->get<ui::Button>("queue")->set_on_click([]() -> ui::Results {
+	ui::wid()->get<ui::Button>("queue")->set_on_click([](bool) -> ui::Results {
 		ui::end_frame(); show_queue(); return ui::Results::end_early;
 	});
 
 	// TODO: Add time & date widget
 	// TODO: Add net status widget
-	// TODO: Add search button
 	// TODO: Add logs button
 
 	quick_global_draw();

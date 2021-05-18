@@ -10,7 +10,7 @@
 
 namespace ui
 {
-	typedef std::function<ui::Results()> button_on_click;
+	typedef std::function<ui::Results(bool)> button_on_click;
 
 	class Button : public Widget
 	{
@@ -21,7 +21,9 @@ namespace ui
 		void change_label(std::string label);
 
 		ui::Results draw(ui::Keys&, ui::Scr) override;
+		ui::Results click(bool inFrame = true);
 
+		void highlight(bool value = true);
 		void toggle_click();
 
 
@@ -29,9 +31,11 @@ namespace ui
 		c2d::TextBuf buf;
 		c2d::Text label;
 
-		button_on_click on_click = [](){ return ui::Results::go_on; };
+		button_on_click on_click = [](bool){ return ui::Results::go_on; };
 
+		bool shouldHighlight = false;
 		bool clickable = true;
+
 
 		float x1, x2;
 		float y1, y2;

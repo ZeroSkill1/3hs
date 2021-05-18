@@ -51,6 +51,7 @@ namespace ui
 {
 	namespace constants
 	{
+		constexpr u32 COLOR_HI = C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF);
 		constexpr u32 COLOR_BOT = C2D_Color32(0x1C, 0x20, 0x21, 0xFF);
 		constexpr u32 COLOR_TOP = C2D_Color32(0x1C, 0x20, 0x21, 0xFF);
 		constexpr u32 COLOR_BTN = C2D_Color32(0x32, 0x35, 0x36, 0xFF);
@@ -59,6 +60,7 @@ namespace ui
 		constexpr u32 COLOR_BAR_FG = C2D_Color32(0x00, 0xD2, 0x03, 0xFF);
 
 #ifdef USE_SETTINGS_H
+		constexpr u32 COLOR_HI_LI = C2D_Color32(0x00, 0x00, 0x00, 0xFF);
 		constexpr u32 COLOR_BOT_LI = C2D_Color32(0xEE, 0xEE, 0xEE, 0xFF);
 		constexpr u32 COLOR_TOP_LI = C2D_Color32(0xEE, 0xEE, 0xEE, 0xFF);
 		constexpr u32 COLOR_BTN_LI = C2D_Color32(0xDE, 0xDE, 0xDE, 0xFF);
