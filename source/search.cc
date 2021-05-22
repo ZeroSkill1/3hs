@@ -34,22 +34,17 @@ void show_search()
 	std::string prev = toggle_focus("Search for content");
 	quick_global_draw();
 
-	std::string query;
-
-	ui::AppletSwkbd *keyboard = new ui::AppletSwkbd(&query);
-	keyboard->validinput(SWKBD_NOTEMPTY_NOTBLANK);
-	keyboard->hint("Search for content...");
-
-	ui::Widgets search;
-	search.push_back(keyboard);
-	single_draw(search);
+	SwkbdResult res; SwkbdButton btn;
+	std::string query = ui::AppletSwkbd::read([](ui::AppletSwkbd *keyboard) -> void {
+		keyboard->validinput(SWKBD_NOTEMPTY_NOTBLANK);
+		keyboard->hint("Search for content...");
+	}, &res, &btn);
 
 	toggle_focus();
 
-	SwkbdResult result = keyboard->get_result();
-	if(keyboard->get_button() != SWKBD_BUTTON_CONFIRM || query.size() < 2 || (
-			result == SWKBD_INVALID_INPUT || result ==  SWKBD_OUTOFMEM ||
-			result == SWKBD_BANNED_INPUT
+	if(btn != SWKBD_BUTTON_CONFIRM || query.size() < 2 || (
+			res == SWKBD_INVALID_INPUT || res ==  SWKBD_OUTOFMEM ||
+			res == SWKBD_BANNED_INPUT
 		)) return search_is_empty(prev);
 
 	ui::Widgets wids;

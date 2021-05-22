@@ -85,7 +85,7 @@ void show_more()
 
 		else if(keys.kDown & KEY_A)
 		{
-			buttons[index]->click();
+			buttons[index]->click(false);
 		}
 
 		else if(keys.kDown & KEY_B)

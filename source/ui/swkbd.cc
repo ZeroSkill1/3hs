@@ -39,3 +39,20 @@ ui::Results ui::AppletSwkbd::draw(ui::Keys&, ui::Scr)
 	return ui::Results::quit_no_end;
 }
 
+std::string ui::AppletSwkbd::read(std::function<void(AppletSwkbd *)> setup,
+	SwkbdResult *result, SwkbdButton *button, int maxlen, SwkbdType type, int numBtns)
+{
+	std::string ret;
+	AppletSwkbd *keyboard = new AppletSwkbd(&ret, maxlen, type, numBtns);
+	setup(keyboard);
+
+	ui::Widgets wids;
+	wids.push_back(keyboard);
+	single_draw(wids);
+
+	if(result != nullptr) *result = keyboard->get_result();
+	if(button != nullptr) *button = keyboard->get_button();
+
+	return ret;
+}
+

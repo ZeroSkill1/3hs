@@ -4,6 +4,8 @@
 
 #include "ui/core.hh"
 
+#include <functional>
+
 
 namespace ui
 {
@@ -11,7 +13,7 @@ namespace ui
 	{
 	public:
 		AppletSwkbd(std::string *ret, int maxLen = 200, SwkbdType type = SWKBD_TYPE_NORMAL,
-			int numBtns = 3);
+			int numBtns = 2);
 
 		void validinput(SwkbdValidInput valid, u32 filterFlags = 0, u32 maxDigits = 0);
 		void passmode(SwkbdPasswordMode mode);
@@ -23,6 +25,11 @@ namespace ui
 
 		// This will draw exactly once
 		ui::Results draw(ui::Keys&, ui::Scr) override;
+
+		static std::string read(std::function<void(AppletSwkbd *)> setup = empty_setup,
+			SwkbdResult *result = nullptr, SwkbdButton *button = nullptr,
+			int maxlen = 200, SwkbdType type = SWKBD_TYPE_NORMAL, int numBtns = 2);
+		static void empty_setup(AppletSwkbd *) { };
 
 
 	private:

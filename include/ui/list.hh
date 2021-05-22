@@ -134,8 +134,6 @@ namespace ui
 			{ this->point -= ui::constants::SUPER_OFF; last = ui::constants::CURSOR_INIT; exec_onch(); }
 			else if((keys.kDown & KEY_RIGHT) && this->point < this->min(this->items.size(), ui::constants::SUPER_OFF))
 			{ this->point += ui::constants::SUPER_OFF; last = ui::constants::CURSOR_INIT; exec_onch(); }
-			else if(keys.kDown & KEY_RIGHT) { this->point = this->items.size() - 1; }
-			else if(keys.kDown & KEY_LEFT) { this->point = 0; }
 
 			else if((keys.kHeld & KEY_DOWN) && this->point < this->items.size() - 1 && last > ui::constants::CURSOR_DELAY)
 			{ ++this->point; last = -1; exec_onch(); }
@@ -145,6 +143,9 @@ namespace ui
 			{ this->point -= ui::constants::SUPER_OFF; last = -3; exec_onch(); }
 			else if((keys.kHeld & KEY_RIGHT) && this->point < this->min(this->items.size(), ui::constants::SUPER_OFF) && last > ui::constants::CURSOR_DELAY)
 			{ this->point += ui::constants::SUPER_OFF; last = -3; exec_onch(); }
+
+			else if((keys.kDown | keys.kHeld) & KEY_RIGHT && last > ui::constants::CURSOR_DELAY) { this->point = this->items.size() - 1; }
+			else if((keys.kDown | keys.kHeld) & KEY_LEFT && last > ui::constants::CURSOR_DELAY) { this->point = 0; }
 
 			++last;
 
