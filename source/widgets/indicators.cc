@@ -2,6 +2,7 @@
 #include "widgets/indicators.hh"
 #include "build/net_icons.h"
 
+#include <time.h>
 #include <3ds.h>
 
 #ifdef USE_SETTINGS_H
@@ -144,5 +145,86 @@ ui::Results ui::BatteryIndicator::draw(ui::Keys& keys, ui::Scr target)
 	}
 
 	return ui::Results::go_on;
+}
+
+// TIME
+
+ui::TimeIndicator::TimeIndicator()
+	: Widget("time_indicator"), txt(ui::mk_left_WText("00:00:00", 3.0f, 5.0f, 0.4f, 0.4f))
+{
+
+}
+
+ui::Results ui::TimeIndicator::draw(ui::Keys& keys, ui::Scr target)
+{
+	this->txt.replace_text(ui::TimeIndicator::time());
+	this->txt.draw(keys, target);
+	return ui::Results::go_on;
+}
+
+std::string ui::TimeIndicator::time()
+{
+	time_t now = ::time(nullptr);
+	struct tm *tm;
+	if((tm = localtime(&now)) == nullptr)
+		return "00:00:00";
+
+#ifdef USE_SETTINGS_H
+	// 24h aka good
+	if(get_settings()->timeFormat == Timefmt::good)
+	{
+		constexpr int size = 3 /* hh: */ + 3 /* mm: */ + 2 /* ss */ + 1 /* NULL term */;
+		char str[size];
+
+		snprintf(str, size, "%02d:%02d:%02d", tm->tm_hour, tm->tm_min, tm->tm_sec);
+		return std::string(str, size);	
+	}
+#endif
+
+#ifdef USE_SETTINGS_H
+	// 12h aka american aka bad
+	else
+	{
+		constexpr int size = 3 /* hh: */ + 3 /* mm: */ + 2 /* ss */ + 3 /* " PM"/" AM" */ + 1 /* NULL term */;
+		char str[size];
+
+		// Why do i have to write branching code
+		// for this shit hour format
+		// 24h is so neat but NO we gringos must
+		// use an anoying version because ???
+		// i get its easier to read for humans
+		// (not) but its so annoying to deal with
+		// times/dates are annoying in general
+		// but fuck this
+
+		// Now we need to use PM
+		if(tm->tm_hour > 12 && tm->tm_hour != 24)
+		{
+			// % 12 is a neat little trick to make it not error
+			snprintf(str, size, "%02d:%02d:%02d PM", tm->tm_hour % 12, tm->tm_min, tm->tm_sec);
+		}
+
+		// 12:00 (24h) should be 12 PM and not 12 or 0 AM
+		else if(tm->tm_hour == 12)
+		{
+			snprintf(str, size, "12:%02d:%02d PM", tm->tm_min, tm->tm_sec);
+		}
+
+		// 00:00 (24h) becomes 12 AM (???)
+		else if(tm->tm_hour == 0)
+		{
+			snprintf(str, size, "12:%02d:%02d AM", tm->tm_min, tm->tm_sec);
+		}
+
+		// Now we use AM
+		else
+		{
+			snprintf(str, size, "%02d:%02d:%02d AM", tm->tm_hour, tm->tm_min, tm->tm_sec);
+		}
+
+		return std::string(str, size);
+	}
+#endif
+
 }
 

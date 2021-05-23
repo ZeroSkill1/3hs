@@ -1,6 +1,7 @@
 
 #include "settings.hh"
 
+#include <ui/selector.hh>
 #include <ui/button.hh>
 #include <ui/text.hh>
 #include <ui/core.hh>
@@ -47,6 +48,7 @@ enum SettingsId
 {
 	ID_LightMode, ID_Resumable,
 	ID_FreeSpace, ID_Battery,
+	ID_TimeFmt,
 };
 
 typedef struct SettingInfo
@@ -62,6 +64,7 @@ static std::vector<SettingInfo> g_settings_info =
 	{ "Resume Downloads"         , "Should we start where we\nleft off downloading the first time\nif we failed the first try?"     , ID_Resumable },
 	{ "Load Free Space indicator", "Load the free space indicator.\nBootup time should be shorter\nif you disable this on large SDs", ID_FreeSpace },
 	{ "Show Battery"             , "Toggle visability of battery in\ntop right corner"                                              , ID_Battery   },
+	{ "Time Format"              , "Either 24h or 12h. If you ask me,\nthis should always be 24h"                                   , ID_TimeFmt   },
 };
 
 static std::string serialize_id(SettingsId ID)
@@ -76,9 +79,27 @@ static std::string serialize_id(SettingsId ID)
 		return g_settings.loadFreeSpace ? "true" : "false";
 	case ID_Battery:
 		return g_settings.showBattery ? "true" : "false";
+	case ID_TimeFmt:
+		return g_settings.timeFormat == Timefmt::good
+			? "24 hour" : "12 hour";
 	default:
-		return "Unknown";
+		return "undefined";
 	}
+
+	// Not reached
+}
+
+template <typename TEnum>
+static TEnum get_enum(std::vector<std::string> keys, std::vector<TEnum> values, TEnum now)
+{
+	ui::Widgets wids;
+	TEnum ret = now;
+
+	wids.push_back("selector", new ui::Selector<TEnum>(keys, values, &ret), ui::Scr::bottom);
+	wids.get<ui::Selector<TEnum>>("selector")->search_set_idx(now);
+	generic_main_breaking_loop(wids);
+
+	return ret;
 }
 
 static void update_settings_ID(SettingsId ID)
@@ -97,6 +118,12 @@ static void update_settings_ID(SettingsId ID)
 		break;
 	case ID_Battery:
 		g_settings.showBattery = !g_settings.showBattery;
+		break;
+	case ID_TimeFmt:
+		g_settings.timeFormat = get_enum<Timefmt>(
+			{ "24 hour", "12 hour" }, { Timefmt::good, Timefmt::bad },
+			g_settings.timeFormat
+		);
 		break;
 	}
 	save_settings();

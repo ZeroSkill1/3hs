@@ -66,6 +66,20 @@ namespace ui
 
 
 	};
+
+	class TimeIndicator : public Widget
+	{
+	public:
+		TimeIndicator();
+
+		ui::Results draw(Keys&, Scr) override;
+		static std::string time();
+
+	public:
+		ui::Text txt;
+
+
+	};
 }
 
 #endif

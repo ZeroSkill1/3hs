@@ -4,6 +4,13 @@
 
 #define SETTINGS_LOCATION "/3ds/3hs/settings"
 
+// 24h is superior but we'll allow 12h
+// because we care about customizability
+enum class Timefmt
+{
+	good = 24,
+	bad = 12
+};
 
 typedef struct Settings
 {
@@ -13,6 +20,7 @@ typedef struct Settings
 	bool loadFreeSpace = true;
 	bool showBattery = true;
 	bool showNet = true;
+	Timefmt timeFormat = Timefmt::good;
 } Settings;
 
 

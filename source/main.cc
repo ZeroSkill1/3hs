@@ -94,6 +94,7 @@ int main(int argc, char* argv[])
 	ui::wid()->push_back("header_desc", new ui::Text(ui::mk_center_WText("The ultimate 3DS content preservation service.", 30.0f)), ui::Scr::top);
 	ui::wid()->push_back("curr_action_desc", new ui::Text(ui::mk_center_WText("Loading ...", 45.0f)), ui::Scr::top);
 	ui::wid()->push_back("header", new ui::Text(ui::mk_center_WText("hShop", 0.0f, 1.0f, 1.0f)), ui::Scr::top);
+	ui::wid()->push_back("time_indicator", new ui::TimeIndicator());
 	ui::wid()->push_back("size_indicator", new ui::FreeSpaceIndicator());
 	ui::wid()->push_back("konami", new ui::Konami(), ui::Scr::top);
 	ui::wid()->push_back("net_indicator", new ui::NetIndicator());
