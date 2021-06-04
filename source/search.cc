@@ -3,9 +3,9 @@
 
 #include <widgets/meta.hh>
 
-#include <ui/press_to_continue.hh>
 #include <ui/button.hh>
 #include <ui/swkbd.hh>
+#include <ui/util.hh>
 #include <ui/text.hh>
 #include <ui/list.hh>
 

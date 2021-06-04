@@ -28,7 +28,6 @@ ui::ProgressBar::ProgressBar()
 	: Widget("progress_bar")
 { }
 
-
 void ui::ProgressBar::update(u64 part, u64 total)
 { this->part = part; this->total = total; }
 
@@ -49,9 +48,9 @@ ui::Results ui::ProgressBar::draw(ui::Keys&, ui::Scr target)
 
 		if(this->activated)
 		{
-			// [=========]
-			// 90%    9/10
 			// (z)   (x/y)
+			// 90%    9/10
+			// [=========]
 
 			// Parse into actual string
 			this->buf.clear();
@@ -61,8 +60,8 @@ ui::Results ui::ProgressBar::draw(ui::Keys&, ui::Scr target)
 			// Pad to right
 			float xyx = SCREEN_WIDTH(target) - X_OFFSET - ui::text_width(xy.handle());
 
-			ui::draw_at_absolute(xyx, (SCREEN_HEIGHT() / 2) - Y_OFFSET + 6, xy);
 			ui::draw_at_absolute(X_OFFSET, (SCREEN_HEIGHT() / 2) - Y_OFFSET + 6, z);
+			ui::draw_at_absolute(xyx, (SCREEN_HEIGHT() / 2) - Y_OFFSET + 6, xy);
 		}
 	}
 

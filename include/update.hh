@@ -4,9 +4,14 @@
 
 #define VERSION "v" FULL_VERSION
 
-#define UP_BASE "http://192.168.2.12/3hs-update" /* TMP */
-#define UP_CIA(v) (std::string(UP_BASE) + "/app-" + v + ".cia")
+#define UP_BASE "http://download2.erista.me/3hs"
 #define UP_VERSION (UP_BASE "/version")
+
+#ifdef DEVICE_ID
+# define UP_CIA(v) (std::string(UP_BASE) + "/app-" + v + "-" + #DEVICE_ID + ".cia")
+#else
+# define UP_CIA(v) (std::string(UP_BASE) + "/app-" + v + ".cia")
+#endif
 
 #include <net_common.hh>
 #include <string>

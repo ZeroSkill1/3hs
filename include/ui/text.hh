@@ -70,6 +70,7 @@ namespace ui
 
 		void set_basey(float baseY);
 		void set_pad(float pad);
+		void autowrap();
 		void center();
 
 
@@ -79,6 +80,7 @@ namespace ui
 		std::string text;
 
 		bool drawCenter = false;
+		bool doAutowrap = false;
 		float baseY = 1.0f;
 		float pad = 1.0f;
 

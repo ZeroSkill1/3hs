@@ -8,15 +8,22 @@
 #include <ui/core.hh>
 
 #include "install.hh"
+#include "queue.hh"
 
 
 bool update_app()
 {
+	if(envIsHomebrew())
+	{
+		linfo << "Used 3dsx version. Not checking for updates";
+		return false;
+	}
+
 	std::string nver = get_latest_version_string();
 	linfo << "Fetched new version " << nver << " from " << UP_VERSION;
 	linfo << "Current app version is " << VERSION;
 
-	if(nver == VERSION)
+	if(nver == FULL_VERSION)
 		return false;
 
 	ui::Widgets wids; bool shouldUpdate = false;
@@ -30,8 +37,15 @@ bool update_app()
 		return false;
 	}
 
-	linfo << "Updating from url: " << UP_CIA(nver) << " ...";
-	install_net_cia(UP_CIA(nver), default_prog_func, true);
+	u64 tid = 0x0; Result res = 0;
+	if(R_FAILED(res = APT_GetProgramID(&tid)))
+	{
+		lerror << "APT_GetProgramID(...): " << std::hex << res;
+		return false;
+	}
+
+	linfo << "Updating from url: " << UP_CIA(nver) << ",tid=" << tid_to_str(tid);
+	process_uri(UP_CIA(nver), true, tid_to_str(tid));
 	return true;
 }
 

@@ -92,6 +92,7 @@ static std::string serialize_id(SettingsId ID)
 template <typename TEnum>
 static TEnum get_enum(std::vector<std::string> keys, std::vector<TEnum> values, TEnum now)
 {
+	ui::end_frame();
 	ui::Widgets wids;
 	TEnum ret = now;
 
@@ -119,6 +120,7 @@ static void update_settings_ID(SettingsId ID)
 	case ID_Battery:
 		g_settings.showBattery = !g_settings.showBattery;
 		break;
+	// Enums
 	case ID_TimeFmt:
 		g_settings.timeFormat = get_enum<Timefmt>(
 			{ "24 hour", "12 hour" }, { Timefmt::good, Timefmt::bad },
@@ -145,7 +147,7 @@ void show_settings()
 		[&value](ui::List<SettingInfo> *self, size_t i, u32) -> ui::Results {
 			update_settings_ID(self->at(i).ID);
 			value->replace_text("Value: " + serialize_id(self->at(i).ID));
-			return ui::Results::go_on;
+			return ui::Results::end_early;
 		}, g_settings_info
 	);
 

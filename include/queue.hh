@@ -2,12 +2,13 @@
 #ifndef inc_queue_hh
 #define inc_queue_hh
 
-#include <3ds/types.h>
 #include <vector>
+#include <3ds.h>
 
 #include "hs.hh"
 
-Result process_hs(hs::FullTitle meta);
+Result process_uri(const std::string& uri, bool reinstallable = false, const std::string& tid = "", FS_MediaType media = MEDIATYPE_SD);
+Result process_hs(hs::FullTitle meta, bool reinstall = false);
 Result process_hs(long int id);
 
 void queue_add(hs::FullTitle meta);

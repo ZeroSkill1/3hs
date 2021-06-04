@@ -1,10 +1,9 @@
 
 #include <3ds.h>
 
-#include <ui/press_to_continue.hh>
-#include <ui/image_button.hh>
 #include <ui/scrollingText.hh>
 #include <ui/progress_bar.hh>
+#include <ui/image_button.hh>
 #include <ui/confirm.hh>
 #include <ui/button.hh>
 #include <ui/swkbd.hh>
@@ -35,6 +34,7 @@
 #include "util.hh"
 #include "seed.hh"
 #include "next.hh"
+#include "help.hh"
 
 #ifdef RELEASE
 # define LOG_LEVEL plog::info
@@ -52,6 +52,7 @@ void init_services()
 	aptInit();
 	fsInit();
 	amInit();
+	psInit();
 }
 
 void exit_services()
@@ -64,6 +65,7 @@ void exit_services()
 	aptExit();
 	fsExit();
 	amExit();
+	psExit();
 }
 
 void ensure_logs_dir()
@@ -80,7 +82,7 @@ int main(int argc, char* argv[])
 	ensure_settings();
 
 	plog::init(LOG_LEVEL, "/3ds/3hs/3hs.log");
-	linfo << "App version: " FULL_VERSION;
+	linfo << "version=" FULL_VERSION;
 
 	if(!ui::global_init())
 	{
@@ -101,7 +103,44 @@ int main(int argc, char* argv[])
 
 #ifdef RELEASE
 	ui::wid()->push_back("batt_indicator", new ui::BatteryIndicator());
+
+	// Check if luma is installed
+	// 1. Citra is used; not compatible
+	// 2. Other cfw used; not supported
+	Handle lumaCheck;
+	if(R_FAILED(svcConnectToPort(&lumaCheck, "hb:ldr")))
+	{
+		lfatal << "Luma3DS is not installed, user is using an unsupported CFW or running in Citra";
+		ui::wid()->get<ui::Text>("curr_action_desc")->replace_text("Luma3DS is not installed on this system");
+		ui::wid()->push_back("msg1", new ui::Text(ui::mk_center_WText("Please install Luma3DS on a real 3DS", 78.0f)), ui::Scr::top);
+		standalone_main_breaking_loop();
+		ui::global_deinit();
+		hs::global_deinit();
+		exit_services();
+		return 3;
+	}
+	svcCloseHandle(lumaCheck);
 #endif
+
+	// DRM Check
+#ifdef DEVICE_ID
+	u32 devid = 0;
+	PS_GetDeviceId(&devid);
+	// DRM Check failed
+	if(devid != DEVICE_ID)
+	{
+		lerror << "Piracyception";
+		(* (int *) nullptr) = 0xdeadbeef;
+	}
+#endif
+	// end DRM Check
+
+	if(get_settings()->firstRun)
+	{
+		show_help();
+		get_settings()->firstRun = false;
+		save_settings();
+	}
 
 	ui::wid()->push_back("settings",
 		new ui::ImageButton(
@@ -149,7 +188,6 @@ int main(int argc, char* argv[])
 		ui::end_frame(); show_queue(); return ui::Results::end_early;
 	});
 
-	// TODO: Add time & date widget
 	// TODO: Add net status widget
 	// TODO: Add logs button
 
@@ -165,25 +203,6 @@ int main(int argc, char* argv[])
 		while(ui::framenext(keys) && osGetWifiStrength() == 0)
 			ui::framedraw(dummy, keys);
 	}
-
-#ifdef RELEASE
-	// Check if luma is installed
-	// 1. Citra is used; not compatible
-	// 2. Other cfw used; not supported
-	Handle lumaCheck;
-	if(R_FAILED(svcConnectToPort(&lumaCheck, "hb:ldr")))
-	{
-		lfatal << "Luma3DS is not installed, user is using an unsupported CFW or running in Citra";
-		ui::wid()->get<ui::Text>("curr_action_desc")->replace_text("Luma3DS is not installed on this system");
-		ui::wid()->push_back("msg1", new ui::Text(ui::mk_center_WText("Please install Luma3DS on a real 3DS", 78.0f)), ui::Scr::top);
-		standalone_main_breaking_loop();
-		ui::global_deinit();
-		hs::global_deinit();
-		exit_services();
-		return 3;
-	}
-	svcCloseHandle(lumaCheck);
-#endif
 
 	if(!hs::global_init())
 	{

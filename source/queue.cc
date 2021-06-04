@@ -3,11 +3,11 @@
 
 #include <widgets/indicators.hh>
 
-#include <ui/press_to_continue.hh>
-#include <ui/do_after_frames.hh>
 #include <ui/progress_bar.hh>
+#include <ui/confirm.hh>
 #include <ui/button.hh>
 #include <ui/list.hh>
+#include <ui/util.hh>
 #include <ui/text.hh>
 #include <ui/core.hh>
 
@@ -65,10 +65,82 @@ void queue_process_all()
 	queue_clear();
 }
 
+static void handle_error(error_container err)
+{
+	ui::Widgets errs;
+	errs.push_back(new ui::PressToContinue(KEY_A));
+
+	constexpr float base = 70.0f;
+	ui::Text *text = new ui::Text(ui::mk_center_WText("Press " GLYPH_A " to continue", SCREEN_HEIGHT() - 30.0f));
+	float height = ui::text_height(&text->gtext().ctext) - 3.0f;
+	errs.push_back(text);
+
+	if(err.type == ErrType_curl)
+	{
+		errs.push_back(new ui::Text(ui::mk_center_WText(format_err(err.sDesc, err.iDesc),
+			base + height)));
+	}
+
+	else if(err.type == ErrType_3ds)
+	{
+		errs.push_back(new ui::Text(ui::mk_center_WText(format_err(err.sDesc, err.iDesc),
+			base + height)));
+		errs.push_back(new ui::Text(ui::mk_center_WText("Result Code: 0x" + pad8code(err.full),
+			base + (height * 2))));
+		errs.push_back(new ui::Text(ui::mk_center_WText("Level: " + format_err(err.sLvl, err.iLvl),
+			base + (height * 3))));
+		errs.push_back(new ui::Text(ui::mk_center_WText("Summary: " + format_err(err.sSum, err.iSum),
+			base + (height * 4))));
+		errs.push_back(new ui::Text(ui::mk_center_WText("Module: " + format_err(err.sMod, err.iMod),
+			base + (height * 5))));
+	}
+
+	generic_main_breaking_loop(errs);
+}
+
+Result process_uri(const std::string& uri, bool reinstallable, const std::string& tid, FS_MediaType media)
+{
+	ui::Widgets wids;
+	ui::ProgressBar *bar = new ui::ProgressBar(0, 1); // = 0%
+	wids.push_back("prog_bar", bar, ui::Scr::bottom);
+	bar->set_mib_type();
+	single_draw(wids);
+
+	Result res = install_net_cia(uri, [&wids, bar](u64 now, u64 total) -> void {
+		bar->update(now, total);
+		bar->activate_text();
+		single_draw(wids);
+	}, reinstallable, tid, media);
+
+	// TODO: Not hardcode this result
+	if(res == MAKERESULT(RL_FATAL, RS_INVALIDSTATE, RM_APPLICATION, 3))
+	{
+		bool userWantsReinstall = false;
+
+		ui::Widgets rei;
+		rei.push_back(new ui::Confirm("Title already installed, reinstall?",
+			userWantsReinstall), ui::Scr::bottom);
+		generic_main_breaking_loop(rei);
+
+		if(userWantsReinstall)
+			return process_uri(uri, true, tid, media);
+	}
+
+	if(!NET_OK(res))
+	{
+		error_container err = get_error(res);
+		report_error(err, "User was installing from " + uri);
+		handle_error(err);
+	}
+
+	ui::wid()->get<ui::FreeSpaceIndicator>("size_indicator")->update();
+	return res;
+}
+
 Result process_hs(long int id)
 { return process_hs(hs::title_meta(id)); }
 
-Result process_hs(hs::FullTitle meta)
+Result process_hs(hs::FullTitle meta, bool reinstall)
 {
 	ui::Widgets wids;
 	ui::ProgressBar *bar = new ui::ProgressBar(0, 1); // = 0%
@@ -80,12 +152,29 @@ Result process_hs(hs::FullTitle meta)
 		bar->update(now, total);
 		bar->activate_text();
 		single_draw(wids);
-	});
+	}, reinstall);
+
+	// TODO: Not hardcode this result
+	if(res == MAKERESULT(RL_FATAL, RS_INVALIDSTATE, RM_APPLICATION, 3))
+	{
+		bool userWantsReinstall = false;
+
+		ui::Widgets rei;
+		rei.push_back(new ui::Confirm("Title already installed, reinstall?",
+			userWantsReinstall), ui::Scr::bottom);
+		generic_main_breaking_loop(rei);
+
+		if(userWantsReinstall)
+			return process_hs(meta, true);
+	}
 
 	// Error!
 	if(!NET_OK(res))
 	{
-		ui::Widgets errs;
+		error_container err = get_error(res);
+		report_error(err, "User was installing (" + meta.tid + ") (" + std::to_string(meta.id) + ")");
+		handle_error(err);
+/*		ui::Widgets errs;
 		errs.push_back(new ui::PressToContinue(KEY_A));
 		error_container err = get_error(res);
 		report_error(err, "User was installing (" + meta.tid + ") (" + std::to_string(meta.id) + ")");
@@ -115,7 +204,7 @@ Result process_hs(hs::FullTitle meta)
 				base + (height * 5))));
 		}
 
-		generic_main_breaking_loop(errs);
+		generic_main_breaking_loop(errs);*/
 	}
 
 	ui::wid()->get<ui::FreeSpaceIndicator>("size_indicator")->update();

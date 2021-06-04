@@ -19,7 +19,8 @@ typedef struct cia_net_data
 	// How many bytes are in this->buffer?
 	u32 bufSize = 0;
 	// Temp store for leftovers
-	u8 buffer[CIA_NET_BUFSIZE];
+	// allocated on heap for more storage
+	u8 *buffer = nullptr;
 	// At what index are we writing __the cia__ now?
 	u64 index = 0;
 } cia_net_data;
@@ -101,11 +102,10 @@ static Result i_install_net_cia(std::string url, Handle ciaHandle, prog_func pro
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_install_cia_callback);
 
 	cia_net_data data;
-	std::memset(data.buffer, 0x00, CIA_NET_BUFSIZE);
+	data.buffer = new u8[CIA_NET_BUFSIZE];
 	data.cia = ciaHandle;
 
 	curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, progress_cb);
-	curl_easy_setopt(curl, CURLOPT_BUFFERSIZE, CIA_NET_BUFSIZE);
 	curl_easy_setopt(curl, CURLOPT_XFERINFODATA, &prog);
 	curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 	curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
@@ -120,12 +120,14 @@ static Result i_install_net_cia(std::string url, Handle ciaHandle, prog_func pro
 	if(data.err != 0)
 	{
 		lerror << "FSFILE_Write(...): " << std::hex << data.err;
+		delete [] data.buffer;
 		return data.err;
 	}
 
 	if(res != CURLE_OK)
 	{
 		lerror << "curl_easy_perform(...): " << res;
+		delete [] data.buffer;
 		return (Result) res;
 	}
 
@@ -133,13 +135,16 @@ static Result i_install_net_cia(std::string url, Handle ciaHandle, prog_func pro
 	if(data.bufSize != 0)
 	{
 		u32 written = 0; Result res2 = write_cia_data(&data, &written);
+
 		if(R_FAILED(res2))
 		{
 			lerror << "FSFILE_Write(...): " << std::hex << res;
+			delete [] data.buffer;
 			return res2;
 		}
 	}
 
+	delete [] data.buffer;
 	return 0;
 }
 
@@ -184,11 +189,93 @@ static Result i_install_hs_cia(hs::FullTitle *meta, prog_func prog, bool reinsta
 
 // public api
 
+// This func returns true
+// on failure because there are probably
+// worse problems if it fails to query titles
+bool title_exists(u64 tid, FS_MediaType media)
+{
+	u32 tcount = 0;
+
+	if(R_FAILED(AM_GetTitleCount(media, &tcount)))
+		return true;
+
+	u64 *tids = new u64[tcount];
+	if(R_FAILED(AM_GetTitleList(&tcount, MEDIATYPE_SD, tcount, tids)))
+		goto fail;
+
+	for(size_t i = 0; i < tcount; ++i)
+	{
+		if(tids[i] == tid)
+			goto fail;
+	}
+
+
+	delete [] tids;
+	return false;
+fail:
+	delete [] tids;
+	return true;
+}
+
+Result delete_title(u64 tid, FS_MediaType media)
+{
+	Result ret = 0;
+
+	if(R_FAILED(ret = AM_DeleteTitle(media, tid))) return ret;
+	if(R_FAILED(ret = AM_DeleteTicket(tid))) return ret;
+
+	// Reloads the databases
+	if(media == MEDIATYPE_SD) ret = AM_QueryAvailableExternalTitleDatabase(NULL);
+	return ret;
+}
+
+Result delete_if_exist(u64 tid, FS_MediaType media)
+{
+	if(title_exists(tid, media))
+		return delete_title(tid, media);
+	return 0;
+}
+
+std::string tid_to_str(u64 tid)
+{
+	if(tid == 0) return "";
+	char buf[17]; snprintf(buf, 17, "%016llX", tid);
+	return buf;
+}
+
+u64 str_to_tid(std::string tid)
+{
+	return strtoull(tid.c_str(), nullptr, 16);
+}
+
+Result install_net_cia(std::string url, prog_func prog, bool reinstallable, u64 tid, FS_MediaType dest)
+{
+	return install_net_cia(url, prog, reinstallable, tid_to_str(tid), dest);
+}
+
 Result install_net_cia(std::string url, prog_func prog, bool reinstallable, std::string tid, FS_MediaType dest)
 {
-	if(!reinstallable && tid != "")
+	if(reinstallable && tid != "")
 	{
+		u64 itid = str_to_tid(tid);
+		// Ask ninty why this stupid restriction is in place
+		// Basically reinstalling the CURRENT cia requires you
+		// To NOT delete the cia but instead have a higher version
+		// and just install like normal
+		u64 selftid = 0;
+		if(!(R_FAILED(APT_GetProgramID(&selftid)) || selftid == itid))
+		{
+			Result res = 0;
+			if(R_FAILED(res = delete_if_exist(itid)))
+				return res;
+		}
+	}
 
+	else if(tid != "")
+	{
+		u64 itid = str_to_tid(tid);
+		if(title_exists(itid))
+			return MAKERESULT(RL_FATAL, RS_INVALIDSTATE, RM_APPLICATION, 3); // = Can't reinstall
 	}
 
 	Handle cia; Result ret;

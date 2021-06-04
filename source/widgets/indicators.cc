@@ -172,14 +172,14 @@ std::string ui::TimeIndicator::time()
 #ifdef USE_SETTINGS_H
 	// 24h aka good
 	if(get_settings()->timeFormat == Timefmt::good)
+#endif
 	{
 		constexpr int size = 3 /* hh: */ + 3 /* mm: */ + 2 /* ss */ + 1 /* NULL term */;
 		char str[size];
 
 		snprintf(str, size, "%02d:%02d:%02d", tm->tm_hour, tm->tm_min, tm->tm_sec);
-		return std::string(str, size);	
+		return std::string(str, size);
 	}
-#endif
 
 #ifdef USE_SETTINGS_H
 	// 12h aka american aka bad

@@ -120,6 +120,7 @@ static const std::map<Result, std::map<Result, const char *>> ERR_LOOKUP({
 			{ 0, "Can't install n3ds exclusive games on an o3ds" },
 			{ 1, "Cancelled"                                     },
 			{ 2, "Too little free space on your SD Card"         },
+			{ 3, "Can't reinstall title unless asked"            },
 		}
 	},
 });

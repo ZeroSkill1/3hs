@@ -38,7 +38,7 @@ include $(DEVKITARM)/3ds_rules
 #---------------------------------------------------------------------------------
 TARGET		:=	3hs
 BUILD			:=	build
-SOURCES		:=	source source/ui source/widgets
+SOURCES		:= 	source source/ui source/widgets
 DATA			:=	data
 INCLUDES	:=	include 3rd .
 GRAPHICS	:=	gfx gfx/bun
@@ -66,6 +66,14 @@ LDFLAGS	=	-specs=3dsx.specs $(ARCH) -Wl,-Map,$(notdir $*.map)
 
 ifneq ($(RELEASE),)
 	CFLAGS	+=	-DRELEASE
+endif
+
+ifneq ($(DEVICE_ID),)
+	CFLAGS	+=	"-DDEVICE_ID=$(DEVICE_ID)"
+endif
+
+ifeq ($(VERSION),)
+	VERSION	=	0
 endif
 
 CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++11
@@ -193,9 +201,7 @@ _build_all:
 cia: $(INT_ALL)
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
 	$(SILENTCMD) 3dstool -ctf romfs $(CIA_PREFIX)/romfs.bin --romfs-dir romfs
-	$(SILENTCMD) makerom -f ncch -o $(TARGET).cxi -target t -elf $(TARGET).elf -icon $(CIA_PREFIX)/icon.smdh -banner $(CIA_PREFIX)/banner.bnr -rsf $(CIA_PREFIX)/$(TARGET).rsf -romfs $(CIA_PREFIX)/romfs.bin
-	$(SILENTMSG) built ... $(TARGET).cxi
-	$(SILENTCMD) makerom -f cia -o $(TARGET).cia -i $(TARGET).cxi:0:0 -ignoresign
+	$(SILENTCMD) makerom -f cia -o $(TARGET).cia -target t -elf $(TARGET).elf -icon $(CIA_PREFIX)/icon.smdh -banner $(CIA_PREFIX)/banner.bnr -rsf $(CIA_PREFIX)/$(TARGET).rsf -romfs $(CIA_PREFIX)/romfs.bin -ver $(VERSION)
 	$(SILENTMSG) built ... $(TARGET).cia
 
 

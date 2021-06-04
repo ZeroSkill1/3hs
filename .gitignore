@@ -45,3 +45,8 @@ dumps/
 
 # Ctags
 tags
+
+# Contains personal info
+release/
+devids.json
+

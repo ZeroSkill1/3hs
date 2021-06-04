@@ -21,6 +21,7 @@ typedef struct Settings
 	bool showBattery = true;
 	bool showNet = true;
 	Timefmt timeFormat = Timefmt::good;
+	bool firstRun = true;
 } Settings;
 
 

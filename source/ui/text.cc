@@ -131,15 +131,14 @@ void ui::WrapText::pre_push()
 	int lines = (this->text.size() / (width - this->pad)) + 1;
 	this->lines.clear(); this->lines.reserve(lines * sizeof(C2D_Text));
 
+	int curWidth = this->baseY;
 	std::string cur;
-//	float curWidth = this->baseY;
 
 	for(size_t i = 0; i < this->text.size(); ++i)
 	{
-		// TODO: Fix actual wrap
-		if(/*(int) curWidth % (int) (width - this->pad) == 0) || */this->text[i] == '\n')
+		if((this->doAutowrap && width - curWidth < 0) || this->text[i] == '\n')
 		{
-//			curWidth = this->baseY;
+			curWidth = this->baseY;
 			this->push_str(cur);
 			cur.clear();
 			if(this->text[i] == '\n')
@@ -147,8 +146,11 @@ void ui::WrapText::pre_push()
 		}
 
 		cur.push_back(this->text[i]);
-//		charWidthInfo_s *ch = C2D_FontGetCharWidthInfo(NULL, this->text[i]);
-//		if(ch != NULL) curWidth += ch->charWidth;
+		if(this->doAutowrap)
+		{
+			charWidthInfo_s *ch = C2D_FontGetCharWidthInfo(NULL, C2D_FontGlyphIndexFromCodePoint(NULL, this->text[i]));
+			if(ch != NULL) curWidth += ch->glyphWidth;
+		}
 	}
 	if(cur.size() > 0) this->push_str(cur);
 }
@@ -204,6 +206,12 @@ void ui::WrapText::center()
 {
 	this->drawCenter = true;
 	this->pad = 0;
+	this->pre_push();
+}
+
+void ui::WrapText::autowrap()
+{
+	this->doAutowrap = true;
 	this->pre_push();
 }
 

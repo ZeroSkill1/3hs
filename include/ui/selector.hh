@@ -79,6 +79,9 @@ namespace ui
 			if(keys.kDown & KEY_RIGHT)
 				this->wrap_plus();
 
+			if(keys.kDown & KEY_B)
+				return ui::Results::quit_loop;
+
 			return ui::Results::go_on;
 		}
 
