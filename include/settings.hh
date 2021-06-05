@@ -12,6 +12,11 @@ enum class Timefmt
 	bad = 12
 };
 
+enum class ProgressBarLocation
+{
+	top, bottom
+};
+
 typedef struct Settings
 {
 	char magic[4] = { '3', 'H', 'S', 'S' };
@@ -22,6 +27,7 @@ typedef struct Settings
 	bool showNet = true;
 	Timefmt timeFormat = Timefmt::good;
 	bool firstRun = true;
+	ProgressBarLocation progloc = ProgressBarLocation::bottom;
 } Settings;
 
 

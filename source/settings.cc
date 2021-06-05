@@ -48,7 +48,7 @@ enum SettingsId
 {
 	ID_LightMode, ID_Resumable,
 	ID_FreeSpace, ID_Battery,
-	ID_TimeFmt,
+	ID_TimeFmt, ID_ProgLoc,
 };
 
 typedef struct SettingInfo
@@ -65,6 +65,7 @@ static std::vector<SettingInfo> g_settings_info =
 	{ "Load Free Space indicator", "Load the free space indicator.\nBootup time should be shorter\nif you disable this on large SDs", ID_FreeSpace },
 	{ "Show Battery"             , "Toggle visability of battery in\ntop right corner"                                              , ID_Battery   },
 	{ "Time Format"              , "Either 24h or 12h. If you ask me,\nthis should always be 24h"                                   , ID_TimeFmt   },
+	{ "Progress Bar Screen"      , "The screen to draw progress bars on"                                                            , ID_ProgLoc   },
 };
 
 static std::string serialize_id(SettingsId ID)
@@ -82,6 +83,9 @@ static std::string serialize_id(SettingsId ID)
 	case ID_TimeFmt:
 		return g_settings.timeFormat == Timefmt::good
 			? "24 hour" : "12 hour";
+	case ID_ProgLoc:
+		return g_settings.progloc == ProgressBarLocation::top
+			? "top" : "bottom";
 	default:
 		return "undefined";
 	}
@@ -125,6 +129,12 @@ static void update_settings_ID(SettingsId ID)
 		g_settings.timeFormat = get_enum<Timefmt>(
 			{ "24 hour", "12 hour" }, { Timefmt::good, Timefmt::bad },
 			g_settings.timeFormat
+		);
+		break;
+	case ID_ProgLoc:
+		g_settings.progloc = get_enum<ProgressBarLocation>(
+			{ "top", "bottom" }, { ProgressBarLocation::top, ProgressBarLocation::bottom },
+			g_settings.progloc
 		);
 		break;
 	}

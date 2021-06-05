@@ -102,7 +102,7 @@ Result process_uri(const std::string& uri, bool reinstallable, const std::string
 {
 	ui::Widgets wids;
 	ui::ProgressBar *bar = new ui::ProgressBar(0, 1); // = 0%
-	wids.push_back("prog_bar", bar, ui::Scr::bottom);
+	wids.push_back("prog_bar", bar, PROGBAR_LOCATION(ui::Scr::bottom));
 	bar->set_mib_type();
 	single_draw(wids);
 
@@ -144,7 +144,7 @@ Result process_hs(hs::FullTitle meta, bool reinstall)
 {
 	ui::Widgets wids;
 	ui::ProgressBar *bar = new ui::ProgressBar(0, 1); // = 0%
-	wids.push_back("prog_bar", bar, ui::Scr::bottom);
+	wids.push_back("prog_bar", bar, PROGBAR_LOCATION(ui::Scr::bottom));
 	bar->set_mib_type();
 	single_draw(wids);
 

@@ -44,8 +44,8 @@ bool update_app()
 		return false;
 	}
 
-	linfo << "Updating from url: " << UP_CIA(nver) << ",tid=" << tid_to_str(tid);
-	process_uri(UP_CIA(nver), true, tid_to_str(tid));
+	lverbose << "Updating from url: " << UP_CIA(nver, DEVID) << ",tid=" << tid_to_str(tid);
+	process_uri(UP_CIA(nver, DEVID), true, tid_to_str(tid));
 	return true;
 }
 

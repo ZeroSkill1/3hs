@@ -8,6 +8,12 @@
 #include <functional>
 #include <string>
 
+#ifdef USE_SETTINGS_H
+# include "settings.hh"
+# define PROGBAR_LOCATION(def) (get_settings()->progloc == ProgressBarLocation::bottom ? ui::Scr::bottom : ui::Scr::top)
+#else
+# define PROGBAR_LOCATION(def) (def)
+#endif
 
 namespace ui
 {
