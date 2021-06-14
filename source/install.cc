@@ -23,6 +23,12 @@ typedef struct cia_net_data
 	u8 *buffer = nullptr;
 	// At what index are we writing __the cia__ now?
 	u64 index = 0;
+	// Progress callback
+	prog_func prog = [](u64, u64) -> void { };
+	// Total cia size
+	u64 totalSize = 0;
+	// CURL handle
+	CURL *curl = nullptr;
 } cia_net_data;
 
 
@@ -31,12 +37,22 @@ static Result write_cia_data(cia_net_data *cdata, u32 *written, u32 flags = FS_W
 	return FSFILE_Write(cdata->cia, written, cdata->index, cdata->buffer, cdata->bufSize, flags);
 }
 
+static u64 get_curl_total_size(CURL *curl)
+{
+	u64 ret = 0;
+	curl_easy_getinfo(curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD_T, &ret);
+	return ret;
+}
+
 static size_t curl_install_cia_callback(char *ptr, size_t size, size_t nmemb, void *userdata)
 {
 	cia_net_data *udata = (cia_net_data *) userdata;
 	size_t rsize = size * nmemb;
 	size_t avail = rsize; // This will decrement
 	size_t srcPos = 0; // From where in `ptr` do we want to copy?
+
+	// Get total size
+	if(udata->totalSize == 0) udata->totalSize = get_curl_total_size(udata->curl);
 
 	// We need to split it up in chunks ...
 	while(avail != 0)
@@ -70,6 +86,9 @@ static size_t curl_install_cia_callback(char *ptr, size_t size, size_t nmemb, vo
 
 			udata->index += udata->bufSize; // = CIA_NET_BUFSIZE
 			udata->bufSize = 0;
+
+			// Exec progress callback here
+			udata->prog(udata->index, udata->totalSize);
 		}
 	}
 
@@ -79,7 +98,6 @@ static size_t curl_install_cia_callback(char *ptr, size_t size, size_t nmemb, vo
 
 static int progress_cb(void *clientp, curl_off_t totalDl, curl_off_t nowDl, curl_off_t, curl_off_t)
 {
-	if(nowDl != 0) (* (prog_func *) clientp)(nowDl, totalDl);
 	hidScanInput(); return (hidKeysDown() | hidKeysHeld()) & (KEY_B | KEY_START);
 }
 
@@ -104,13 +122,14 @@ static Result i_install_net_cia(std::string url, Handle ciaHandle, prog_func pro
 	cia_net_data data;
 	data.buffer = new u8[CIA_NET_BUFSIZE];
 	data.cia = ciaHandle;
+	data.prog = prog;
+	data.curl = curl;
 
 	curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, progress_cb);
-	curl_easy_setopt(curl, CURLOPT_XFERINFODATA, &prog);
 	curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 	curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &data);
-	curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0);
+	curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
 
 	CURLcode res = curl_easy_perform(curl);
 	curl_easy_cleanup(curl);

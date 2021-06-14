@@ -63,8 +63,8 @@ static std::vector<SettingInfo> g_settings_info =
 	{ "Light Mode"               , "Turn on light mode. This will change\nthe way most ui elements look."                           , ID_LightMode },
 	{ "Resume Downloads"         , "Should we start where we\nleft off downloading the first time\nif we failed the first try?"     , ID_Resumable },
 	{ "Load Free Space indicator", "Load the free space indicator.\nBootup time should be shorter\nif you disable this on large SDs", ID_FreeSpace },
-	{ "Show Battery"             , "Toggle visability of battery in\ntop right corner"                                              , ID_Battery   },
-	{ "Time Format"              , "Either 24h or 12h. If you ask me,\nthis should always be 24h"                                   , ID_TimeFmt   },
+	{ "Show Battery"             , "Toggle visibility of battery in\ntop right corner"                                              , ID_Battery   },
+	{ "Time Format"              , "Your preferred time format.\nEither 24h or 12h."                                                , ID_TimeFmt   },
 	{ "Progress Bar Screen"      , "The screen to draw progress bars on"                                                            , ID_ProgLoc   },
 };
 
