@@ -114,6 +114,9 @@ namespace hs
 	std::vector<hs::Title> search(std::string query);
 	std::string get_title_download(id_t id);
 	FullTitle title_meta(id_t id);
+
+	// For std::sort
+	bool cmp_title_tid(); // TODO
 }
 
 #endif

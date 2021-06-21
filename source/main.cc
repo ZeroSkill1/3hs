@@ -23,12 +23,15 @@
 #include "build/search_icon.h"
 #include "build/more_icon.h"
 
+#include "image_ldr.hh"
 #include "settings.hh"
 #include "install.hh"
 #include "update.hh"
 #include "search.hh"
+#include "titles.hh"
 #include "queue.hh"
 #include "error.hh"
+#include "panic.hh"
 #include "about.hh"
 #include "more.hh"
 #include "util.hh"
@@ -42,31 +45,6 @@
 # define LOG_LEVEL plog::verbose
 #endif
 
-void init_services()
-{
-#ifdef RELEASE // Not implmented in citra
-	mcuHwcInit();
-#endif
-
-	romfsInit();
-	aptInit();
-	fsInit();
-	amInit();
-	psInit();
-}
-
-void exit_services()
-{
-#ifdef RELEASE
-	mcuHwcExit();
-#endif
-
-	romfsExit();
-	aptExit();
-	fsExit();
-	amExit();
-	psExit();
-}
 
 void ensure_logs_dir()
 {
@@ -76,11 +54,6 @@ void ensure_logs_dir()
 
 int main(int argc, char* argv[])
 {
-	init_services();
-	ensure_logs_dir();
-	init_seeddb();
-	ensure_settings();
-
 	plog::init(LOG_LEVEL, "/3ds/3hs/3hs.log");
 	linfo << "version=" FULL_VERSION;
 
@@ -88,9 +61,44 @@ int main(int argc, char* argv[])
 	{
 		lfatal << "ui::global_init() failed, this should **never** happen";
 		ui::global_deinit();
-		exit_services();
 		return 1;
 	}
+
+	panic_if_err_3ds(init_services());
+	ensure_logs_dir();
+	init_seeddb();
+	ensure_settings();
+
+/*
+	ui::global_init();
+
+	TitleSMDH *smdh = smdh_get(0x0004000000133300, MEDIATYPE_SD);
+	panic_assert(smdh != nullptr, "smdh == nullptr");
+
+	C2D_Sprite img;
+	load_smdh_icon(&img.image, *smdh, SMDHIconType::large);
+	memset(&img, 0x0, sizeof(C2D_Sprite));
+//	load_tiled_image(&img.image, smdh->iconSmall, 0x480, 24, 24, SMDH_ICON_FORMAT);
+
+	c2d::Sprite sprite(img);
+	sprite.set_pos(100, 100);
+	panic(
+		  "x : " + std::to_string(sprite.handle()->params.pos.x) +
+		"\ny : " + std::to_string(sprite.handle()->params.pos.y)
+	);
+
+	ui::Widgets wids;
+	wids.push_back(new ui::Sprite(sprite));
+
+	generic_main_breaking_loop(wids);
+	fabricated_image_free(img.image);
+	delete smdh;
+
+	ui::global_deinit();
+	exit_services();
+	gfxExit();
+	return 0;
+*/
 
 	ui::wid()->push_back("version", new ui::Text(ui::mk_right_WText(VERSION, 3.0f, 5.0f, ui::constants::FSIZE, ui::constants::FSIZE, ui::Scr::bottom)), ui::Scr::bottom);
 	ui::wid()->push_back("header_desc", new ui::Text(ui::mk_center_WText("The ultimate 3DS content preservation service.", 30.0f)), ui::Scr::top);
@@ -207,12 +215,7 @@ int main(int argc, char* argv[])
 	if(!hs::global_init())
 	{
 		lfatal << "hs::global_init() failed";
-		ui::wid()->get<ui::Text>("curr_action_desc")
-			->replace_text("Failed to init networking");
-		standalone_main_loop();
-		ui::global_deinit();
-		hs::global_deinit();
-		exit_services();
+		panic("Failed to initialize networking");
 		return 2;
 	}
 
@@ -236,12 +239,7 @@ int main(int argc, char* argv[])
 	if(index_failed(indx))
 	{
 		lfatal << "Failed to fetch index, dns fucked? Server down? " << index_error(indx);
-		ui::wid()->get<ui::Text>("curr_action_desc")
-			->replace_text(std::string("Couldn't load index: ") + index_error(indx));
-		standalone_main_loop();
-		ui::global_deinit();
-		hs::global_deinit();
-		exit_services();
+		panic("Failed to fetch index\n" + index_error(indx));
 		return 3;
 	}
 

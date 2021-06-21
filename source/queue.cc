@@ -16,6 +16,7 @@
 #include <vector>
 
 #include "install.hh"
+#include "panic.hh"
 #include "error.hh"
 #include "util.hh"
 
@@ -63,39 +64,6 @@ void queue_process_all()
 	}
 	toggle_focus();
 	queue_clear();
-}
-
-static void handle_error(error_container err)
-{
-	ui::Widgets errs;
-	errs.push_back(new ui::PressToContinue(KEY_A));
-
-	constexpr float base = 70.0f;
-	ui::Text *text = new ui::Text(ui::mk_center_WText("Press " GLYPH_A " to continue", SCREEN_HEIGHT() - 30.0f));
-	float height = ui::text_height(&text->gtext().ctext) - 3.0f;
-	errs.push_back(text);
-
-	if(err.type == ErrType_curl)
-	{
-		errs.push_back(new ui::Text(ui::mk_center_WText(format_err(err.sDesc, err.iDesc),
-			base + height)));
-	}
-
-	else if(err.type == ErrType_3ds)
-	{
-		errs.push_back(new ui::Text(ui::mk_center_WText(format_err(err.sDesc, err.iDesc),
-			base + height)));
-		errs.push_back(new ui::Text(ui::mk_center_WText("Result Code: 0x" + pad8code(err.full),
-			base + (height * 2))));
-		errs.push_back(new ui::Text(ui::mk_center_WText("Level: " + format_err(err.sLvl, err.iLvl),
-			base + (height * 3))));
-		errs.push_back(new ui::Text(ui::mk_center_WText("Summary: " + format_err(err.sSum, err.iSum),
-			base + (height * 4))));
-		errs.push_back(new ui::Text(ui::mk_center_WText("Module: " + format_err(err.sMod, err.iMod),
-			base + (height * 5))));
-	}
-
-	generic_main_breaking_loop(errs);
 }
 
 Result process_uri(const std::string& uri, bool reinstallable, const std::string& tid, FS_MediaType media)

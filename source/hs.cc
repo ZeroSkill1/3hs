@@ -30,6 +30,7 @@ template <typename J = json>
 static J j_req(std::string path, std::string *err = nullptr)
 {
 	const std::string body = hs::base_req(hs::route(path), err);
+	if(body == "") return J();
 	return J::parse(body);
 }
 
@@ -37,6 +38,7 @@ template <typename J = json>
 static J j_abs_req(std::string url, std::string *err = nullptr)
 {
 	const std::string body = hs::base_req(url, err);
+	if(body == "") return J();
 	return J::parse(body);
 }
 
@@ -67,8 +69,11 @@ std::string hs::base_req(std::string url, std::string *err)
 
 	if(res != CURLE_OK && err != nullptr)
 	{
-		(*err) = std::string("(network-") + std::to_string(res) + "): " + curl_easy_strerror(res);
 		lerror << "libcurl error(" << res << "): " << curl_easy_strerror(res);
+		(*err) = curl_easy_strerror(res);
+		if(res == 60) // stupid error
+			(*err) += "\nTry setting time & date correctly.";
+		return "";
 	}
 
 	lverbose << url << " says " << body;
