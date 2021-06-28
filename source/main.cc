@@ -1,4 +1,5 @@
 
+#include <signal.h>
 #include <3ds.h>
 
 #include <ui/scrollingText.hh>
@@ -51,7 +52,7 @@ void ensure_logs_dir()
 	mkdir("/3ds", 0777);
 	mkdir("/3ds/3hs", 0777);
 }
-#include "build/bun.h"
+
 int main(int argc, char* argv[])
 {
 	plog::init(LOG_LEVEL, "/3ds/3hs/3hs.log");

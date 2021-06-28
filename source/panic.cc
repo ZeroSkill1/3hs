@@ -82,13 +82,13 @@ void handle_error(error_container err)
 }
 
 
-static void panic_core(ui::Widgets& wids)
+static void panic_core(std::string caller, ui::Widgets& wids)
 {
 	wids.push_back(new ui::PressToContinue(KEY_A));
 	ui::Text *desc = ui::wid()->get<ui::Text>("curr_action_desc");
 	if(desc == nullptr)
-		wids.push_back(new ui::Text(ui::mk_center_WText("Fatal Panic Occurred", 45.0f)));
-	else desc->replace_text("Fatal Panic Occurred");
+		wids.push_back(new ui::Text(ui::mk_center_WText("Fatal Panic Occurred @ " + caller, 45.0f)));
+	else desc->replace_text("Fatal Panic Occurred @ " + caller);
 
 	generic_main_breaking_loop(wids);
 
@@ -101,7 +101,7 @@ static void panic_core(ui::Widgets& wids)
 	exit(1);
 }
 
-void panic(std::string msg)
+void panic_impl(std::string caller, std::string msg)
 {
 	ui::Widgets wids;
 
@@ -112,23 +112,23 @@ void panic(std::string msg)
 	wids.push_back(text);
 	push_a_widget(wids);
 
-	panic_core(wids);
+	panic_core(caller, wids);
 }
 
-void panic(Result res)
+void panic_impl(std::string caller, Result res)
 {
 	ui::Widgets wids;
 
 	error_container err = get_error(res);
 	push_error_widget(err, wids);
 
-	panic_core(wids);
+	panic_core(caller, wids);
 }
 
-void panic()
+void panic_impl(std::string caller)
 {
 	ui::Widgets wids;
 
-	panic_core(wids);
+	panic_core(caller, wids);
 }
 
