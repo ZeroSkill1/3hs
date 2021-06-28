@@ -51,7 +51,7 @@ void ensure_logs_dir()
 	mkdir("/3ds", 0777);
 	mkdir("/3ds/3hs", 0777);
 }
-
+#include "build/bun.h"
 int main(int argc, char* argv[])
 {
 	plog::init(LOG_LEVEL, "/3ds/3hs/3hs.log");
@@ -76,22 +76,36 @@ int main(int argc, char* argv[])
 	panic_assert(smdh != nullptr, "smdh == nullptr");
 
 	C2D_Sprite img;
-	load_smdh_icon(&img.image, *smdh, SMDHIconType::large);
 	memset(&img, 0x0, sizeof(C2D_Sprite));
-//	load_tiled_image(&img.image, smdh->iconSmall, 0x480, 24, 24, SMDH_ICON_FORMAT);
+	load_smdh_icon(&img.image, *smdh, SMDHIconType::large);
 
-	c2d::Sprite sprite(img);
-	sprite.set_pos(100, 100);
-	panic(
-		  "x : " + std::to_string(sprite.handle()->params.pos.x) +
-		"\ny : " + std::to_string(sprite.handle()->params.pos.y)
-	);
+	C2D_SpriteSetPos(&img, 100, 100);
 
-	ui::Widgets wids;
-	wids.push_back(new ui::Sprite(sprite));
+	while(aptMainLoop())
+	{
+		hidScanInput();
+		if(hidKeysDown() & KEY_START)
+			break;
 
-	generic_main_breaking_loop(wids);
-	fabricated_image_free(img.image);
+		C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
+		C2D_TargetClear(ui::top(), 0xFF);
+		C2D_SceneBegin(ui::top());
+
+		C2D_DrawSprite(&img);
+
+		C3D_FrameEnd(0);
+	}
+
+//	ui::StandaloneSprite *bunny = new ui::StandaloneSprite(SHEET("bun"), bun_bun_idx);
+//	bunny->get_sprite()->set_pos(SCREEN_WIDTH(ui::Scr::top) / 2, SCREEN_HEIGHT() / 2);
+//	bunny->get_sprite()->set_center(0.5f, 0.0f);
+
+//	ui::Widgets wids;
+//	wids.push_back(new ui::Sprite(sprite));
+//	wids.push_back(bunny);
+
+//	generic_main_breaking_loop(wids);
+	delete_smdh_icon(img.image);
 	delete smdh;
 
 	ui::global_deinit();

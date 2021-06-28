@@ -115,8 +115,8 @@ namespace hs
 	std::string get_title_download(id_t id);
 	FullTitle title_meta(id_t id);
 
-	// For std::sort
-	bool cmp_title_tid(); // TODO
+	void sort_subcategory(std::vector<hs::Title>& vec);
+	void sort_category(std::vector<hs::Title>& vec);
 }
 
 #endif

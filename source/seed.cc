@@ -29,7 +29,7 @@ Result FSUSER_AddSeed(u64 titleId, const void* seed)
 
 void init_seeddb()
 {
-	std::FILE *f = std::fopen("romfs:/perfect_seeddb.bin", "r");
+	std::FILE *f = std::fopen("romfs:/seeddb.bin", "r");
 	SeedDBHeader head;
 
 	std::fread(&head, sizeof(SeedDBHeader), 1, f);
@@ -48,3 +48,4 @@ Result add_seed(u64 tid)
 	if(g_seeddb.count(tid) == 0) return 0x0;
 	return FSUSER_AddSeed(tid, g_seeddb[tid].seed);
 }
+

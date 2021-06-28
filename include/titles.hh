@@ -4,7 +4,7 @@
 
 #include <3ds.h>
 
-#define AEXEFS_SMDH_PATH              { 0x00000000, 0x00000000, 0x00000002, 0x6E6F6369, 0x00000000 }
+#define AEXEFS_SMDH_PATH             { 0x00000000, 0x00000000, 0x00000002, 0x6E6F6369, 0x00000000 }
 #define MAKE_EXEFS_APATH(tid, media) { (u32) (tid & 0xFFFFFFFF), (u32) ((tid >> 32) & 0xFFFFFFFF), media, 0x00000000 }
 #define SMDH_MAGIC "SMDH"
 #define SMDH_MAGIC_LEN 4

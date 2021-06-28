@@ -12,6 +12,7 @@
 namespace ui
 {
 	void setup_meta(hs::Index *index);
+	hs::Index *get_index();
 
 	class TitleMeta : public ui::Widget
 	{

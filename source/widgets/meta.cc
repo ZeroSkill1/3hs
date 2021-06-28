@@ -38,6 +38,9 @@ static hs::Index *g_index;
 void ui::setup_meta(hs::Index *index)
 { g_index = index; }
 
+hs::Index *ui::get_index()
+{ return g_index; }
+
 ui::TitleMeta::TitleMeta(hs::Title title)
 	: Widget("tmd")
 {

@@ -5,10 +5,13 @@
 #include <malloc.h>
 #include <3ds.h>
 
+#include <algorithm>
 #include <iostream>
 #include <hs.hh>
 
 #include <3rd/log.hh>
+
+#include <widgets/meta.hh>
 
 #define JS_SET_NULLABLE_PROP(j,s,pj,ps) \
 	JT_SET_NULLABLE_PROP(j,s,pj,ps,std::string)
@@ -226,11 +229,44 @@ std::string hs::get_token(hs::Title *title)
 		+ std::to_string(title->id))["token"].get<std::string>();
 }
 
+// TODO: Implement balancing?
+//       Setting: Prefered Download Server
+//                prepends the server to the link, or does it automatically with DLServer::auto
 std::string hs::get_download_link(hs::Title *title)
 {
 	return std::string(HS_CDN_BASE "content/") + std::to_string(title->id)
 		+ "?token=" + hs::get_token(title);
 }
+
+// sort
+
+void hs::sort_category(std::vector<hs::Title>& vec)
+{
+	std::map<std::string, size_t> catmap; size_t idx = 0;
+	for(hs::Category& cat : ui::get_index()->categories)
+		catmap[cat.displayName] = idx++;
+	std::sort(vec.begin(), vec.end(), [&catmap](const hs::Title& a, const hs::Title& b) -> bool {
+		return catmap[a.cat] < catmap[b.cat];
+	});
+}
+
+void hs::sort_subcategory(std::vector<hs::Title>& vec)
+{
+	std::map<std::string, size_t> catmap; size_t idx = 0;
+	for(hs::Category& cat : ui::get_index()->categories)
+	{
+		for(hs::Subcategory& scat : cat.subcategories)
+		{
+			if(catmap.count(scat.displayName) == 0)
+				catmap[scat.displayName] = idx++;
+		}
+	}
+
+	std::sort(vec.begin(), vec.end(), [&catmap](const hs::Title& a, const hs::Title& b) -> bool {
+		return catmap[a.subcat] < catmap[b.subcat];
+	});
+}
+
 
 #define SOC_ALIGN       0x100000
 #define SOC_BUFFERSIZE  0x10000
@@ -260,4 +296,6 @@ bool hs::global_init()
 	curl_global_init(CURL_GLOBAL_ALL);
 	return true;
 }
+
+
 

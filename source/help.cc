@@ -26,7 +26,7 @@ void show_help()
 	wids.push_back("text_bot", new ui::WrapText(
 		"You can press " GLYPH_X " on a queue entry\n"
 		"to remove it from the queue. To search\n"
-		"for a title. click the bottom left\n"
+		"for a title click the bottom left\n"
 		"search icon. To modify the settings\n"
 		"click the gear icon. You can\n"
 		"press " GLYPH_DPAD " to move through lists.\n"

@@ -38,6 +38,7 @@ namespace ui
 	public:
 		using list_onsel_cb = std::function<ui::Results(List<T> *, size_t, u32)>;
 		using list_onch_cb = std::function<void(List<T> *, size_t)>;
+		using list_sort_cb = std::function<void(std::vector<T>&)>;
 		using list_tostr_cb = std::function<std::string(T&)>;
 
 
@@ -88,13 +89,16 @@ namespace ui
 			this->text_update();
 		}
 
-		void text_update()
+		void text_update(list_sort_cb sort = [](std::vector<T>&) -> void { })
 		{
 			C2D_TextBufClear(this->txtbuf);
 			this->create_text(&this->arrow, "→");
 			this->txt.clear();
 
-			for(T& val : this->items)
+			std::vector<T> copy(this->items);
+			sort(copy);
+
+			for(T& val : copy)
 			{
 				std::string str = this->to_str(val);
 				C2D_Text text; this->create_text(&text, str);
@@ -117,6 +121,7 @@ namespace ui
 		}
 
 		T& at(size_t index)
+
 		{ return (*this)[index]; }
 
 		T& operator [] (size_t index)

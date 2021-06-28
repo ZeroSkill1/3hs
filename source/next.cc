@@ -6,6 +6,8 @@
 #include <ui/list.hh>
 #include <ui/text.hh>
 
+#include <algorithm>
+
 #include "queue.hh"
 
 
@@ -115,7 +117,6 @@ long int next::sel_gam(std::string cat, std::string sub)
 		}, titles
 	); widgets.push_back("list", list);
 	list->add_button(KEY_Y);
-
 
 	ui::TitleMeta *meta = new ui::TitleMeta();
 	if(titles.size() > 0) meta->update_title(titles[0]);
