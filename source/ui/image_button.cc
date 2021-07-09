@@ -19,7 +19,7 @@ ui::ImageButton::ImageButton(std::string sheet_name, int light_idx, int dark_idx
 ui::ImageButton::ImageButton(c2d::SpriteSheet sheet, int light_idx, int dark_idx, float x1, float y1, float x2, float y2)
 	: Widget("image_button"), x1(x1), x2(x2), y1(y1), y2(y2)
 {
-	this->init(sheet, light_idx, dark_idx, x1, y1, x2, y2);	
+	this->init(sheet, light_idx, dark_idx, x1, y1, x2, y2);
 }
 
 void ui::ImageButton::init(c2d::SpriteSheet sheet, int light_idx, int dark_idx, float x1, float y1, float x2, float y2)
@@ -38,7 +38,7 @@ void ui::ImageButton::set_on_click(image_button_on_click cb)
 
 ui::Results ui::ImageButton::draw(ui::Keys& keys, ui::Scr)
 {
-	C2D_DrawRectSolid(this->x1, this->y1, 0, this->x2 - this->x1, this->y2 - this->y1, BTN_CLR);
+	C2D_DrawRectSolid(this->x1, this->y1, 0.0f /* image is also 0.0f and we want it above */, this->x2 - this->x1, this->y2 - this->y1, BTN_CLR);
 	BTN_IMG.draw();
 
 	// "Works but cursed"

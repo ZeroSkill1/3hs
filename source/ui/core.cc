@@ -32,15 +32,21 @@ ui::Widgets *ui::wid()
 void ui::end_frame()
 { C3D_FrameEnd(0); }
 
+ui::Keys ui::get_keys()
+{
+	ui::Keys ret;
+	hidScanInput();
+	ret.kDown = hidKeysDown();
+	ret.kHeld = hidKeysHeld();
+	ret.kUp = hidKeysUp();
+
+	hidTouchRead(&ret.touch);
+	return ret;
+}
+
 bool ui::framenext(ui::Keys& keys)
 {
-	hidScanInput();
-	keys.kDown = hidKeysDown();
-	keys.kHeld = hidKeysHeld();
-	keys.kUp = hidKeysUp();
-
-	hidTouchRead(&keys.touch);
-
+	keys = ui::get_keys();
 	if(keys.kDown & KEY_START)
 		return false;
 	return aptMainLoop();
@@ -245,7 +251,7 @@ ui::Widget *ui::Widgets::find_by_name(std::string name, ui::Scr target)
 void ui::draw_at(float x, float y, C2D_Text& txt, u32 flags, float sizeX, float sizeY)
 {
 	// Sorry for the magic numbers :kek:
-	C2D_DrawText(&txt, C2D_WithColor | flags, GRID_AL_X(x), GRID_AL_Y(y), 0.0f, sizeX, sizeY, TXT_CLR);
+	C2D_DrawText(&txt, C2D_WithColor | flags, GRID_AL_X(x), GRID_AL_Y(y), Z_OFF_TEXT, sizeX, sizeY, TXT_CLR);
 }
 
 void ui::draw_at(float x, float y, c2d::Text& txt, u32 flags, float sizeX, float sizeY)
@@ -255,7 +261,7 @@ void ui::draw_at(float x, float y, c2d::Text& txt, u32 flags, float sizeX, float
 
 void ui::draw_at_absolute(float x, float y, C2D_Text& txt, u32 flags, float sizeX, float sizeY)
 {
-	C2D_DrawText(&txt, C2D_WithColor | flags, x, y, 0.0f, sizeX, sizeY, TXT_CLR);
+	C2D_DrawText(&txt, C2D_WithColor | flags, x, y, Z_OFF_TEXT, sizeX, sizeY, TXT_CLR);
 }
 
 void ui::draw_at_absolute(float x, float y, c2d::Text& txt, u32 flags, float sizeX, float sizeY)

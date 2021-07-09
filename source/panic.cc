@@ -82,7 +82,7 @@ void handle_error(error_container err)
 }
 
 
-static void panic_core(std::string caller, ui::Widgets& wids)
+[[noreturn]] static void panic_core(std::string caller, ui::Widgets& wids)
 {
 	wids.push_back(new ui::PressToContinue(KEY_A));
 	ui::Text *desc = ui::wid()->get<ui::Text>("curr_action_desc");
@@ -101,7 +101,7 @@ static void panic_core(std::string caller, ui::Widgets& wids)
 	exit(1);
 }
 
-void panic_impl(std::string caller, std::string msg)
+[[noreturn]] void panic_impl(std::string caller, std::string msg)
 {
 	ui::Widgets wids;
 
@@ -115,7 +115,7 @@ void panic_impl(std::string caller, std::string msg)
 	panic_core(caller, wids);
 }
 
-void panic_impl(std::string caller, Result res)
+[[noreturn]] void panic_impl(std::string caller, Result res)
 {
 	ui::Widgets wids;
 
@@ -125,7 +125,7 @@ void panic_impl(std::string caller, Result res)
 	panic_core(caller, wids);
 }
 
-void panic_impl(std::string caller)
+[[noreturn]] void panic_impl(std::string caller)
 {
 	ui::Widgets wids;
 

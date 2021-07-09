@@ -37,14 +37,14 @@ void ui::ProgressBar::update(u64 part)
 
 ui::Results ui::ProgressBar::draw(ui::Keys&, ui::Scr target)
 {
-	C2D_DrawRectSolid(X_OFFSET, (SCREEN_HEIGHT() / 2) - Y_LEN + Y_OFFSET, 0, SCREEN_WIDTH(target) - (X_OFFSET * 2), Y_LEN, BG_COLOR);
+	C2D_DrawRectSolid(X_OFFSET, (SCREEN_HEIGHT() / 2) - Y_LEN + Y_OFFSET, Z_OFF, SCREEN_WIDTH(target) - (X_OFFSET * 2), Y_LEN, BG_COLOR);
 
 	if(this->total != 0)
 	{
 		// Overlay actual process
 		float perc = ((float) this->part / this->total);
 		int width = (SCREEN_WIDTH(target) - (X_OFFSET * 2) - 4) * perc;
-		C2D_DrawRectSolid(X_OFFSET + 2, ((SCREEN_HEIGHT() / 2) - Y_LEN + Y_OFFSET) + 2, 0, width, Y_LEN - 4, FG_COLOR);
+		C2D_DrawRectSolid(X_OFFSET + 2, ((SCREEN_HEIGHT() / 2) - Y_LEN + Y_OFFSET) + 2, Z_OFF, width, Y_LEN - 4, FG_COLOR);
 
 		if(this->activated)
 		{

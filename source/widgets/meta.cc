@@ -1,7 +1,8 @@
 
 #include "widgets/meta.hh"
 
-//D = Description, T = Title, C = Category, S = Subcategory
+// Sorry for this macro mess, even i find it hard to read now.
+// D = Description, T = Title, C = Category, S = Subcategory
 
 #define D_TTL_TITLE "Total Titles"
 #define D_DESC      "Description"
@@ -27,8 +28,7 @@
 	this->s##n.draw(keys,target)
 
 #define scroll_if_large(n,l) \
-	if(this->s##n.length(tlen, tlen) + twidth(l) > SCREEN_WIDTH(ui::Scr::bottom)) \
-		this->s##n.start_scroll()
+	this->s##n.scroll_if_overflow(ui::Scr::bottom)
 
 #define cnr(n,l) \
 	this->s##n.stop_scroll(); \

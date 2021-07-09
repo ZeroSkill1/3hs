@@ -52,14 +52,14 @@ namespace ui
 			float btny1 = (SCREEN_HEIGHT() - SEL_LABEL_HEIGHT) / 2;
 
 			// Draw box for label..
-			C2D_DrawRectSolid(btnx1, btny1, 0, SEL_LABEL_WIDTH, SEL_LABEL_HEIGHT, SEL_CLR);
+			C2D_DrawRectSolid(btnx1, btny1, Z_OFF, SEL_LABEL_WIDTH, SEL_LABEL_HEIGHT, SEL_CLR);
 
 			// Draw triangles for next/prev...
 			C2D_DrawTriangle(btnx1 - SEL_TRI_WIDTH, (SEL_LABEL_HEIGHT / 2) + btny1, SEL_CLR, btnx1 - SEL_TRI_PAD, btny1, SEL_CLR,
-				btnx1 - SEL_TRI_PAD, btny1 + SEL_LABEL_HEIGHT, SEL_CLR, 1); // prev
+				btnx1 - SEL_TRI_PAD, btny1 + SEL_LABEL_HEIGHT, SEL_CLR, Z_OFF); // prev
 
 			C2D_DrawTriangle(btnx1 + SEL_LABEL_WIDTH + SEL_TRI_WIDTH, (SEL_LABEL_HEIGHT / 2) + btny1, SEL_CLR, btnx1 + SEL_LABEL_WIDTH + SEL_TRI_PAD, btny1, SEL_CLR,
-				btnx1 + SEL_LABEL_WIDTH + SEL_TRI_PAD, btny1 + SEL_LABEL_HEIGHT, SEL_CLR, 1); // next
+				btnx1 + SEL_LABEL_WIDTH + SEL_TRI_PAD, btny1 + SEL_LABEL_HEIGHT, SEL_CLR, Z_OFF); // next
 
 			// Draw label...
 			ui::draw_at_absolute((SEL_LABEL_WIDTH / 2) - (this->labels[this->idx].dimensions(FSIZE, FSIZE).width / 2) + btnx1,

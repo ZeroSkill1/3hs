@@ -36,6 +36,22 @@ ui::Results ui::PressToContinue::draw(ui::Keys& keys, ui::Scr)
 	}
 }
 
+// press_button_callback
+
+ui::PressButtonCallback::PressButtonCallback(std::function<ui::Results()> cb_, u32 keys_, bool triggerOnce_)
+	: Widget("press_button_callback"), cb(cb_), triggerOnce(triggerOnce_), keys(keys_) { }
+
+ui::Results ui::PressButtonCallback::draw(ui::Keys& keys, ui::Scr)
+{
+	if(this->triggerOnce && this->triggered)
+		return ui::Results::go_on;
+	if(keys.kDown & this->keys)
+	{
+		this->triggered = true;
+		return this->cb();
+	}
+	return ui::Results::go_on;
+}
 
 // do_after_frames
 

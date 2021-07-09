@@ -22,7 +22,7 @@ typedef struct SeedDBHeader
 typedef struct SeedDBEntry
 {
 	u64 tid;
-	Seed seed; // = u8 seed[0x20];
+	Seed seed; // = u8 seed[0x10];
 	u8 pad[0x8];
 } SeedDBEntry;
 

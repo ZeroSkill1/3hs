@@ -50,3 +50,7 @@ tags
 release/
 devids.json
 
+# More stuff
+scripts/extract_seeddb
+scripts/seeddb*
+

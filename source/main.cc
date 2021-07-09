@@ -1,5 +1,4 @@
 
-#include <signal.h>
 #include <3ds.h>
 
 #include <ui/scrollingText.hh>
@@ -24,8 +23,10 @@
 #include "build/search_icon.h"
 #include "build/more_icon.h"
 
+#include "hlink_view.hh"
 #include "image_ldr.hh"
 #include "settings.hh"
+#include "log_view.hh"
 #include "install.hh"
 #include "update.hh"
 #include "search.hh"
@@ -55,7 +56,7 @@ void ensure_logs_dir()
 
 int main(int argc, char* argv[])
 {
-	plog::init(LOG_LEVEL, "/3ds/3hs/3hs.log");
+	plog::init(LOG_LEVEL, LOGFILE);
 	linfo << "version=" FULL_VERSION;
 
 	if(!ui::global_init())

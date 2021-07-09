@@ -15,9 +15,9 @@
 
 void handle_error(error_container err);
 
-void panic_impl(std::string caller, std::string msg);
-void panic_impl(std::string caller, Result res);
-void panic_impl(std::string caller);
+[[noreturn]] void panic_impl(std::string caller, std::string msg);
+[[noreturn]] void panic_impl(std::string caller, Result res);
+[[noreturn]] void panic_impl(std::string caller);
 
 Result init_services();
 void exit_services();

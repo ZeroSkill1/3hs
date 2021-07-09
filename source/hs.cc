@@ -11,7 +11,7 @@
 
 #include <3rd/log.hh>
 
-#include <widgets/meta.hh>
+#include <widgets/meta.hh> // TODO: Move index cache to this file
 
 #define JS_SET_NULLABLE_PROP(j,s,pj,ps) \
 	JT_SET_NULLABLE_PROP(j,s,pj,ps,std::string)
@@ -208,10 +208,10 @@ hs::FullTitle hs::title_meta(hs::hid id)
 	JS_SET_NULLABLE_PROP(res, ret, "description", desc);
 
 	JS_SET_PROP(res, ret, "version_string", vstring);
-	JS_SET_PROP(res, ret, "updated_date", updated);
+//	JS_SET_PROP(res, ret, "updated_date", updated);
 	JS_SET_PROP(res, ret, "subcategory", subcat);
 	JS_SET_PROP(res, ret, "product_code", prod);
-	JS_SET_PROP(res, ret, "added_date", added);
+//	JS_SET_PROP(res, ret, "added_date", added);
 	JS_SET_PROP(res, ret, "title_id", tid);
 	JS_SET_PROP(res, ret, "category", cat);
 	JS_SET_PROP(res, ret, "name", name);
@@ -269,16 +269,16 @@ void hs::sort_subcategory(std::vector<hs::Title>& vec)
 
 
 #define SOC_ALIGN       0x100000
-#define SOC_BUFFERSIZE  0x10000
+#define SOC_BUFFERSIZE  0x20000
 
-static u32 *g_socbuf;
+static u32 *g_socbuf = NULL;
 
 
 void hs::global_deinit()
 {
 	curl_global_cleanup();
 	socExit();
-	// g_socbuf shouldn't be NULL
+
 	if(g_socbuf != NULL)
 		free(g_socbuf);
 }
@@ -287,6 +287,7 @@ bool hs::global_init()
 {
 	if((g_socbuf = (u32 *) memalign(SOC_ALIGN, SOC_BUFFERSIZE)) == NULL)
 		return false;
+
 	if(R_FAILED(socInit(g_socbuf, SOC_BUFFERSIZE)))
 	{
 		free(g_socbuf);

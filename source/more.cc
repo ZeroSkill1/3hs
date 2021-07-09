@@ -1,6 +1,7 @@
 
 #include "more.hh"
 
+#include "hlink_view.hh"
 #include "about.hh"
 #include "help.hh"
 #include "util.hh"
@@ -11,6 +12,7 @@
 #define ABOUT_I 0
 #define FIND_MISSING_I 1
 #define HELP_I 2
+#define HLINK_I 3
 
 #define Y1 (10)
 #define Y2 (SCREEN_WIDTH(ui::Scr::bottom) - 10)
@@ -34,7 +36,7 @@ void show_more()
 {
 	enter_exit();
 
-	constexpr size_t maxIndex = 3;
+	constexpr size_t maxIndex = 4;
 	size_t index = 0;
 
 	ui::Button *buttons[maxIndex];
@@ -44,6 +46,7 @@ void show_more()
 	ui::Button *find_missing = new ui::Button("Find missing content", Y1, X1(FIND_MISSING_I),
 		Y2, X2(FIND_MISSING_I));
 	ui::Button *help = new ui::Button("Help/Manual", Y1, X1(HELP_I), Y2, X2(HELP_I));
+	ui::Button *hlink = new ui::Button("hLink", Y1, X1(HLINK_I), Y2, X2(HLINK_I));
 
 	// Setup buttons
 	about->highlight();
@@ -66,15 +69,23 @@ void show_more()
 		return ui::Results::end_early;
 	});
 
+	hlink->set_on_click([&index, &buttons](bool inFrame) -> ui::Results {
+		if(inFrame) ui::end_frame();
+		set_hi(&index, buttons, HELP_I); show_hlink();
+		return ui::Results::end_early;
+	});
+
 	// Setup indices
 	buttons[ABOUT_I]        = about;
 	buttons[FIND_MISSING_I] = find_missing;
 	buttons[HELP_I]         = help;
+	buttons[HLINK_I]        = hlink;
 
 	ui::Widgets wids;
 	wids.push_back(about, ui::Scr::bottom);
 	wids.push_back(find_missing, ui::Scr::bottom);
 	wids.push_back(help, ui::Scr::bottom);
+	wids.push_back(hlink, ui::Scr::bottom);
 
 	ui::Keys keys;
 	while(ui::framenext(keys))

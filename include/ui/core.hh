@@ -46,6 +46,11 @@
 #define SCREEN_WIDTH(s) (s == ui::Scr::top ? 400.0f : 320.0f)
 #define SCREEN_HEIGHT() (240.0f)
 
+// don't use something else without a good reason
+#define Z_OFF (1.0f)
+#define Z_OFF_TEXT (0.0f)
+#define Z_OFF_OVERLAY (0.1f)
+
 
 namespace ui
 {
@@ -170,8 +175,8 @@ namespace ui
 	ui::Results draw_widgets(std::vector<ui::Widget *> wids, ui::Keys& keys, ui::Scr target = ui::Scr::top, bool fg = false);
 	void switch_to(Scr target);
 	void clear(Scr screen);
+	ui::Keys get_keys();
 	void end_frame();
-
 
 	C3D_RenderTarget *top();
 	C3D_RenderTarget *bot();

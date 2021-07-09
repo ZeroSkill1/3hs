@@ -174,12 +174,12 @@ void c2d::Text::draw(float x, float y, float z, float scalex, float scaley, u32 
 
 void c2d::Text::draw(float x, float y, float scalex, float scaley)
 {
-	C2D_DrawText(&this->nhandle, 0, x, y , 0.0f, scalex, scaley);
+	C2D_DrawText(&this->nhandle, 0, x, y , 1.0f, scalex, scaley);
 }
 
 void c2d::Text::draw(float x, float y, u32 color, float scalex, float scaley)
 {
-	C2D_DrawText(&this->nhandle, C2D_WithColor, x, y, 0.0f, scalex, scaley, color);
+	C2D_DrawText(&this->nhandle, C2D_WithColor, x, y, 1.0f, scalex, scaley, color);
 }
 
 

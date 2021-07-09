@@ -17,10 +17,10 @@
 
 namespace hs
 {
-	typedef unsigned long long hsize;
-	typedef unsigned long hcount;
-	typedef unsigned int hiver;
-	typedef unsigned long hid;
+	typedef uint64_t hsize;
+	typedef uint64_t hcount;
+	typedef uint32_t hiver;
+	typedef uint64_t hid;
 
 	typedef struct BaseCategory
 	{
@@ -112,8 +112,8 @@ namespace hs
 
 	std::vector<Title> titles_in(std::string cat, std::string subcat);
 	std::vector<hs::Title> search(std::string query);
-	std::string get_title_download(id_t id);
-	FullTitle title_meta(id_t id);
+	std::string get_title_download(hid id);
+	FullTitle title_meta(hid id);
 
 	void sort_subcategory(std::vector<hs::Title>& vec);
 	void sort_category(std::vector<hs::Title>& vec);

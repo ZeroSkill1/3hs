@@ -70,7 +70,7 @@ ui::Results ui::FreeSpaceIndicator::draw(Keys& keys, Scr screen)
 	if(get_settings()->loadFreeSpace)
 #endif
 	{
-		C2D_DrawRectSolid(0, SCREEN_HEIGHT() - BG_HEIGHT, 0, SCREEN_WIDTH(screen), BG_HEIGHT, BG_CLR);
+		C2D_DrawRectSolid(0, SCREEN_HEIGHT() - BG_HEIGHT, Z_OFF, SCREEN_WIDTH(screen), BG_HEIGHT, BG_CLR);
 		this->nandt.draw(keys, screen);
 		this->nandc.draw(keys, screen);
 		this->sdmc.draw(keys, screen);

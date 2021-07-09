@@ -34,10 +34,10 @@ ui::Results ui::Button::draw(ui::Keys& keys, ui::Scr)
 
 	if(this->shouldHighlight)
 	{
-		C2D_DrawRectSolid(this->x1 - 1, this->y1 - 1, 0, this->x2 - this->x1 + 2, this->y2 - this->y1 + 2, HI_CLR);
+		C2D_DrawRectSolid(this->x1 - 1, this->y1 - 1, Z_OFF, this->x2 - this->x1 + 2, this->y2 - this->y1 + 2, HI_CLR);
 	}
 
-	C2D_DrawRectSolid(this->x1, this->y1, 0, this->x2 - this->x1, this->y2 - this->y1, BTN_CLR);
+	C2D_DrawRectSolid(this->x1, this->y1, Z_OFF, this->x2 - this->x1, this->y2 - this->y1, BTN_CLR);
 	// "Works but cursed"
 	ui::draw_at_absolute((((this->x2 - this->x1) / 2) - (this->label.dimensions(
 		ui::constants::FSIZE, ui::constants::FSIZE).width / 2)) + this->x1,

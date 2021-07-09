@@ -27,10 +27,28 @@ namespace ui
 
 		enum modes { kHeld, kDown, kUp };
 
+
 	private:
 		bool pressAny = false;
 		modes mode = kDown;
 		u32 buttons;
+
+
+	};
+
+	class PressButtonCallback : public Widget
+	{
+	public:
+		PressButtonCallback(std::function<ui::Results()> cb, u32 keys, bool triggerOnce = true);
+
+		ui::Results draw(ui::Keys&, ui::Scr) override;
+
+
+	private:
+		std::function<ui::Results()> cb;
+		bool triggered = false;
+		bool triggerOnce;
+		u32 keys;
 
 
 	};
