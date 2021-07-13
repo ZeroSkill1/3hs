@@ -74,7 +74,7 @@ ui::Results ui::ScrollingText::draw(ui::Keys&, ui::Scr)
 		}
 	}
 
-	ui::draw_at_absolute(this->x, this->y, this->text);
+	ui::draw_at_absolute(this->x, this->y, this->text, 0, ui::constants::FSIZE, ui::constants::FSIZE, 0.0f);
 	// TODO: Use text height instead of SCREEN_HEIGHT()
 	C2D_DrawRectSolid(0, 0, Z_OFF_OVERLAY, this->ogx, SCREEN_HEIGHT(), OVERLAY_COLOR(this->screen));
 

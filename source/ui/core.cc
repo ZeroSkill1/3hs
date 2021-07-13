@@ -264,25 +264,25 @@ ui::Widget *ui::Widgets::find_by_name(std::string name, ui::Scr target)
 # define TXT_CLR ui::constants::COLOR_TXT
 #endif
 
-void ui::draw_at(float x, float y, C2D_Text& txt, u32 flags, float sizeX, float sizeY)
+void ui::draw_at(float x, float y, C2D_Text& txt, u32 flags, float sizeX, float sizeY, float z)
 {
 	// Sorry for the magic numbers :kek:
-	C2D_DrawText(&txt, C2D_WithColor | flags, GRID_AL_X(x), GRID_AL_Y(y), Z_OFF_TEXT, sizeX, sizeY, TXT_CLR);
+	C2D_DrawText(&txt, C2D_WithColor | flags, GRID_AL_X(x), GRID_AL_Y(y), z, sizeX, sizeY, TXT_CLR);
 }
 
-void ui::draw_at(float x, float y, c2d::Text& txt, u32 flags, float sizeX, float sizeY)
+void ui::draw_at(float x, float y, c2d::Text& txt, u32 flags, float sizeX, float sizeY, float z)
 {
-	txt.draw(GRID_AL_X(x), GRID_AL_Y(y), Z_OFF_TEXT, TXT_CLR, sizeX, sizeY, flags | C2D_WithColor);
+	txt.draw(GRID_AL_X(x), GRID_AL_Y(y), z, TXT_CLR, sizeX, sizeY, flags | C2D_WithColor);
 }
 
-void ui::draw_at_absolute(float x, float y, C2D_Text& txt, u32 flags, float sizeX, float sizeY)
+void ui::draw_at_absolute(float x, float y, C2D_Text& txt, u32 flags, float sizeX, float sizeY, float z)
 {
-	C2D_DrawText(&txt, C2D_WithColor | flags, x, y, Z_OFF_TEXT, sizeX, sizeY, TXT_CLR);
+	C2D_DrawText(&txt, C2D_WithColor | flags, x, y, z, sizeX, sizeY, TXT_CLR);
 }
 
-void ui::draw_at_absolute(float x, float y, c2d::Text& txt, u32 flags, float sizeX, float sizeY)
+void ui::draw_at_absolute(float x, float y, c2d::Text& txt, u32 flags, float sizeX, float sizeY, float z)
 {
-	txt.draw(x, y, Z_OFF_TEXT, TXT_CLR, sizeX, sizeY, flags | C2D_WithColor);
+	txt.draw(x, y, z, TXT_CLR, sizeX, sizeY, flags | C2D_WithColor);
 }
 
 #undef TXT_CLR

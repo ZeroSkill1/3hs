@@ -4,7 +4,7 @@ v0.2.0:
 
 v0.1.4:
  - fixed issue decoding utf16 and scrolling if text didn't overflow in texts and generally improved the look of it
- - fixed crash that would occur if you attempted to add a title to the queue
+ - fixed crash that would occur if you attempted to add a title to the queue or when you try to install a title
 
 v0.1.3:
  - fixed bug that crashed 3hs on launch

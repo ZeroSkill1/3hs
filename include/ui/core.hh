@@ -174,11 +174,11 @@ namespace ui
 	void parse_text(c2d::Text *ret, c2d::TextBuf buf, std::string txt);
 	void parse_text(C2D_Text *ret, C2D_TextBuf buf, std::string txt);
 
-	void draw_at_absolute(float x, float y, c2d::Text& txt, u32 flags = 0, float sizeX = constants::FSIZE, float sizeY = constants::FSIZE);
-	void draw_at(float x, float y, c2d::Text& txt, u32 flags = 0, float sizeX = constants::FSIZE, float sizeY = constants::FSIZE);
+	void draw_at_absolute(float x, float y, c2d::Text& txt, u32 flags = 0, float sizeX = constants::FSIZE, float sizeY = constants::FSIZE, float z = Z_OFF);
+	void draw_at(float x, float y, c2d::Text& txt, u32 flags = 0, float sizeX = constants::FSIZE, float sizeY = constants::FSIZE, float z = Z_OFF);
 
-	void draw_at_absolute(float x, float y, C2D_Text& txt, u32 flags = 0, float sizeX = constants::FSIZE, float sizeY = constants::FSIZE);
-	void draw_at(float x, float y, C2D_Text& txt, u32 flags = 0, float sizeX = constants::FSIZE, float sizeY = constants::FSIZE);
+	void draw_at_absolute(float x, float y, C2D_Text& txt, u32 flags = 0, float sizeX = constants::FSIZE, float sizeY = constants::FSIZE, float z = Z_OFF);
+	void draw_at(float x, float y, C2D_Text& txt, u32 flags = 0, float sizeX = constants::FSIZE, float sizeY = constants::FSIZE, float z = Z_OFF);
 
 	ui::Results draw_widgets(std::vector<ui::Widget *> wids, ui::Keys& keys, ui::Scr target = ui::Scr::top, bool fg = false);
 	void switch_to(Scr target);
