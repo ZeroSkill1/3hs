@@ -123,7 +123,7 @@ void ui::ScrollingText::stop_scroll()
 
 void ui::ScrollingText::scroll_if_overflow(ui::Scr screen)
 {
-	if(this->length() + this->x > SCREEN_WIDTH(this->screen))
+	if(this->length() + this->x > SCREEN_WIDTH(screen))
 		this->start_scroll();
 }
 

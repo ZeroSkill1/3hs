@@ -127,7 +127,7 @@ namespace ui
 		T& operator [] (size_t index)
 		{ return this->items[index]; }
 
-		ui::Results draw(Keys& keys, Scr target) override
+		ui::Results draw(Keys& keys, Scr) override
 		{
 			static int last = ui::constants::CURSOR_INIT;
 

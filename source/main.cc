@@ -56,6 +56,9 @@ void ensure_logs_dir()
 
 int main(int argc, char* argv[])
 {
+	((void) argc);
+	((void) argv);
+
 	plog::init(LOG_LEVEL, LOGFILE);
 	linfo << "version=" FULL_VERSION;
 

@@ -1,7 +1,9 @@
 
+v0.2.0:
+ - introduced hLink
+
 v0.1.4:
  - fixed issue decoding utf16 and scrolling if text didn't overflow in texts and generally improved the look of it
- - introduced hLink
  - fixed crash that would occur if you attempted to add a title to the queue
 
 v0.1.3:

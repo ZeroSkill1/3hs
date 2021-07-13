@@ -13,22 +13,22 @@
 ui::ImageButton::ImageButton(std::string sheet_name, int light_idx, int dark_idx, float x1, float y1, float x2, float y2)
 	: Widget("image_button"), x1(x1), x2(x2), y1(y1), y2(y2)
 {
-	this->init(c2d::SpriteSheet::from_file(sheet_name), light_idx, dark_idx, x1, y1, x2, y2);
+	this->init(c2d::SpriteSheet::from_file(sheet_name), light_idx, dark_idx);
 }
 
 ui::ImageButton::ImageButton(c2d::SpriteSheet sheet, int light_idx, int dark_idx, float x1, float y1, float x2, float y2)
 	: Widget("image_button"), x1(x1), x2(x2), y1(y1), y2(y2)
 {
-	this->init(sheet, light_idx, dark_idx, x1, y1, x2, y2);
+	this->init(sheet, light_idx, dark_idx);
 }
 
-void ui::ImageButton::init(c2d::SpriteSheet sheet, int light_idx, int dark_idx, float x1, float y1, float x2, float y2)
+void ui::ImageButton::init(c2d::SpriteSheet sheet, int light_idx, int dark_idx)
 {
 	this->sheet = sheet;
 	this->dark = c2d::Sprite::from_sheet((&(this->sheet)), dark_idx);
 	this->light = c2d::Sprite::from_sheet((&(this->sheet)), light_idx);
-	this->dark.set_pos(x1, y1);
-	this->light.set_pos(x1, y1);
+	this->light.set_pos(this->x1, this->y1);
+	this->dark.set_pos(this->x1, this->y1);
 }
 
 void ui::ImageButton::set_on_click(image_button_on_click cb)

@@ -40,7 +40,7 @@ TARGET		:=	3hs
 BUILD			:=	build
 SOURCES		:= 	source source/ui source/widgets
 DATA			:=	data
-INCLUDES	:=	include 3rd .
+INCLUDES	:=	include 3rd 3rd/3rd .
 GRAPHICS	:=	gfx gfx/bun
 ROMFS			:=	romfs
 GFXBUILD	:=	$(ROMFS)/gfx
@@ -56,7 +56,7 @@ APP_AUTHOR			:=	TimmSkiller & MyPasswordIsWeak
 #---------------------------------------------------------------------------------
 ARCH	:=	-march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft
 
-CFLAGS	:= -pedantic -Wall -O2 -mword-relocations -DUSE_SETTINGS_H \
+CFLAGS	:= -pedantic -Wall -Wextra -O2 -mword-relocations -DUSE_SETTINGS_H \
 			-fcompare-debug-second -ffunction-sections $(ARCH) \
 
 CFLAGS	+=	$(INCLUDE) -DARM11 -D_3DS

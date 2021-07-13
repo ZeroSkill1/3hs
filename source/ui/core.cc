@@ -109,6 +109,9 @@ void ui::clear(ui::Scr screen)
 	case ui::Scr::bottom:
 		C2D_TargetClear(g_bot, CBOT);
 		break;
+
+	case ui::Scr::_none:
+		break;
 	}
 
 #undef CTOP
@@ -149,6 +152,9 @@ void ui::Widgets::clear(ui::Scr target)
 		for(ui::Widget *wid : this->top)
 			delete wid;
 		this->top.clear();
+		break;
+
+	case ui::Scr::_none:
 		break;
 	}
 }
@@ -197,6 +203,10 @@ void ui::Widgets::push_back(ui::Widget *widget, Scr target)
 		widget->pre_push();
 		this->top.push_back(widget);
 		break;
+
+	case ui::Scr::_none:
+		delete widget;
+		break;
 	}
 }
 
@@ -226,6 +236,9 @@ int ui::Widgets::find_index_by_name(std::string name, ui::Scr target)
 	case ui::Scr::top:
 		vec = &this->top;
 		break;
+
+	case ui::Scr::_none:
+		return -1;
 	}
 
 	for(size_t i = 0; i < vec->size(); ++i)
@@ -259,7 +272,7 @@ void ui::draw_at(float x, float y, C2D_Text& txt, u32 flags, float sizeX, float 
 
 void ui::draw_at(float x, float y, c2d::Text& txt, u32 flags, float sizeX, float sizeY)
 {
-	txt.draw(GRID_AL_X(x), GRID_AL_Y(y), TXT_CLR, sizeX, sizeY);
+	txt.draw(GRID_AL_X(x), GRID_AL_Y(y), Z_OFF_TEXT, TXT_CLR, sizeX, sizeY, flags | C2D_WithColor);
 }
 
 void ui::draw_at_absolute(float x, float y, C2D_Text& txt, u32 flags, float sizeX, float sizeY)
@@ -269,7 +282,7 @@ void ui::draw_at_absolute(float x, float y, C2D_Text& txt, u32 flags, float size
 
 void ui::draw_at_absolute(float x, float y, c2d::Text& txt, u32 flags, float sizeX, float sizeY)
 {
-	txt.draw(x, y, TXT_CLR, sizeX, sizeY);
+	txt.draw(x, y, Z_OFF_TEXT, TXT_CLR, sizeX, sizeY, flags | C2D_WithColor);
 }
 
 #undef TXT_CLR
@@ -285,6 +298,9 @@ void ui::switch_to(ui::Scr target)
 
 	case ui::Scr::top:
 		C2D_SceneTarget(g_top);
+		break;
+
+	case ui::Scr::_none:
 		break;
 	}
 }

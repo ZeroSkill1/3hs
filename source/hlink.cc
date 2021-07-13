@@ -45,6 +45,7 @@ static uint64_t htonll(uint64_t n)
 static uint64_t ntohll(uint64_t n)
 { return __builtin_bswap64(n); }
 
+#if 0 // TODO: log every action (to bottom screen?)
 static const char *action2string(hlink::action action)
 {
 #define MKS(n) case hlink::action::n: return #n
@@ -60,6 +61,7 @@ static const char *action2string(hlink::action action)
 	}
 #undef MKS
 }
+#endif
 
 static void send_response(int clientfd, hlink::response resp, const std::string& body)
 {
@@ -112,7 +114,7 @@ static int read_whole_body(int clientfd, std::string& ret, iTransactionHeader he
 	return 0;
 }
 
-static void handle_add_queue(int clientfd, iTransactionHeader header, std::function<void(const std::string&)> disp_error)
+static void handle_add_queue(int clientfd, iTransactionHeader header)
 {
 	std::string body;
 	if(read_whole_body(clientfd, body, header) != 0)
@@ -135,6 +137,8 @@ static void handle_add_queue(int clientfd, iTransactionHeader header, std::funct
 
 static void handle_request(int clientfd, std::function<void(const std::string&)> disp_error)
 {
+	((void) disp_error);
+
 	iTransactionHeader header;
 	ssize_t recvd = recv(clientfd, &header, sizeof(header), 0);
 	if(recvd < 0) // error
@@ -150,7 +154,7 @@ static void handle_request(int clientfd, std::function<void(const std::string&)>
 	switch(header.action)
 	{
 	case hlink::action::add_queue:
-		handle_add_queue(clientfd, header, disp_error);
+		handle_add_queue(clientfd, header);
 		break;
 	case hlink::action::install_id:
 	case hlink::action::install_url:

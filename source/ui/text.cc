@@ -34,7 +34,7 @@ ui::WText& ui::Text::gtext()
 
 ui::WText ui::mkWText(std::string text, float x, float y, float sizeX, float sizeY, std::function<void(WText *)> callback)
 {
-	return { callback, text, sizeX, sizeY, x, y };
+	return { callback, text, sizeX, sizeY, x, y, C2D_Text() };
 }
 
 ui::WText ui::mk_center_WText(std::string text, float y, float sizeX, float sizeY, ui::Scr screen)

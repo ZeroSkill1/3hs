@@ -27,7 +27,7 @@ namespace ui
 
 
 	private:
-		void init(c2d::SpriteSheet sheet, int light_idx, int dark_idx, float x1, float y1, float x2, float y2);
+		void init(c2d::SpriteSheet sheet, int light_idx, int dark_idx);
 
 		c2d::SpriteSheet sheet;
 		c2d::Sprite dark;

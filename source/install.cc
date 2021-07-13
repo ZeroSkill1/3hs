@@ -96,7 +96,7 @@ static size_t curl_install_cia_callback(char *ptr, size_t size, size_t nmemb, vo
 	return rsize;
 }
 
-static int progress_cb(void *clientp, curl_off_t totalDl, curl_off_t nowDl, curl_off_t, curl_off_t)
+static int progress_cb(void *, curl_off_t, curl_off_t, curl_off_t, curl_off_t)
 {
 	hidScanInput(); return (hidKeysDown() | hidKeysHeld()) & (KEY_B | KEY_START);
 }

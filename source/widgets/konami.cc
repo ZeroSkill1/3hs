@@ -27,6 +27,8 @@ ui::Konami::Konami() : Widget("konami")
 
 ui::Results ui::Konami::draw(ui::Keys& keys, ui::Scr)
 {
+	((void) keys);
+
 	// TODO: Fix this
 	return ui::Results::go_on;
 

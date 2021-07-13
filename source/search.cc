@@ -90,16 +90,6 @@ static void show_searchbar_search()
 	swap_desc(prev);
 }
 
-static void show_hsid_search()
-{
-	toggle_focus();
-
-	// TODO
-
-	toggle_focus();
-}
-
-
 void show_search()
 {
 	show_searchbar_search();
