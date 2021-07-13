@@ -88,6 +88,8 @@ const char *hl_geterror(int errcode)
 		{
 		case HE_notauthed:
 			return "not authenticated";
+		case HE_tryagain:
+			return "server busy. try again";
 		default:
 			return "unknown";
 		}
@@ -116,7 +118,7 @@ void hl_destroylink(hLink *link)
 	if(link->host != NULL)
 		freeaddrinfo(link->host);
 }
-#include <stdio.h>
+
 int hl_auth(hLink *link)
 {
 	if(link->isauthed) return 0;

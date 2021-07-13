@@ -2,8 +2,11 @@
 #ifndef inc_ui_swkbd_hh
 #define inc_ui_swkbd_hh
 
+#include "ui/button.hh"
+#include "ui/text.hh"
 #include "ui/core.hh"
 
+#include <type_traits>
 #include <functional>
 
 

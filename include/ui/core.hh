@@ -78,7 +78,11 @@ namespace ui
 	}
 
 	enum class Scr
-	{ bottom, top };
+	{
+		bottom,      // bottom screen
+		top,         // top screen
+		_none,       // internal
+	};
 
 	enum class Results
 	{
@@ -114,8 +118,12 @@ namespace ui
 		void name(std::string name)
 		{ this->formal = name; }
 
+		Scr forceScr = Scr::_none;
 		bool forceFg = false;
 		bool enabled = true;
+
+		void force_screen(Scr scr)
+		{ this->forceScr = scr; }
 
 		void force_foreground()
 		{ this->forceFg = true; }

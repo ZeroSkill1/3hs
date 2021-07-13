@@ -181,6 +181,9 @@ ui::Widgets::~Widgets()
 
 void ui::Widgets::push_back(ui::Widget *widget, Scr target)
 {
+	if(widget->forceScr != ui::Scr::_none)
+		target = widget->forceScr;
+
 	switch(target)
 	{
 	case ui::Scr::bottom:

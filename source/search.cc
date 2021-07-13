@@ -29,7 +29,7 @@ static void search_is_empty(std::string prev)
 }
 
 
-void show_search()
+static void show_searchbar_search()
 {
 	std::string prev = toggle_focus("Search for content");
 	quick_global_draw();
@@ -88,5 +88,20 @@ void show_search()
 
 	generic_main_breaking_loop(wids);
 	swap_desc(prev);
+}
+
+static void show_hsid_search()
+{
+	toggle_focus();
+
+	// TODO
+
+	toggle_focus();
+}
+
+
+void show_search()
+{
+	show_searchbar_search();
 }
 

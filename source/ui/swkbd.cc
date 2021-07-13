@@ -2,6 +2,8 @@
 #include "ui/swkbd.hh"
 
 
+// AppletSwkbd
+
 ui::AppletSwkbd::AppletSwkbd(std::string *ret, int maxLen, SwkbdType type, int numBtns)
 	: Widget("applet_swkbd"), sret(ret), len(maxLen)
 {
