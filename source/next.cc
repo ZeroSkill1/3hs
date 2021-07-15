@@ -91,7 +91,7 @@ std::string next::sel_sub(hs::Index& index, std::string cat)
 	return next_sub_exit;
 }
 
-long int next::sel_gam(std::string cat, std::string sub)
+hs::shid next::sel_gam(std::string cat, std::string sub)
 {
 	ui::wid()->get<ui::Text>("curr_action_desc")->replace_text(
 		"Loading ..."); quick_global_draw();
@@ -99,7 +99,7 @@ long int next::sel_gam(std::string cat, std::string sub)
 	ui::wid()->get<ui::Text>("curr_action_desc")->replace_text(
 		"Select a title");
 
-	long int ret;
+	hs::hid ret;
 
 	ui::Widgets widgets;
 	ui::List<hs::Title> *list = new ui::List<hs::Title>(

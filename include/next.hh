@@ -18,7 +18,7 @@ namespace next
 {
 	std::string sel_cat(hs::Index& index);
 	std::string sel_sub(hs::Index& index, std::string cat);
-	long int sel_gam(std::string cat, std::string sub);
+	hs::shid sel_gam(std::string cat, std::string sub);
 }
 
 #endif

@@ -1,6 +1,7 @@
 
 v0.2.0:
  - introduced hLink
+ - add extended meta screen
 
 v0.1.5:
  - fixed buttons being blank

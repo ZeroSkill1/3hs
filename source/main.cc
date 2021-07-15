@@ -27,6 +27,7 @@
 #include "image_ldr.hh"
 #include "settings.hh"
 #include "log_view.hh"
+#include "extmeta.hh"
 #include "install.hh"
 #include "update.hh"
 #include "search.hh"
@@ -280,14 +281,21 @@ sub:
 		llog << "NEXT(s): " << sub;
 
  gam:
-		long int id = next::sel_gam(cat, sub);
+		hs::shid id = next::sel_gam(cat, sub);
 		if(id == next_gam_back) goto sub;
 		if(id == next_gam_exit) break;
+
 		llog << "NEXT(g): " << id;
 
-		toggle_focus();
-		process_hs(id);
-		toggle_focus();
+		hs::FullTitle meta = hs::title_meta(id);
+
+		if(show_extmeta(meta))
+		{
+			toggle_focus();
+			process_hs(meta);
+			toggle_focus();
+		}
+
 		goto gam;
 	}
 

@@ -238,6 +238,18 @@ std::string hs::get_download_link(hs::Title *title)
 		+ "?token=" + hs::get_token(title);
 }
 
+// utils
+
+std::string hs::parse_vstring(hs::hiver version)
+{
+	// based on:
+	//  "{(ver >> 10) & 0x3F}.{(ver >> 4) & 0x3F}.{ver & 0xF}"
+	return "v"
+		+ std::to_string(version >> 10 & 0x3F) + "."
+		+ std::to_string(version >> 4  & 0x3F) + "."
+		+ std::to_string(version       & 0xF );
+}
+
 // sort
 
 void hs::sort_category(std::vector<hs::Title>& vec)
@@ -297,6 +309,5 @@ bool hs::global_init()
 	curl_global_init(CURL_GLOBAL_ALL);
 	return true;
 }
-
 
 

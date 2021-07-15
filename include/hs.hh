@@ -19,8 +19,9 @@ namespace hs
 {
 	typedef uint64_t hsize;
 	typedef uint64_t hcount;
-	typedef uint32_t hiver;
+	typedef uint16_t hiver;
 	typedef uint64_t hid;
+	typedef int64_t shid;
 
 	typedef struct BaseCategory
 	{
@@ -114,6 +115,8 @@ namespace hs
 	std::vector<hs::Title> search(std::string query);
 	std::string get_title_download(hid id);
 	FullTitle title_meta(hid id);
+
+	std::string parse_vstring(hiver version);
 
 	void sort_subcategory(std::vector<hs::Title>& vec);
 	void sort_category(std::vector<hs::Title>& vec);

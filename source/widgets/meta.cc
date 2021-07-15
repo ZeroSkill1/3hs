@@ -15,10 +15,6 @@
 #define T_S_LEN ((14*5)+1)
 #define C_LEN ((14*4)+1)
 
-#define T_LONG this->cid
-#define S_LONG this->cdesc
-#define C_LONG this->cdesc
-
 #define twidth(n) (n.dimensions(tlen,tlen).width+moff)
 #define tlen ui::constants::FSIZE
 #define moff 9
@@ -27,12 +23,12 @@
 	ui::draw_at_absolute(moff, GRID_AL_Y(o), this->c##n, 0, 0.45f, 0.45f); \
 	this->s##n.draw(keys,target)
 
-#define scroll_if_large(n,l) \
+#define scroll_if_large(n) \
 	this->s##n.scroll_if_overflow(ui::Scr::bottom)
 
-#define cnr(n,l) \
+#define cnr(n) \
 	this->s##n.stop_scroll(); \
-	scroll_if_large(n,l)
+	scroll_if_large(n)
 
 static hs::Index *g_index;
 void ui::setup_meta(hs::Index *index)
@@ -78,8 +74,8 @@ void ui::TitleMeta::update_title(hs::Title title)
 	this->sname.replace_text(title.name);
 	this->stid.replace_text(title.tid);
 
-	cnr(name, T_LONG);
-	cnr(cat, T_LONG);
+	cnr(name);
+	cnr(cat);
 }
 
 void ui::TitleMeta::init_other()
@@ -146,8 +142,8 @@ void ui::SubMeta::update_sub(hs::Subcategory sub)
 	this->sname.replace_text(sub.displayName);
 	this->sdesc.replace_text(sub.desc);
 
-	cnr(desc, S_LONG);
-	cnr(cat, S_LONG);
+	cnr(desc);
+	cnr(cat);
 }
 
 void ui::SubMeta::init_other()
@@ -212,7 +208,7 @@ void ui::CatMeta::update_cat(hs::Category cat)
 	this->sname.replace_text(cat.displayName);
 	this->sdesc.replace_text(cat.desc);
 
-	cnr(desc, C_LONG);
+	cnr(desc);
 }
 
 void ui::CatMeta::init_other()
