@@ -6,9 +6,8 @@
 #include <ui/list.hh>
 #include <ui/text.hh>
 
-#include <algorithm>
-
 #include "queue.hh"
+#include "panic.hh"
 
 
 std::string next::sel_cat(hs::Index& index)
@@ -29,7 +28,7 @@ std::string next::sel_cat(hs::Index& index)
 
 	ui::CatMeta *meta = new ui::CatMeta();
 	if(index.categories.size() > 0) meta->update_cat(index.categories[0]);
-	else lerror << "assert(index.categories.size() > 0) failed?? Is the server having a stroke?";
+	else panic("no categories in index (?)");
 
 	widgets.push_back("meta", meta, ui::Scr::bottom);
 	widgets.get<ui::List<hs::Category>>("list")->set_on_change([&](ui::List<hs::Category> *self, size_t index) {
@@ -69,7 +68,7 @@ std::string next::sel_sub(hs::Index& index, std::string cat)
 
 	ui::SubMeta *meta = new ui::SubMeta();
 	if(rcat->subcategories.size() > 0) meta->update_sub(rcat->subcategories[0]);
-	else lerror << "assert(rcat->subcategories.size() > 0) failed?? cat=" << cat;
+	else panic("empty subcategory (?)");
 
 	widgets.push_back("meta", meta, ui::Scr::bottom);
 	widgets.get<ui::List<hs::Subcategory>>("list")->set_on_change([&](ui::List<hs::Subcategory> *self, size_t index) {
@@ -91,11 +90,8 @@ std::string next::sel_sub(hs::Index& index, std::string cat)
 	return next_sub_exit;
 }
 
-hs::shid next::sel_gam(std::string cat, std::string sub)
+hs::shid next::sel_gam(std::vector<hs::Title>& titles)
 {
-	ui::wid()->get<ui::Text>("curr_action_desc")->replace_text(
-		"Loading ..."); quick_global_draw();
-	std::vector<hs::Title> titles = hs::titles_in(cat, sub);
 	ui::wid()->get<ui::Text>("curr_action_desc")->replace_text(
 		"Select a title");
 
@@ -120,7 +116,7 @@ hs::shid next::sel_gam(std::string cat, std::string sub)
 
 	ui::TitleMeta *meta = new ui::TitleMeta();
 	if(titles.size() > 0) meta->update_title(titles[0]);
-	else lerror << "assert(titles.size() > 0) failed?? cat=" << cat << ",sub=" << sub;
+	else panic("empty category (?)");
 
 	widgets.push_back("meta", meta, ui::Scr::bottom);
 	widgets.get<ui::List<hs::Title>>("list")->set_on_change([&](ui::List<hs::Title> *self, size_t index) {

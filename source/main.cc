@@ -280,8 +280,11 @@ sub:
 		if(sub == next_sub_exit) break;
 		llog << "NEXT(s): " << sub;
 
+		ui::wid()->get<ui::Text>("curr_action_desc")->replace_text(
+			"Loading ..."); quick_global_draw();
+		std::vector<hs::Title> titles = hs::titles_in(cat ,sub);
  gam:
-		hs::shid id = next::sel_gam(cat, sub);
+		hs::shid id = next::sel_gam(titles);
 		if(id == next_gam_back) goto sub;
 		if(id == next_gam_exit) break;
 
