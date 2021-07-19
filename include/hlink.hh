@@ -25,6 +25,7 @@ namespace hlink
 		install_url  = 2,
 		install_data = 3,
 		nothing      = 4,
+		launch       = 5,
 	};
 
 	enum class response : uint8_t
@@ -34,6 +35,7 @@ namespace hlink
 		untrusted    = 2,
 		error        = 3,
 		success      = 4,
+		notfound     = 5,
 	};
 
 	void create_server(

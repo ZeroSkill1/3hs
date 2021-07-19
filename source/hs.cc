@@ -229,9 +229,6 @@ std::string hs::get_token(hs::Title *title)
 		+ std::to_string(title->id))["token"].get<std::string>();
 }
 
-// TODO: Implement balancing?
-//       Setting: Prefered Download Server
-//                prepends the server to the link, or does it automatically with DLServer::auto
 std::string hs::get_download_link(hs::Title *title)
 {
 	return std::string(HS_CDN_BASE "content/") + std::to_string(title->id)

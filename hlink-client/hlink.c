@@ -90,9 +90,10 @@ const char *hl_geterror(int errcode)
 			return "not authenticated";
 		case HE_tryagain:
 			return "server busy. try again";
-		default:
-			return "unknown";
+		case HE_tidnotfound:
+			return "title id not found on the host 3ds";
 		}
+		return "unknown";
 	}
 	else if(errcode < 0)
 		return strerror(-errcode);
@@ -149,7 +150,7 @@ int hl_addqueue(hLink *link, uint64_t *ids, size_t amount)
 {
 	if(!link->isauthed) return HE_notauthed;
 	int sock = makesock(link);
-	if(sock < 0) return sock;
+	if(sock < 0) return -errno;
 
 	iTransactionHeader header = makeheader(HA_add_queue, amount * sizeof(uint64_t));
 	if(send(sock, &header, sizeof(iTransactionHeader), 0) < 0)
@@ -167,6 +168,26 @@ int hl_addqueue(hLink *link, uint64_t *ids, size_t amount)
 	// TODO: parse response (check for not auth/busy)
 
 	close(sock);
-	return 0;
+	return HE_success;
+}
+
+int hl_launch(hLink *link, uint64_t tid)
+{
+	if(!link->isauthed) return HE_notauthed;
+	int sock = makesock(link);
+	if(sock < 0) return -errno;
+
+	iTransactionHeader header = makeheader(HA_launch, sizeof(uint64_t));
+	if(send(sock, &header, sizeof(iTransactionHeader), 0) < 0)
+	{ close(sock); return -errno; }
+
+	uint64_t ntid = htonll(tid);
+	if(send(sock, &ntid, sizeof(uint64_t), 0) < 0)
+	{ close(sock); return -errno; }
+
+	// TODO: parse response (check for not auth/busy)
+
+	close(sock);
+	return HE_success;
 }
 

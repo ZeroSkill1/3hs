@@ -51,7 +51,7 @@ void show_hlink()
 			wids.push_back(new ui::Text(ui::mk_center_WText(
 				"Press " GLYPH_A " to continue", SCREEN_HEIGHT() - 30.0f)));
 
-			ui::WrapText *maintxt = new ui::WrapText("An error occurred creating the hLink server\n" + err);
+			ui::WrapText *maintxt = new ui::WrapText("An error occurred in the hLink server\n" + err);
 			maintxt->set_basey(70.0f);
 			maintxt->center();
 

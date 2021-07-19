@@ -127,9 +127,11 @@ static Result i_install_net_cia(std::string url, Handle ciaHandle, prog_func pro
 
 	curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, progress_cb);
 	curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
 	curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &data);
 	curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
+	curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 3);
 
 	CURLcode res = curl_easy_perform(curl);
 	curl_easy_cleanup(curl);
@@ -167,17 +169,20 @@ static Result i_install_net_cia(std::string url, Handle ciaHandle, prog_func pro
 	return 0;
 }
 
-// https://www.3dbrew.org/wiki/Titles#Title_IDs
 static Destination detect_dest(hs::Title *meta)
+{ return detect_dest(meta->tid); }
+
+// https://www.3dbrew.org/wiki/Titles#Title_IDs
+Destination detect_dest(const std::string& tid)
 {
-	u16 cat = std::stoul(meta->tid.substr(4, 4), nullptr, 16);
+	u16 cat = std::stoul(tid.substr(4, 4), nullptr, 16);
 	// Install on nand on (DlpChild, System, TWL), else install on SD
 	return (cat & (0x1 | 0x10 | 0x8000))
 		? (cat & 0x8000 ? DEST_TWLNand : DEST_CTRNand)
 		: DEST_Sdmc;
 }
 
-static FS_MediaType to_mediatype(Destination dest)
+FS_MediaType to_mediatype(Destination dest)
 {
 	return dest == DEST_Sdmc ? MEDIATYPE_SD : MEDIATYPE_NAND;
 }

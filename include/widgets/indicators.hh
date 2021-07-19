@@ -5,14 +5,9 @@
 #include <ui/core.hh>
 #include <ui/text.hh>
 
+#include "install.hh"
+
 #define NET_SPRITE_BUF_LEN 4
-
-
-enum Destination
-{
-	DEST_CTRNand, DEST_TWLNand,
-	DEST_Sdmc,
-};
 
 
 Result get_free_space(Destination media, u64 *size);

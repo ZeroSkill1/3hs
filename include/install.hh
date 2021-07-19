@@ -14,9 +14,19 @@
 #define NET_3DS_ERR(r) ((r) < 0)
 #define NET_OK(r) ((r) == 0)
 
+enum Destination
+{
+	DEST_CTRNand, DEST_TWLNand,
+	DEST_Sdmc,
+};
+
 typedef std::function<void(u64 /* done */, u64 /* total */)> prog_func;
 static void default_prog_func(u64, u64)
 { }
+
+
+Destination detect_dest(const std::string& tid);
+FS_MediaType to_mediatype(Destination dest);
 
 Result delete_if_exist(u64 tid, FS_MediaType media = MEDIATYPE_SD);
 Result delete_title(u64 tid, FS_MediaType media = MEDIATYPE_SD);

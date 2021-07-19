@@ -164,6 +164,11 @@
 						<td>4</td>
 						<td>does exactly nothing. used for authenticating the client</td>
 					</tr>
+					<tr>
+						<td>launch</td>
+						<td>5</td>
+						<td>launches a title id</td>
+					</tr>
 				</table>
 			</div>
 
@@ -200,6 +205,11 @@
 						<td>4</td>
 						<td>generic success response</td>
 					</tr>
+					<tr>
+						<td>notfound</td>
+						<td>5</td>
+						<td>generic not found response</td>
+					</tr>
 				</table>
 			</div>
 		</div>
@@ -219,6 +229,12 @@
 				The <em>add_queue</em> action passes hShop IDs in the body.
 				the IDs are an array of <code>uint64_t</code>'s (8 bytes each) in big endian.
 				the <em>size</em> field in the header should be <code>total_ids * 8</code>.
+			</p>
+
+			<h4>launch</h4>
+			<p>
+				The <em>launch</em> action passes a tid (<code>uint64_t<code>) in the body.
+				the body size must be <code>sizeof(uint64_t)</code> which is <code>8</code>
 			</p>
 
 			<h3>Responses</h3>

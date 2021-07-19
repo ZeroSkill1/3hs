@@ -15,6 +15,7 @@
 
 #include <map>
 
+#include "install.hh"
 #include "queue.hh"
 #include "hs.hh"
 
@@ -135,10 +136,45 @@ static void handle_add_queue(int clientfd, iTransactionHeader header)
 	send_response(clientfd, hlink::response::success);
 }
 
-static void handle_request(int clientfd, std::function<void(const std::string&)> disp_error)
+static bool handle_launch(int clientfd, int server, iTransactionHeader header, std::function<void(const std::string&)> disp_error)
 {
-	((void) disp_error);
+	if(header.size != sizeof(uint64_t))
+	{
+		send_response(clientfd, hlink::response::error, "body.size() != sizeof(uint64_t)");
+		return false;
+	}
 
+	std::string body;
+	if(read_whole_body(clientfd, body, header) != 0)
+		return false;
+
+	uint64_t tid = ntohll(* (uint64_t *) body.data());
+	FS_MediaType media = to_mediatype(detect_dest(tid_to_str(tid)));
+
+	if(!title_exists(tid, media))
+	{
+		disp_error("Title doesn't exist: " + tid_to_str(tid));
+		send_response(clientfd, hlink::response::notfound);
+		return false;
+	}
+
+	send_response(clientfd, hlink::response::success);
+
+	close(clientfd);
+	close(server);
+	g_lock = false;
+
+	APT_PrepareToDoApplicationJump(0, tid, media);
+
+	u8 parambuf[0x300];
+	u8 hmacbuf[0x20];
+	APT_DoApplicationJump(parambuf, 0x300, hmacbuf);
+
+	return true; // reachable only if APT_DoApplicationJump fails
+}
+
+static bool handle_request(int clientfd, int serverfd, std::function<void(const std::string&)> disp_error)
+{
 	iTransactionHeader header;
 	ssize_t recvd = recv(clientfd, &header, sizeof(header), 0);
 	if(recvd < 0) // error
@@ -164,6 +200,10 @@ static void handle_request(int clientfd, std::function<void(const std::string&)>
 	case hlink::action::nothing:
 		send_response(clientfd, hlink::response::accept);
 		break;
+	case hlink::action::launch:
+		if(handle_launch(clientfd, serverfd, header, disp_error))
+			return true;
+		break;
 	default:
 		send_response(clientfd, hlink::response::error, "invalid action");
 		break;
@@ -172,6 +212,7 @@ static void handle_request(int clientfd, std::function<void(const std::string&)>
 cleanup:
 	close(clientfd);
 	g_lock = false;
+	return false;
 }
 
 void hlink::create_server(
@@ -203,7 +244,7 @@ void hlink::create_server(
 
 	if(listen(serverfd, hlink::backlog) < 0)
 	{
-		disp_error("listen(" + std::to_string(errno) + "): " + std::string(strerror(errno)));
+		disp_error("listen(): " + std::string(strerror(errno)));
 		close(serverfd);
 		return;
 	}
@@ -270,7 +311,8 @@ begin_loop:
 		}
 
 		g_lock = true;
-		handle_request(clientfd, disp_error);
+		if(handle_request(clientfd, serverfd, disp_error))
+			return;
 		goto begin_loop;
 	}
 
