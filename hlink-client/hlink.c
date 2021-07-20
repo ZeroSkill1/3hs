@@ -15,7 +15,7 @@
 #define MAGIC "HLT"
 #define PORT "37283"
 
-#if __BYTEORDER__ == __ORDER_LITTLE
+#if __BYTEORDER__ == __ORDER_LITTLE__
 // Why do these not exist already?
 static uint64_t htonll(uint64_t n)
 { return __builtin_bswap64(n); }
@@ -68,7 +68,7 @@ static int readresp(iTransactionResponse *resp, int sock)
 	ssize_t recvd = recv(sock, resp, sizeof(iTransactionResponse), 0);
 	if(recvd < 0) return -errno;
 	resp->size = ntohll(resp->size);
-	return 0;
+	return HE_success;
 }
 
 const char *hl_makelink_geterror(int errcode)
@@ -111,7 +111,7 @@ int hl_makelink(hLink *link, const char *addr)
 	if(res < 0) { link->host = NULL; return res; }
 
 	link->isauthed = 0;
-	return 0;
+	return HE_success;
 }
 
 void hl_destroylink(hLink *link)
@@ -122,7 +122,7 @@ void hl_destroylink(hLink *link)
 
 int hl_auth(hLink *link)
 {
-	if(link->isauthed) return 0;
+	if(link->isauthed) return HE_success;
 	int sock = makesock(link);
 	if(sock < 0) return sock;
 

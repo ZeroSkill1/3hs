@@ -3,7 +3,7 @@ v0.2.0:
  - introduced hLink
 
 v0.1.6:
- - add extended meta screen
+ - added extended meta screen
  - fix cdn not working
 
 v0.1.5:

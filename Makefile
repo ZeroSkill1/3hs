@@ -57,7 +57,7 @@ APP_AUTHOR			:=	TimmSkiller & MyPasswordIsWeak
 ARCH	:=	-march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft
 
 CFLAGS	:= -pedantic -Wall -Wextra -O2 -mword-relocations -DUSE_SETTINGS_H \
-			-fcompare-debug-second -ffunction-sections $(ARCH) \
+			-fcompare-debug-second -ffunction-sections $(ARCH) -DV02 \
 
 CFLAGS	+=	$(INCLUDE) -DARM11 -D_3DS
 

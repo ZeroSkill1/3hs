@@ -46,7 +46,7 @@ static uint64_t htonll(uint64_t n)
 static uint64_t ntohll(uint64_t n)
 { return __builtin_bswap64(n); }
 
-#if 0 // TODO: log every action (to bottom screen?)
+//#if 0 // TODO: log every action (to bottom screen?)
 static const char *action2string(hlink::action action)
 {
 #define MKS(n) case hlink::action::n: return #n
@@ -57,12 +57,12 @@ static const char *action2string(hlink::action action)
 		MKS(install_url);
 		MKS(install_data);
 		MKS(nothing);
-		default:
-			return "unknown";
+		MKS(launch);
+		default: return "unknown";
 	}
 #undef MKS
 }
-#endif
+//#endif
 
 static void send_response(int clientfd, hlink::response resp, const std::string& body)
 {
@@ -173,7 +173,9 @@ static bool handle_launch(int clientfd, int server, iTransactionHeader header, s
 	return true; // reachable only if APT_DoApplicationJump fails
 }
 
-static bool handle_request(int clientfd, int serverfd, std::function<void(const std::string&)> disp_error)
+static bool handle_request(int clientfd, int serverfd, const char *clientaddr,
+	std::function<void(const std::string&)> disp_req,
+	std::function<void(const std::string&)> disp_error)
 {
 	iTransactionHeader header;
 	ssize_t recvd = recv(clientfd, &header, sizeof(header), 0);
@@ -186,6 +188,8 @@ static bool handle_request(int clientfd, int serverfd, std::function<void(const 
 		send_response(clientfd, hlink::response::error, "invalid magic");
 		goto cleanup;
 	}
+
+	disp_req(std::string(clientaddr) + ": " + action2string(header.action));
 
 	switch(header.action)
 	{
@@ -219,7 +223,8 @@ void hlink::create_server(
 		std::function<bool(const std::string&)> on_requester,
 		std::function<void(const std::string&)> disp_error,
 		std::function<void(const std::string&)> on_server_create,
-		std::function<bool()> on_poll_exit
+		std::function<bool()> on_poll_exit,
+		std::function<void(const std::string&)> disp_req
 	)
 {
 	int serverfd = -1;
@@ -311,7 +316,7 @@ begin_loop:
 		}
 
 		g_lock = true;
-		if(handle_request(clientfd, serverfd, disp_error))
+		if(handle_request(clientfd, serverfd, inet_ntoa(clientaddr.sin_addr), disp_req, disp_error))
 			return;
 		goto begin_loop;
 	}

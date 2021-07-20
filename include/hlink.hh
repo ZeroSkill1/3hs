@@ -42,7 +42,8 @@ namespace hlink
 		std::function<bool(const std::string&)> on_requester,
 		std::function<void(const std::string&)> disp_error,
 		std::function<void(const std::string&)> on_server_create,
-		std::function<bool()> on_poll_exit
+		std::function<bool()> on_poll_exit,
+		std::function<void(const std::string&)> disp_req
 	);
 }
 

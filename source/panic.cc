@@ -88,7 +88,7 @@ void handle_error(error_container err)
 	ui::Text *desc = ui::wid()->get<ui::Text>("curr_action_desc");
 	if(desc == nullptr)
 		wids.push_back(new ui::Text(ui::mk_center_WText("Fatal Panic Occurred @ " + caller, 45.0f)));
-	else desc->replace_text("Fatal Panic Occurred @ " + caller);
+	else { desc->replace_text("Fatal Panic Occurred @ " + caller); desc->visibility(true); }
 
 	generic_main_breaking_loop(wids);
 

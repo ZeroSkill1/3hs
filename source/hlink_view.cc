@@ -8,6 +8,18 @@
 #include <ui/text.hh>
 #include <ui/util.hh>
 
+#include "panic.hh"
+
+static std::string g_lastreq = "no requests made yet.";
+
+
+static void pushreq(ui::Widgets& wids)
+{
+	ui::WrapText *txt = new ui::WrapText("Last request\n" + g_lastreq);
+	txt->set_basey(70.0f);
+	txt->center();
+	wids.push_back(txt, ui::Scr::bottom);
+}
 
 void show_hlink()
 {
@@ -22,6 +34,7 @@ void show_hlink()
 			ui::Widgets wids;
 			bool ret = false;
 
+			pushreq(wids);
 			ui::WrapText *txt = new ui::WrapText(
 				"Do you want to accept a connection\n"
 				"from " + from + "?\n"
@@ -47,6 +60,7 @@ void show_hlink()
 		[](const std::string& err) -> void {
 			ui::Widgets wids;
 
+			pushreq(wids);
 			wids.push_back(new ui::PressToContinue(KEY_A));
 			wids.push_back(new ui::Text(ui::mk_center_WText(
 				"Press " GLYPH_A " to continue", SCREEN_HEIGHT() - 30.0f)));
@@ -62,6 +76,7 @@ void show_hlink()
 		[](const std::string& ip) -> void {
 			ui::Widgets wids;
 
+			pushreq(wids);
 			ui::WrapText *txt = new ui::WrapText("Created the hLink server\nConnect to " + ip);
 			txt->set_basey(70.0f);
 			txt->center();
@@ -73,6 +88,13 @@ void show_hlink()
 		[]() -> bool {
 			ui::Keys keys = ui::get_keys();
 			return !((keys.kDown | keys.kHeld) & (KEY_START | KEY_B));
+		},
+		[](const std::string& str) -> void {
+			ui::Widgets wids;
+			g_lastreq = str;
+
+			pushreq(wids);
+			single_draw(wids);
 		}
 	);
 

@@ -130,6 +130,9 @@ namespace ui
 
 		void toggle()
 		{ this->enabled = this->enabled ? false : true; }
+
+		void visibility(bool visable)
+		{ this->enabled = visable; }
 	};
 
 
