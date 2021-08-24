@@ -1,6 +1,7 @@
 
 v0.2.0:
  - introduced hLink
+ - implemented resuming downloads
 
 v0.1.6:
  - added extended meta screen
