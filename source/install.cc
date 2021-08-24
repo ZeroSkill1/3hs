@@ -1,4 +1,5 @@
 
+#include "settings.hh"
 #include "install.hh"
 #include "seed.hh"
 
@@ -6,6 +7,7 @@
 #include <net_common.hh>
 #include <curl/curl.h>
 #include <3rd/log.hh>
+#include <ui/util.hh>
 #include <malloc.h>
 #include <3ds.h>
 
@@ -61,8 +63,8 @@ static size_t curl_install_cia_callback(char *ptr, size_t size, size_t nmemb, vo
 		size_t remainder = CIA_NET_BUFSIZE - udata->bufSize;
 		// Remainder = 100
 		// available = 200
-		// First round: write remainding 100 bytes, available-=100, clear buffer
-		// Second round: write 100 bytes to buffer and do nothing after
+		// First iteration: write remainding 100 bytes, available-=100, clear buffer
+		// Second iteration: write 100 bytes to buffer and do nothing after
 		size_t cpySize = remainder > avail ? avail : remainder;
 
 		// Copy the remainder in, if we don't have enough to fill it in completely
@@ -101,35 +103,29 @@ static int progress_cb(void *, curl_off_t, curl_off_t, curl_off_t, curl_off_t)
 	hidScanInput(); return (hidKeysDown() | hidKeysHeld()) & (KEY_B | KEY_START);
 }
 
-static Result i_install_net_cia(std::string url, Handle ciaHandle, prog_func prog, size_t from = 0, size_t to = 0)
+static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from)
 {
-	/* TODO: Check if cia is installed and give optional reinstall */
-
-	static_assert(CIA_NET_BUFSIZE % 64 == 0, "$CIA_NET_BUFSIZE must be divisable by 64");
+	static_assert(CIA_NET_BUFSIZE % 64 == 0, "$CIA_NET_BUFSIZE must be dividable by 64");
 	CURL *curl = curl_easy_init();
+
+	data->curl = curl;
 
 	struct curl_slist *headers = NULL;
 	headers = curl_slist_append(headers, CURL_UA);
 	// = We want to contintue
-	if(from != 0 && to != 0)
+	if(from != 0)
 	{
 		headers = curl_slist_append(headers, (std::string("Range: bytes=") + std::to_string(from)
-			+ "-" + std::to_string(to)).c_str());
+			+ "-").c_str());
 	}
 
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_install_cia_callback);
-
-	cia_net_data data;
-	data.buffer = new u8[CIA_NET_BUFSIZE];
-	data.cia = ciaHandle;
-	data.prog = prog;
-	data.curl = curl;
 
 	curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, progress_cb);
 	curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
 	curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &data);
+	curl_easy_setopt(curl, CURLOPT_WRITEDATA, data);
 	curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
 	curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 3);
 
@@ -138,36 +134,77 @@ static Result i_install_net_cia(std::string url, Handle ciaHandle, prog_func pro
 
 	// If we have an error here, a potentional curl error will
 	// most likely be a reaction to this error, so its more imporant
-	if(data.err != 0)
+	if(data->err != 0)
 	{
-		lerror << "FSFILE_Write(...): " << std::hex << data.err;
-		delete [] data.buffer;
-		return data.err;
+		lerror << "FSFILE_Write(...): " << std::hex << data->err;
+		return data->err;
 	}
 
 	if(res != CURLE_OK)
 	{
 		lerror << "curl_easy_perform(...): " << res;
-		delete [] data.buffer;
 		return (Result) res;
 	}
 
 	// One final write...
-	if(data.bufSize != 0)
+	if(data->bufSize != 0)
 	{
-		u32 written = 0; Result res2 = write_cia_data(&data, &written);
+		u32 written = 0;
+		Result sres = write_cia_data(data, &written);
 
-		if(R_FAILED(res2))
+		if(R_FAILED(sres))
 		{
-			lerror << "FSFILE_Write(...): " << std::hex << res;
-			delete [] data.buffer;
-			return res2;
+			lerror << "FSFILE_Write(...): " << std::hex << sres;
+			return sres;
 		}
 	}
 
-	delete [] data.buffer;
 	return 0;
 }
+
+static Result i_install_resume_loop(std::function<std::string()> get_url, Handle ciaHandle, prog_func prog)
+{
+	cia_net_data data;
+	data.buffer = new u8[CIA_NET_BUFSIZE];
+	data.cia = ciaHandle;
+	data.prog = prog;
+
+	std::string url = get_url();
+	linfo << "Installing cia from <" << url << ">.";
+
+	Result res = 0;
+
+	if(!get_settings()->resumeDownloads)
+	{
+		res = i_install_net_cia(url, &data, 0);
+		delete [] data.buffer;
+		return res;
+	}
+
+	// install loop
+	while(true)
+	{
+		if(url != "") // url == "" means we failed to fetch the url 
+			res = i_install_net_cia(get_url(), &data, data.index + data.bufSize);
+		if(res > 0 /* curl error */ && res != CURLE_ABORTED_BY_CALLBACK)
+		{
+			// Does the user want to stop?
+			if(ui::timeoutscreen("Network connection lost.\nRetrying in %t seconds...", 10))
+			{
+				// this signals that we want to cancel the installation later on
+				res = CURLE_ABORTED_BY_CALLBACK;
+				break;
+			}
+			url = get_url();
+			continue;
+		}
+		break;
+	}
+
+	delete [] data.buffer;
+	return res;
+}
+
 
 static Destination detect_dest(hs::Title *meta)
 { return detect_dest(meta->tid); }
@@ -207,7 +244,7 @@ static Result i_install_hs_cia(hs::FullTitle *meta, prog_func prog, bool reinsta
 	if(!isNew && meta->prod.rfind("KTR-", 0) == 0)
 		return MAKERESULT(RL_PERMANENT, RS_NOTSUPPORTED, RM_APPLICATION, 0); // = Unsupported platform
 
-	return install_net_cia(hs::get_download_link(meta), prog, reinstallable, meta->tid, to_mediatype(media));
+	return install_net_cia([meta]() -> std::string { return hs::get_download_link(meta); }, prog, reinstallable, meta->tid, to_mediatype(media));
 }
 
 
@@ -272,12 +309,12 @@ u64 str_to_tid(std::string tid)
 	return strtoull(tid.c_str(), nullptr, 16);
 }
 
-Result install_net_cia(std::string url, prog_func prog, bool reinstallable, u64 tid, FS_MediaType dest)
+Result install_net_cia(get_url_func get_url, prog_func prog, bool reinstallable, u64 tid, FS_MediaType dest)
 {
-	return install_net_cia(url, prog, reinstallable, tid_to_str(tid), dest);
+	return install_net_cia(get_url, prog, reinstallable, tid_to_str(tid), dest);
 }
 
-Result install_net_cia(std::string url, prog_func prog, bool reinstallable, std::string tid, FS_MediaType dest)
+Result install_net_cia(get_url_func get_url, prog_func prog, bool reinstallable, std::string tid, FS_MediaType dest)
 {
 	if(reinstallable && tid != "")
 	{
@@ -303,14 +340,13 @@ Result install_net_cia(std::string url, prog_func prog, bool reinstallable, std:
 	}
 
 	Handle cia; Result ret;
-	linfo << "Installing cia from <" << url << "> on " << (dest == MEDIATYPE_NAND ? "NAND" : "SD");
 	ret = AM_StartCiaInstall(dest, &cia); linfo << "AM_StartCiaInstall(...): " << ret;
 	if(R_FAILED(ret)) return ret;
 
-	ret = i_install_net_cia(url, cia, prog);
+	ret = i_install_resume_loop(get_url, cia, prog);
 	if(ret == CURLE_ABORTED_BY_CALLBACK)
 	{ AM_CancelCIAInstall(cia); return MAKERESULT(RL_FATAL, RS_CANCELED, RM_APPLICATION, 1); } // = Cancelled
-	if(!NET_OK(ret)) // If everything went ok in i_install_net_cia, we return a 0
+	if(!NET_OK(ret)) // If everything went ok in i_install_resume_loop, we return a 0
 	{ AM_CancelCIAInstall(cia); return ret; }
 
 	ret = AM_FinishCiaInstall(cia);

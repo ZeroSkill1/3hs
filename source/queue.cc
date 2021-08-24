@@ -74,7 +74,7 @@ Result process_uri(const std::string& uri, bool reinstallable, const std::string
 	bar->set_mib_type();
 	single_draw(wids);
 
-	Result res = install_net_cia(uri, [&wids, bar](u64 now, u64 total) -> void {
+	Result res = install_net_cia(makeurlwrap(uri), [&wids, bar](u64 now, u64 total) -> void {
 		bar->update(now, total);
 		bar->activate_text();
 		single_draw(wids);

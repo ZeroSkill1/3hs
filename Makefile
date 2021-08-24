@@ -56,7 +56,7 @@ APP_AUTHOR			:=	TimmSkiller & MyPasswordIsWeak
 #---------------------------------------------------------------------------------
 ARCH	:=	-march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft
 
-CFLAGS	:= -pedantic -Wall -Wextra -O2 -mword-relocations -DUSE_SETTINGS_H \
+CFLAGS	:= -pedantic -Wall -Wextra -mword-relocations -DUSE_SETTINGS_H \
 			-fcompare-debug-second -ffunction-sections $(ARCH) -DV02 \
 
 CFLAGS	+=	$(INCLUDE) -DARM11 -D_3DS
@@ -65,7 +65,9 @@ ASFLAGS	:=	$(ARCH)
 LDFLAGS	=	-specs=3dsx.specs $(ARCH) -Wl,-Map,$(notdir $*.map)
 
 ifneq ($(RELEASE),)
-	CFLAGS	+=	-DRELEASE
+	CFLAGS	+= -DRELEASE -O2
+else
+	CFLAGS  += -ggdb3
 endif
 
 ifneq ($(DEVICE_ID),)
@@ -200,6 +202,7 @@ _build_all:
 
 cia: $(INT_ALL)
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
+	$(SILENTCMD) $(PREFIX)strip -s "$(OUTPUT).elf"
 	$(SILENTCMD) 3dstool -ctf romfs $(CIA_PREFIX)/romfs.bin --romfs-dir romfs
 	$(SILENTCMD) makerom -f cia -o $(TARGET).cia -target t -elf $(TARGET).elf -icon $(CIA_PREFIX)/icon.smdh -banner $(CIA_PREFIX)/banner.bnr -rsf $(CIA_PREFIX)/$(TARGET).rsf -romfs $(CIA_PREFIX)/romfs.bin -ver $(VERSION)
 	$(SILENTMSG) built ... $(TARGET).cia

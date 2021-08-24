@@ -225,14 +225,20 @@ hs::FullTitle hs::title_meta(hs::hid id)
 
 std::string hs::get_token(hs::Title *title)
 {
-	return j_abs_req<json>(std::string(HS_CDN_BASE_API "content/request?id=")
-		+ std::to_string(title->id))["token"].get<std::string>();
+	json resp = j_abs_req<json>(std::string(HS_CDN_BASE_API "content/request?id=")
+		+ std::to_string(title->id));
+
+	if(resp["token"].is_null()) return "";
+	return resp["token"].get<std::string>();
 }
 
 std::string hs::get_download_link(hs::Title *title)
 {
+	std::string token = hs::get_token(title);
+	if(token == "") return "";
+
 	return std::string(HS_CDN_BASE "content/") + std::to_string(title->id)
-		+ "?token=" + hs::get_token(title);
+		+ "?token=" + token;
 }
 
 // utils

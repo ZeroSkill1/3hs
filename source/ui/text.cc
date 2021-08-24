@@ -119,7 +119,6 @@ void ui::WrapText::pre_push()
 {
 	if(this->buf == NULL) this->buf = C2D_TextBufNew(this->text.size() + 1);
 
-
 	else
 	{
 		C2D_TextBufClear(this->buf);
@@ -199,7 +198,7 @@ void ui::WrapText::set_pad(float pad)
 
 void ui::WrapText::set_basey(float baseY)
 {
-	if(baseY > 0) this->baseY = baseY;
+	this->baseY = baseY;
 }
 
 void ui::WrapText::center()

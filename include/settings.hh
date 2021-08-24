@@ -21,7 +21,7 @@ typedef struct Settings
 {
 	char magic[4] = { '3', 'H', 'S', 'S' };
 	bool isLightMode = false;
-	bool resumeDownloads = true; // TODO: Implement this (resumable downloads)
+	bool resumeDownloads = true;
 	bool loadFreeSpace = true;
 	bool showBattery = true;
 	bool showNet = true;

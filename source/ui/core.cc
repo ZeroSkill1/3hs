@@ -44,6 +44,12 @@ ui::Keys ui::get_keys()
 	return ret;
 }
 
+bool ui::framenext_nobreak(ui::Keys& keys)
+{
+	keys = ui::get_keys();
+	return aptMainLoop();
+}
+
 bool ui::framenext(ui::Keys& keys)
 {
 	keys = ui::get_keys();
