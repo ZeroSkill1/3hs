@@ -21,8 +21,16 @@ enum Destination
 };
 
 typedef std::function<void(u64 /* done */, u64 /* total */)> prog_func;
+typedef std::function<std::string()> get_url_func;
 static void default_prog_func(u64, u64)
 { }
+
+static inline get_url_func makeurlwrap(const std::string& url)
+{
+	return [url]() -> std::string {
+		return url;
+	};
+}
 
 
 Destination detect_dest(const std::string& tid);
@@ -35,8 +43,8 @@ bool title_exists(u64 tid, FS_MediaType media = MEDIATYPE_SD);
 std::string tid_to_str(u64 tid);
 u64 str_to_tid(std::string tid);
 
-Result install_net_cia(std::string url, prog_func prog = default_prog_func, bool reinstallable = false, std::string tid = "", FS_MediaType dest = MEDIATYPE_SD);
-Result install_net_cia(std::string url, prog_func prog = default_prog_func, bool reinstallable = false, u64 tid = 0x0, FS_MediaType dest = MEDIATYPE_SD);
+Result install_net_cia(get_url_func get_url, prog_func prog = default_prog_func, bool reinstallable = false, std::string tid = "", FS_MediaType dest = MEDIATYPE_SD);
+Result install_net_cia(get_url_func get_url, prog_func prog = default_prog_func, bool reinstallable = false, u64 tid = 0x0, FS_MediaType dest = MEDIATYPE_SD);
 Result install_hs_cia(hs::FullTitle *meta, prog_func prog = default_prog_func, bool reinstallable = false);
 
 #endif

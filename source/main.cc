@@ -8,6 +8,7 @@
 #include <ui/button.hh>
 #include <ui/swkbd.hh>
 #include <ui/text.hh>
+#include <ui/util.hh>
 #include <ui/core.hh>
 #include <ui/list.hh>
 

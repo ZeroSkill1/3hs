@@ -67,3 +67,76 @@ ui::Results ui::DoAfterFrames::draw(ui::Keys&, ui::Scr)
 	++this->dFrames; return ret;
 }
 
+// timeout_screen_helper
+
+ui::TimeoutScreenHelper::TimeoutScreenHelper(const std::string& fmt, size_t nsecs, bool *shouldStop)
+	: Widget("timeout_screen_helper"), fmt(fmt), startTime(time(NULL)), lastCheck(this->startTime), shouldStop(shouldStop), nsecs(nsecs)
+{
+	this->text.screen = ui::Scr::top;
+	this->text.set_basey(80.0f);
+	this->text.center();
+
+	this->update_text(this->startTime);
+}
+
+void ui::TimeoutScreenHelper::update_text(time_t now)
+{
+	std::string ntxt;
+	ntxt.reserve(this->fmt.size());
+
+	for(size_t i = 0; i < this->fmt.size(); ++i)
+	{
+		switch(this->fmt[i])
+		{
+		case '%':
+			++i;
+			if(this->fmt[i] == 't')
+				ntxt += std::to_string(this->nsecs - (now - this->startTime));
+			else ntxt.push_back(this->fmt[i]);
+			break;
+
+		default:
+			ntxt.push_back(this->fmt[i]);
+			break;
+
+		}
+	}
+
+	this->text.replace_text(ntxt);
+}
+
+ui::Results ui::TimeoutScreenHelper::draw(ui::Keys& keys, ui::Scr screen)
+{
+	if(keys.kDown & KEY_START && this->shouldStop != nullptr)
+	{
+		*this->shouldStop = true;
+		return ui::Results::quit_loop;
+	}
+
+	time_t now = time(NULL);
+	if(this->lastCheck != now)
+	{
+		this->update_text(now);
+		this->lastCheck = now;
+	}
+
+	if(now - this->startTime >= this->nsecs)
+		return ui::Results::quit_loop;
+
+	return this->text.draw(keys, screen);
+}
+
+// timeoutscreen()
+
+bool ui::timeoutscreen(const std::string& fmt, size_t nsecs, bool allowCancel)
+{
+	ui::Widgets wids;
+	bool ret = false;
+
+	wids.push_back(new ui::TimeoutScreenHelper(fmt, nsecs, allowCancel ? &ret : nullptr));
+
+	generic_main_breaking_startreplacing_loop(wids);
+	return ret;
+}
+
+

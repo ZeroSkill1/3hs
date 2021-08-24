@@ -7,6 +7,7 @@
 // elements
 
 #include "ui/core.hh"
+#include "ui/text.hh"
 
 #include <functional>
 
@@ -69,6 +70,33 @@ namespace ui
 
 
 	};
+
+	class TimeoutScreenHelper : public Widget
+	{
+	public:
+		TimeoutScreenHelper(const std::string& fmt, size_t nsecs, bool *shouldStop = nullptr);
+
+		ui::Results draw(ui::Keys&, ui::Scr) override;
+
+
+	private:
+		void update_text(time_t now);
+
+		const std::string& fmt;
+		ui::WrapText text;
+		time_t startTime;
+		time_t lastCheck;
+		bool *shouldStop;
+		size_t nsecs;
+
+
+	};
+
+	/**
+	 * use `%t' as a placeholder for the seconds left until the end of the timeout
+	 * returns true if the user cancelled the timeout (if allowed)
+	 */
+	bool timeoutscreen(const std::string& fmt, size_t nsecs, bool allowCancel = true);
 }
 
 

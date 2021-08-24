@@ -15,18 +15,52 @@
 
 #include "bindings.hh"
 
-#define quick_global_draw() { ui::Widgets wids; ui::Keys keys; \
-	ui::framenext(keys); ui::framedraw(wids, keys); }
-#define single_draw(wids) { ui::Keys keys; \
-		ui::framenext(keys);  ui::framedraw(wids, keys); }
-#define generic_main_loop(w) { ui::Keys k; \
-	while(ui::framenext(k)) ui::framedraw(w,k); }
-#define generic_main_breaking_loop(w) { ui::Keys k; \
-	while(ui::framenext(k)) if(!ui::framedraw(w,k)) break; }
-#define standalone_main_loop() { ui::Widgets w; \
-	generic_main_loop(w); }
-#define standalone_main_breaking_loop() { ui::Widgets w; \
-	generic_main_breaking_loop(w); }
+#define quick_global_draw()          \
+  do {                               \
+    ui::Widgets wids; ui::Keys keys; \
+    ui::framenext(keys);             \
+    ui::framedraw(wids, keys);       \
+  } while(0)
+
+#define single_draw(wids)      \
+  do {                         \
+    ui::Keys keys;             \
+    ui::framenext(keys);       \
+    ui::framedraw(wids, keys); \
+  } while(0)
+
+#define generic_main_loop(w) \
+  do {                       \
+    ui::Keys k;              \
+    while(ui::framenext(k))  \
+      ui::framedraw(w,k);    \
+  } while(0)
+
+#define generic_main_breaking_loop(w) \
+  do {                                \
+    ui::Keys k;                       \
+    while(ui::framenext(k))           \
+      if(!ui::framedraw(w,k)) break;  \
+  } while(0)
+
+#define generic_main_breaking_startreplacing_loop(w) \
+  do {                                               \
+    ui::Keys k;                                      \
+    while(ui::framenext_nobreak(k))                  \
+      if(!ui::framedraw(w,k)) break;                 \
+  } while(0)
+
+#define standalone_main_loop() \
+  do {                         \
+    ui::Widgets w;             \
+    generic_main_loop(w);      \
+  } while(0)
+
+#define standalone_main_breaking_loop() \
+  do {                                  \
+    ui::Widgets w;                      \
+    generic_main_breaking_loop(w);      \
+  } while(0)
 
 // Button glyphs
 #define GLYPH_A "\uE000"
@@ -172,6 +206,7 @@ namespace ui
 	bool global_init();
 
 	bool framedraw(Widgets& wids, Keys& keys);
+	bool framenext_nobreak(Keys& keys);
 	bool framenext(Keys& keys);
 
 	void parse_text(c2d::Text *ret, c2d::TextBuf buf, std::string txt);
