@@ -46,7 +46,6 @@ static uint64_t htonll(uint64_t n)
 static uint64_t ntohll(uint64_t n)
 { return __builtin_bswap64(n); }
 
-//#if 0 // TODO: log every action (to bottom screen?)
 static const char *action2string(hlink::action action)
 {
 #define MKS(n) case hlink::action::n: return #n
@@ -58,11 +57,10 @@ static const char *action2string(hlink::action action)
 		MKS(install_data);
 		MKS(nothing);
 		MKS(launch);
-		default: return "unknown";
+		default: return "unknown/invalid";
 	}
 #undef MKS
 }
-//#endif
 
 static void send_response(int clientfd, hlink::response resp, const std::string& body)
 {

@@ -9,8 +9,6 @@
 
 namespace ui
 {
-
-
 	class Konami : public ui::Widget
 	{
 	public:
@@ -21,7 +19,7 @@ namespace ui
 
 
 	private:
-		size_t currKey;
+		size_t currKey = 0;
 
 
 	};

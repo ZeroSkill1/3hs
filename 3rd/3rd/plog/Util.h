@@ -56,11 +56,11 @@
 #   if defined(_POSIX_THREADS)
 #       include <pthread.h>
 #   endif
- /* @change */
+/* @change */
 #   if defined(_3DS)
-#      include <3ds/synchronization.h>
+#       include <3ds/synchronization.h>
 #   endif
- /* @endchange */
+/* @endchange */
 #   if PLOG_ENABLE_WCHAR_INPUT
 #       include <iconv.h>
 #   endif
@@ -453,7 +453,7 @@ namespace plog
 
 /* @change */
 #elif defined(_3DS)
-								LightLock_Init(&m_sync);
+                LightLock_Init(&m_sync);
 /* @endchange */
 
 #endif
@@ -487,7 +487,7 @@ namespace plog
                 ::pthread_mutex_lock(&m_sync);
 /* @change */
 #elif defined(_3DS)
-								LightLock_Lock(&m_sync);
+                LightLock_Lock(&m_sync);
 /* @endchange */
 
 #endif
@@ -503,7 +503,7 @@ namespace plog
                 ::pthread_mutex_unlock(&m_sync);
 /* @change */
 #elif defined(_3DS)
-								LightLock_Unlock(&m_sync);
+                LightLock_Unlock(&m_sync);
 /* @endchange */
 #endif
             }
@@ -517,7 +517,7 @@ namespace plog
             pthread_mutex_t m_sync;
 /* @change */
 #elif defined(_3DS)
-						LightLock m_sync;
+            LightLock m_sync;
 /* @endchange */
 #endif
         };

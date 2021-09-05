@@ -2,6 +2,7 @@
 #ifndef inc_hs_hh
 #define inc_hs_hh
 
+#include <unordered_map>
 #include <string>
 #include <vector>
 
@@ -20,6 +21,7 @@ namespace hs
 	typedef uint64_t hsize;
 	typedef uint64_t hcount;
 	typedef uint16_t hiver;
+	typedef uint64_t htid;
 	typedef uint64_t hid;
 	typedef int64_t shid;
 
@@ -102,6 +104,14 @@ namespace hs
 		// We could probably add download count, don't feel like it
 	} FullTitle;
 
+	typedef struct Related
+	{
+		std::vector<Title> updates;
+		std::vector<Title> dlc;
+	} Related;
+
+	typedef std::unordered_map<htid, Related> BatchRelated;
+
 
 	void global_deinit();
 	bool global_init();
@@ -112,6 +122,7 @@ namespace hs
 	std::string route(std::string path);
 
 	std::vector<Title> titles_in(std::string cat, std::string subcat);
+	BatchRelated batch_related(const std::vector<htid>& tids);
 	std::vector<hs::Title> search(std::string query);
 	std::string get_title_download(hid id);
 	FullTitle title_meta(hid id);

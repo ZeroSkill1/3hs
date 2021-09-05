@@ -1,6 +1,7 @@
 
 #include "more.hh"
 
+#include "find_missing.hh"
 #include "hlink_view.hh"
 #include "about.hh"
 #include "help.hh"
@@ -72,6 +73,12 @@ void show_more()
 	help->set_on_click([&index, &buttons](bool inFrame) -> ui::Results {
 		if(inFrame) ui::end_frame();
 		set_hi(&index, buttons, HELP_I); show_help();
+		return ui::Results::end_early;
+	});
+
+	find_missing->set_on_click([&index, &buttons](bool inFrame) -> ui::Results {
+		if(inFrame) ui::end_frame();
+		set_hi(&index, buttons, HELP_I); show_find_missing();
 		return ui::Results::end_early;
 	});
 

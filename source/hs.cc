@@ -13,6 +13,8 @@
 
 #include <widgets/meta.hh> // TODO: Move index cache to this file
 
+#include "install.hh"
+
 #define JS_SET_NULLABLE_PROP(j,s,pj,ps) \
 	JT_SET_NULLABLE_PROP(j,s,pj,ps,std::string)
 #define JT_SET_NULLABLE_PROP(j,s,pj,ps,T) \
@@ -239,6 +241,58 @@ std::string hs::get_download_link(hs::Title *title)
 
 	return std::string(HS_CDN_BASE "content/") + std::to_string(title->id)
 		+ "?token=" + token;
+}
+
+hs::BatchRelated hs::batch_related(const std::vector<htid>& tids)
+{
+	if(tids.size() == 0) return { };
+
+	hs::BatchRelated ret;
+	std::string url = "related/batch?title_ids=" + tid_to_str(tids[0]);
+
+	for(size_t i = 1; i < tids.size(); ++i)
+		url += "&title_ids=" + tid_to_str(tids[i]);
+
+	json resp = j_req<json>(url);
+
+	for(json::iterator it = resp.begin(); it != resp.end(); ++it)
+	{
+		htid tid = str_to_tid(it.key());
+		json& updates = it.value()["updates"];
+		json& dlcs = it.value()["dlc"];
+
+		for(json::iterator update = updates.begin(); update != updates.end(); ++update)
+		{
+			hs::Title title;
+
+			title.size = update.value()["size"].get<hs::hsize>();
+			title.id = update.value()["id"].get<hs::hid>();
+
+			title.subcat = update.value()["subcategory"].get<std::string>();
+			title.tid = update.value()["title_id"].get<std::string>();
+			title.cat = update.value()["category"].get<std::string>();
+			title.name = update.value()["name"].get<std::string>();
+
+			ret[tid].updates.push_back(title);
+		}
+
+		for(json::iterator dlc = dlcs.begin(); dlc != dlcs.end(); ++dlc)
+		{
+			hs::Title title;
+
+			title.size = dlc.value()["size"].get<hs::hsize>();
+			title.id = dlc.value()["id"].get<hs::hid>();
+
+			title.subcat = dlc.value()["subcategory"].get<std::string>();
+			title.tid = dlc.value()["title_id"].get<std::string>();
+			title.cat = dlc.value()["category"].get<std::string>();
+			title.name = dlc.value()["name"].get<std::string>();
+
+			ret[tid].dlc.push_back(title);
+		}
+	}
+
+	return ret;
 }
 
 // utils

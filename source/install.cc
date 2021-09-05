@@ -1,6 +1,7 @@
 
 #include "settings.hh"
 #include "install.hh"
+#include "error.hh"
 #include "seed.hh"
 
 #include <widgets/indicators.hh>
@@ -234,7 +235,7 @@ static Result i_install_hs_cia(hs::FullTitle *meta, prog_func prog, bool reinsta
 		return res;
 
 	if(meta->size > freeSpace)
-		return MAKERESULT(RL_TEMPORARY, RS_OUTOFRESOURCE, RM_APPLICATION, 2); // = too little space
+		return APPERR_NOSPACE;
 
 	// Check if we are NOT on a n3ds and the game is n3ds exclusive
 	bool isNew = false;
@@ -242,7 +243,7 @@ static Result i_install_hs_cia(hs::FullTitle *meta, prog_func prog, bool reinsta
 		return res;
 
 	if(!isNew && meta->prod.rfind("KTR-", 0) == 0)
-		return MAKERESULT(RL_PERMANENT, RS_NOTSUPPORTED, RM_APPLICATION, 0); // = Unsupported platform
+		return APPERR_NOSUPPORT;
 
 	return install_net_cia([meta]() -> std::string { return hs::get_download_link(meta); }, prog, reinstallable, meta->tid, to_mediatype(media));
 }
@@ -336,7 +337,7 @@ Result install_net_cia(get_url_func get_url, prog_func prog, bool reinstallable,
 	{
 		u64 itid = str_to_tid(tid);
 		if(title_exists(itid))
-			return MAKERESULT(RL_FATAL, RS_INVALIDSTATE, RM_APPLICATION, 3); // = Can't reinstall
+			return APPERR_NOREINSTALL;
 	}
 
 	Handle cia; Result ret;
@@ -345,7 +346,7 @@ Result install_net_cia(get_url_func get_url, prog_func prog, bool reinstallable,
 
 	ret = i_install_resume_loop(get_url, cia, prog);
 	if(ret == CURLE_ABORTED_BY_CALLBACK)
-	{ AM_CancelCIAInstall(cia); return MAKERESULT(RL_FATAL, RS_CANCELED, RM_APPLICATION, 1); } // = Cancelled
+	{ AM_CancelCIAInstall(cia); return APPERR_CANCELLED; }
 	if(!NET_OK(ret)) // If everything went ok in i_install_resume_loop, we return a 0
 	{ AM_CancelCIAInstall(cia); return ret; }
 

@@ -2,6 +2,8 @@
 #ifndef inc_titles_hh
 #define inc_titles_hh
 
+#include <vector>
+
 #include <3ds.h>
 
 #define AEXEFS_SMDH_PATH             { 0x00000000, 0x00000000, 0x00000002, 0x6E6F6369, 0x00000000 }
@@ -18,7 +20,22 @@ enum class RegionLockout : u32
 
 enum class Ratings : u32
 {
-	// TODO: Fill this in
+	CERO       = 1 << 0,  // Japan
+	ESRB       = 1 << 1,  // USA
+	_reserved0 = 1 << 2,
+	USK        = 1 << 3,  // Germany
+	PEGI_GEN   = 1 << 4,  // Europe
+	_reserved1 = 1 << 5,
+	PEGI_PRT   = 1 << 6,  // Portugal
+	PEGI_BBFC  = 1 << 7,  // England
+	COB        = 1 << 8,  // Australia
+	GRB        = 1 << 9,  // South Korea
+	CGSRR      = 1 << 10, // Taiwan
+	_reserved2 = 1 << 11,
+	_reserved3 = 1 << 12,
+	_reserved5 = 1 << 13,
+	_reserved6 = 1 << 14,
+	_reserved7 = 1 << 15,
 };
 
 
@@ -60,6 +77,7 @@ typedef struct TitleSMDH
 } TitleSMDH;
 
 
+Result list_titles_on(FS_MediaType media, std::vector<u64>& ret);
 TitleSMDH *smdh_get(u64 tid, FS_MediaType media);
 
 #endif

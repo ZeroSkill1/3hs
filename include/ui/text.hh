@@ -77,7 +77,7 @@ namespace ui
 	protected:
 		std::vector<C2D_Text> lines;
 		C2D_TextBuf buf = NULL;
-		std::string text;
+		std::string text = "";
 
 		bool drawCenter = false;
 		bool doAutowrap = false;

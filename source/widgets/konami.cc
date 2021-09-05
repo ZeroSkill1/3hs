@@ -27,22 +27,17 @@ ui::Konami::Konami() : Widget("konami")
 
 ui::Results ui::Konami::draw(ui::Keys& keys, ui::Scr)
 {
-	((void) keys);
-
-	// TODO: Fix this
-	return ui::Results::go_on;
-
 	if(this->currKey == KONCODE_SIZE)
 	{
-//		ui::end_frame();
-//		this->show_bunny();
-//		return ui::Results::end_early;
+		ui::end_frame();
+		this->show_bunny();
+		return ui::Results::end_early;
 		this->currKey = 0;
 	}
-//	else if(keys.kDown & konKeys[this->currKey])
-//		++this->currKey;
-//	else if(keys.kDown != 0)
-//		this->currKey = 0;
+	else if(keys.kDown & konKeys[this->currKey])
+		++this->currKey;
+	else if(keys.kDown != 0)
+		this->currKey = 0;
 
 	return ui::Results::go_on;
 }

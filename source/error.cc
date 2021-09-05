@@ -121,6 +121,7 @@ static const std::map<Result, std::map<Result, const char *>> ERR_LOOKUP({
 			{ 1, "Cancelled"                                     },
 			{ 2, "Too little free space on your SD Card"         },
 			{ 3, "Can't reinstall title unless asked"            },
+			{ 4, "Title count and list mismatch"                 },
 		}
 	},
 });

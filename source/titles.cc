@@ -1,5 +1,6 @@
 
 #include "titles.hh"
+#include "error.hh"
 
 #include <string.h>
 
@@ -31,5 +32,31 @@ TitleSMDH *smdh_get(u64 tid, FS_MediaType media)
 
 	FSFILE_Close(smdhFile);
 	return ret;
+}
+
+Result list_titles_on(FS_MediaType media, std::vector<u64>& ret)
+{
+	u32 tcount = 0;
+	Result res = AM_GetTitleCount(media, &tcount);
+	if(R_FAILED(res)) return res;
+
+	u32 tread = 0;
+	u64 *tids = new u64[tcount];
+
+	res = AM_GetTitleList(&tread, media, tcount, tids);
+	if(R_FAILED(res)) return res;
+
+	if(tread != tcount)
+	{
+		delete [] tids;
+		return APPERR_TITLE_MISMATCH;
+	}
+
+	ret.reserve(tcount);
+	for(u32 i = 0; i < tcount; ++i)
+		ret.push_back(tids[i]);
+
+	delete [] tids;
+	return res;
 }
 

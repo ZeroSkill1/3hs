@@ -80,8 +80,7 @@ Result process_uri(const std::string& uri, bool reinstallable, const std::string
 		single_draw(wids);
 	}, reinstallable, tid, media);
 
-	// TODO: Not hardcode this result
-	if(res == MAKERESULT(RL_FATAL, RS_INVALIDSTATE, RM_APPLICATION, 3))
+	if(res == APPERR_NOREINSTALL)
 	{
 		bool userWantsReinstall = false;
 
@@ -122,8 +121,7 @@ Result process_hs(hs::FullTitle meta, bool reinstall)
 		single_draw(wids);
 	}, reinstall);
 
-	// TODO: Not hardcode this result
-	if(res == MAKERESULT(RL_FATAL, RS_INVALIDSTATE, RM_APPLICATION, 3))
+	if(res == APPERR_NOREINSTALL)
 	{
 		bool userWantsReinstall = false;
 
@@ -142,37 +140,6 @@ Result process_hs(hs::FullTitle meta, bool reinstall)
 		error_container err = get_error(res);
 		report_error(err, "User was installing (" + meta.tid + ") (" + std::to_string(meta.id) + ")");
 		handle_error(err);
-/*		ui::Widgets errs;
-		errs.push_back(new ui::PressToContinue(KEY_A));
-		error_container err = get_error(res);
-		report_error(err, "User was installing (" + meta.tid + ") (" + std::to_string(meta.id) + ")");
-
-		constexpr float base = 70.0f;
-		ui::Text *text = new ui::Text(ui::mk_center_WText("Press " GLYPH_A " to continue", SCREEN_HEIGHT() - 30.0f));
-		float height = ui::text_height(&text->gtext().ctext) - 3.0f;
-		errs.push_back(text);
-
-		if(err.type == ErrType_curl)
-		{
-			errs.push_back(new ui::Text(ui::mk_center_WText(format_err(err.sDesc, err.iDesc),
-				base + height)));
-		}
-
-		else if(err.type == ErrType_3ds)
-		{
-			errs.push_back(new ui::Text(ui::mk_center_WText(format_err(err.sDesc, err.iDesc),
-				base + height)));
-			errs.push_back(new ui::Text(ui::mk_center_WText("Result Code: 0x" + pad8code(err.full),
-				base + (height * 2))));
-			errs.push_back(new ui::Text(ui::mk_center_WText("Level: " + format_err(err.sLvl, err.iLvl),
-				base + (height * 3))));
-			errs.push_back(new ui::Text(ui::mk_center_WText("Summary: " + format_err(err.sSum, err.iSum),
-				base + (height * 4))));
-			errs.push_back(new ui::Text(ui::mk_center_WText("Module: " + format_err(err.sMod, err.iMod),
-				base + (height * 5))));
-		}
-
-		generic_main_breaking_loop(errs);*/
 	}
 
 	ui::wid()->get<ui::FreeSpaceIndicator>("size_indicator")->update();

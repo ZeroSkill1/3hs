@@ -105,7 +105,7 @@ float ui::text_height(C2D_Text *txt, float sizeX, float sizeY)
 // WrapText
 
 ui::WrapText::WrapText(std::string text_)
-	: Widget("wrap_text"), text(text_) { }
+	: Widget("wrap_text"), text(text_ + "\n") { } // +\n fixes a strange issue
 
 ui::WrapText::WrapText()
 	: Widget("wrap_text") { }
@@ -128,18 +128,19 @@ void ui::WrapText::pre_push()
 
 	int width = SCREEN_WIDTH(this->screen);
 	int lines = (this->text.size() / (width - this->pad)) + 1;
-	this->lines.clear(); this->lines.reserve(lines * sizeof(C2D_Text));
+	this->lines.clear(); this->lines.reserve(lines);
 
-	int curWidth = this->baseY;
+	int curWidth = this->pad;
 	std::string cur;
 
 	for(size_t i = 0; i < this->text.size(); ++i)
 	{
 		if((this->doAutowrap && width - curWidth < 0) || this->text[i] == '\n')
 		{
-			curWidth = this->baseY;
+			curWidth = this->pad;
 			this->push_str(cur);
 			cur.clear();
+
 			if(this->text[i] == '\n')
 				continue;
 		}
@@ -151,17 +152,15 @@ void ui::WrapText::pre_push()
 			if(ch != NULL) curWidth += ch->glyphWidth;
 		}
 	}
+
 	if(cur.size() > 0) this->push_str(cur);
 }
 
 void ui::WrapText::push_str(std::string str)
 {
-	C2D_Text txt;
-
-	ui::parse_text(&txt, this->buf, str);
-	C2D_TextOptimize(&txt);
-
-	this->lines.push_back(txt);
+	this->lines.emplace_back();
+	ui::parse_text(&this->lines.back(), this->buf, str);
+	C2D_TextOptimize(&this->lines.back());
 }
 
 ui::Results ui::WrapText::draw(ui::Keys&, ui::Scr)
@@ -174,8 +173,10 @@ ui::Results ui::WrapText::draw(ui::Keys&, ui::Scr)
 	{
 		if(this->drawCenter)
 		{
-			ui::draw_at_absolute(ui::get_center_x(&this->lines[i], ui::constants::FSIZE,
-				ui::constants::FSIZE, this->screen), this->baseY + (lhei * i), this->lines[i]);
+			float center = ui::get_center_x(&this->lines[i], ui::constants::FSIZE,
+				ui::constants::FSIZE, this->screen);
+
+			ui::draw_at_absolute(center, this->baseY + (lhei * i), this->lines[i]);
 		}
 		else
 			ui::draw_at_absolute(this->pad, this->baseY + (lhei * i), this->lines[i]);
@@ -186,7 +187,7 @@ ui::Results ui::WrapText::draw(ui::Keys&, ui::Scr)
 
 void ui::WrapText::replace_text(std::string txt)
 {
-	this->text = txt;
+	this->text = txt + "\n"; // +\n fixes a strange issue
 	this->pre_push();
 }
 
