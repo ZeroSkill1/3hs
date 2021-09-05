@@ -31,7 +31,10 @@ void ensure_settings()
 {
 	// We want the defaults
 	if(!access(SETTINGS_LOCATION, F_OK) == 0)
+	{
+		g_settings.language = i18n::default_lang();
 		save_settings();
+	}
 	else
 	{
 		FILE *settings = fopen(SETTINGS_LOCATION, "r");
@@ -49,6 +52,7 @@ enum SettingsId
 	ID_LightMode, ID_Resumable,
 	ID_FreeSpace, ID_Battery,
 	ID_TimeFmt, ID_ProgLoc,
+	ID_Language,
 };
 
 typedef struct SettingInfo
@@ -66,6 +70,7 @@ static std::vector<SettingInfo> g_settings_info =
 	{ "Show Battery"             , "Toggle visibility of battery in\ntop right corner"                                              , ID_Battery   },
 	{ "Time Format"              , "Your preferred time format.\nEither 24h or 12h."                                                , ID_TimeFmt   },
 	{ "Progress Bar Screen"      , "The screen to draw progress bars on"                                                            , ID_ProgLoc   },
+	{ "Language"                 , "The language 3hs is in.\nNote that to update all text you might\nneed to restart 3hs"           , ID_Language  },
 };
 
 static std::string serialize_id(SettingsId ID)
@@ -86,11 +91,11 @@ static std::string serialize_id(SettingsId ID)
 	case ID_ProgLoc:
 		return g_settings.progloc == ProgressBarLocation::top
 			? "top" : "bottom";
-	default:
-		return "undefined";
+	case ID_Language:
+		return i18n::langname(g_settings.language);
 	}
 
-	// Not reached
+	return "undefined";
 }
 
 template <typename TEnum>
@@ -137,7 +142,13 @@ static void update_settings_ID(SettingsId ID)
 			g_settings.progloc
 		);
 		break;
+	case ID_Language:
+		g_settings.language = get_enum<lang::type>(
+			{ LANGNAME_ENGLISH, LANGNAME_DUTCH, LANGNAME_GERMAN }, { lang::english, lang::dutch, lang::german },
+			g_settings.language
+		);
 	}
+
 	save_settings();
 }
 

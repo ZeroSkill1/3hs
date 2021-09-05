@@ -19,6 +19,7 @@ Result init_services()
 #endif
 
 	if(R_FAILED(res = romfsInit())) return res;
+	if(R_FAILED(res = cfguInit())) return res;
 	if(R_FAILED(res = aptInit())) return res;
 	if(R_FAILED(res = fsInit())) return res;
 	if(R_FAILED(res = amInit())) return res;
@@ -34,6 +35,7 @@ void exit_services()
 #endif
 
 	romfsExit();
+	cfguExit();
 	aptExit();
 	fsExit();
 	amExit();

@@ -4,6 +4,7 @@
 
 #include <string>
 
+#include <string.h>
 #include <3ds.h>
 
 #include "error.hh"

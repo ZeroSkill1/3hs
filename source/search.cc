@@ -11,6 +11,7 @@
 
 #include "queue.hh"
 #include "util.hh"
+#include "i18n.hh"
 #include "hs.hh"
 
 
@@ -50,7 +51,7 @@ static void show_searchbar_search()
 	ui::Widgets wids;
 
 	ui::wid()->get<ui::Text>("curr_action_desc")->toggle();
-	ui::wid()->get<ui::Text>("curr_action_desc")->replace_text("Loading ...");
+	ui::wid()->get<ui::Text>("curr_action_desc")->replace_text(i18n::getstr(str::loading));
 	quick_global_draw(); std::vector<hs::Title> titles = hs::search(query);
 	ui::wid()->get<ui::Text>("curr_action_desc")->replace_text(
 		"Results for query \"" + query + "\"");

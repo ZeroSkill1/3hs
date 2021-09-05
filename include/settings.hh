@@ -2,6 +2,8 @@
 #ifndef inc_settings_hh
 #define inc_settings_hh
 
+#include "i18n.hh"
+
 #define SETTINGS_LOCATION "/3ds/3hs/settings"
 
 // 24h is superior but we'll allow 12h
@@ -28,6 +30,7 @@ typedef struct Settings
 	Timefmt timeFormat = Timefmt::good;
 	bool firstRun = true;
 	ProgressBarLocation progloc = ProgressBarLocation::bottom;
+	lang::type language = lang::english;
 } Settings;
 
 

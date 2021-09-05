@@ -42,6 +42,7 @@
 #include "seed.hh"
 #include "next.hh"
 #include "help.hh"
+#include "i18n.hh"
 
 #ifdef RELEASE
 # define LOG_LEVEL plog::info
@@ -122,8 +123,8 @@ int main(int argc, char* argv[])
 */
 
 	ui::wid()->push_back("version", new ui::Text(ui::mk_right_WText(VERSION, 3.0f, 5.0f, ui::constants::FSIZE, ui::constants::FSIZE, ui::Scr::bottom)), ui::Scr::bottom);
-	ui::wid()->push_back("header_desc", new ui::Text(ui::mk_center_WText("The ultimate 3DS content preservation service.", 30.0f)), ui::Scr::top);
-	ui::wid()->push_back("curr_action_desc", new ui::Text(ui::mk_center_WText("Loading ...", 45.0f)), ui::Scr::top);
+	ui::wid()->push_back("header_desc", new ui::Text(ui::mk_center_WText(i18n::getstr(str::banner), 30.0f)), ui::Scr::top);
+	ui::wid()->push_back("curr_action_desc", new ui::Text(ui::mk_center_WText(i18n::getstr(str::loading), 45.0f)), ui::Scr::top);
 	ui::wid()->push_back("header", new ui::Text(ui::mk_center_WText("hShop", 0.0f, 1.0f, 1.0f)), ui::Scr::top);
 	ui::wid()->push_back("time_indicator", new ui::TimeIndicator());
 	ui::wid()->push_back("size_indicator", new ui::FreeSpaceIndicator());
@@ -283,7 +284,7 @@ sub:
 		llog << "NEXT(s): " << sub;
 
 		ui::wid()->get<ui::Text>("curr_action_desc")->replace_text(
-			"Loading ..."); quick_global_draw();
+			i18n::getstr(str::loading)); quick_global_draw();
 		std::vector<hs::Title> titles = hs::titles_in(cat ,sub);
  gam:
 		hs::shid id = next::sel_gam(titles);
