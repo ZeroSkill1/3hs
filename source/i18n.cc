@@ -22,7 +22,6 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::connect_wifi] = "Please connect to WiFi and restart the app",
 			[str::fail_init_networking] = "Failed to initialize networking",
 			[str::fail_fetch_index] = "Failed to fetch index\n%1",
-
 			[str::credits_thanks] =
 				"Thank you for using 3hs, a 3ds client for hShop\n"
 				"You can get this software for free at\n"
@@ -104,7 +103,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::queue] = "Wachtrij",
 			[str::connect_wifi] = "Verbind met WiFi en start de app opnieuw op",
 			[str::fail_init_networking] = "Kon netwerkdiensten niet opstarten",
-			[str::fail_fetch_index] = "Kon gegevens niet van de server halen",
+			[str::fail_fetch_index] = "Kon gegevens niet van de server halen\n%1",
 			[str::credits_thanks] =
 				"Bedankt voor het gebruiken van 3hs, een 3ds\n"
 				"hShop applicatie\n"
@@ -159,7 +158,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::about_app] = "Informatie over applicatie",
 			[str::help_manual] = "Hulp/Gebruikshandleiding",
 			[str::find_missing_content] = "Vind missende titels",
-			[str::press_a_exit] = "Klik op " GLYPH_A " om weg te gaan",
+			[str::press_a_exit] = "Klik op " GLYPH_A " om af te sluiten",
 			[str::fatal_panic] = "Fatale fout",
 			[str::failed_open_seeddb] = "Kon seeddb.bin niet openen",
 			[str::update_to] = "Wil je updaten naar versie %1?",
@@ -181,13 +180,165 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 
 	[lang::german] =
 		{
-			[str::banner]  = "Der ultimative 3DS Inhalte-Dienst.",
+			[str::banner]  = "Der ultimative 3DS-Inhalte-Dienst.",
 			[str::loading] = "Laden ...",
+			[str::luma_not_installed] = "Luma3DS wurde auf dieser Konsole nicht gefunden.",
+			[str::install_luma] = "Bitte installiere Luma3DS auf einem echten 3DS.",
+			[str::queue] = "Warteschlange",
+			[str::connect_wifi] = "Stell eine Verbindung zum Internet her und starte die App neu",
+			[str::fail_init_networking] = "Netzwerkverbindung fehlgeschlagen",
+			[str::fail_fetch_index] = "Index konnte nicht heruntergeladen werden\n%1",
+			[str::credits_thanks] =
+				"Danke, dass du 3hs nutzt.\n3hs ist ein 3DS-Client für hShop.\n"
+				"Du kannst diese Software auf\nhttps://hshop.erista.me kostenlos herunterladen.\n",
+			[str::credits] =
+				"MyPasswordIsWeak: Programmierung,\n"
+				"      Übersetzungen\n"
+				"TimmSkiller: Programmierung,\n"
+				"      Übersetzungen\n"
+				"Laswell: Design, Übersetzungen\n"
+				"CremeChocolate: Kunstwerke",
+			[str::press_to_install] =
+				"Drücke " GLYPH_A " falls du diesen Inhalt zu installieren\nmöchtest.\n"
+				"Drücke " GLYPH_B " falls nicht.",
+			[str::version] = "Version",
+			[str::prodcode] = "Produkt-Code",
+			[str::size] = "Größe",
+			[str::name] = "Name",
+			[str::tid] = "Title-ID",
+			[str::category] = "Kategorie",
+			[str::landing_id] = "Inhalt-ID",
+			[str::description] = "Beschreibung",
+			[str::total_titles] = "Gesamte Anzahl der Inhalte",
+			[str::select_cat] = "Wähle eine Kategorie aus",
+			[str::select_subcat] = "Wähle eine Unterkategorie aus",
+			[str::select_title] = "Wähle einen Inhalt",
+			[str::no_cats_index] = "Keine Kategorien im Index (?)",
+			[str::empty_subcat] = "Leere Unterkategorie (?)",
+			[str::empty_cat] = "Leere Kategorie (?)",
+			[str::fmt_24h] = "24-Stunden-Zeit",
+			[str::fmt_12h] = "12-Stunden-Zeit",
+			[str::unknown] = "unbekannt",
+			[str::btrue] = "Ja",
+			[str::bfalse] = "Nein",
+			[str::top] = "Oben",
+			[str::bottom] = "Unten",
+			[str::light_mode] = "Helles Design",
+			[str::resume_dl] = "Downloads fortsetzen",
+			[str::load_space] = "Freier-Speicherplatz-Indikator anzeigen",
+			[str::show_battery] = "Batterie anzeigen",
+			[str::time_format] = "Zeitformat",
+			[str::progbar_screen] = "Ladebalken-Bildschirm",
+			[str::language] = "Sprache",
+			[str::value_x] = "Wert: %1",
+			[str::back] = "Zurück",
+			[str::invalid] = "ungültig",
+			[str::title_doesnt_exist] = "Inhalt existiert nicht: %1",
+			[str::fail_create_tex] = "Konnte tex nicht erstellen",
+			[str::fail_load_smdh_icon] = "load_smdh_icon(): ungültiger SMDHIconType",
+			[str::netcon_lost] = "Netzwerkverbindung verloren.\nNeuer versuch in %t Sekunden...",
+			[str::about_app] = "Über",
+			[str::help_manual] = "Hilfe/Anleitung",
+			[str::find_missing_content] = "Suche nach fehlenden Inhalten",
+			[str::press_a_exit] = "Drücke " GLYPH_A " um die App zu schließen",
+			[str::fatal_panic] = "Schwerwiegender Fehler aufgetreten",
+			[str::failed_open_seeddb] = "Konnte seeddb.bin nicht öffnen",
+			[str::update_to] = "Möchtest du auf Version %1 updaten?",
+			[str::search_content] = "Suche nach Inhalten",
+			[str::search_content_action] = "Suche nach Inhalten...",
+			[str::results_query] = "Ergebnisse für \"%1\"",
+			[str::result_code] = "Fehler-Code: %1",
+			[str::level] = "Level: %1",
+			[str::summary] = "Kurzbeschreibung: %1",
+			[str::module] = "Modul: %1",
+			[str::hs_bunny_found] = "Glückwunsch! Du hast has hShop-Häschen gefunden",
+			[str::already_installed_reinstall] = "Inhalt ist bereits installiert. Neuinstallieren?",
+			[str::queue_empty] =
+				"Warteschlange ist leer\n"
+				"Drücke " GLYPH_A " um zurückzukehren\n"
+				"Tipp: Drücke " GLYPH_Y " um einen Inhalt zur Warteschlange hinzuzufügen",
 		},
 
 	[lang::spanish] =
 		{
-
+			[str::banner]  = "El servicio de preservación de 3DS definitivo.",
+			[str::loading] = "Loading ...",
+			[str::luma_not_installed] = "Luma3DS no está instalado en este sistema",
+			[str::install_luma] = "Por favor installe Luma3DS en una 3DS real",
+			[str::queue] = "Cola",
+			[str::connect_wifi] = "Por favor conéctese al Wi-Fi",
+			[str::fail_init_networking] = "No se pudo inicializar redes",
+			[str::fail_fetch_index] = "No se pudo recuperar el índice\n%1",
+			[str::credits_thanks] =
+				"Gracias por usar 3hs, un cliente de 3ds\npara hShop\n"
+				"Puedes conseguir este software gratuito en at\n"
+				"https://hshop.erista.me/",
+			[str::credits] =
+				"MyPasswordIsWeak: Programación,\n"
+				"      Traducción\n"
+				"TimmSkiller: Programación,\n"
+				"      Traducción\n"
+				"Laswell: Diseño, Traducción\n"
+				"CremeChocolate: Arte",
+			[str::press_to_install] =
+				"Presiona " GLYPH_A " si quieres instalar este título.\n"
+				"Presiona " GLYPH_B " si no quieres.",
+			[str::version] = "Versión",
+			[str::prodcode] = "Código de producto",
+			[str::size] = "Tamaño",
+			[str::name] = "Nombre",
+			[str::tid] = "ID de título",
+			[str::category] = "Categoría",
+			[str::landing_id] = "Landing ID",
+			[str::description] = "Descripción",
+			[str::total_titles] = "Total de Titulos",
+			[str::select_cat] = "Selecciona una categoría",
+			[str::select_subcat] = "Selecciona una subcategoría",
+			[str::select_title] = "Selecciona un título",
+			[str::no_cats_index] = "No hay categorías en el índice (?)",
+			[str::empty_subcat] = "Subcategoría vacía (?)",
+			[str::empty_cat] = "Categoría Vacía (?)",
+			[str::fmt_24h] = "24 horas",
+			[str::fmt_12h] = "12 horas",
+			[str::unknown] = "Desconocido",
+			[str::btrue] = "Verdadero",
+			[str::bfalse] = "Falso",
+			[str::top] = "Superior",
+			[str::bottom] = "Inferior",
+			[str::light_mode] = "Modo luz",
+			[str::resume_dl] = "Resumir descargas",
+			[str::load_space] = "Cargar indicador de espacio libre",
+			[str::show_battery] = "Mostrar Batería",
+			[str::time_format] = "Formato de tiempo",
+			[str::progbar_screen] = "Pantalla de barra de progreso",
+			[str::language] = "Lenguaje",
+			[str::value_x] = "Valor: %1",
+			[str::back] = "Volver",
+			[str::invalid] = "Inválido",
+			[str::title_doesnt_exist] = "El título no existe: %1",
+			[str::fail_create_tex] = "No se pudo crear tex",
+			[str::fail_load_smdh_icon] = "load_smdh_icon(): SMDHIconType inválido",
+			[str::netcon_lost] = "Se perdió la conexión con la red.\nReintentando in %t seconds...",
+			[str::about_app] = "Acerca de",
+			[str::help_manual] = "Ayuda/Manual",
+			[str::find_missing_content] = "Buscar contenido ausente",
+			[str::press_a_exit] = "Presiona " GLYPH_A " para salir",
+			[str::fatal_panic] = "Ocurrió un error fatal de pánico",
+			[str::failed_open_seeddb] = "No se pudo abrir seeddb.bin",
+			[str::update_to] = "¿Quieres actualizar a %1?",
+			[str::search_content] = "Buscar contenido",
+			[str::search_content_action] = "Buscando por contenido...",
+			[str::results_query] = "Resultados de \"%1\"",
+			[str::result_code] = "Código de resultado: %1",
+			[str::level] = "Nivel: %1",
+			[str::summary] = "Sumario: %1",
+			[str::module] = "Módulo: %1",
+			[str::hs_bunny_found] = "¡Felicidades! ¡Encontraste a la conejita de hShop!",
+			[str::already_installed_reinstall] = "Título ya instalado. ¿Reinstalar?",
+			[str::queue_empty] =
+				"La cola está vacia\n"
+				"Presiona " GLYPH_A " para volver\n"
+				"Consejo: presiona " GLYPH_Y " para añadir un título a la cola",
 		},
 
 	[lang::uwulang] =
@@ -200,9 +351,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::connect_wifi] = "Pleasew cOwOnnect tOwO WiFi and restart the app",
 			[str::fail_init_networking] = "Failed tow initialize netOwOrking",
 			[str::fail_fetch_index] = "Failed to fetch index\n%1",
-
 			[str::credits_thanks] =
-				"Thank youWu foWor UwUsing 3hs, a 3ds client fOwOr hShOwOp\n"
+				"Thank youWu foWor UwUsing 3hs,\na 3ds client fOwOr hShOwOp\n"
 				"You can get this sOwOftware fOwOr free at\n"
 				"https://hshop.erista.me/",
 			[str::credits] =

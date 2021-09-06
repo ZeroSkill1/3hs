@@ -5,6 +5,7 @@ v0.2.0:
  - fix konami code easter egg not working
  - fix bug where single line panic message wouldn't show
  - add find missing dlc/updates feature
+ - add translations
 
 v0.1.6:
  - added extended meta screen

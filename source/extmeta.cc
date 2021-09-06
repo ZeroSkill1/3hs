@@ -27,7 +27,7 @@ bool show_extmeta(hs::FullTitle title)
 	wids.push_back(new ui::TitleMeta(title), ui::Scr::bottom);
 
 	ui::WrapText *confirm = new ui::WrapText(STRING(press_to_install));
-	confirm->set_basey(190.0f);
+	confirm->set_basey(170.0f);
 	confirm->center();
 
 	wids.push_back(confirm);
