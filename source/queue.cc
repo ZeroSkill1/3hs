@@ -18,6 +18,7 @@
 #include "install.hh"
 #include "panic.hh"
 #include "error.hh"
+#include "i18n.hh"
 #include "util.hh"
 
 static std::vector<hs::FullTitle> g_queue;
@@ -85,7 +86,7 @@ Result process_uri(const std::string& uri, bool reinstallable, const std::string
 		bool userWantsReinstall = false;
 
 		ui::Widgets rei;
-		rei.push_back(new ui::Confirm("Title already installed, reinstall?",
+		rei.push_back(new ui::Confirm(STRING(already_installed_reinstall),
 			userWantsReinstall), ui::Scr::bottom);
 		generic_main_breaking_loop(rei);
 
@@ -126,7 +127,7 @@ Result process_hs(hs::FullTitle meta, bool reinstall)
 		bool userWantsReinstall = false;
 
 		ui::Widgets rei;
-		rei.push_back(new ui::Confirm("Title already installed, reinstall?",
+		rei.push_back(new ui::Confirm(STRING(already_installed_reinstall),
 			userWantsReinstall), ui::Scr::bottom);
 		generic_main_breaking_loop(rei);
 
@@ -150,7 +151,7 @@ static void queue_is_empty(bool toggle = true)
 {
 	ui::Widgets wids;
 
-	ui::WrapText *msg = new ui::WrapText("Queue is empty\nPress " GLYPH_A " to go back\nTip: press " GLYPH_Y " to add a title to the queue");
+	ui::WrapText *msg = new ui::WrapText(STRING(queue_empty));
 	msg->center(); msg->set_basey((SCREEN_HEIGHT() / 2) - 30);
 	wids.push_back(msg);
 

@@ -8,6 +8,7 @@
 #include <3ds.h>
 
 #include "panic.hh"
+#include "i18n.hh"
 
 
 #define U16_MIN_64(i) ((u16) (next_pow2(i) < 64 ? 64 : next_pow2(i)))
@@ -27,7 +28,7 @@ static u32 next_pow2(u32 i)
 
 static void init_tex(C3D_Tex *tex, u32 width, u32 height, GPU_TEXCOLOR format)
 {
-	if(!C3D_TexInit(tex, width, height, format)) panic("Failed to create tex");
+	if(!C3D_TexInit(tex, width, height, format)) panic(STRING(fail_create_tex));
 	C3D_TexSetFilter(tex, GPU_NEAREST, GPU_NEAREST);
 }
 
@@ -48,7 +49,7 @@ void load_smdh_icon(C2D_Image *ret, const TitleSMDH& smdh, SMDHIconType type)
 		break;
 
 	default:
-		panic("load_smdh_icon(): Invalid SMDHIconType");
+		panic(STRING(fail_load_smdh_icon));
 		return;
 	}
 

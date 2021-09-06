@@ -123,8 +123,8 @@ int main(int argc, char* argv[])
 */
 
 	ui::wid()->push_back("version", new ui::Text(ui::mk_right_WText(VERSION, 3.0f, 5.0f, ui::constants::FSIZE, ui::constants::FSIZE, ui::Scr::bottom)), ui::Scr::bottom);
-	ui::wid()->push_back("header_desc", new ui::Text(ui::mk_center_WText(i18n::getstr(str::banner), 30.0f)), ui::Scr::top);
-	ui::wid()->push_back("curr_action_desc", new ui::Text(ui::mk_center_WText(i18n::getstr(str::loading), 45.0f)), ui::Scr::top);
+	ui::wid()->push_back("header_desc", new ui::Text(ui::mk_center_WText(STRING(banner), 30.0f)), ui::Scr::top);
+	ui::wid()->push_back("curr_action_desc", new ui::Text(ui::mk_center_WText(STRING(loading), 45.0f)), ui::Scr::top);
 	ui::wid()->push_back("header", new ui::Text(ui::mk_center_WText("hShop", 0.0f, 1.0f, 1.0f)), ui::Scr::top);
 	ui::wid()->push_back("time_indicator", new ui::TimeIndicator());
 	ui::wid()->push_back("size_indicator", new ui::FreeSpaceIndicator());
@@ -141,8 +141,8 @@ int main(int argc, char* argv[])
 	if(R_FAILED(svcConnectToPort(&lumaCheck, "hb:ldr")))
 	{
 		lfatal << "Luma3DS is not installed, user is using an unsupported CFW or running in Citra";
-		ui::wid()->get<ui::Text>("curr_action_desc")->replace_text("Luma3DS is not installed on this system");
-		ui::wid()->push_back("msg1", new ui::Text(ui::mk_center_WText("Please install Luma3DS on a real 3DS", 78.0f)), ui::Scr::top);
+		ui::wid()->get<ui::Text>("curr_action_desc")->replace_text(STRING(luma_not_installed));
+		ui::wid()->push_back(new ui::Text(ui::mk_center_WText(STRING(install_luma), 78.0f)), ui::Scr::top);
 		standalone_main_breaking_loop();
 		ui::global_deinit();
 		hs::global_deinit();
@@ -199,7 +199,8 @@ int main(int argc, char* argv[])
 		), ui::Scr::bottom
 	);
 
-	ui::wid()->push_back("queue", new ui::Button("Queue", 100, 210, 170, 230), ui::Scr::bottom);
+	// TODO: Automatically get width of "Queue" in native lang and dynamically size button
+	ui::wid()->push_back("queue", new ui::Button(STRING(queue), 100, 210, 170, 230), ui::Scr::bottom);
 
 	ui::wid()->get<ui::ImageButton>("settings")->set_on_click([]() -> ui::Results {
 		ui::end_frame(); show_settings(); ui::wid()->get<ui::FreeSpaceIndicator>("size_indicator")->update(); // Setting may have changed
@@ -228,7 +229,7 @@ int main(int argc, char* argv[])
 	{
 		lwarning << "No wifi found, waiting for wifi";
 
-		ui::wid()->get<ui::Text>("curr_action_desc")->replace_text("Please connect to wifi and restart the app");
+		ui::wid()->get<ui::Text>("curr_action_desc")->replace_text(STRING(connect_wifi));
 		ui::Keys keys; ui::Widgets dummy;
 		// 0 = NO wifi at all
 		while(ui::framenext(keys) && osGetWifiStrength() == 0)
@@ -238,7 +239,7 @@ int main(int argc, char* argv[])
 	if(!hs::global_init())
 	{
 		lfatal << "hs::global_init() failed";
-		panic("Failed to initialize networking");
+		panic(STRING(fail_init_networking));
 		return 2;
 	}
 
@@ -262,7 +263,7 @@ int main(int argc, char* argv[])
 	if(index_failed(indx))
 	{
 		lfatal << "Failed to fetch index, dns fucked? Server down? " << index_error(indx);
-		panic("Failed to fetch index\n" + index_error(indx));
+		panic(PSTRING(fail_fetch_index, index_error(indx)));
 		return 3;
 	}
 
@@ -283,9 +284,10 @@ sub:
 		if(sub == next_sub_exit) break;
 		llog << "NEXT(s): " << sub;
 
-		ui::wid()->get<ui::Text>("curr_action_desc")->replace_text(
-			i18n::getstr(str::loading)); quick_global_draw();
-		std::vector<hs::Title> titles = hs::titles_in(cat ,sub);
+		ui::wid()->get<ui::Text>("curr_action_desc")->replace_text(STRING(loading));
+		quick_global_draw();
+		std::vector<hs::Title> titles = hs::titles_in(cat, sub);
+
  gam:
 		hs::shid id = next::sel_gam(titles);
 		if(id == next_gam_back) goto sub;

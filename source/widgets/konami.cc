@@ -3,6 +3,7 @@
 #include "build/bun.h"
 #include "ui/text.hh"
 #include "panic.hh"
+#include "i18n.hh"
 
 #include <3rd/log.hh>
 
@@ -54,7 +55,7 @@ void ui::Konami::show_bunny()
 	);
 
 	ui::Widgets wids;
-	wids.push_back("text", new ui::Text(ui::mk_center_WText("Congrats! You found the hShop bunny", 20,
+	wids.push_back("text", new ui::Text(ui::mk_center_WText(STRING(hs_bunny_found), 20,
 		ui::constants::FSIZE, ui::constants::FSIZE, ui::Scr::bottom)), ui::Scr::bottom);
 	wids.push_back("bun", bunny, ui::Scr::top);
 	generic_main_breaking_loop(wids);

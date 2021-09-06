@@ -9,6 +9,7 @@
 
 #include "install.hh"
 #include "queue.hh"
+#include "i18n.hh"
 
 
 bool update_app()
@@ -27,8 +28,7 @@ bool update_app()
 		return false;
 
 	ui::Widgets wids; bool shouldUpdate = false;
-	wids.push_back("confirmation", new ui::Confirm(std::string("Update to version ")
-		+ nver + "?", shouldUpdate), ui::Scr::bottom);
+	wids.push_back("confirmation", new ui::Confirm(PSTRING(update_to, nver), shouldUpdate), ui::Scr::bottom);
 	generic_main_breaking_loop(wids);
 
 	if(!shouldUpdate)

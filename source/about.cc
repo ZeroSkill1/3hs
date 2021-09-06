@@ -8,6 +8,7 @@
 
 #include "build/logo.h"
 
+#include "i18n.hh"
 #include "util.hh"
 
 // $ file gfx/img/logo.png
@@ -29,12 +30,8 @@ void show_about()
 		return ui::Results::quit_loop;
 	});
 
-	wids.push_back("banner", new ui::WrapText(
-		"Thank you for using 3hs, a 3ds client for hShop\n"
-		"You can get this software for free at\n"
-		"https://hshop.erista.me/"));
-	wids.get<ui::WrapText>("banner")->set_basey(
-		SCREEN_HEIGHT() / 2 - 30);
+	wids.push_back("banner", new ui::WrapText(STRING(credits_thanks)));
+	wids.get<ui::WrapText>("banner")->set_basey(70.0f);
 	wids.get<ui::WrapText>("banner")->center();
 
 	ui::StandaloneSprite *logo = new ui::StandaloneSprite(SHEET("logo"), logo_logo_idx);
@@ -42,10 +39,9 @@ void show_about()
 		SCREEN_WIDTH(ui::Scr::top) / 2 - LOGO_X / 2, SCREEN_HEIGHT() - LOGO_Y - 40); wids.push_back("logo", logo);
 
 	wids.push_back("credits", new ui::Text(ui::mk_center_WText("Credits:", GRID_AL_Y(1), fsize, fsize, ui::Scr::bottom)), ui::Scr::bottom);
-	add_cred("MyPasswordIsWeak: Programming", 1);
-	add_cred("TimmSkiller: Programming", 2);
-	add_cred("CremeChocolate: Art", 3);
-	add_cred("Laswell: Design", 4);
+	wids.push_back("credits_long", new ui::WrapText(STRING(credits)), ui::Scr::bottom);
+	wids.get<ui::WrapText>("credits_long")->set_basey(GRID_AL_Y(2));
+	wids.get<ui::WrapText>("credits_long")->set_pad(GRID_AL_X(1));
 
 	generic_main_breaking_loop(wids);
 	toggle_focus();

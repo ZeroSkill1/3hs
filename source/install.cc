@@ -190,7 +190,7 @@ static Result i_install_resume_loop(std::function<std::string()> get_url, Handle
 		if(res > 0 /* curl error */ && res != CURLE_ABORTED_BY_CALLBACK)
 		{
 			// Does the user want to stop?
-			if(ui::timeoutscreen("Network connection lost.\nRetrying in %t seconds...", 10))
+			if(ui::timeoutscreen(STRING(netcon_lost), 10))
 			{
 				// this signals that we want to cancel the installation later on
 				res = CURLE_ABORTED_BY_CALLBACK;

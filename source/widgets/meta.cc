@@ -1,16 +1,17 @@
 
 #include "widgets/meta.hh"
+#include "i18n.hh"
 
 // Sorry for this macro mess, even i find it hard to read now.
 // D = Description, T = Title, C = Category, S = Subcategory
 
-#define D_TTL_TITLE "Total Titles"
-#define D_DESC      "Description"
-#define D_LID       "Landing ID"
-#define D_CAT       "Category"
-#define D_TID       "Title ID"
-#define D_NAME      "Name"
-#define D_SIZE      "Size"
+#define D_TTL_TITLE STRING(total_titles)
+#define D_DESC      STRING(description)
+#define D_LID       STRING(landing_id)
+#define D_CAT       STRING(category)
+#define D_TID       STRING(tid)
+#define D_NAME      STRING(name)
+#define D_SIZE      STRING(size)
 
 #define T_S_LEN ((14*5)+1)
 #define C_LEN ((14*4)+1)

@@ -34,6 +34,7 @@ typedef struct Settings
 } Settings;
 
 
+bool settings_are_ready();
 Settings *get_settings();
 void ensure_settings();
 void save_settings();

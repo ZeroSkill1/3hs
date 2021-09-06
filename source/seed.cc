@@ -6,6 +6,7 @@
 #include <map>
 
 #include "panic.hh"
+#include "i18n.hh"
 
 static std::map<u64 /* tid */, Seed /* seed */> g_seeddb;
 
@@ -32,7 +33,7 @@ Result FSUSER_AddSeed(u64 titleId, const void* seed)
 void init_seeddb()
 {
 	std::FILE *f = std::fopen("romfs:/seeddb.bin", "r");
-	if(f == nullptr) panic("romfs:/seeddb.bin failed to open.");
+	if(f == nullptr) panic(STRING(failed_open_seeddb));
 	SeedDBHeader head;
 
 	std::fread(&head, sizeof(SeedDBHeader), 1, f);

@@ -32,13 +32,13 @@ static void search_is_empty(std::string prev)
 
 static void show_searchbar_search()
 {
-	std::string prev = toggle_focus("Search for content");
+	std::string prev = toggle_focus(STRING(search_content));
 	quick_global_draw();
 
 	SwkbdResult res; SwkbdButton btn;
 	std::string query = ui::AppletSwkbd::read([](ui::AppletSwkbd *keyboard) -> void {
 		keyboard->validinput(SWKBD_NOTEMPTY_NOTBLANK);
-		keyboard->hint("Search for content...");
+		keyboard->hint(STRING(search_content_action));
 	}, &res, &btn);
 
 	toggle_focus();
@@ -54,7 +54,7 @@ static void show_searchbar_search()
 	ui::wid()->get<ui::Text>("curr_action_desc")->replace_text(i18n::getstr(str::loading));
 	quick_global_draw(); std::vector<hs::Title> titles = hs::search(query);
 	ui::wid()->get<ui::Text>("curr_action_desc")->replace_text(
-		"Results for query \"" + query + "\"");
+		PSTRING(results_query, query));
 
 	if(titles.size() == 0) return search_is_empty(prev);
 

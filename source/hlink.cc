@@ -17,6 +17,7 @@
 
 #include "install.hh"
 #include "queue.hh"
+#include "i18n.hh"
 #include "hs.hh"
 
 #include <curl/curl.h>
@@ -57,7 +58,7 @@ static const char *action2string(hlink::action action)
 		MKS(install_data);
 		MKS(nothing);
 		MKS(launch);
-		default: return "unknown/invalid";
+		default: return STRING(invalid);
 	}
 #undef MKS
 }
@@ -151,7 +152,7 @@ static bool handle_launch(int clientfd, int server, iTransactionHeader header, s
 
 	if(!title_exists(tid, media))
 	{
-		disp_error("Title doesn't exist: " + tid_to_str(tid));
+		disp_error(PSTRING(title_doesnt_exist, tid_to_str(tid)));
 		send_response(clientfd, hlink::response::notfound);
 		return false;
 	}

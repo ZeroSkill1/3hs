@@ -69,7 +69,6 @@ namespace ui
 			for(T& val : this->items)
 				ret += this->to_str(val).size();
 
-			lverbose << "Created textbuf of size: " << ret + LIST_ARR_SIZ;
 			return ret + LIST_ARR_SIZ;
 		}
 

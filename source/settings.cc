@@ -14,8 +14,18 @@
 
 #include "util.hh"
 
+static bool g_loaded = false;
 static Settings g_settings;
 
+
+static lang::type get_lang()
+{
+	if(!g_loaded) ensure_settings();
+	return g_settings.language;
+}
+
+bool settings_are_ready()
+{ return g_loaded; }
 
 Settings *get_settings()
 { return &g_settings; }
@@ -45,6 +55,8 @@ void ensure_settings()
 			g_settings = nset;
 		else save_settings();
 	}
+
+	g_loaded = true;
 }
 
 enum SettingsId
@@ -64,13 +76,13 @@ typedef struct SettingInfo
 
 static std::vector<SettingInfo> g_settings_info =
 {
-	{ "Light Mode"               , "Turn on light mode. This will change\nthe way most ui elements look."                           , ID_LightMode },
-	{ "Resume Downloads"         , "Should we start where we\nleft off downloading the first time\nif we failed the first try?"     , ID_Resumable },
-	{ "Load Free Space indicator", "Load the free space indicator.\nBootup time should be shorter\nif you disable this on large SDs", ID_FreeSpace },
-	{ "Show Battery"             , "Toggle visibility of battery in\ntop right corner"                                              , ID_Battery   },
-	{ "Time Format"              , "Your preferred time format.\nEither 24h or 12h."                                                , ID_TimeFmt   },
-	{ "Progress Bar Screen"      , "The screen to draw progress bars on"                                                            , ID_ProgLoc   },
-	{ "Language"                 , "The language 3hs is in.\nNote that to update all text you might\nneed to restart 3hs"           , ID_Language  },
+	{ SURESTRING(light_mode)     , "Turn on light mode. This will change\nthe way most ui elements look."                           , ID_LightMode },
+	{ SURESTRING(resume_dl)      , "Should we start where we\nleft off downloading the first time\nif we failed the first try?"      , ID_Resumable },
+	{ SURESTRING(load_space)     , "Load the free space indicator.\nBootup time should be shorter\nif you disable this on large SDs", ID_FreeSpace },
+	{ SURESTRING(show_battery)   , "Toggle visibility of battery in\ntop right corner"                                              , ID_Battery   },
+	{ SURESTRING(time_format)    , "Your preferred time format.\nEither 24h or 12h."                                                , ID_TimeFmt   },
+	{ SURESTRING(progbar_screen) , "The screen to draw progress bars on"                                                            , ID_ProgLoc   },
+	{ SURESTRING(language)       , "The language 3hs is in.\nNote that to update all text you might\nneed to restart 3hs"           , ID_Language  },
 };
 
 static std::string serialize_id(SettingsId ID)
@@ -78,24 +90,24 @@ static std::string serialize_id(SettingsId ID)
 	switch(ID)
 	{
 	case ID_LightMode:
-		return g_settings.isLightMode ? "true" : "false";
+		return g_settings.isLightMode ? STRING(btrue) : STRING(bfalse);
 	case ID_Resumable:
-		return g_settings.resumeDownloads ? "true" : "false";
+		return g_settings.resumeDownloads ? STRING(btrue) : STRING(bfalse);
 	case ID_FreeSpace:
-		return g_settings.loadFreeSpace ? "true" : "false";
+		return g_settings.loadFreeSpace ? STRING(btrue) : STRING(bfalse);
 	case ID_Battery:
-		return g_settings.showBattery ? "true" : "false";
+		return g_settings.showBattery ? STRING(btrue) : STRING(bfalse);
 	case ID_TimeFmt:
 		return g_settings.timeFormat == Timefmt::good
-			? "24 hour" : "12 hour";
+			? STRING(fmt_24h) : STRING(fmt_12h);
 	case ID_ProgLoc:
 		return g_settings.progloc == ProgressBarLocation::top
-			? "top" : "bottom";
+			? STRING(top) : STRING(bottom);
 	case ID_Language:
 		return i18n::langname(g_settings.language);
 	}
 
-	return "undefined";
+	return STRING(unknown);
 }
 
 template <typename TEnum>
@@ -132,19 +144,22 @@ static void update_settings_ID(SettingsId ID)
 	// Enums
 	case ID_TimeFmt:
 		g_settings.timeFormat = get_enum<Timefmt>(
-			{ "24 hour", "12 hour" }, { Timefmt::good, Timefmt::bad },
+			{ i18n::getstr(str::fmt_24h, get_lang()), i18n::getstr(str::fmt_12h, get_lang()) },
+			{ Timefmt::good, Timefmt::bad },
 			g_settings.timeFormat
 		);
 		break;
 	case ID_ProgLoc:
 		g_settings.progloc = get_enum<ProgressBarLocation>(
-			{ "top", "bottom" }, { ProgressBarLocation::top, ProgressBarLocation::bottom },
+			{ STRING(top), STRING(bottom) },
+			{ ProgressBarLocation::top, ProgressBarLocation::bottom },
 			g_settings.progloc
 		);
 		break;
 	case ID_Language:
 		g_settings.language = get_enum<lang::type>(
-			{ LANGNAME_ENGLISH, LANGNAME_DUTCH, LANGNAME_GERMAN }, { lang::english, lang::dutch, lang::german },
+			{ LANGNAME_ENGLISH, LANGNAME_DUTCH, LANGNAME_GERMAN, LANGNAME_SPANISH, LANGNAME_UWULANG },
+			{ lang::english, lang::dutch, lang::german, lang::spanish, lang::uwulang },
 			g_settings.language
 		);
 	}
@@ -158,7 +173,7 @@ void show_settings()
 	ui::Widgets wids;
 	ui::Text *value;
 
-	wids.push_back("back", new ui::Button("Back", 240, 210, 310, 230), ui::Scr::bottom);
+	wids.push_back("back", new ui::Button(STRING(back), 240, 210, 310, 230), ui::Scr::bottom);
 	wids.get<ui::Button>("back")->set_on_click([](bool) -> ui::Results {
 		return ui::Results::quit_loop;
 	});
@@ -167,7 +182,7 @@ void show_settings()
 		[](SettingInfo& entry) -> std::string { return entry.name; },
 		[&value](ui::List<SettingInfo> *self, size_t i, u32) -> ui::Results {
 			update_settings_ID(self->at(i).ID);
-			value->replace_text("Value: " + serialize_id(self->at(i).ID));
+			value->replace_text(PSTRING(value_x, serialize_id(self->at(i).ID)));
 			return ui::Results::end_early;
 		}, g_settings_info
 	);
@@ -176,11 +191,12 @@ void show_settings()
 	wids.push_back(desc, ui::Scr::bottom);
 	desc->set_basey(20); desc->set_pad(10);
 
-	value = new ui::Text(ui::mk_left_WText("Value: " + serialize_id(list->at(0).ID), 80, 20));
+	value = new ui::Text(ui::mk_left_WText(PSTRING(value_x, serialize_id(list->at(0).ID)),
+		80, 20));
 	wids.push_back(value, ui::Scr::bottom);
 
 	list->set_on_change([&desc, &value](ui::List<SettingInfo> *self, size_t i) -> void {
-		value->replace_text("Value: " + serialize_id(self->at(i).ID));
+		value->replace_text(PSTRING(value_x, serialize_id(self->at(i).ID)));
 		desc->replace_text(self->at(i).desc);
 	});
 

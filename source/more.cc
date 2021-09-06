@@ -4,6 +4,7 @@
 #include "find_missing.hh"
 #include "hlink_view.hh"
 #include "about.hh"
+#include "i18n.hh"
 #include "help.hh"
 #include "util.hh"
 
@@ -47,10 +48,10 @@ void show_more()
 	ui::Button *buttons[maxIndex];
 
 	// Create buttons
-	ui::Button *about = new ui::Button("About", Y1, X1(ABOUT_I), Y2, X2(ABOUT_I));
-	ui::Button *find_missing = new ui::Button("Find missing content", Y1, X1(FIND_MISSING_I),
+	ui::Button *about = new ui::Button(STRING(about_app), Y1, X1(ABOUT_I), Y2, X2(ABOUT_I));
+	ui::Button *find_missing = new ui::Button(STRING(find_missing_content), Y1, X1(FIND_MISSING_I),
 		Y2, X2(FIND_MISSING_I));
-	ui::Button *help = new ui::Button("Help/Manual", Y1, X1(HELP_I), Y2, X2(HELP_I));
+	ui::Button *help = new ui::Button(STRING(help_manual), Y1, X1(HELP_I), Y2, X2(HELP_I));
 #ifdef V02
 	ui::Button *hlink = new ui::Button("hLink", Y1, X1(HLINK_I), Y2, X2(HLINK_I));
 #endif

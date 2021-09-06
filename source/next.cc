@@ -8,13 +8,13 @@
 
 #include "queue.hh"
 #include "panic.hh"
+#include "i18n.hh"
 
 
 std::string next::sel_cat(hs::Index& index)
 {
 	// Update curr action
-	ui::wid()->get<ui::Text>("curr_action_desc")->replace_text(
-		"Select a category");
+	ui::wid()->get<ui::Text>("curr_action_desc")->replace_text(STRING(select_cat));
 
 	std::string ret;
 
@@ -28,7 +28,7 @@ std::string next::sel_cat(hs::Index& index)
 
 	ui::CatMeta *meta = new ui::CatMeta();
 	if(index.categories.size() > 0) meta->update_cat(index.categories[0]);
-	else panic("no categories in index (?)");
+	else panic(STRING(no_cats_index));
 
 	widgets.push_back("meta", meta, ui::Scr::bottom);
 	widgets.get<ui::List<hs::Category>>("list")->set_on_change([&](ui::List<hs::Category> *self, size_t index) {
@@ -50,8 +50,7 @@ std::string next::sel_cat(hs::Index& index)
 std::string next::sel_sub(hs::Index& index, std::string cat)
 {
 	// Update curr action
-	ui::wid()->get<ui::Text>("curr_action_desc")->replace_text(
-		"Select a subcategory");
+	ui::wid()->get<ui::Text>("curr_action_desc")->replace_text(STRING(select_subcat));
 
 	hs::Category *rcat = index[cat];
 	std::string ret;
@@ -68,7 +67,7 @@ std::string next::sel_sub(hs::Index& index, std::string cat)
 
 	ui::SubMeta *meta = new ui::SubMeta();
 	if(rcat->subcategories.size() > 0) meta->update_sub(rcat->subcategories[0]);
-	else panic("empty subcategory (?)");
+	else panic(STRING(empty_subcat));
 
 	widgets.push_back("meta", meta, ui::Scr::bottom);
 	widgets.get<ui::List<hs::Subcategory>>("list")->set_on_change([&](ui::List<hs::Subcategory> *self, size_t index) {
@@ -92,8 +91,7 @@ std::string next::sel_sub(hs::Index& index, std::string cat)
 
 hs::shid next::sel_gam(std::vector<hs::Title>& titles)
 {
-	ui::wid()->get<ui::Text>("curr_action_desc")->replace_text(
-		"Select a title");
+	ui::wid()->get<ui::Text>("curr_action_desc")->replace_text(STRING(select_title));
 
 	hs::hid ret;
 
@@ -116,7 +114,7 @@ hs::shid next::sel_gam(std::vector<hs::Title>& titles)
 
 	ui::TitleMeta *meta = new ui::TitleMeta();
 	if(titles.size() > 0) meta->update_title(titles[0]);
-	else panic("empty category (?)");
+	else panic(STRING(empty_cat));
 
 	widgets.push_back("meta", meta, ui::Scr::bottom);
 	widgets.get<ui::List<hs::Title>>("list")->set_on_change([&](ui::List<hs::Title> *self, size_t index) {

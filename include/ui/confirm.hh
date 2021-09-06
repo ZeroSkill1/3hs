@@ -8,6 +8,8 @@
 
 #include <string>
 
+// TODO: Find a way to translate this (Confirm/Cancel)
+
 #define CONFIRM_YES "Confirm"
 #define CONFIRM_NO "Cancel"
 

@@ -1,5 +1,6 @@
 
 #include "settings.hh"
+#include "ui/core.hh"
 #include "panic.hh"
 #include "i18n.hh"
 
@@ -14,19 +15,262 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 	[lang::english] =
 		{
 			[str::banner]  = "The ultimate 3DS content preservation service.",
-			[str::loading] = "Loading ...", 
+			[str::loading] = "Loading ...",
+			[str::luma_not_installed] = "Luma3DS is not installed on this system",
+			[str::install_luma] = "Please install Luma3DS on a real 3DS",
+			[str::queue] = "Queue",
+			[str::connect_wifi] = "Please connect to WiFi and restart the app",
+			[str::fail_init_networking] = "Failed to initialize networking",
+			[str::fail_fetch_index] = "Failed to fetch index\n%1",
+
+			[str::credits_thanks] =
+				"Thank you for using 3hs, a 3ds client for hShop\n"
+				"You can get this software for free at\n"
+				"https://hshop.erista.me/",
+			[str::credits] =
+				"MyPasswordIsWeak: Programming,\n"
+				"      Translations\n"
+				"TimmSkiller: Programming,\n"
+				"      Translations\n"
+				"Laswell: Design, Translations\n"
+				"CremeChocolate: Art",
+			[str::press_to_install] =
+				"Press " GLYPH_A " if you want to install this title.\n"
+				"Press " GLYPH_B " if you don't want to.",
+			[str::version] = "Version",
+			[str::prodcode] = "Product code",
+			[str::size] = "Size",
+			[str::name] = "Name",
+			[str::tid] = "Title ID",
+			[str::category] = "Category",
+			[str::landing_id] = "Landing ID",
+			[str::description] = "Description",
+			[str::total_titles] = "Total Titles",
+			[str::select_cat] = "Select a category",
+			[str::select_subcat] = "Select a subcategory",
+			[str::select_title] = "Select a title",
+			[str::no_cats_index] = "no categories in index (?)",
+			[str::empty_subcat] = "Empty subcategory (?)",
+			[str::empty_cat] = "Empty category (?)",
+			[str::fmt_24h] = "24 hour",
+			[str::fmt_12h] = "12 hour",
+			[str::unknown] = "unknown",
+			[str::btrue] = "true",
+			[str::bfalse] = "false",
+			[str::top] = "top",
+			[str::bottom] = "bottom",
+			[str::light_mode] = "Light mode",
+			[str::resume_dl] = "Resume downloads",
+			[str::load_space] = "Load Free Space indicator",
+			[str::show_battery] = "Show Battery",
+			[str::time_format] = "Time format",
+			[str::progbar_screen] = "Progress bar screen",
+			[str::language] = "Language",
+			[str::value_x] = "Value: %1",
+			[str::back] = "Back",
+			[str::invalid] = "invalid",
+			[str::title_doesnt_exist] = "Title doesn't exist: %1",
+			[str::fail_create_tex] = "Failed to create tex",
+			[str::fail_load_smdh_icon] = "load_smdh_icon(): invalid SMDHIconType",
+			[str::netcon_lost] = "Network connection lost.\nRetrying in %t seconds...",
+			[str::about_app] = "About",
+			[str::help_manual] = "Help/Manual",
+			[str::find_missing_content] = "Find missing content",
+			[str::press_a_exit] = "Press " GLYPH_A " to exit",
+			[str::fatal_panic] = "Fatal Panic Occurred",
+			[str::failed_open_seeddb] = "Failed to open seeddb.bin",
+			[str::update_to] = "Do you want to update to %1?",
+			[str::search_content] = "Search for content",
+			[str::search_content_action] = "Search for content...",
+			[str::results_query] = "Results for query \"%1\"",
+			[str::result_code] = "Result code: %1",
+			[str::level] = "Level: %1",
+			[str::summary] = "Summary: %1",
+			[str::module] = "Module: %1",
+			[str::hs_bunny_found] = "Congrats! You found the hShop bunny",
+			[str::already_installed_reinstall] = "Title already installed. Reinstall?",
+			[str::queue_empty] =
+				"Queue is empty\n"
+				"Press " GLYPH_A " to go back\n"
+				"Tip: press " GLYPH_Y " to add a title to the queue",
 		},
 
 	[lang::dutch] =
 		{
 			[str::banner]  = "De ultieme 3DS verzameling.",
 			[str::loading] = "Aan het laden ...",
+			[str::luma_not_installed] = "Luma3DS is niet geïnstalleerd op dit systeem",
+			[str::install_luma] = "Installeer Luma3DS op een echte 3DS",
+			[str::queue] = "Wachtrij",
+			[str::connect_wifi] = "Verbind met WiFi en start de app opnieuw op",
+			[str::fail_init_networking] = "Kon netwerkdiensten niet opstarten",
+			[str::fail_fetch_index] = "Kon gegevens niet van de server halen",
+			[str::credits_thanks] =
+				"Bedankt voor het gebruiken van 3hs, een 3ds\n"
+				"hShop applicatie\n"
+				"Je kan deze software gratis verkrijgen op\n"
+				"https://hshop.erista.me/",
+			[str::credits] =
+				"MyPasswordIsWeak: Programmeren,\n"
+				"      Vertalingen\n"
+				"TimmSkiller: Programmeren,\n"
+				"      Vertalingen\n"
+				"Laswell: Design, Vertalingen\n"
+				"CremeChocolate: Kunst",
+			[str::press_to_install] =
+				"Klik op " GLYPH_A " als je deze titel wilt installeren.\n"
+				"Klik op " GLYPH_B " als je dat niet wilt.",
+			[str::version] = "Versie",
+			[str::prodcode] = "Productie code",
+			[str::size] = "Grootte",
+			[str::name] = "Naam",
+			[str::tid] = "Titel ID",
+			[str::category] = "Categorie",
+			[str::landing_id] = "Lanceer ID", // TODO: Make it less awkward?
+			[str::description] = "Beschrijving",
+			[str::total_titles] = "Aantal titels",
+			[str::select_cat] = "Selecteer een categorie",
+			[str::select_subcat] = "Selecteer een subcategorie",
+			[str::select_title] = "Selecteer een titel",
+			[str::no_cats_index] = "Geen categorieën van server gekregen (?)",
+			[str::empty_subcat] = "Lege subcategorie (?)",
+			[str::empty_cat] = "Lege categorie (?)",
+			[str::fmt_24h] = "24 uur",
+			[str::fmt_12h] = "12 uur",
+			[str::unknown] = "onbekend",
+			[str::btrue] = "waar",
+			[str::bfalse] = "niet waar",
+			[str::top] = "boven",
+			[str::bottom] = "onder",
+			[str::light_mode] = "Licht thema",
+			[str::resume_dl] = "Downloads voortzetten",
+			[str::load_space] = "Laad bruikbare opslag indicator",
+			[str::show_battery] = "Laad batterij indicator",
+			[str::time_format] = "Tijdsformaat",
+			[str::progbar_screen] = "Laadbalk scherm",
+			[str::language] = "Taal",
+			[str::value_x] = "Waarde: %1",
+			[str::back] = "Terug",
+			[str::invalid] = "ongeldig",
+			[str::title_doesnt_exist] = "Titel bestaat niet: %1",
+			[str::fail_create_tex] = "Kon geen tex maken",
+			[str::fail_load_smdh_icon] = "load_smdh_icon(): ongeldig SMDHIconType",
+			[str::netcon_lost] = "Network verbinding verloren.\nWe proberen het in %t seconden weer...",
+			[str::about_app] = "Informatie over applicatie",
+			[str::help_manual] = "Hulp/Gebruikshandleiding",
+			[str::find_missing_content] = "Vind missende titels",
+			[str::press_a_exit] = "Klik op " GLYPH_A " om weg te gaan",
+			[str::fatal_panic] = "Fatale fout",
+			[str::failed_open_seeddb] = "Kon seeddb.bin niet openen",
+			[str::update_to] = "Wil je updaten naar versie %1?",
+			[str::search_content] = "Zoek naar titels",
+			[str::search_content_action] = "Zoek naar titels...", // this one has a ... after it
+			[str::results_query] = "Resultaten voor zoekopdracht \"%1\"",
+			[str::result_code] = "Resultaatcode: %1",
+			[str::level] = "Niveau: %1",
+			[str::summary] = "Samenvatting: %1",
+			[str::module] = "Module: %1",
+			[str::hs_bunny_found] = "Je hebt het hShop konijn gevonden!",
+			[str::already_installed_reinstall] = "Titel is al geïnstalleerd. Herinstalleeren?",
+			[str::queue_empty] =
+				"De wachtrij is leeg\n"
+				"Klik op " GLYPH_A " om terug te gaan\n"
+				"Tip: klik op " GLYPH_Y " om een titel toe te voegen\n"
+				"aan de wachtrij",
 		},
 
 	[lang::german] =
 		{
-			[str::banner]  = "Der ultimative 3DS Inhalte-Dienst",
+			[str::banner]  = "Der ultimative 3DS Inhalte-Dienst.",
 			[str::loading] = "Laden ...",
+		},
+
+	[lang::spanish] =
+		{
+
+		},
+
+	[lang::uwulang] =
+		{
+			[str::banner]  = "The ultimate 3DS content preservatiOwOn service.",
+			[str::loading] = "LOwOading ...",
+			[str::luma_not_installed] = "LUwUma3DS is nOwOt installed OwOn this system",
+			[str::install_luma] = "Please install Luma3DS OwOn a real 3DS",
+			[str::queue] = "QUwU",
+			[str::connect_wifi] = "Pleasew cOwOnnect tOwO WiFi and restart the app",
+			[str::fail_init_networking] = "Failed tow initialize netOwOrking",
+			[str::fail_fetch_index] = "Failed to fetch index\n%1",
+
+			[str::credits_thanks] =
+				"Thank youWu foWor UwUsing 3hs, a 3ds client fOwOr hShOwOp\n"
+				"You can get this sOwOftware fOwOr free at\n"
+				"https://hshop.erista.me/",
+			[str::credits] =
+				"MyPasswordIsWeak: PrOwOgramming,\n"
+				"      TranslatiOwOns\n"
+				"TimmSkiller: PrOwOgramming,\n"
+				"      TranslatiOwOns\n"
+				"Laswell: Design, TranslatiOwOns\n"
+				"CremeChocolate: Art",
+			[str::press_to_install] =
+				"Press " GLYPH_A " if youwu want to install this title.\n"
+				"Press " GLYPH_B " if youwu don't want to.",
+			[str::version] = "VersiOwOn",
+			[str::prodcode] = "Product cOwOde",
+			[str::size] = "Size",
+			[str::name] = "Name",
+			[str::tid] = "Title ID",
+			[str::category] = "CategOwOry",
+			[str::landing_id] = "Landing ID",
+			[str::description] = "DescriptiOwOn",
+			[str::total_titles] = "Total Titles",
+			[str::select_cat] = "Select a categOwOry",
+			[str::select_subcat] = "Select a subcategOwOry",
+			[str::select_title] = "Select a title",
+			[str::no_cats_index] = "no categOwOries in index (?)",
+			[str::empty_subcat] = "Empty subcategOwOry (?)",
+			[str::empty_cat] = "Empty categOwOry (?)",
+			[str::fmt_24h] = "24 hoUwUr",
+			[str::fmt_12h] = "12 hoUwUr",
+			[str::unknown] = "UwUnknown",
+			[str::btrue] = "true",
+			[str::bfalse] = "false",
+			[str::top] = "tOwOp",
+			[str::bottom] = "bOwOttom",
+			[str::light_mode] = "Light mOwOde",
+			[str::resume_dl] = "ResUwUme downlOwOads",
+			[str::load_space] = "LOwOad Free Space indicatOwOr",
+			[str::show_battery] = "ShOwO Battery",
+			[str::time_format] = "Time fOwOrmat",
+			[str::progbar_screen] = "PrOwOgress bar screen",
+			[str::language] = "LangUwUage",
+			[str::value_x] = "ValUwU: %1",
+			[str::back] = "Back",
+			[str::invalid] = "invalid",
+			[str::title_doesnt_exist] = "Title dOwOesn't exist: %1",
+			[str::fail_create_tex] = "Failed to create tex",
+			[str::fail_load_smdh_icon] = "load_smdh_icon(): invalid SMDHIconType",
+			[str::netcon_lost] = "NetwOwOrk connectiOwOn lost.\nRetrying in %t seconds...",
+			[str::about_app] = "AbOwOut",
+			[str::help_manual] = "Help/Manual",
+			[str::find_missing_content] = "Find missing cOwOntent",
+			[str::press_a_exit] = "Press " GLYPH_A " tOwO exit",
+			[str::fatal_panic] = "Fatal Panic OwOccurred",
+			[str::failed_open_seeddb] = "Failed to OwOpen seeddb.bin",
+			[str::update_to] = "Do yoUwU want tOwO UwUpdate to %1?",
+			[str::search_content] = "Search fOwOr content",
+			[str::search_content_action] = "Search fOwOr content...",
+			[str::results_query] = "ResUwUlts fOwOr qUwUery \"%1\"",
+			[str::result_code] = "ResUwUlt code: %1",
+			[str::level] = "Level: %1",
+			[str::summary] = "SUwUmmary: %1",
+			[str::module] = "MOwOdule: %1",
+			[str::hs_bunny_found] = "COwOngrats! You found the hShop bunny",
+			[str::already_installed_reinstall] = "Title already installed. Reinstall?",
+			[str::queue_empty] =
+				"QUwU is empty\n"
+				"Press " GLYPH_A " to gOwO back\n"
+				"Tip: press " GLYPH_Y " to add a title to the qUwU",
 		},
 };
 #pragma GCC diagnostic pop
@@ -37,6 +281,18 @@ const char *i18n::getstr(str::type id)
 	return RAW(get_settings()->language, id);
 }
 
+const char *i18n::getstr(str::type sid, lang::type lid)
+{
+	return RAW(lid, sid);
+}
+
+const char *i18n::getsurestr(str::type sid)
+{
+	if(!settings_are_ready())
+		ensure_settings();
+	return RAW(get_settings()->language, sid);
+}
+
 const char *i18n::langname(lang::type id)
 {
 	switch(id)
@@ -44,6 +300,8 @@ const char *i18n::langname(lang::type id)
 	case lang::english: return LANGNAME_ENGLISH;
 	case lang::dutch: return LANGNAME_DUTCH;
 	case lang::german: return LANGNAME_GERMAN;
+	case lang::spanish: return LANGNAME_SPANISH;
+	case lang::uwulang: return LANGNAME_UWULANG;
 	}
 
 	return "invalid";
@@ -57,13 +315,13 @@ lang::type i18n::default_lang()
 	switch(syslang)
 	{
 	case CFG_LANGUAGE_DE: return lang::german;
+	case CFG_LANGUAGE_ES: return lang::spanish;
 	case CFG_LANGUAGE_NL: return lang::dutch;
 
 	case CFG_LANGUAGE_JP: // fallthrough
 	case CFG_LANGUAGE_EN: // fallthrough
 	case CFG_LANGUAGE_FR: // fallthrough
 	case CFG_LANGUAGE_IT: // fallthrough
-	case CFG_LANGUAGE_ES: // fallthrough
 	case CFG_LANGUAGE_ZH: // fallthrough
 	case CFG_LANGUAGE_KO: // fallthrough
 	case CFG_LANGUAGE_PT: // fallthrough
