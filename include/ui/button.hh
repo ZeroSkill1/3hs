@@ -26,7 +26,10 @@ namespace ui
 		void highlight(bool value = true);
 		void toggle_click();
 
+		void move(float x1, float y1, float x2, float y2);
 		float autoadjust_x(float border);
+		float textlen();
+
 
 
 	private:

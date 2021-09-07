@@ -8,15 +8,6 @@
 
 #include <string>
 
-// TODO: Find a way to translate this (Confirm/Cancel)
-
-#define CONFIRM_YES "Confirm"
-#define CONFIRM_NO "Cancel"
-
-#define CONFIRM_LEN (CONFIRM_YES_LEN+CONFIRM_NO_LEN)
-#define CONFIRM_YES_LEN 6
-#define CONFIRM_NO_LEN  7
-
 
 namespace ui
 {

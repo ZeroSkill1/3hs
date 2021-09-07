@@ -6,7 +6,8 @@
 
 #include <3ds.h>
 
-#define ENGLISH(sid) strtab[lang::english][sid]
+#define ENGLISH(sid) strtab[lang::english][str::sid]
+#define STUB(id) [str::id] = ENGLISH(id)
 #define RAW(lid, sid) strtab[lid][sid]
 
 #pragma GCC diagnostic ignored "-Wpedantic"
@@ -92,6 +93,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 				"Queue is empty\n"
 				"Press " GLYPH_A " to go back\n"
 				"Tip: press " GLYPH_Y " to add a title to the queue",
+			[str::cancel] = "Cancel",
+			[str::confirm] = "Confirm",
 		},
 
 	[lang::dutch] =
@@ -125,7 +128,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::name] = "Naam",
 			[str::tid] = "Titel ID",
 			[str::category] = "Categorie",
-			[str::landing_id] = "Lanceer ID", // TODO: Make it less awkward?
+			[str::landing_id] = "hShop ID",
 			[str::description] = "Beschrijving",
 			[str::total_titles] = "Aantal titels",
 			[str::select_cat] = "Selecteer een categorie",
@@ -176,6 +179,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 				"Klik op " GLYPH_A " om terug te gaan\n"
 				"Tip: klik op " GLYPH_Y " om een titel toe te voegen\n"
 				"aan de wachtrij",
+			[str::cancel] = "Weiger",
+			[str::confirm] = "Accepteer",
 		},
 
 	[lang::german] =
@@ -257,6 +262,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 				"Warteschlange ist leer\n"
 				"Drücke " GLYPH_A " um zurückzukehren\n"
 				"Tipp: Drücke " GLYPH_Y " um einen Inhalt zur Warteschlange\nhinzuzufügen",
+			[str::cancel] = "Abbrechen",
+			[str::confirm] = "Bestätigen",
 		},
 
 	[lang::spanish] =
@@ -339,6 +346,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 				"La cola está vacia\n"
 				"Presiona " GLYPH_A " para volver\n"
 				"Consejo: presiona " GLYPH_Y " para añadir un título\na la cola",
+			[str::cancel] = "Cancelar",
+			[str::confirm] = "Confirmar",
 		},
 
 	[lang::uwulang] =
@@ -421,6 +430,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 				"QUwU is empty\n"
 				"Press " GLYPH_A " to gOwO back\n"
 				"Tip: press " GLYPH_Y " to add a title to the qUwU",
+			[str::cancel] = "Cancew",
+			[str::confirm] = "COwOnfirm",
 		},
 };
 #pragma GCC diagnostic pop

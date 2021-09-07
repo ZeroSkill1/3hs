@@ -12,11 +12,12 @@
 
 
 ui::Button::Button(std::string label, float x1, float y1, float x2, float y2)
-	: Widget("button"), x1(x1), x2(x2), y1(y1), y2(y2)
+	: Widget("button")
 {
+	this->move(x1, y1, x2, y2);
 	this->change_label(label);
 }
-
+#include "panic.hh"
 void ui::Button::change_label(std::string label)
 {
 	this->buf.realloc(label.size() + 1);
@@ -68,8 +69,22 @@ void ui::Button::highlight(bool value)
 
 float ui::Button::autoadjust_x(float border)
 {
-	float width = this->label.dimensions(ui::constants::FSIZE, ui::constants::FSIZE).width;
-	this->x2 = this->x1 + width + border;
+	this->x2 = this->x1 + this->textlen() + border;
 	return this->x2;
+}
+
+float ui::Button::textlen()
+{
+	return this->label.dimensions(ui::constants::FSIZE, ui::constants::FSIZE).width;
+}
+
+void ui::Button::move(float x1, float y1, float x2, float y2)
+{
+	// the smallest should be number 1 else it causes fuckery with the clicc recognition
+	if(x1 > x2) { this->x1 = x2; this->x2 = x1; }
+	else        { this->x1 = x1; this->x2 = x2; }
+
+	if(y1 > y2) { this->y1 = y2; this->y2 = y1; }
+	else        { this->y1 = y1; this->y2 = y2; }
 }
 

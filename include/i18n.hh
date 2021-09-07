@@ -87,6 +87,8 @@ namespace str
 		hs_bunny_found = 61,
 		already_installed_reinstall = 62,
 		queue_empty = 63,
+		cancel = 64,
+		confirm = 65,
 
 		_i_max,
 	};
