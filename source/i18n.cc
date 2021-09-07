@@ -256,7 +256,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::queue_empty] =
 				"Warteschlange ist leer\n"
 				"Drücke " GLYPH_A " um zurückzukehren\n"
-				"Tipp: Drücke " GLYPH_Y " um einen Inhalt zur Warteschlange hinzuzufügen",
+				"Tipp: Drücke " GLYPH_Y " um einen Inhalt zur Warteschlange\nhinzuzufügen",
 		},
 
 	[lang::spanish] =
@@ -338,7 +338,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::queue_empty] =
 				"La cola está vacia\n"
 				"Presiona " GLYPH_A " para volver\n"
-				"Consejo: presiona " GLYPH_Y " para añadir un título a la cola",
+				"Consejo: presiona " GLYPH_Y " para añadir un título\na la cola",
 		},
 
 	[lang::uwulang] =

@@ -66,3 +66,10 @@ void ui::Button::highlight(bool value)
 	this->shouldHighlight = value;
 }
 
+float ui::Button::autoadjust_x(float border)
+{
+	float width = this->label.dimensions(ui::constants::FSIZE, ui::constants::FSIZE).width;
+	this->x2 = this->x1 + width + border;
+	return this->x2;
+}
+

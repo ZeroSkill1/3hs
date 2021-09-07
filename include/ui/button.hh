@@ -26,6 +26,8 @@ namespace ui
 		void highlight(bool value = true);
 		void toggle_click();
 
+		float autoadjust_x(float border);
+
 
 	private:
 		c2d::TextBuf buf;

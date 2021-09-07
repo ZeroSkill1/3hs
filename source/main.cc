@@ -199,8 +199,8 @@ int main(int argc, char* argv[])
 		), ui::Scr::bottom
 	);
 
-	// TODO: Automatically get width of "Queue" in native lang and dynamically size button
 	ui::wid()->push_back("queue", new ui::Button(STRING(queue), 100, 210, 170, 230), ui::Scr::bottom);
+	ui::wid()->get<ui::Button>("queue")->autoadjust_x(10.0f);
 
 	ui::wid()->get<ui::ImageButton>("settings")->set_on_click([]() -> ui::Results {
 		ui::end_frame(); show_settings(); ui::wid()->get<ui::FreeSpaceIndicator>("size_indicator")->update(); // Setting may have changed
