@@ -9,6 +9,7 @@
 
 #include "install.hh"
 #include "queue.hh"
+#include "proxy.hh"
 #include "i18n.hh"
 
 
@@ -77,6 +78,8 @@ std::string get_url_content(std::string from)
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_write_std_string);
 	curl_easy_setopt(curl, CURLOPT_URL, from.c_str());
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &ret);
+
+	proxy::apply(curl);
 
 	curl_easy_perform(curl);
 	curl_easy_cleanup(curl);

@@ -5,7 +5,7 @@
 #define widdraw(w) { ui::Results res; if((res = w.draw(keys,target)) != ui::Results::go_on) return res; }
 #define END(r) { this->returns = r; return ui::Results::quit_loop; }
 
-#include "panic.hh"
+
 ui::Confirm::Confirm(std::string label, bool& res)
 	: Widget("confirm"),
 		yes(

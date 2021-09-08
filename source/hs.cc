@@ -14,6 +14,7 @@
 #include <widgets/meta.hh> // TODO: Move index cache to this file
 
 #include "install.hh"
+#include "proxy.hh"
 
 #define JS_SET_NULLABLE_PROP(j,s,pj,ps) \
 	JT_SET_NULLABLE_PROP(j,s,pj,ps,std::string)
@@ -66,6 +67,8 @@ std::string hs::base_req(std::string url, std::string *err)
 	curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &body);
 	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10L);
+
+	proxy::apply(curl);
 
 	CURLcode res = curl_easy_perform(curl);
 	curl_easy_cleanup(curl);

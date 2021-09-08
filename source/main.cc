@@ -37,6 +37,7 @@
 #include "error.hh"
 #include "panic.hh"
 #include "about.hh"
+#include "proxy.hh"
 #include "more.hh"
 #include "util.hh"
 #include "seed.hh"
@@ -76,6 +77,7 @@ int main(int argc, char* argv[])
 	ensure_logs_dir();
 	init_seeddb();
 	ensure_settings();
+	proxy::init();
 
 /*
 	ui::global_init();

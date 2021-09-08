@@ -17,7 +17,7 @@ ui::Button::Button(std::string label, float x1, float y1, float x2, float y2)
 	this->move(x1, y1, x2, y2);
 	this->change_label(label);
 }
-#include "panic.hh"
+
 void ui::Button::change_label(std::string label)
 {
 	this->buf.realloc(label.size() + 1);

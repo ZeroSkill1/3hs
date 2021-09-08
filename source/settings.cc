@@ -77,7 +77,7 @@ typedef struct SettingInfo
 static std::vector<SettingInfo> g_settings_info =
 {
 	{ SURESTRING(light_mode)     , "Turn on light mode. This will change\nthe way most ui elements look."                           , ID_LightMode },
-	{ SURESTRING(resume_dl)      , "Should we start where we\nleft off downloading the first time\nif we failed the first try?"      , ID_Resumable },
+	{ SURESTRING(resume_dl)      , "Should we start where we\nleft off downloading the first time\nif we failed the first try?"     , ID_Resumable },
 	{ SURESTRING(load_space)     , "Load the free space indicator.\nBootup time should be shorter\nif you disable this on large SDs", ID_FreeSpace },
 	{ SURESTRING(show_battery)   , "Toggle visibility of battery in\ntop right corner"                                              , ID_Battery   },
 	{ SURESTRING(time_format)    , "Your preferred time format.\nEither 24h or 12h."                                                , ID_TimeFmt   },

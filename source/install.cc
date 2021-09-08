@@ -2,6 +2,7 @@
 #include "settings.hh"
 #include "install.hh"
 #include "error.hh"
+#include "proxy.hh"
 #include "seed.hh"
 
 #include <widgets/indicators.hh>
@@ -129,6 +130,8 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, data);
 	curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
 	curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 3);
+
+	proxy::apply(curl);
 
 	CURLcode res = curl_easy_perform(curl);
 	curl_easy_cleanup(curl);
