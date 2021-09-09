@@ -38,7 +38,8 @@ TitleSMDH *smdh_get(u64 tid, FS_MediaType media)
 TitleSMDHTitle *smdh_get_native_title(TitleSMDH *smdh)
 {
 	u8 syslang = 0;
-	panic_if_err_3ds(CFGU_GetSystemLanguage(&syslang));
+	if(R_FAILED(CFGU_GetSystemLanguage(&syslang)))
+		return &smdh->titles[1]; // english
 
 	switch(syslang)
 	{

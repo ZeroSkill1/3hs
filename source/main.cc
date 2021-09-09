@@ -79,6 +79,8 @@ int main(int argc, char* argv[])
 	ensure_settings();
 	proxy::init();
 
+	osSetSpeedupEnable(true); // speedup for n3dses
+
 /*
 	ui::global_init();
 

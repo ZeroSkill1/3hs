@@ -471,7 +471,8 @@ const char *i18n::langname(lang::type id)
 lang::type i18n::default_lang()
 {
 	u8 syslang = 0;
-	panic_if_err_3ds(CFGU_GetSystemLanguage(&syslang));
+	if(R_FAILED(CFGU_GetSystemLanguage(&syslang)))
+		return lang::english;
 
 	switch(syslang)
 	{
