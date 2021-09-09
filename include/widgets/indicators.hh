@@ -62,9 +62,8 @@ namespace ui
 		void draw_lvl(u8 lvl);
 
 		c2d::SpriteSheet sheet;
-		c2d::Sprite greens[5];
-		c2d::Sprite container;
-		c2d::Sprite red;
+		c2d::Sprite light;
+		c2d::Sprite dark;
 
 		ui::Text percentage;
 		u8 level = 0;

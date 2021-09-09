@@ -115,21 +115,15 @@ ui::Results ui::NetIndicator::draw(ui::Keys&, ui::Scr)
 
 ui::BatteryIndicator::BatteryIndicator()
 	: Widget("battery_indicator"), sheet(c2d::SpriteSheet::from_file(SHEET("battery"))),
-		percentage(ui::mk_right_WText("0%", 7.0f, 70.0f, 0.5f, 0.5f))
+		percentage(ui::mk_right_WText("0%", 5.0f, 40.0f, 0.5f, 0.5f))
 {
 	this->update();
 
-	this->container = c2d::Sprite::from_sheet(&this->sheet, battery_container_idx);
-	this->red = c2d::Sprite::from_sheet(&this->sheet, battery_red_idx);
+	this->light = c2d::Sprite::from_sheet(&this->sheet, battery_battery_light_idx);
+	this->dark = c2d::Sprite::from_sheet(&this->sheet, battery_battery_dark_idx);
 
-	this->container.move(SCREEN_WIDTH(ui::Scr::top) - 65.0f, 5.0f);
-	this->red.move(SCREEN_WIDTH(ui::Scr::top) - 63.0f, 7.0f);
-
-	for(u8 i = 0; i < 5; ++i)
-	{
-		this->greens[i] = c2d::Sprite::from_sheet(&this->sheet, battery_green_idx);
-		this->greens[i].move(SCREEN_WIDTH(ui::Scr::top) - 62.0f + (i * 11.0f), 7.0f);
-	}
+	this->light.move(SCREEN_WIDTH(ui::Scr::top) - 33.0f, 5.0f);
+	this->dark.move(SCREEN_WIDTH(ui::Scr::top) - 33.0f, 5.0f);
 }
 
 ui::BatteryIndicator::~BatteryIndicator()
@@ -150,8 +144,8 @@ void ui::BatteryIndicator::update()
 
 static u8 lvl2batlvl(u8 lvl)
 {
-	u8 ret = lvl / 20 + 1;
-	return ret > 5 ? 5 : ret;
+	u8 ret = lvl / 25 + 1;
+	return ret > 4 ? 4 : ret;
 }
 
 ui::Results ui::BatteryIndicator::draw(ui::Keys& keys, ui::Scr target)
@@ -171,13 +165,27 @@ ui::Results ui::BatteryIndicator::draw(ui::Keys& keys, ui::Scr target)
 
 void ui::BatteryIndicator::draw_lvl(u8 lvl)
 {
-	this->container.draw();
+#ifdef USE_SETTINGS_H
+# define container (get_settings()->isLightMode ? this->light : this->dark)
+# define color_green (get_settings()->isLightMode ? C2D_Color32f(0x00, 0xFF, 0x00, 0xFF) \
+                                                  : C2D_Color32f(0x00, 0xA2, 0x00, 0xFF))
+# define color_red (get_settings()->isLightMode ? C2D_Color32f(0xFF, 0x00, 0x00, 0xFF) \
+                                                : C2D_Color32f(0xDA, 0x00, 0x00, 0xFF))
+#else
+# define container this->dark
+# define color_green C2D_Color32f(0x00, 0xFF, 0x00, 0xFF)
+# define color_red C2D_Color32f(0xFF, 0x00, 0x00, 0xFF)
+#endif
 
-	if(lvl == 1) this->red.draw();
-	else {
-		for(u8 i = 0; i < lvl; ++i)
-			this->greens[i].draw();
-	}
+	float width = lvl * 5.0f;
+	C2D_DrawRectSolid(SCREEN_WIDTH(ui::Scr::top) - 9.0f - width, 7.0f, 0.0f, width, 12.0f,
+		lvl == 1 ? color_red : color_green);
+
+	container.draw();
+
+#undef color_green
+#undef color_red
+#undef container
 }
 
 // TIME

@@ -1,4 +1,3 @@
 --atlas -f rgba8888 -z auto
-img/container.png
-img/green.png
-img/red.png
+img/battery_light.png
+img/battery_dark.png
