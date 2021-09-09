@@ -32,19 +32,30 @@ Settings *get_settings()
 
 void save_settings()
 {
+	// Ensures dirs exist
+	mkdir("/3ds", 0777);
+	mkdir("/3ds/3hs", 0777);
+
 	FILE *settings = fopen(SETTINGS_LOCATION, "w");
+	if(settings == NULL) return; // this shouldn't happen, but we'll use an in-mem config
+
 	fwrite(&g_settings, sizeof(Settings), 1, settings);
 	fclose(settings);
 }
 
+static void write_default_settings()
+{
+	g_settings.language = i18n::default_lang();
+	save_settings();
+}
+
 void ensure_settings()
 {
+	if(g_loaded) return;
+
 	// We want the defaults
 	if(!access(SETTINGS_LOCATION, F_OK) == 0)
-	{
-		g_settings.language = i18n::default_lang();
-		save_settings();
-	}
+		write_default_settings();
 	else
 	{
 		FILE *settings = fopen(SETTINGS_LOCATION, "r");
@@ -53,7 +64,7 @@ void ensure_settings()
 
 		if(memcmp(nset.magic, "3HSS", 4) == 0)
 			g_settings = nset;
-		else save_settings();
+		else write_default_settings();
 	}
 
 	g_loaded = true;

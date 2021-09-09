@@ -52,12 +52,6 @@
 #endif
 
 
-void ensure_logs_dir()
-{
-	mkdir("/3ds", 0777);
-	mkdir("/3ds/3hs", 0777);
-}
-
 int main(int argc, char* argv[])
 {
 	((void) argc);
@@ -74,7 +68,6 @@ int main(int argc, char* argv[])
 	}
 
 	panic_if_err_3ds(init_services());
-	ensure_logs_dir();
 	init_seeddb();
 	ensure_settings();
 	proxy::init();

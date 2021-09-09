@@ -449,8 +449,7 @@ const char *i18n::getstr(str::type sid, lang::type lid)
 
 const char *i18n::getsurestr(str::type sid)
 {
-	if(!settings_are_ready())
-		ensure_settings();
+	ensure_settings();
 	return RAW(get_settings()->language, sid);
 }
 
