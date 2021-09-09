@@ -11,7 +11,7 @@
 #include "i18n.hh"
 
 
-std::string next::sel_cat(hs::Index& index)
+std::string next::sel_cat()
 {
 	// Update curr action
 	ui::wid()->get<ui::Text>("curr_action_desc")->replace_text(STRING(select_cat));
@@ -23,11 +23,11 @@ std::string next::sel_cat(hs::Index& index)
 		[](hs::Category& cat) -> std::string { return cat.displayName; },
 		[&ret](ui::List<hs::Category> *self, size_t index, u32) -> ui::Results {
 			ret = self->at(index).name; return ui::Results::quit_loop;
-		}, index.categories
+		}, hs::get_index()->categories
 	));
 
 	ui::CatMeta *meta = new ui::CatMeta();
-	if(index.categories.size() > 0) meta->update_cat(index.categories[0]);
+	if(hs::get_index()->categories.size() > 0) meta->update_cat(hs::get_index()->categories[0]);
 	else panic(STRING(no_cats_index));
 
 	widgets.push_back("meta", meta, ui::Scr::bottom);
@@ -47,12 +47,12 @@ std::string next::sel_cat(hs::Index& index)
 	return next_cat_exit;
 }
 
-std::string next::sel_sub(hs::Index& index, std::string cat)
+std::string next::sel_sub(std::string cat)
 {
 	// Update curr action
 	ui::wid()->get<ui::Text>("curr_action_desc")->replace_text(STRING(select_subcat));
 
-	hs::Category *rcat = index[cat];
+	hs::Category *rcat = (*hs::get_index())[cat];
 	std::string ret;
 
 	llog << "assert(" << rcat->name << " == " << cat << ")";
@@ -68,6 +68,7 @@ std::string next::sel_sub(hs::Index& index, std::string cat)
 	ui::SubMeta *meta = new ui::SubMeta();
 	if(rcat->subcategories.size() > 0) meta->update_sub(rcat->subcategories[0]);
 	else panic(STRING(empty_subcat));
+
 
 	widgets.push_back("meta", meta, ui::Scr::bottom);
 	widgets.get<ui::List<hs::Subcategory>>("list")->set_on_change([&](ui::List<hs::Subcategory> *self, size_t index) {

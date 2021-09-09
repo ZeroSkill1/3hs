@@ -23,10 +23,6 @@ static void pushreq(ui::Widgets& wids)
 
 void show_hlink()
 {
-#ifndef V02
-	return;
-#endif
-
 	toggle_focus();
 
 	hlink::create_server(

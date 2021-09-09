@@ -1,6 +1,7 @@
 
 #include "widgets/indicators.hh"
 #include "build/net_icons.h"
+#include "build/battery.h"
 
 #include <time.h>
 #include <3ds.h>
@@ -113,24 +114,44 @@ ui::Results ui::NetIndicator::draw(ui::Keys&, ui::Scr)
 // BATTERY
 
 ui::BatteryIndicator::BatteryIndicator()
-	: Widget("battery_indicator"), percentage(ui::mk_right_WText(
-		"0%", 1.0f, 40.0f /* TODO: Make this the length of the battery icon + some extra */,
-		0.5f, 0.5f
-	))
+	: Widget("battery_indicator"), sheet(c2d::SpriteSheet::from_file(SHEET("battery"))),
+		percentage(ui::mk_right_WText("0%", 7.0f, 70.0f, 0.5f, 0.5f))
 {
 	this->update();
+
+	this->container = c2d::Sprite::from_sheet(&this->sheet, battery_container_idx);
+	this->red = c2d::Sprite::from_sheet(&this->sheet, battery_red_idx);
+
+	this->container.move(SCREEN_WIDTH(ui::Scr::top) - 65.0f, 5.0f);
+	this->red.move(SCREEN_WIDTH(ui::Scr::top) - 63.0f, 7.0f);
+
+	for(u8 i = 0; i < 5; ++i)
+	{
+		this->greens[i] = c2d::Sprite::from_sheet(&this->sheet, battery_green_idx);
+		this->greens[i].move(SCREEN_WIDTH(ui::Scr::top) - 62.0f + (i * 11.0f), 7.0f);
+	}
+}
+
+ui::BatteryIndicator::~BatteryIndicator()
+{
+	this->sheet.free();
 }
 
 void ui::BatteryIndicator::update()
 {
-	static u8 lvl = 0;
 	u8 nlvl = 0;
 
-	if(R_FAILED(MCUHWC_GetBatteryLevel(&nlvl)) || lvl == nlvl)
+	if(R_FAILED(MCUHWC_GetBatteryLevel(&nlvl)) || this->level == nlvl)
 		return;
 
-	lvl = nlvl;
-	this->percentage.replace_text(std::to_string(lvl) + "%");
+	this->level = nlvl;
+	this->percentage.replace_text(std::to_string(level) + "%");
+}
+
+static u8 lvl2batlvl(u8 lvl)
+{
+	u8 ret = lvl / 20 + 1;
+	return ret > 5 ? 5 : ret;
 }
 
 ui::Results ui::BatteryIndicator::draw(ui::Keys& keys, ui::Scr target)
@@ -141,10 +162,22 @@ ui::Results ui::BatteryIndicator::draw(ui::Keys& keys, ui::Scr target)
 	{
 		this->update();
 		this->percentage.draw(keys, target);
-		// TODO: Draw parts with this->level
+
+		this->draw_lvl(lvl2batlvl(this->level));
 	}
 
 	return ui::Results::go_on;
+}
+
+void ui::BatteryIndicator::draw_lvl(u8 lvl)
+{
+	this->container.draw();
+
+	if(lvl == 1) this->red.draw();
+	else {
+		for(u8 i = 0; i < lvl; ++i)
+			this->greens[i].draw();
+	}
 }
 
 // TIME
@@ -190,7 +223,7 @@ std::string ui::TimeIndicator::time()
 
 		// Why do i have to write branching code
 		// for this shit hour format
-		// 24h is so neat but NO we gringos must
+		// 24h is so neat but NO we americans:tm: must
 		// use an anoying version because ???
 		// i get its easier to read for humans
 		// (not) but its so annoying to deal with

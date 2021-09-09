@@ -131,6 +131,10 @@ namespace hs
 
 	void sort_subcategory(std::vector<hs::Title>& vec);
 	void sort_category(std::vector<hs::Title>& vec);
+
+	void setup_index(Index *index);
+	Index *get_index();
+	
 }
 
 #endif

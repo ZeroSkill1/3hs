@@ -1,0 +1,4 @@
+--atlas -f rgba8888 -z auto
+img/container.png
+img/green.png
+img/red.png

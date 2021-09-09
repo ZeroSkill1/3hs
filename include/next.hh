@@ -16,8 +16,8 @@
 
 namespace next
 {
-	std::string sel_cat(hs::Index& index);
-	std::string sel_sub(hs::Index& index, std::string cat);
+	std::string sel_cat();
+	std::string sel_sub(std::string cat);
 	hs::shid sel_gam(std::vector<hs::Title>& titles);
 }
 

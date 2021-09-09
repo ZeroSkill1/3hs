@@ -29,6 +29,7 @@ namespace ui
 
 	private:
 		void impl_replace_text(std::string str);
+		void update_h();
 
 		std::string rtext;
 		C2D_TextBuf buf;
@@ -41,6 +42,7 @@ namespace ui
 		size_t timing = 1; // one because 0%x=0
 		size_t offset = 0;
 		size_t strlen = 0;
+		float texth = 0;
 		float ogx;
 		float x;
 		float y;

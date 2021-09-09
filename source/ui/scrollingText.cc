@@ -14,12 +14,15 @@
 #define MOVE_EVERY_X_FRAMES 3
 #define FADE_OUT_MOVES 0
 
+static float diff(float a, float b)
+{ return a > b ? a - b : b - a; }
 
 ui::ScrollingText::ScrollingText(float x, float y, std::string text)
 	: Widget("scrolling_text"), rtext(text), ogx(x), x(x), y(y)
 {
 	this->buf = C2D_TextBufNew(text.size() + 1);
 	this->replace_text(text);
+	this->update_h();
 }
 
 ui::ScrollingText::ScrollingText()
@@ -75,10 +78,16 @@ ui::Results ui::ScrollingText::draw(ui::Keys&, ui::Scr)
 	}
 
 	ui::draw_at_absolute(this->x, this->y, this->text, 0, ui::constants::FSIZE, ui::constants::FSIZE, 0.0f);
-	// TODO: Use text height instead of SCREEN_HEIGHT()
-	C2D_DrawRectSolid(0, 0, Z_OFF_OVERLAY, this->ogx, SCREEN_HEIGHT(), OVERLAY_COLOR(this->screen));
+	C2D_DrawRectSolid(0, this->y, Z_OFF_OVERLAY, this->ogx, diff(this->y, this->texth),
+		OVERLAY_COLOR(this->screen));
 
 	return ui::Results::go_on;
+}
+
+void ui::ScrollingText::update_h()
+{
+	C2D_TextGetDimensions(&this->text, this->sizex, this->sizey,
+		nullptr, &this->texth);
 }
 
 void ui::ScrollingText::replace_text(std::string str)
@@ -101,6 +110,7 @@ void ui::ScrollingText::resize(float sizex, float sizey)
 {
 	this->sizex = sizex;
 	this->sizey = sizey;
+	this->update_h();
 }
 
 void ui::ScrollingText::start_scroll()

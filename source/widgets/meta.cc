@@ -13,8 +13,7 @@
 #define D_NAME      STRING(name)
 #define D_SIZE      STRING(size)
 
-#define T_S_LEN ((14*5)+1)
-#define C_LEN ((14*4)+1)
+#define BUF_LEN 1000
 
 #define twidth(n) (n.dimensions(tlen,tlen).width+moff)
 #define tlen ui::constants::FSIZE
@@ -31,12 +30,6 @@
 	this->s##n.stop_scroll(); \
 	scroll_if_large(n)
 
-static hs::Index *g_index;
-void ui::setup_meta(hs::Index *index)
-{ g_index = index; }
-
-hs::Index *ui::get_index()
-{ return g_index; }
 
 ui::TitleMeta::TitleMeta(hs::Title title)
 	: Widget("tmd")
@@ -69,7 +62,7 @@ ui::Results ui::TitleMeta::draw(ui::Keys& keys, ui::Scr target)
 
 void ui::TitleMeta::update_title(hs::Title title)
 {
-	this->scat.replace_text((*g_index)[title.cat]->displayName + " -> " + (*(*g_index)[title.cat])[title.subcat]->displayName);
+	this->scat.replace_text((*hs::get_index())[title.cat]->displayName + " -> " + (*(*hs::get_index())[title.cat])[title.subcat]->displayName);
 	this->ssize.replace_text(ui::human_readable_size_block(title.size));
 	this->sid.replace_text(std::to_string(title.id));
 	this->sname.replace_text(title.name);
@@ -81,7 +74,7 @@ void ui::TitleMeta::update_title(hs::Title title)
 
 void ui::TitleMeta::init_other()
 {
-	this->cbuf.realloc(T_S_LEN);
+	this->cbuf.realloc(BUF_LEN);
 
 	this->cname.parse(this->cbuf, D_NAME);
 	this->cname.optimize();
@@ -139,7 +132,7 @@ void ui::SubMeta::update_sub(hs::Subcategory sub)
 {
 	this->ssize.replace_text(ui::human_readable_size(sub.size));
 	this->stitle.replace_text(std::to_string(sub.totalTitles));
-	this->scat.replace_text((*g_index)[sub.cat]->displayName);
+	this->scat.replace_text((*hs::get_index())[sub.cat]->displayName);
 	this->sname.replace_text(sub.displayName);
 	this->sdesc.replace_text(sub.desc);
 
@@ -149,7 +142,7 @@ void ui::SubMeta::update_sub(hs::Subcategory sub)
 
 void ui::SubMeta::init_other()
 {
-	this->cbuf.realloc(T_S_LEN);
+	this->cbuf.realloc(BUF_LEN);
 
 	this->cname.parse(this->cbuf, D_NAME);
 	this->cname.optimize();
@@ -214,7 +207,7 @@ void ui::CatMeta::update_cat(hs::Category cat)
 
 void ui::CatMeta::init_other()
 {
-	this->cbuf.realloc(C_LEN);
+	this->cbuf.realloc(BUF_LEN);
 
 	this->cname.parse(this->cbuf, D_NAME);
 	this->cname.optimize();

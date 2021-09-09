@@ -2,12 +2,14 @@
 #ifndef inc_widgets_indicators_hh
 #define inc_widgets_indicators_hh
 
+#include <ui/bindings.hh>
 #include <ui/core.hh>
 #include <ui/text.hh>
 
 #include "install.hh"
 
 #define NET_SPRITE_BUF_LEN 4
+#define BAT_SPRITE_BUF_LEN 4
 
 
 Result get_free_space(Destination media, u64 *size);
@@ -50,14 +52,22 @@ namespace ui
 	{
 	public:
 		BatteryIndicator();
+		~BatteryIndicator();
 
 		ui::Results draw(Keys&, Scr) override;
 		void update();
 
 
 	private:
+		void draw_lvl(u8 lvl);
+
+		c2d::SpriteSheet sheet;
+		c2d::Sprite greens[5];
+		c2d::Sprite container;
+		c2d::Sprite red;
+
 		ui::Text percentage;
-		u8 level;
+		u8 level = 0;
 
 
 	};

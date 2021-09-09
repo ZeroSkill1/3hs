@@ -268,19 +268,19 @@ int main(int argc, char* argv[])
 		return 3;
 	}
 
-	ui::setup_meta(&indx);
+	hs::setup_index(&indx);
 
 	// Old logic was cursed, made it a bit better :blobaww:
 	while(aptMainLoop())
 	{
 cat:
-		std::string cat = next::sel_cat(indx);
+		std::string cat = next::sel_cat();
 		// User wants to exit app
 		if(cat == next_cat_exit) break;
 		llog << "NEXT(c): " << cat;
 
 sub:
-		std::string sub = next::sel_sub(indx, cat);
+		std::string sub = next::sel_sub(cat);
 		if(sub == next_sub_back) goto cat;
 		if(sub == next_sub_exit) break;
 		llog << "NEXT(s): " << sub;

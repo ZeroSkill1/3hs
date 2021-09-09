@@ -1,6 +1,7 @@
 
 #include "titles.hh"
 #include "error.hh"
+#include "panic.hh"
 
 #include <string.h>
 
@@ -32,6 +33,30 @@ TitleSMDH *smdh_get(u64 tid, FS_MediaType media)
 
 	FSFILE_Close(smdhFile);
 	return ret;
+}
+
+TitleSMDHTitle *smdh_get_native_title(TitleSMDH *smdh)
+{
+	u8 syslang = 0;
+	panic_if_err_3ds(CFGU_GetSystemLanguage(&syslang));
+
+	switch(syslang)
+	{
+	case CFG_LANGUAGE_JP: return &smdh->titles[0];
+	case CFG_LANGUAGE_EN: return &smdh->titles[1];
+	case CFG_LANGUAGE_FR: return &smdh->titles[2];
+	case CFG_LANGUAGE_DE: return &smdh->titles[3];
+	case CFG_LANGUAGE_IT: return &smdh->titles[4];
+	case CFG_LANGUAGE_ES: return &smdh->titles[5];
+	case CFG_LANGUAGE_ZH: return &smdh->titles[6];
+	case CFG_LANGUAGE_KO: return &smdh->titles[7];
+	case CFG_LANGUAGE_NL: return &smdh->titles[8];
+	case CFG_LANGUAGE_PT: return &smdh->titles[9];
+	case CFG_LANGUAGE_RU: return &smdh->titles[10];
+	case CFG_LANGUAGE_TW: return &smdh->titles[11];
+	}
+
+	return nullptr; // unreachable
 }
 
 Result list_titles_on(FS_MediaType media, std::vector<u64>& ret)

@@ -20,12 +20,14 @@ namespace c2d
 	class BaseWrap
 	{
 	public:
-		T nhandle;
-
 		T *handle()
 		{
 			return &this->nhandle;
 		}
+
+	protected:
+		T nhandle;
+
 	};
 
 	class SpriteSheet : public BaseWrap<C2D_SpriteSheet>

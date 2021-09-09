@@ -11,8 +11,6 @@
 
 #include <3rd/log.hh>
 
-#include <widgets/meta.hh> // TODO: Move index cache to this file
-
 #include "install.hh"
 #include "proxy.hh"
 
@@ -27,6 +25,10 @@
 
 using namespace nlohmann;
 typedef ordered_json ojson;
+
+static hs::Index *g_index = nullptr;
+void hs::setup_index(hs::Index *index) { g_index = index; }
+hs::Index *hs::get_index() { return g_index; }
 
 
 // Putting this here instead of making it public
@@ -73,7 +75,7 @@ std::string hs::base_req(std::string url, std::string *err)
 	CURLcode res = curl_easy_perform(curl);
 	curl_easy_cleanup(curl);
 
-	long code = 0; curl_easy_getinfo (curl, CURLINFO_RESPONSE_CODE, &code); lverbose << "Status: " << code;
+	long code = 0; curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &code); lverbose << "Status: " << code;
 
 	if(res != CURLE_OK && err != nullptr)
 	{
@@ -251,7 +253,7 @@ hs::BatchRelated hs::batch_related(const std::vector<htid>& tids)
 	if(tids.size() == 0) return { };
 
 	hs::BatchRelated ret;
-	std::string url = "related/batch?title_ids=" + tid_to_str(tids[0]);
+	std::string url = "title/related/batch?title_ids=" + tid_to_str(tids[0]);
 
 	for(size_t i = 1; i < tids.size(); ++i)
 		url += "&title_ids=" + tid_to_str(tids[i]);
@@ -315,7 +317,7 @@ std::string hs::parse_vstring(hs::hiver version)
 void hs::sort_category(std::vector<hs::Title>& vec)
 {
 	std::map<std::string, size_t> catmap; size_t idx = 0;
-	for(hs::Category& cat : ui::get_index()->categories)
+	for(hs::Category& cat : g_index->categories)
 		catmap[cat.displayName] = idx++;
 	std::sort(vec.begin(), vec.end(), [&catmap](const hs::Title& a, const hs::Title& b) -> bool {
 		return catmap[a.cat] < catmap[b.cat];
@@ -325,7 +327,7 @@ void hs::sort_category(std::vector<hs::Title>& vec)
 void hs::sort_subcategory(std::vector<hs::Title>& vec)
 {
 	std::map<std::string, size_t> catmap; size_t idx = 0;
-	for(hs::Category& cat : ui::get_index()->categories)
+	for(hs::Category& cat : g_index->categories)
 	{
 		for(hs::Subcategory& scat : cat.subcategories)
 		{

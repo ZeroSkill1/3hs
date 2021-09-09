@@ -6,6 +6,8 @@ v0.2.0:
  - fix bug where single line panic message wouldn't show
  - add find missing dlc/updates feature
  - add translations
+ - add proxy support
+ - add sprites for battery
 
 v0.1.6:
  - added extended meta screen
