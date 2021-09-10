@@ -33,6 +33,7 @@
 #include "update.hh"
 #include "search.hh"
 #include "titles.hh"
+#include "thread.hh"
 #include "queue.hh"
 #include "error.hh"
 #include "panic.hh"

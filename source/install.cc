@@ -1,6 +1,7 @@
 
 #include "settings.hh"
 #include "install.hh"
+#include "thread.hh"
 #include "error.hh"
 #include "proxy.hh"
 #include "seed.hh"
@@ -27,8 +28,6 @@ typedef struct cia_net_data
 	u8 *buffer = nullptr;
 	// At what index are we writing __the cia__ now?
 	u64 index = 0;
-	// Progress callback
-	prog_func prog = [](u64, u64) -> void { };
 	// Total cia size
 	u64 totalSize = 0;
 	// CURL handle
@@ -90,9 +89,6 @@ static size_t curl_install_cia_callback(char *ptr, size_t size, size_t nmemb, vo
 
 			udata->index += udata->bufSize; // = CIA_NET_BUFSIZE
 			udata->bufSize = 0;
-
-			// Exec progress callback here
-			udata->prog(udata->index, udata->totalSize);
 		}
 	}
 
@@ -125,11 +121,14 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 
 	curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, progress_cb);
 	curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+	curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "");
 	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
 	curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, data);
+ 	curl_easy_setopt(curl, CURLOPT_FAILONERROR, 1L);
 	curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
-	curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 3);
+	curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 3L);
 
 	proxy::apply(curl);
 
@@ -166,32 +165,25 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 	return 0;
 }
 
-static Result i_install_resume_loop(std::function<std::string()> get_url, Handle ciaHandle, prog_func prog)
+static void i_install_loop_thread_cb(Result& res, std::function<std::string()> get_url, cia_net_data& data)
 {
-	cia_net_data data;
-	data.buffer = new u8[CIA_NET_BUFSIZE];
-	data.cia = ciaHandle;
-	data.prog = prog;
-
 	std::string url = get_url();
 	linfo << "Installing cia from <" << url << ">.";
-
-	Result res = 0;
 
 	if(!get_settings()->resumeDownloads)
 	{
 		res = i_install_net_cia(url, &data, 0);
-		delete [] data.buffer;
-		return res;
+		return;
 	}
 
 	// install loop
 	while(true)
 	{
-		if(url != "") // url == "" means we failed to fetch the url 
+		if(url != "") // url == "" means we failed to fetch the url
 			res = i_install_net_cia(get_url(), &data, data.index + data.bufSize);
 		if(res > 0 /* curl error */ && res != CURLE_ABORTED_BY_CALLBACK)
 		{
+			llog << "timeout. ui::timeoutscreen() is up.";
 			// Does the user want to stop?
 			if(ui::timeoutscreen(STRING(netcon_lost), 10))
 			{
@@ -204,6 +196,27 @@ static Result i_install_resume_loop(std::function<std::string()> get_url, Handle
 		}
 		break;
 	}
+}
+
+static Result i_install_resume_loop(std::function<std::string()> get_url, Handle ciaHandle, prog_func prog)
+{
+	cia_net_data data;
+	data.buffer = new u8[CIA_NET_BUFSIZE];
+	data.cia = ciaHandle;
+
+	Result res = 0;
+
+	// Install thread
+	thread<Result&, std::function<std::string()>, cia_net_data&> th
+		(i_install_loop_thread_cb, res, get_url, data);
+
+	// UI Loop
+	while(!th.finished())
+	{
+		prog(data.index, data.totalSize);
+	}
+
+	th.join();
 
 	delete [] data.buffer;
 	return res;

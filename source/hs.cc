@@ -86,7 +86,7 @@ std::string hs::base_req(std::string url, std::string *err)
 		return "";
 	}
 
-	lverbose << url << " says " << body;
+//	lverbose << url << " says " << body;
 	return body;
 }
 
