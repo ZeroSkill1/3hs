@@ -38,15 +38,14 @@ public:
 
 	~thread()
 	{
-		if(this->alive)
-			this->join();
+		this->join();
 		threadFree(this->threadobj);
 	}
 
 	/* wait for the thread to finish */
 	void join()
 	{
-		threadJoin(this->threadobj, U64_MAX);
+		if(this->alive) threadJoin(this->threadobj, U64_MAX);
 	}
 
 	/* returns if the thread is done */

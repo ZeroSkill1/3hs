@@ -1,6 +1,7 @@
 
 #include "proxy.hh"
 
+#include <3rd/log.hh>
 #include <stdio.h>
 
 #include <string>
@@ -26,6 +27,10 @@ void proxy::init()
 	char *buf = new char[fsize];
 	if(fread(buf, 1, fsize, proxyfile) == fsize)
 		g_proxystr = std::string(buf, fsize);
+
+	std::string::size_type nl = g_proxystr.find("\n");
+	if(nl != std::string::npos) g_proxystr.erase(g_proxystr.begin() + nl, g_proxystr.end());
+	llog << "Using proxy: |" << g_proxystr << "|";
 
 	fclose(proxyfile);
 	delete [] buf;

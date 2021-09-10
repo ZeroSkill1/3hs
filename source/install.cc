@@ -4,6 +4,7 @@
 #include "thread.hh"
 #include "error.hh"
 #include "proxy.hh"
+#include "panic.hh"
 #include "seed.hh"
 
 #include <widgets/indicators.hh>
@@ -222,6 +223,8 @@ static Result i_install_resume_loop(std::function<std::string()> get_url, Handle
 
 	Result res = 0;
 
+	time_t start = time(NULL);
+
 	// Install thread
 	thread<Result&, std::function<std::string()>, cia_net_data&> th
 		(i_install_loop_thread_cb, res, get_url, data);
@@ -248,6 +251,8 @@ static Result i_install_resume_loop(std::function<std::string()> get_url, Handle
 	}
 
 	th.join();
+
+	panic("Joined install thread. took " + std::to_string(time(NULL) - start) + " seconds");
 
 	delete [] data.buffer;
 	return res;

@@ -8,6 +8,7 @@ v0.2.0:
  - add translations
  - add proxy support
  - add sprites for battery
+ - add a loading animation
 
 v0.1.6:
  - added extended meta screen

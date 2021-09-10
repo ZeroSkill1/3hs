@@ -5,6 +5,7 @@
 #include <ui/progress_bar.hh>
 #include <ui/image_button.hh>
 #include <ui/confirm.hh>
+#include <ui/loading.hh>
 #include <ui/button.hh>
 #include <ui/swkbd.hh>
 #include <ui/text.hh>
@@ -122,10 +123,10 @@ int main(int argc, char* argv[])
 
 	ui::wid()->push_back("version", new ui::Text(ui::mk_right_WText(VERSION, 3.0f, 5.0f, 0.4f, 0.4f, ui::Scr::bottom)), ui::Scr::bottom);
 	ui::wid()->push_back("header_desc", new ui::Text(ui::mk_center_WText(STRING(banner), 30.0f)), ui::Scr::top);
-	ui::wid()->push_back("curr_action_desc", new ui::Text(ui::mk_center_WText(STRING(loading), 45.0f)), ui::Scr::top);
 	ui::wid()->push_back("header", new ui::Text(ui::mk_center_WText("hShop", 0.0f, 1.0f, 1.0f)), ui::Scr::top);
-	ui::wid()->push_back("time_indicator", new ui::TimeIndicator());
+	ui::wid()->push_back("curr_action_desc", new ui::Text(ui::mk_center_WText("", 45.0f)), ui::Scr::top); // the first message is caused by ui::loading()
 	ui::wid()->push_back("size_indicator", new ui::FreeSpaceIndicator());
+	ui::wid()->push_back("time_indicator", new ui::TimeIndicator());
 	ui::wid()->push_back("konami", new ui::Konami(), ui::Scr::top);
 	ui::wid()->push_back("net_indicator", new ui::NetIndicator());
 
@@ -255,7 +256,9 @@ int main(int argc, char* argv[])
 
 	hs::Index indx;
 	llog << "Fetching index";
-	indx = hs::Index::get();
+	ui::loading([&indx]() -> void {
+		indx = hs::Index::get();
+	});
 
 	if(index_failed(indx))
 	{
@@ -281,9 +284,11 @@ sub:
 		if(sub == next_sub_exit) break;
 		llog << "NEXT(s): " << sub;
 
-		ui::wid()->get<ui::Text>("curr_action_desc")->replace_text(STRING(loading));
-		quick_global_draw();
-		std::vector<hs::Title> titles = hs::titles_in(cat, sub);
+		std::vector<hs::Title> titles;
+		ui::loading([&titles, cat, sub]() -> void {
+			titles = hs::titles_in(cat, sub);
+		});
+
 
  gam:
 		hs::shid id = next::sel_gam(titles);
@@ -292,7 +297,10 @@ sub:
 
 		llog << "NEXT(g): " << id;
 
-		hs::FullTitle meta = hs::title_meta(id);
+		hs::FullTitle meta;
+		ui::loading([&meta, id]() -> void {
+			meta = hs::title_meta(id);
+		});
 
 		if(show_extmeta(meta))
 		{
