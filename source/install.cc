@@ -15,6 +15,11 @@
 #include <3ds.h>
 
 
+enum class ITC // inter thread communication
+{
+	normal, exit, timeoutscr
+};
+
 typedef struct cia_net_data
 {
 	// Last error
@@ -32,6 +37,8 @@ typedef struct cia_net_data
 	u64 totalSize = 0;
 	// CURL handle
 	CURL *curl = nullptr;
+	// Messages back and forth the UI/Install thread
+	ITC itc = ITC::normal;
 } cia_net_data;
 
 
@@ -50,6 +57,9 @@ static u64 get_curl_total_size(CURL *curl)
 static size_t curl_install_cia_callback(char *ptr, size_t size, size_t nmemb, void *userdata)
 {
 	cia_net_data *udata = (cia_net_data *) userdata;
+	// If we should exit we do exactly that
+	if(udata->itc == ITC::exit) return 0;
+
 	size_t rsize = size * nmemb;
 	size_t avail = rsize; // This will decrement
 	size_t srcPos = 0; // From where in `ptr` do we want to copy?
@@ -96,11 +106,6 @@ static size_t curl_install_cia_callback(char *ptr, size_t size, size_t nmemb, vo
 	return rsize;
 }
 
-static int progress_cb(void *, curl_off_t, curl_off_t, curl_off_t, curl_off_t)
-{
-	hidScanInput(); return (hidKeysDown() | hidKeysHeld()) & (KEY_B | KEY_START);
-}
-
 static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from)
 {
 	static_assert(CIA_NET_BUFSIZE % 64 == 0, "$CIA_NET_BUFSIZE must be dividable by 64");
@@ -118,8 +123,6 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 	}
 
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_install_cia_callback);
-
-	curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, progress_cb);
 	curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 	curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "");
 	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
@@ -127,7 +130,6 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 	curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, data);
  	curl_easy_setopt(curl, CURLOPT_FAILONERROR, 1L);
-	curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
 	curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 3L);
 
 	proxy::apply(curl);
@@ -181,19 +183,33 @@ static void i_install_loop_thread_cb(Result& res, std::function<std::string()> g
 	{
 		if(url != "") // url == "" means we failed to fetch the url
 			res = i_install_net_cia(get_url(), &data, data.index + data.bufSize);
+
+		// User pressed start
+		if(data.itc == ITC::exit)
+		{
+			res = CURLE_ABORTED_BY_CALLBACK;
+			break;
+		}
+
 		if(res > 0 /* curl error */ && res != CURLE_ABORTED_BY_CALLBACK)
 		{
 			llog << "timeout. ui::timeoutscreen() is up.";
 			// Does the user want to stop?
+
+			data.itc = ITC::timeoutscr;
 			if(ui::timeoutscreen(STRING(netcon_lost), 10))
 			{
 				// this signals that we want to cancel the installation later on
 				res = CURLE_ABORTED_BY_CALLBACK;
+				data.itc = ITC::exit;
 				break;
 			}
+
+			data.itc = ITC::normal;
 			url = get_url();
 			continue;
 		}
+
 		break;
 	}
 }
@@ -211,9 +227,24 @@ static Result i_install_resume_loop(std::function<std::string()> get_url, Handle
 		(i_install_loop_thread_cb, res, get_url, data);
 
 	// UI Loop
+	u64 prev = 0;
 	while(!th.finished())
 	{
-		prog(data.index, data.totalSize);
+		if(data.itc != ITC::timeoutscr)
+		{
+			if(data.index != prev)
+			{
+				prog(data.index, data.totalSize);
+				prev = data.index;
+			}
+
+			hidScanInput();
+			if(hidKeysDown() & (KEY_B | KEY_START))
+			{
+				data.itc = ITC::exit;
+				break;
+			}
+		}
 	}
 
 	th.join();
@@ -278,7 +309,7 @@ bool title_exists(u64 tid, FS_MediaType media)
 		return true;
 
 	u64 *tids = new u64[tcount];
-	if(R_FAILED(AM_GetTitleList(&tcount, MEDIATYPE_SD, tcount, tids)))
+	if(R_FAILED(AM_GetTitleList(&tcount, media, tcount, tids)))
 		goto fail;
 
 	for(size_t i = 0; i < tcount; ++i)
