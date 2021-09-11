@@ -204,10 +204,15 @@ static Result i_install_resume_loop(std::function<std::string()> get_url, Handle
 static Destination detect_dest(hs::Title *meta)
 { return detect_dest(meta->tid); }
 
-// https://www.3dbrew.org/wiki/Titles#Title_IDs
 Destination detect_dest(const std::string& tid)
 {
-	u16 cat = std::stoul(tid.substr(4, 4), nullptr, 16);
+	return detect_dest(str_to_tid(tid));
+}
+
+// https://www.3dbrew.org/wiki/Titles#Title_IDs
+Destination detect_dest(u64 tid)
+{
+	u16 cat = (tid >> 32) & 0xFFFF;
 	// Install on nand on (DlpChild, System, TWL), else install on SD
 	return (cat & (0x1 | 0x10 | 0x8000))
 		? (cat & 0x8000 ? DEST_TWLNand : DEST_CTRNand)

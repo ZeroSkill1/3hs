@@ -31,6 +31,8 @@ static inline get_url_func makeurlwrap(const std::string& url)
 
 
 Destination detect_dest(const std::string& tid);
+Destination detect_dest(u64 tid);
+
 FS_MediaType to_mediatype(Destination dest);
 
 Result delete_if_exist(u64 tid, FS_MediaType media = MEDIATYPE_SD);

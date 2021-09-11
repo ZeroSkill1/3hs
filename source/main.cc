@@ -4,6 +4,7 @@
 #include <ui/scrollingText.hh>
 #include <ui/progress_bar.hh>
 #include <ui/image_button.hh>
+#include <ui/smdhicon.hh>
 #include <ui/confirm.hh>
 #include <ui/loading.hh>
 #include <ui/button.hh>
@@ -75,51 +76,6 @@ int main(int argc, char* argv[])
 	proxy::init();
 
 	osSetSpeedupEnable(true); // speedup for n3dses
-
-/*
-	ui::global_init();
-
-	TitleSMDH *smdh = smdh_get(0x0004000000133300, MEDIATYPE_SD);
-	panic_assert(smdh != nullptr, "smdh == nullptr");
-
-	C2D_Sprite img;
-	memset(&img, 0x0, sizeof(C2D_Sprite));
-	load_smdh_icon(&img.image, *smdh, SMDHIconType::large);
-
-	C2D_SpriteSetPos(&img, 100, 100);
-
-	while(aptMainLoop())
-	{
-		hidScanInput();
-		if(hidKeysDown() & KEY_START)
-			break;
-
-		C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
-		C2D_TargetClear(ui::top(), 0xFF);
-		C2D_SceneBegin(ui::top());
-
-		C2D_DrawSprite(&img);
-
-		C3D_FrameEnd(0);
-	}
-
-//	ui::StandaloneSprite *bunny = new ui::StandaloneSprite(SHEET("bun"), bun_bun_idx);
-//	bunny->get_sprite()->set_pos(SCREEN_WIDTH(ui::Scr::top) / 2, SCREEN_HEIGHT() / 2);
-//	bunny->get_sprite()->set_center(0.5f, 0.0f);
-
-//	ui::Widgets wids;
-//	wids.push_back(new ui::Sprite(sprite));
-//	wids.push_back(bunny);
-
-//	generic_main_breaking_loop(wids);
-	delete_smdh_icon(img.image);
-	delete smdh;
-
-	ui::global_deinit();
-	exit_services();
-	gfxExit();
-	return 0;
-*/
 
 	ui::wid()->push_back("version", new ui::Text(ui::mk_right_WText(VERSION, 3.0f, 5.0f, 0.4f, 0.4f, ui::Scr::bottom)), ui::Scr::bottom);
 	ui::wid()->push_back("header_desc", new ui::Text(ui::mk_center_WText(STRING(banner), 30.0f)), ui::Scr::top);
@@ -202,8 +158,7 @@ int main(int argc, char* argv[])
 	ui::wid()->get<ui::Button>("queue")->autoadjust_x(10.0f);
 
 	ui::wid()->get<ui::ImageButton>("settings")->set_on_click([]() -> ui::Results {
-		ui::end_frame(); show_settings(); ui::wid()->get<ui::FreeSpaceIndicator>("size_indicator")->update(); // Setting may have changed
-		return ui::Results::end_early;
+		ui::end_frame(); show_settings(); return ui::Results::end_early;
 	});
 
 	ui::wid()->get<ui::ImageButton>("more")->set_on_click([]() -> ui::Results {

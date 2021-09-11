@@ -1,4 +1,5 @@
 
+#include "install.hh"
 #include "titles.hh"
 #include "error.hh"
 #include "panic.hh"
@@ -11,10 +12,10 @@ static FS_Path makebin_(const void *path, u32 size)
 	return { PATH_BINARY, size, path };
 }
 
-TitleSMDH *smdh_get(u64 tid, FS_MediaType media)
+TitleSMDH *smdh_get(u64 tid)
 {
 	static const u32 smdhPath[5] = AEXEFS_SMDH_PATH;
-	u32 exefsArchivePath[4] = MAKE_EXEFS_APATH(tid, media);
+	u32 exefsArchivePath[4] = MAKE_EXEFS_APATH(tid, to_mediatype(detect_dest(tid)));
 
 	Handle smdhFile;
 	if(R_FAILED(FSUSER_OpenFileDirectly(&smdhFile, ARCHIVE_SAVEDATA_AND_CONTENT,

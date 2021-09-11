@@ -12,7 +12,8 @@
 enum class SMDHIconType
 { large, small };
 
-void load_smdh_icon(C2D_Image *ret, const TitleSMDH& smdh, SMDHIconType type);
+void load_smdh_icon(C2D_Image *ret, const TitleSMDH& smdh, SMDHIconType type,
+	unsigned int *chosenDimensions = nullptr);
 void delete_smdh_icon(C2D_Image icon);
 
 #endif

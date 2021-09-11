@@ -79,7 +79,7 @@ typedef struct TitleSMDH
 
 Result list_titles_on(FS_MediaType media, std::vector<u64>& ret);
 TitleSMDHTitle *smdh_get_native_title(TitleSMDH *smdh);
-TitleSMDH *smdh_get(u64 tid, FS_MediaType media);
+TitleSMDH *smdh_get(u64 tid);
 
 #endif
 
