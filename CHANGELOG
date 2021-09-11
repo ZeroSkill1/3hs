@@ -9,6 +9,7 @@ v0.2.0:
  - add proxy support
  - add sprites for battery
  - add a loading animation
+ - major speed improvements
 
 v0.1.6:
  - added extended meta screen
