@@ -30,6 +30,20 @@ static inline get_url_func makeurlwrap(const std::string& url)
 }
 
 
+Result httpcSetProxy(httpcContext *context, u16 port, u32 proxylen, const char *proxy,
+	u32 usernamelen, const char *username, u32 passwordlen, const char *password);
+
+// C++ wrapper
+static inline Result httpcSetProxy(httpcContext *context, u16 port,
+	const std::string& proxy, const std::string& username, const std::string& password)
+{
+	return httpcSetProxy(
+		context, port, proxy.size(), proxy.c_str(),
+		username.size(), username.size() == 0 ? nullptr : username.c_str(),
+		password.size(), password.size() == 0 ? nullptr : password.c_str()
+	);
+}
+
 Destination detect_dest(const std::string& tid);
 Destination detect_dest(u64 tid);
 

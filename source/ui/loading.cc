@@ -13,7 +13,7 @@ void ui::loading(ui::Widgets& wids, std::function<void()> callback)
 	thread<> th(callback);
 
 	ui::Keys keys;
-	while(!th.finished() && ui::framenext(keys))
+	while(!th.finished() && ui::framenext_nobreak(keys))
 		ui::framedraw(wids, keys);
 
 	swap_desc(old);

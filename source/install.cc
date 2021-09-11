@@ -45,12 +45,12 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 	Result res = 0;
 
 	/* configure */
-	// TODO: Implement httpcSetProxy
 	CHECKRET(httpcOpenContext(&ctx, HTTPC_METHOD_GET, url.c_str(), 0));
 	CHECKRET(httpcSetSSLOpt(&ctx, SSLCOPT_DisableVerify));
 	CHECKRET(httpcSetKeepAlive(&ctx, HTTPC_KEEPALIVE_ENABLED));
 	CHECKRET(httpcAddRequestHeaderField(&ctx, "Connection", "Keep-Alive"));
 	CHECKRET(httpcAddRequestHeaderField(&ctx, "User-Agent", USER_AGENT));
+	CHECKRET(proxy::apply(&ctx));
 
 	if(from != 0)
 	{
@@ -364,5 +364,33 @@ Result install_net_cia(get_url_func get_url, prog_func prog, bool reinstallable,
 Result install_hs_cia(hs::FullTitle *meta, prog_func prog, bool reinstallable)
 {
 	return i_install_hs_cia(meta, prog, reinstallable);
+}
+
+// HTTPC
+
+// https://3dbrew.org/wiki/HTTPC:SetProxy
+Result httpcSetProxy(httpcContext *context, u16 port, u32 proxylen, const char *proxy,
+	u32 usernamelen, const char *username, u32 passwordlen, const char *password)
+{
+	u32 *cmdbuf = getThreadCommandBuffer();
+
+	cmdbuf[0]  = IPC_MakeHeader(0x000D, 0x5, 0x6); // 0x000D0146
+	cmdbuf[1]  = context->httphandle;
+	cmdbuf[2]  = proxylen;
+	cmdbuf[3]  = port & 0xFFFF;
+	cmdbuf[4]  = usernamelen;
+	cmdbuf[5]  = passwordlen;
+	cmdbuf[6]  = (proxylen << 14) | 0x2;
+	cmdbuf[7]  = (u32) proxy;
+	cmdbuf[8]  = (usernamelen << 14) | 0x402;
+	cmdbuf[9]  = (u32) username;
+	cmdbuf[10] = (passwordlen << 14) | 0x802;
+	cmdbuf[11] = (u32) password;
+
+	Result ret = 0;
+	if(R_FAILED(ret = svcSendSyncRequest(context->servhandle)))
+		return ret;
+
+	return cmdbuf[1];
 }
 

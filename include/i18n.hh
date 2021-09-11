@@ -89,6 +89,7 @@ namespace str
 		queue_empty = 63,
 		cancel = 64,
 		confirm = 65,
+		invalid_proxy = 66,
 
 		_i_max,
 	};

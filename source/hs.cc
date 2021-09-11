@@ -68,7 +68,7 @@ std::string hs::base_req(std::string url, std::string *err)
 	curl_easy_setopt(curl, CURLOPT_CAINFO, HS_CA_LOC);
 	curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &body);
-	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10L);
+	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 20L);
 
 	proxy::apply(curl);
 
