@@ -15,6 +15,9 @@
 #include <malloc.h>
 #include <3ds.h>
 
+#define CHECKRET(expr) if(R_FAILED( res = ( expr ) )) return res
+#define BUFSIZE 0x80000
+
 
 enum class ITC // inter thread communication
 {
@@ -23,146 +26,89 @@ enum class ITC // inter thread communication
 
 typedef struct cia_net_data
 {
-	// Last error
-	Result err = 0;
 	// We write to this handle
 	Handle cia;
-	// How many bytes are in this->buffer?
-	u32 bufSize = 0;
-	// Temp store for leftovers
-	// allocated on heap for more storage
-	u8 *buffer = nullptr;
 	// At what index are we writing __the cia__ now?
-	u64 index = 0;
+	u32 index = 0;
 	// Total cia size
-	u64 totalSize = 0;
-	// CURL handle
-	CURL *curl = nullptr;
+	u32 totalSize = 0;
 	// Messages back and forth the UI/Install thread
 	ITC itc = ITC::normal;
+	// Buffer. allocated on heap for extra storage
+	u8 *buffer = nullptr;
 } cia_net_data;
 
 
-static Result write_cia_data(cia_net_data *cdata, u32 *written, u32 flags = FS_WRITE_FLUSH)
-{
-	return FSFILE_Write(cdata->cia, written, cdata->index, cdata->buffer, cdata->bufSize, flags);
-}
-
-static u64 get_curl_total_size(CURL *curl)
-{
-	u64 ret = 0;
-	curl_easy_getinfo(curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD_T, &ret);
-	return ret;
-}
-
-static size_t curl_install_cia_callback(char *ptr, size_t size, size_t nmemb, void *userdata)
-{
-	cia_net_data *udata = (cia_net_data *) userdata;
-	// If we should exit we do exactly that
-	if(udata->itc == ITC::exit) return 0;
-
-	size_t rsize = size * nmemb;
-	size_t avail = rsize; // This will decrement
-	size_t srcPos = 0; // From where in `ptr` do we want to copy?
-
-	// Get total size
-	if(udata->totalSize == 0) udata->totalSize = get_curl_total_size(udata->curl);
-
-	// We need to split it up in chunks ...
-	while(avail != 0)
-	{
-		// How many bytes do we still need to write to the buffer to get it completed?
-		size_t remainder = CIA_NET_BUFSIZE - udata->bufSize;
-		// Remainder = 100
-		// available = 200
-		// First iteration: write remainding 100 bytes, available-=100, clear buffer
-		// Second iteration: write 100 bytes to buffer and do nothing after
-		size_t cpySize = remainder > avail ? avail : remainder;
-
-		// Copy the remainder in, if we don't have enough to fill it in completely
-		// Just fill what we can
-		memcpy(udata->buffer + udata->bufSize, ptr + srcPos, cpySize);
-		udata->bufSize += cpySize;
-		srcPos += cpySize;
-		avail -= cpySize;
-
-		// Hey! we need to clear the buffer
-		if(udata->bufSize == CIA_NET_BUFSIZE)
-		{
-			// How many bytes did we write? Should always be CIA_NET_BUFSIZE
-			u32 written = 0; Result res = write_cia_data(udata, &written);
-
-			if(R_FAILED(res))
-			{
-				udata->err = res;
-				return 0;
-			}
-
-			udata->index += udata->bufSize; // = CIA_NET_BUFSIZE
-			udata->bufSize = 0;
-		}
-	}
-
-	// Success!
-	return rsize;
-}
-
 static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from)
 {
-	static_assert(CIA_NET_BUFSIZE % 64 == 0, "$CIA_NET_BUFSIZE must be dividable by 64");
-	CURL *curl = curl_easy_init();
+	httpcContext ctx;
+	Result res = 0;
 
-	data->curl = curl;
+	/* configure */
+	// TODO: Implement httpcSetProxy
+	CHECKRET(httpcOpenContext(&ctx, HTTPC_METHOD_GET, url.c_str(), 0));
+	CHECKRET(httpcSetSSLOpt(&ctx, SSLCOPT_DisableVerify));
+	CHECKRET(httpcSetKeepAlive(&ctx, HTTPC_KEEPALIVE_ENABLED));
+	CHECKRET(httpcAddRequestHeaderField(&ctx, "Connection", "Keep-Alive"));
+	CHECKRET(httpcAddRequestHeaderField(&ctx, "User-Agent", USER_AGENT));
 
-	struct curl_slist *headers = NULL;
-	headers = curl_slist_append(headers, CURL_UA);
-	// = We want to contintue
 	if(from != 0)
 	{
-		headers = curl_slist_append(headers, (std::string("Range: bytes=") + std::to_string(from)
-			+ "-").c_str());
+		CHECKRET(httpcAddRequestHeaderField(&ctx, "Range", ("bytes=" + std::to_string(from) + "-").c_str()));
 	}
 
-	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_install_cia_callback);
-	curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-	curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "");
-	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
-	curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-	curl_easy_setopt(curl, CURLOPT_WRITEDATA, data);
- 	curl_easy_setopt(curl, CURLOPT_FAILONERROR, 1L);
-	curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 3L);
+	CHECKRET(httpcBeginRequest(&ctx));
 
-	proxy::apply(curl);
+	u32 status = 0, dled = from;
+	CHECKRET(httpcGetResponseStatusCode(&ctx, &status));
+	lverbose << "Download status code: " << status;
 
-	CURLcode res = curl_easy_perform(curl);
-	curl_easy_cleanup(curl);
-
-	// If we have an error here, a potentional curl error will
-	// most likely be a reaction to this error, so its more imporant
-	if(data->err != 0)
+	// Do we want to redirect?
+	if(status / 100 == 3)
 	{
-		lerror << "FSFILE_Write(...): " << std::hex << data->err;
-		return data->err;
+		char newurl[2048];
+		httpcGetResponseHeader(&ctx, "location", newurl, 2048);
+		std::string redir(newurl);
+
+		lverbose << "Redirected to " << redir;
+		httpcCloseContext(&ctx);
+		return i_install_net_cia(redir, data, from);
 	}
 
-	if(res != CURLE_OK)
-	{
-		lerror << "curl_easy_perform(...): " << res;
-		return (Result) res;
-	}
+	// Are we resuming and does the server support range?
+	if(from != 0 && status != 206)
+		return APPERR_NORANGE;
 
-	// One final write...
-	if(data->bufSize != 0)
-	{
-		u32 written = 0;
-		Result sres = write_cia_data(data, &written);
+	if(from == 0)
+		CHECKRET(httpcGetDownloadSizeState(&ctx, nullptr, &data->totalSize));
+	if(data->totalSize == 0)
+		return APPERR_NOSIZE;
 
-		if(R_FAILED(sres))
+	// Install.
+	u32 remaining = data->totalSize - from;
+	u32 dlnext = BUFSIZE > remaining ? remaining : BUFSIZE;
+	u32 written = 0;
+
+	while(data->index != data->totalSize)
+	{
+		if((R_FAILED(res = httpcReceiveDataTimeout(&ctx, data->buffer, dlnext, 30000000000L))
+			&& res != (Result) HTTPC_RESULTCODE_DOWNLOADPENDING)
+			|| R_FAILED(res = httpcGetDownloadSizeState(&ctx, &dled, nullptr)))
 		{
-			lerror << "FSFILE_Write(...): " << std::hex << sres;
-			return sres;
+			// Error
+			httpcCloseContext(&ctx);
+			return res;
 		}
+
+		if(data->itc == ITC::exit)
+			break;
+
+		CHECKRET(FSFILE_Write(data->cia, &written, data->index, data->buffer, BUFSIZE, FS_WRITE_FLUSH));
+
+		remaining = data->totalSize - dled - from;
+		data->index += dlnext;
+
+		dlnext = BUFSIZE > remaining ? remaining : BUFSIZE;
 	}
 
 	return 0;
@@ -183,16 +129,16 @@ static void i_install_loop_thread_cb(Result& res, std::function<std::string()> g
 	while(true)
 	{
 		if(url != "") // url == "" means we failed to fetch the url
-			res = i_install_net_cia(get_url(), &data, data.index + data.bufSize);
+			res = i_install_net_cia(get_url(), &data, data.index);
 
 		// User pressed start
 		if(data.itc == ITC::exit)
 		{
-			res = CURLE_ABORTED_BY_CALLBACK;
+			res = APPERR_CANCELLED;
 			break;
 		}
 
-		if(res > 0 /* curl error */ && res != CURLE_ABORTED_BY_CALLBACK)
+		if(R_MODULE(res) == RM_HTTP)
 		{
 			llog << "timeout. ui::timeoutscreen() is up.";
 			// Does the user want to stop?
@@ -201,7 +147,7 @@ static void i_install_loop_thread_cb(Result& res, std::function<std::string()> g
 			if(ui::timeoutscreen(STRING(netcon_lost), 10))
 			{
 				// this signals that we want to cancel the installation later on
-				res = CURLE_ABORTED_BY_CALLBACK;
+				res = APPERR_CANCELLED;
 				data.itc = ITC::exit;
 				break;
 			}
@@ -218,12 +164,10 @@ static void i_install_loop_thread_cb(Result& res, std::function<std::string()> g
 static Result i_install_resume_loop(std::function<std::string()> get_url, Handle ciaHandle, prog_func prog)
 {
 	cia_net_data data;
-	data.buffer = new u8[CIA_NET_BUFSIZE];
+	data.buffer = new u8[BUFSIZE];
 	data.cia = ciaHandle;
 
 	Result res = 0;
-
-	time_t start = time(NULL);
 
 	// Install thread
 	thread<Result&, std::function<std::string()>, cia_net_data&> th
@@ -251,8 +195,6 @@ static Result i_install_resume_loop(std::function<std::string()> get_url, Handle
 	}
 
 	th.join();
-
-	panic("Joined install thread. took " + std::to_string(time(NULL) - start) + " seconds");
 
 	delete [] data.buffer;
 	return res;
@@ -397,10 +339,17 @@ Result install_net_cia(get_url_func get_url, prog_func prog, bool reinstallable,
 	if(R_FAILED(ret)) return ret;
 
 	ret = i_install_resume_loop(get_url, cia, prog);
-	if(ret == CURLE_ABORTED_BY_CALLBACK)
-	{ AM_CancelCIAInstall(cia); return APPERR_CANCELLED; }
+	if(ret == APPERR_CANCELLED)
+	{
+		AM_CancelCIAInstall(cia);
+		return APPERR_CANCELLED;
+	}
+
 	if(!NET_OK(ret)) // If everything went ok in i_install_resume_loop, we return a 0
-	{ AM_CancelCIAInstall(cia); return ret; }
+	{
+		AM_CancelCIAInstall(cia);
+		return ret;
+	}
 
 	ret = AM_FinishCiaInstall(cia);
 	linfo << "AM_FinishCiaInstall(...): " << ret;

@@ -19,6 +19,7 @@ Result init_services()
 	if(R_FAILED(res = mcuHwcInit())) return res;
 #endif
 
+	if(R_FAILED(res = httpcInit(0))) return res;
 	if(R_FAILED(res = romfsInit())) return res;
 	if(R_FAILED(res = cfguInit())) return res;
 	if(R_FAILED(res = aptInit())) return res;
@@ -35,6 +36,7 @@ void exit_services()
 	mcuHwcExit();
 #endif
 
+	httpcExit();
 	romfsExit();
 	cfguExit();
 	aptExit();

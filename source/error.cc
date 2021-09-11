@@ -96,6 +96,7 @@ static const std::map<Result, std::map<Result, const char *>> ERR_LOOKUP({
 		RM_HTTP, {
 			{ 60 , "Failed to verify TLS certificate" },
 			{ 70 , "Network unavailable"              },
+			{ 72 , "Timed out"                        },
 			{ 102, "Wrong context handle"             },
 			{ 105, "Request timed out"                },
 		}
@@ -122,6 +123,8 @@ static const std::map<Result, std::map<Result, const char *>> ERR_LOOKUP({
 			{ 2, "Too little free space on your SD Card"         },
 			{ 3, "Can't reinstall title unless asked"            },
 			{ 4, "Title count and list mismatch"                 },
+			{ 5, "Server doesn't support Range"                  },
+			{ 6, "Server doesn't support Content-Length"         },
 		}
 	},
 });
@@ -136,6 +139,7 @@ static const std::map<Result, const char *> LVL_LOOKUP({
 	{ RL_USAGE       , "Usage"        },
 	{ RL_PERMANENT   , "Permanent"    },
 	{ RL_TEMPORARY   , "Temporary"    },
+	{ RL_STATUS      , "Status"       },
 });
 
 /* <sum, msg> */

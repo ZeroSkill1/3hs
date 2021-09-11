@@ -7,9 +7,6 @@
 #include <hs.hh>
 #include <3ds.h>
 
-// 128 KiB
-#define CIA_NET_BUFSIZE 0x20000
-
 #define NET_CURL_ERR(r) ((r) > 0)
 #define NET_3DS_ERR(r) ((r) < 0)
 #define NET_OK(r) ((r) == 0)
