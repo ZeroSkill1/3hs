@@ -3,12 +3,14 @@
 
 #include <widgets/meta.hh>
 
+#include <ui/loading.hh>
 #include <ui/button.hh>
 #include <ui/swkbd.hh>
 #include <ui/util.hh>
 #include <ui/text.hh>
 #include <ui/list.hh>
 
+#include "extmeta.hh"
 #include "queue.hh"
 #include "util.hh"
 #include "i18n.hh"
@@ -51,8 +53,12 @@ static void show_searchbar_search()
 	ui::Widgets wids;
 
 	ui::wid()->get<ui::Text>("curr_action_desc")->toggle();
-	ui::wid()->get<ui::Text>("curr_action_desc")->replace_text(i18n::getstr(str::loading));
-	quick_global_draw(); std::vector<hs::Title> titles = hs::search(query);
+
+	std::vector<hs::Title> titles;
+	ui::loading([&titles, query]() -> void {
+		titles = hs::search(query);
+	});
+
 	ui::wid()->get<ui::Text>("curr_action_desc")->replace_text(
 		PSTRING(results_query, query));
 
@@ -65,9 +71,19 @@ static void show_searchbar_search()
 			if(keys & KEY_A)
 			{
 				ui::end_frame();
-				toggle_focus();
-				process_hs(self->at(index).id);
-				toggle_focus();
+
+				hs::FullTitle meta;
+				ui::loading([&meta, &self, index]() -> void {
+					meta = hs::title_meta(self->at(index).id);
+				});
+
+				if(show_extmeta(meta))
+				{
+					toggle_focus();
+					process_hs(meta);
+					toggle_focus();
+				}
+
 				return ui::Results::end_early;
 			}
 			else if(keys & KEY_Y)

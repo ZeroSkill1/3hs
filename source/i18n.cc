@@ -95,7 +95,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 				"Tip: press " GLYPH_Y " to add a title to the queue",
 			[str::cancel] = "Cancel",
 			[str::confirm] = "Confirm",
-			[str::invalid_proxy] = "Invalid proxy settings"
+			[str::invalid_proxy] = "Invalid proxy settings",
+			[str::more_about_content] = "More about this content",
 		},
 
 	[lang::dutch] =
@@ -183,6 +184,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::cancel] = "Weiger",
 			[str::confirm] = "Accepteer",
 			[str::invalid_proxy] = "Ongeldige proxy instellingen",
+			[str::more_about_content] = "Meer over deze titel",
 		},
 
 	[lang::german] =
@@ -267,6 +269,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::cancel] = "Abbrechen",
 			[str::confirm] = "Bestätigen",
 			[str::invalid_proxy] = "Ungültige Proxy-Einstellungen",
+			[str::more_about_content] = "Mehr über diesen Inhalt",
 		},
 
 	[lang::spanish] =
@@ -352,6 +355,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::cancel] = "Cancelar",
 			[str::confirm] = "Confirmar",
 			[str::invalid_proxy] = "Configuración de proxy inválida",
+			[str::more_about_content] = "Más sobre este contenido",
 		},
 
 	[lang::uwulang] =
@@ -437,6 +441,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::cancel] = "Cancew",
 			[str::confirm] = "COwOnfirm",
 			[str::invalid_proxy] = "Invalid prOwOxy",
+			[str::more_about_content] = "MOwOre abOwOut this cOwOntent",
 		},
 };
 #pragma GCC diagnostic pop

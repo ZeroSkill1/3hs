@@ -9,10 +9,13 @@
 
 #include "panic.hh"
 #include "i18n.hh"
+#include "util.hh"
 
 
 bool show_extmeta(hs::FullTitle title)
 {
+	std::string desc = swap_desc(STRING(more_about_content));
+
 	ui::Widgets wids;
 	bool ret = false;
 
@@ -40,6 +43,8 @@ bool show_extmeta(hs::FullTitle title)
 	// TODO: parse html for title.desc?
 
 	generic_main_breaking_loop(wids);
+
+	swap_desc(desc);
 	return ret;
 }
 

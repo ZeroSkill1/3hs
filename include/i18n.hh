@@ -90,6 +90,7 @@ namespace str
 		cancel = 64,
 		confirm = 65,
 		invalid_proxy = 66,
+		more_about_content = 67,
 
 		_i_max,
 	};
