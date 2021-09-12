@@ -97,6 +97,10 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::confirm] = "Confirm",
 			[str::invalid_proxy] = "Invalid proxy settings",
 			[str::more_about_content] = "More about this content",
+			[str::lumalocalemode] = "LumaLocale mode",
+			[str::automatic] = "automatic",
+			[str::manual] = "manual",
+			[str::disabled] = "disabled",
 		},
 
 	[lang::dutch] =
@@ -185,6 +189,10 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::confirm] = "Accepteer",
 			[str::invalid_proxy] = "Ongeldige proxy instellingen",
 			[str::more_about_content] = "Meer over deze titel",
+			STUB(lumalocalemode),
+			STUB(automatic),
+			STUB(manual),
+			STUB(disabled),
 		},
 
 	[lang::german] =
@@ -270,6 +278,10 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::confirm] = "Bestätigen",
 			[str::invalid_proxy] = "Ungültige Proxy-Einstellungen",
 			[str::more_about_content] = "Mehr über diesen Inhalt",
+			STUB(lumalocalemode),
+			STUB(automatic),
+			STUB(manual),
+			STUB(disabled),
 		},
 
 	[lang::spanish] =
@@ -356,6 +368,10 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::confirm] = "Confirmar",
 			[str::invalid_proxy] = "Configuración de proxy inválida",
 			[str::more_about_content] = "Más sobre este contenido",
+			STUB(lumalocalemode),
+			STUB(automatic),
+			STUB(manual),
+			STUB(disabled),
 		},
 
 	[lang::uwulang] =
@@ -442,6 +458,10 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::confirm] = "COwOnfirm",
 			[str::invalid_proxy] = "Invalid prOwOxy",
 			[str::more_about_content] = "MOwOre abOwOut this cOwOntent",
+			STUB(lumalocalemode),
+			STUB(automatic),
+			STUB(manual),
+			STUB(disabled),
 		},
 };
 #pragma GCC diagnostic pop

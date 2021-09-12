@@ -19,6 +19,11 @@ enum class ProgressBarLocation
 	top, bottom
 };
 
+enum class LumaLocaleMode
+{
+	disabled, automatic, manual,
+};
+
 typedef struct Settings
 {
 	char magic[4] = { '3', 'H', 'S', 'S' };
@@ -31,6 +36,7 @@ typedef struct Settings
 	bool firstRun = true;
 	ProgressBarLocation progloc = ProgressBarLocation::bottom;
 	lang::type language = lang::english;
+	LumaLocaleMode lumalocalemode = LumaLocaleMode::automatic;
 } Settings;
 
 

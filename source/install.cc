@@ -1,4 +1,5 @@
 
+#include "lumalocale.hh"
 #include "settings.hh"
 #include "install.hh"
 #include "thread.hh"
@@ -358,6 +359,10 @@ Result install_net_cia(get_url_func get_url, prog_func prog, bool reinstallable,
 
 	ret = AM_FinishCiaInstall(cia);
 	linfo << "AM_FinishCiaInstall(...): " << ret;
+
+	// Install luma locale.txt file now, if we know the tid
+	if(tid != "") luma::set_locale(str_to_tid(tid));
+
 	return ret;
 }
 

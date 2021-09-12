@@ -2,10 +2,21 @@
 #include "ui/smdhicon.hh"
 
 #include "install.hh"
-#include "titles.hh"
 #include "panic.hh"
 #include "i18n.hh"
 
+
+ui::SMDHIcon::SMDHIcon(TitleSMDH *smdh, SMDHIconType type)
+	: Widget("smdh_icon")
+{
+	unsigned int dim;
+	load_smdh_icon(&this->img, *smdh, type, &dim);
+
+	this->params.pos.h = this->params.pos.w = dim;
+	this->params.center.x = this->params.center.y =
+		this->params.depth = this->params.angle =
+		this->params.pos.x = this->params.pos.y = 0;
+}
 
 ui::SMDHIcon::SMDHIcon(u64 tid, SMDHIconType type)
 	: Widget("smdh_icon")
@@ -30,6 +41,12 @@ ui::SMDHIcon::~SMDHIcon()
 
 void ui::SMDHIcon::resize(float dim)
 { this->params.pos.w = this->params.pos.h = dim; }
+
+void ui::SMDHIcon::center(float x, float y)
+{
+	this->params.center.x = x;
+	this->params.center.y = y;
+}
 
 void ui::SMDHIcon::resize(float w, float h)
 {

@@ -91,6 +91,10 @@ namespace str
 		confirm = 65,
 		invalid_proxy = 66,
 		more_about_content = 67,
+		lumalocalemode = 68,
+		automatic = 69,
+		manual = 70,
+		disabled = 71,
 
 		_i_max,
 	};

@@ -38,27 +38,40 @@ TitleSMDH *smdh_get(u64 tid)
 
 TitleSMDHTitle *smdh_get_native_title(TitleSMDH *smdh)
 {
-	u8 syslang = 0;
-	if(R_FAILED(CFGU_GetSystemLanguage(&syslang)))
-		return &smdh->titles[1]; // english
+	TitleSMDHTitle *title = nullptr;
+	u8 syslang;
 
-	switch(syslang)
+	if(R_SUCCEEDED(CFGU_GetSystemLanguage(&syslang)))
 	{
-	case CFG_LANGUAGE_JP: return &smdh->titles[0];
-	case CFG_LANGUAGE_EN: return &smdh->titles[1];
-	case CFG_LANGUAGE_FR: return &smdh->titles[2];
-	case CFG_LANGUAGE_DE: return &smdh->titles[3];
-	case CFG_LANGUAGE_IT: return &smdh->titles[4];
-	case CFG_LANGUAGE_ES: return &smdh->titles[5];
-	case CFG_LANGUAGE_ZH: return &smdh->titles[6];
-	case CFG_LANGUAGE_KO: return &smdh->titles[7];
-	case CFG_LANGUAGE_NL: return &smdh->titles[8];
-	case CFG_LANGUAGE_PT: return &smdh->titles[9];
-	case CFG_LANGUAGE_RU: return &smdh->titles[10];
-	case CFG_LANGUAGE_TW: return &smdh->titles[11];
+		switch(syslang)
+		{
+		case CFG_LANGUAGE_JP: title = &smdh->titles[0]; break;
+		case CFG_LANGUAGE_EN: title = &smdh->titles[1]; break;
+		case CFG_LANGUAGE_FR: title = &smdh->titles[2]; break;
+		case CFG_LANGUAGE_DE: title = &smdh->titles[3]; break;
+		case CFG_LANGUAGE_IT: title = &smdh->titles[4]; break;
+		case CFG_LANGUAGE_ES: title = &smdh->titles[5]; break;
+		case CFG_LANGUAGE_ZH: title = &smdh->titles[6]; break;
+		case CFG_LANGUAGE_KO: title = &smdh->titles[7]; break;
+		case CFG_LANGUAGE_NL: title = &smdh->titles[8]; break;
+		case CFG_LANGUAGE_PT: title = &smdh->titles[9]; break;
+		case CFG_LANGUAGE_RU: title = &smdh->titles[10]; break;
+		case CFG_LANGUAGE_TW: title = &smdh->titles[11]; break;
+		}
 	}
 
-	return nullptr; // unreachable
+	if(title != nullptr && title->descShort[0] != 0)
+		return title;
+
+	// EN, JP, FR, DE, IT, ES, ZH, KO, NL, PT, RU, TW
+	static const u8 lookuporder[] = { 1, 0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
+	for(u8 i = 0; i < sizeof(lookuporder); ++i)
+	{
+		if(smdh->titles[i].descShort[0] != 0)
+			return &smdh->titles[i];
+	}
+
+	return nullptr;
 }
 
 Result list_titles_on(FS_MediaType media, std::vector<u64>& ret)
@@ -85,5 +98,25 @@ Result list_titles_on(FS_MediaType media, std::vector<u64>& ret)
 
 	delete [] tids;
 	return res;
+}
+
+std::string smdh_u16conv(u16 *str, size_t size)
+{
+	std::string ret;
+	ret.reserve(size);
+
+	for(size_t i = 0; i < size; ++i)
+	{
+		const u8 lower = (str[i] >> 0) & 0xFF;
+		const u8 upper = (str[i] >> 8) & 0xFF;
+
+		// We're done
+		if(lower == 0) break;
+
+		ret.push_back(lower);
+		if(upper != 0) ret.push_back(upper);
+	}
+
+	return ret;
 }
 

@@ -3,6 +3,7 @@
 #define inc_titles_hh
 
 #include <vector>
+#include <string>
 
 #include <3ds.h>
 
@@ -15,7 +16,19 @@ enum class RegionLockout : u32
 {
 	JPN = 0x01, USA = 0x02, EUR = 0x04,
 	AUS = 0x08, CHN = 0x10, KOR = 0x20,
-	TWN = 0x40
+	TWN = 0x40, WORLD = 0x7FFFFFFF,
+};
+
+enum class Region
+{
+	JPN, USA, EUR, // EUR includes AUS
+	CHN, KOR, TWN,
+	WORLD,
+};
+
+enum class Lang
+{
+	Lang0,
 };
 
 enum class Ratings : u32
@@ -79,6 +92,7 @@ typedef struct TitleSMDH
 
 Result list_titles_on(FS_MediaType media, std::vector<u64>& ret);
 TitleSMDHTitle *smdh_get_native_title(TitleSMDH *smdh);
+std::string smdh_u16conv(u16 *str, size_t size);
 TitleSMDH *smdh_get(u64 tid);
 
 #endif
