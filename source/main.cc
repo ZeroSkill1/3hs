@@ -26,6 +26,7 @@
 #include "build/search_icon.h"
 #include "build/more_icon.h"
 
+#include "lumalocale.hh"
 #include "hlink_view.hh"
 #include "image_ldr.hh"
 #include "settings.hh"
@@ -261,6 +262,7 @@ sub:
 		{
 			toggle_focus();
 			process_hs(meta);
+			luma::set_gamepatching();
 			toggle_focus();
 		}
 

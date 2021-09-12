@@ -8,6 +8,8 @@
 namespace luma
 {
 	void set_locale(u64 tid);
+	/* sets gamepatching and prompts for reboot if required */
+	void set_gamepatching();
 }
 
 #endif

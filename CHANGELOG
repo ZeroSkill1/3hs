@@ -12,6 +12,7 @@ v0.2.0:
  - major speed improvements
  - add luma locale emulator support
  - fix issue where 3hs wouldn't work if time & date was wrong
+ - fix issue where extended meta wasn't showing in search
 
 v0.1.6:
  - added extended meta screen

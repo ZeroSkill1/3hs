@@ -27,7 +27,7 @@ typedef struct SeedDBEntry
 } SeedDBEntry;
 
 
-Result FSUSER_AddSeed(u64 titleId, const void* seed);
+Result FSUSER_AddSeed(u64 titleId, const void *seed);
 /* Returns 0x0 (success) if no seed was found */
 Result add_seed(u64 tid);
 void init_seeddb();

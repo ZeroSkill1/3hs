@@ -6,6 +6,7 @@
 
 #include <ui/smdhicon.hh>
 #include <ui/selector.hh>
+#include <ui/confirm.hh>
 #include <ui/text.hh>
 #include <ui/core.hh>
 
@@ -113,6 +114,74 @@ static void write_file(u64 tid, const char *region, const char *lang)
 
 	fwrite(contents.c_str(), 1, contents.size(), file);
 	fclose(file);
+}
+
+static bool enable_gamepatching_buf(u8 *buf)
+{
+	// Luma3DS config format
+	// byte 0-3 : "CONF"
+	// byte 4-5 : version_major
+	// byte 6-7 : version_minor
+	// byte ... : config
+
+	// version_major != 2
+	if(* (u16 *) &buf[4] != 2)
+		return true;
+
+	bool ret = buf[8] & 0x8;
+	buf[8] |= 0x8;
+	return ret;
+}
+
+/* return sif gamepatching was set before */
+static bool enable_gamepatching()
+{
+	FILE *config = fopen("/luma/config.bin", "r");
+	if(config == nullptr) return true;
+
+	u8 buf[32];
+	if(fread(buf, 1, 32, config) != 32)
+	{ fclose(config); return true; }
+
+	fclose(config);
+	bool isSet = enable_gamepatching_buf(buf);
+	if(isSet) return true;
+
+	// We need to update settings
+	config = fopen("/luma/config.bin", "w");
+	if(config == nullptr) return true;
+
+	if(fwrite(buf, 1, 32, config) != 32)
+	{ fclose(config); return true; }
+
+	fclose(config);
+	return false;
+}
+
+void luma::set_gamepatching()
+{
+	if(get_settings()->lumalocalemode == LumaLocaleMode::disabled)
+		return;
+
+	// We should prompt for reboot...
+	if(!enable_gamepatching())
+	{
+		ui::Widgets wids;
+
+		ui::WrapText *rebootprompt = new ui::WrapText(STRING(patching_reboot));
+		rebootprompt->set_basey(70.0f);
+		rebootprompt->center();
+
+		bool shouldReboot = true;
+		ui::Confirm *prompt = new ui::Confirm(STRING(reboot_now), shouldReboot);
+
+		wids.push_back(rebootprompt);
+		wids.push_back(prompt);
+
+		generic_main_breaking_loop(wids);
+
+		if(shouldReboot) NS_RebootSystem();
+	}
 }
 
 void luma::set_locale(u64 tid)

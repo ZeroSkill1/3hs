@@ -95,6 +95,8 @@ namespace str
 		automatic = 69,
 		manual = 70,
 		disabled = 71,
+		patching_reboot = 72,
+		reboot_now = 73,
 
 		_i_max,
 	};

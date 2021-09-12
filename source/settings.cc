@@ -167,7 +167,7 @@ static void update_settings_ID(SettingsId ID)
 		g_settings.loadFreeSpace = !g_settings.loadFreeSpace;
 		// If we switched it from off to on and we've never drawed the widget before
 		// It wouldn't draw the widget until another update
-		ui::wid()->get<ui::FreeSpaceIndicator>("size_indicator")->update(); 
+		ui::wid()->get<ui::FreeSpaceIndicator>("size_indicator")->update();
 		break;
 	case ID_Battery:
 		g_settings.showBattery = !g_settings.showBattery;

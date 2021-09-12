@@ -101,6 +101,10 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::automatic] = "automatic",
 			[str::manual] = "manual",
 			[str::disabled] = "disabled",
+			[str::patching_reboot] =
+				"Luma3DS Game Patching was enabled.\n"
+				"For the change to take effect, you have to\nrestart your 3DS.",
+			[str::reboot_now] = "Restart now?",
 		},
 
 	[lang::dutch] =
@@ -193,6 +197,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			STUB(automatic),
 			STUB(manual),
 			STUB(disabled),
+			STUB(patching_reboot),
+			STUB(reboot_now),
 		},
 
 	[lang::german] =
@@ -282,6 +288,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			STUB(automatic),
 			STUB(manual),
 			STUB(disabled),
+			STUB(patching_reboot),
+			STUB(reboot_now),
 		},
 
 	[lang::spanish] =
@@ -372,6 +380,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			STUB(automatic),
 			STUB(manual),
 			STUB(disabled),
+			STUB(patching_reboot),
+			STUB(reboot_now),
 		},
 
 	[lang::uwulang] =
@@ -462,6 +472,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			STUB(automatic),
 			STUB(manual),
 			STUB(disabled),
+			STUB(patching_reboot),
+			STUB(reboot_now),
 		},
 };
 #pragma GCC diagnostic pop

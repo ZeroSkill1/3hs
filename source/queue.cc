@@ -15,6 +15,7 @@
 
 #include <vector>
 
+#include "lumalocale.hh"
 #include "install.hh"
 #include "panic.hh"
 #include "error.hh"
@@ -63,6 +64,7 @@ void queue_process_all()
 		if(!NET_OK(process_hs(meta)))
 			break;
 	}
+	luma::set_gamepatching();
 	toggle_focus();
 	queue_clear();
 }

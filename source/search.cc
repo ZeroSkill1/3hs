@@ -10,6 +10,7 @@
 #include <ui/text.hh>
 #include <ui/list.hh>
 
+#include "lumalocale.hh"
 #include "extmeta.hh"
 #include "queue.hh"
 #include "util.hh"
@@ -81,6 +82,7 @@ static void show_searchbar_search()
 				{
 					toggle_focus();
 					process_hs(meta);
+					luma::set_gamepatching();
 					toggle_focus();
 				}
 
