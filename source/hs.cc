@@ -64,6 +64,7 @@ std::string hs::base_req(std::string url, std::string *err)
 	std::string body;
 
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_write_std_string);
+	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
 	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
 	curl_easy_setopt(curl, CURLOPT_CAINFO, HS_CA_LOC);
 	curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
@@ -81,8 +82,6 @@ std::string hs::base_req(std::string url, std::string *err)
 	{
 		lerror << "libcurl error(" << res << "): " << curl_easy_strerror(res);
 		(*err) = curl_easy_strerror(res);
-		if(res == 60) // stupid error
-			(*err) += "\nTry setting time & date correctly.";
 		return "";
 	}
 

@@ -139,6 +139,7 @@ static void i_install_loop_thread_cb(Result& res, std::function<std::string()> g
 			break;
 		}
 
+		if(R_FAILED(res)) { lerror << "Failed in install loop. ErrCode=0x" << std::hex << res; }
 		if(R_MODULE(res) == RM_HTTP)
 		{
 			llog << "timeout. ui::timeoutscreen() is up.";

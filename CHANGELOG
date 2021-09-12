@@ -10,6 +10,8 @@ v0.2.0:
  - add sprites for battery
  - add a loading animation
  - major speed improvements
+ - add luma locale emulator support
+ - fix issue where 3hs wouldn't work if time & date was wrong
 
 v0.1.6:
  - added extended meta screen
