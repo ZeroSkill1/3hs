@@ -93,7 +93,7 @@ namespace ui
 	};
 
 	/**
-	 * use `%t' as a placeholder for the seconds left until the end of the timeout
+	 * use `$t' as a placeholder for the seconds left until the end of the timeout
 	 * returns true if the user cancelled the timeout (if allowed)
 	 */
 	bool timeoutscreen(const std::string& fmt, size_t nsecs, bool allowCancel = true);

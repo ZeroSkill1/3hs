@@ -88,7 +88,7 @@ void ui::TimeoutScreenHelper::update_text(time_t now)
 	{
 		switch(this->fmt[i])
 		{
-		case '%':
+		case '$':
 			++i;
 			if(this->fmt[i] == 't')
 				ntxt += std::to_string(this->nsecs - (now - this->startTime));

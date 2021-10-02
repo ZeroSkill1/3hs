@@ -146,7 +146,7 @@ static void i_install_loop_thread_cb(Result& res, std::function<std::string()> g
 			// Does the user want to stop?
 
 			data.itc = ITC::timeoutscr;
-			if(ui::timeoutscreen(STRING(netcon_lost), 10))
+			if(ui::timeoutscreen(PSTRING(netcon_lost, "0x" + pad8code(res)), 10))
 			{
 				// this signals that we want to cancel the installation later on
 				res = APPERR_CANCELLED;

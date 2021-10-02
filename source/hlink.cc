@@ -16,11 +16,14 @@
 #include <map>
 
 #include "install.hh"
+#include "thread.hh"
 #include "queue.hh"
 #include "i18n.hh"
 #include "hs.hh"
 
 #include <curl/curl.h>
+
+using handle_thread_t = thread<>;
 
 // All network byte order (BE)
 
@@ -58,6 +61,7 @@ static const char *action2string(hlink::action action)
 		MKS(install_data);
 		MKS(nothing);
 		MKS(launch);
+		MKS(sleep);
 		default: return STRING(invalid);
 	}
 #undef MKS
@@ -207,6 +211,9 @@ static bool handle_request(int clientfd, int serverfd, const char *clientaddr,
 		if(handle_launch(clientfd, serverfd, header, disp_error))
 			return true;
 		break;
+	case hlink::action::sleep:
+		sleep(5);
+		break;
 	default:
 		send_response(clientfd, hlink::response::error, "invalid action");
 		break;
@@ -262,13 +269,16 @@ void hlink::create_server(
 	socklen_t clientaddrlen = sizeof(clientaddr);
 	memset(&clientaddr, 0x0, sizeof(clientaddr));
 
+	reuse_thread<> handleThread;
+	bool keepOpenSignal = true;
+
 	std::map<in_addr_t, bool> truststore;
 
 begin_loop:
 	const char *ipaddr = inet_ntoa(servaddr.sin_addr);
 	on_server_create(ipaddr); // We might need to redraw the screen
 
-	while(on_poll_exit())
+	while(keepOpenSignal && on_poll_exit())
 	{
 		if(poll(&serverpoll, 1, hlink::poll_timeout) == 0)
 			continue; // no events; we do nothing
@@ -315,12 +325,16 @@ begin_loop:
 		}
 
 		g_lock = true;
-		if(handle_request(clientfd, serverfd, inet_ntoa(clientaddr.sin_addr), disp_req, disp_error))
-			return;
+		handleThread.run([clientfd, serverfd, clientaddr, disp_req, disp_error, &keepOpenSignal]() -> void {
+			if(handle_request(clientfd, serverfd, inet_ntoa(clientaddr.sin_addr), disp_req, disp_error))
+				keepOpenSignal = false;
+		});
+
 		goto begin_loop;
 	}
 
 	close(serverfd);
+	g_lock = false;
 	return;
 }
 

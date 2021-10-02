@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <netdb.h>
+#include <stdio.h>
 
 #define MAGIC_LEN 3
 #define MAGIC "HLT"
@@ -41,6 +42,9 @@ typedef struct iTransactionResponse
 	uint64_t size;
 } __attribute__((__packed__)) iTransactionResponse;
 
+#define ERROR_MAXLEN 100
+static char g_lasterror[ERROR_MAXLEN + 1 + 5 /* "3ds: " */];
+
 static int makesock(hLink *link)
 {
 	if(link->host == NULL) return -ENXIO;
@@ -54,6 +58,51 @@ static int makesock(hLink *link)
 	return sock;
 }
 
+static int readresp(iTransactionResponse *resp, int sock)
+{
+	ssize_t recvd = recv(sock, resp, sizeof(iTransactionResponse), 0);
+	if(recvd < 0) return -errno;
+	resp->size = ntohll(resp->size);
+	return HE_success;
+}
+
+static int readcheckresp(iTransactionResponse *resp, int sock)
+{
+	int ret = readresp(resp, sock);
+	if(ret != HE_success) return ret;
+
+	if(resp->resp == HR_untrusted)
+		return HE_notauthed;
+	if(resp->resp == HR_busy)
+		return HE_tryagain;
+	if(resp->resp == HR_error)
+	{
+		if(resp->size > ERROR_MAXLEN)
+		{
+			strcpy(g_lasterror, "INTERNAL ERROR: error message from 3ds too long.");
+			return HE_exterror;
+		}
+
+		char buf[ERROR_MAXLEN + 1];
+		recv(sock, buf, ERROR_MAXLEN, 0);
+		buf[ERROR_MAXLEN] = '\0';
+
+		sprintf(g_lasterror, "3ds: %s", buf);
+
+		return HE_exterror;
+	}
+	if(resp->resp == HR_notfound)
+		return HE_tidnotfound;
+
+	return HE_success;
+}
+
+static int readdiscard(int sock)
+{
+	iTransactionResponse resp;
+	return readcheckresp(&resp, sock);
+}
+
 static iTransactionHeader makeheader(uint8_t action, uint64_t size)
 {
 	iTransactionHeader header;
@@ -61,14 +110,6 @@ static iTransactionHeader makeheader(uint8_t action, uint64_t size)
 	header.size = htonll(size);
 	header.action = action;
 	return header;
-}
-
-static int readresp(iTransactionResponse *resp, int sock)
-{
-	ssize_t recvd = recv(sock, resp, sizeof(iTransactionResponse), 0);
-	if(recvd < 0) return -errno;
-	resp->size = ntohll(resp->size);
-	return HE_success;
 }
 
 const char *hl_makelink_geterror(int errcode)
@@ -92,6 +133,8 @@ const char *hl_geterror(int errcode)
 			return "server busy. try again";
 		case HE_tidnotfound:
 			return "title id not found on the host 3ds";
+		case HE_exterror:
+			return g_lasterror;
 		}
 		return "unknown";
 	}
@@ -133,7 +176,7 @@ int hl_auth(hLink *link)
 	iTransactionResponse resp;
 	int ret = readresp(&resp, sock);
 
-	if(ret == 0)
+	if(ret == HE_success)
 	{
 		if(resp.resp == HR_busy)
 			ret = HE_tryagain;
@@ -165,10 +208,10 @@ int hl_addqueue(hLink *link, uint64_t *ids, size_t amount)
 	if(sent < 0)
 	{ close(sock); return -errno; }
 
-	// TODO: parse response (check for not auth/busy)
+	int ret = readdiscard(sock);
 
 	close(sock);
-	return HE_success;
+	return ret;
 }
 
 int hl_launch(hLink *link, uint64_t tid)
@@ -185,9 +228,25 @@ int hl_launch(hLink *link, uint64_t tid)
 	if(send(sock, &ntid, sizeof(uint64_t), 0) < 0)
 	{ close(sock); return -errno; }
 
-	// TODO: parse response (check for not auth/busy)
+	int ret = readdiscard(sock);
 
 	close(sock);
-	return HE_success;
+	return ret;
+}
+
+int hl_sleep(hLink *link)
+{
+	if(!link->isauthed) return HE_notauthed;
+	int sock = makesock(link);
+	if(sock < 0) return -errno;
+
+	iTransactionHeader header = makeheader(HA_sleep, sizeof(uint64_t));
+	if(send(sock, &header, sizeof(iTransactionHeader), 0) < 0)
+	{ close(sock); return -errno; }
+
+	int ret = readdiscard(sock);
+
+	close(sock);
+	return ret;
 }
 

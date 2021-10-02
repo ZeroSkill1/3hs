@@ -26,6 +26,7 @@ namespace hlink
 		install_data = 3,
 		nothing      = 4,
 		launch       = 5,
+		sleep        = 6,
 	};
 
 	enum class response : uint8_t

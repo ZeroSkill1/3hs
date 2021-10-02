@@ -76,5 +76,38 @@ private:
 
 };
 
+template <typename ... Ts>
+class reuse_thread
+{
+public:
+	/* will run a new thread, but first finished the previous one */
+	thread<Ts...> *run(std::function<void(Ts...)> cb, Ts& ... args)
+	{
+		this->cleanup();
+		return this->th = new thread<Ts...>(cb, args...);
+	}
+
+	/* returns the current active thread, and nullptr if there is none */
+	thread<Ts...> *current_thread() { return this->th; }
+	~reuse_thread() { this->cleanup(); }
+
+
+
+private:
+	void cleanup()
+	{
+		if(this->th != nullptr)
+		{
+			this->th->join();
+			delete this->th;
+			this->th = nullptr;
+		}
+	}
+
+	thread<Ts...> *th = nullptr;
+
+
+};
+
 #endif
 

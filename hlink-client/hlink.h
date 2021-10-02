@@ -2,6 +2,10 @@
 #ifndef inc_hlink_h
 #define inc_hlink_h
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <netdb.h>
 
 enum HAction
@@ -12,6 +16,7 @@ enum HAction
 	HA_install_data = 3,
 	HA_nothing      = 4,
 	HA_launch       = 5,
+	HA_sleep        = 6,
 };
 
 enum HResponse
@@ -30,6 +35,7 @@ enum HError
 	HE_notauthed    = 1, /* you didn't call hl_auth() or hl_auth() didn't return 0 */
 	HE_tryagain     = 2, /* try again, caused by the server being busy */
 	HE_tidnotfound  = 3, /* you tried to interact with a title that was not installed */
+	HE_exterror     = 4, /* extended error. an error message from the 3ds */
 };
 
 typedef struct hLink
@@ -52,6 +58,12 @@ int hl_auth(hLink *link);
 int hl_launch(hLink *link, uint64_t tid);
 /* sends hshop ids to add to the queue */
 int hl_addqueue(hLink *link, uint64_t *ids, size_t amount);
+/* sleeps the 3ds for 5 seconds */
+int hl_sleep(hLink *link);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 
