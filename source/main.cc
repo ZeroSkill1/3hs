@@ -18,6 +18,7 @@
 #include <widgets/konami.hh>
 #include <widgets/meta.hh>
 
+#include <3rd/plog/Appenders/ColorConsoleAppender.h>
 #include <net_common.hh>
 #include <3rd/log.hh>
 #include <hs.hh>
@@ -55,14 +56,34 @@
 # define LOG_LEVEL plog::verbose
 #endif
 
+#include <ui/base.hh>
+
 
 int main(int argc, char* argv[])
 {
+	init_services();
+	ui::init();
+
+	show_about();
+
+	ui::exit();
+	exit_services();
+	
+	return 0;
+
 	((void) argc);
 	((void) argv);
 
 	plog::init(LOG_LEVEL, LOGFILE);
 	linfo << "version=" FULL_VERSION;
+
+#ifndef RELEASE
+	// Colored logs appender for gdb
+	consoleDebugInit(debugDevice_SVC);
+
+	static plog::ColorConsoleAppender<plog::TxtFormatter> colorAppender(plog::streamStdErr);
+	plog::get()->addAppender(&colorAppender);
+#endif
 
 	if(!ui::global_init())
 	{

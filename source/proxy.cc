@@ -55,7 +55,7 @@ static bool validate()
 
 void proxy::apply(CURL *curl)
 {
-	if(g_proxy.host != "")
+	if(g_proxy.port != 0)
 	{
 		curl_easy_setopt(curl, CURLOPT_PROXY, g_proxystr.c_str());
 	}
@@ -63,8 +63,14 @@ void proxy::apply(CURL *curl)
 
 Result proxy::apply(httpcContext *context)
 {
-	return httpcSetProxy(context, g_proxy.port, g_proxy.host,
-		g_proxy.username, g_proxy.password);
+	if(g_proxy.port != 0)
+	{
+		return httpcSetProxy(context, g_proxy.port, g_proxy.host,
+			g_proxy.username, g_proxy.password);
+	}
+
+	// Not set is a success..
+	return 0;
 }
 
 static bool is_CRLF(const std::string& buf, std::string::size_type i)

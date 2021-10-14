@@ -1,10 +1,11 @@
 
 #include "about.hh"
 
+#include <ui/base.hh>
+
 #include "ui/button.hh"
 #include "ui/sprite.hh"
 #include "ui/core.hh"
-#include "ui/text.hh"
 
 #include "build/logo.h"
 
@@ -19,12 +20,11 @@
 #define add_cred(t,n) wids.push_back("cred" #n, new ui::Text(ui::mk_left_WText(t, GRID_AL_Y(n+2), GRID_AL_X(1))), ui::Scr::bottom);
 #define fsize ui::constants::FSIZE
 
-
 void show_about()
 {
-	toggle_focus();
+//	toggle_focus();
 
-	ui::Widgets wids;
+/*	ui::Widgets wids;
 	wids.push_back("back", new ui::Button(STRING(back), 240, 210, 310, 230), ui::Scr::bottom);
 	wids.get<ui::Button>("back")->set_on_click([](bool) -> ui::Results {
 		return ui::Results::quit_loop;
@@ -43,7 +43,40 @@ void show_about()
 	wids.get<ui::WrapText>("credits_long")->set_basey(GRID_AL_Y(2));
 	wids.get<ui::WrapText>("credits_long")->set_pad(GRID_AL_X(1));
 
-	generic_main_breaking_loop(wids);
-	toggle_focus();
+	generic_main_breaking_loop(wids);*/
+
+
+	ui::RenderQueue queue;
+
+	// TODO: Button class
+	ui::builder<ui::next::Button>(ui::Screen::bottom, STRING(back))
+		.connect(ui::next::Button::click, []() -> bool { return false; })
+		.size(70.0f, 20.0f)
+		.x(240.0f)
+		.y(210.0f)
+		.add_to(queue);
+	ui::builder<ui::next::Text>(ui::Screen::top, STRING(credits_thanks))
+		.size(0.65f)
+		.x(ui::layout::center_x)
+		.y(70.0f)
+		.add_to(queue);
+	ui::builder<ui::next::Sprite>(ui::Screen::top, ui::SpriteStore::get_by_id(ui::sprite::logo))
+		.x(ui::layout::center_x)
+		.under(queue.back())
+		.add_to(queue);
+	ui::builder<ui::next::Text>(ui::Screen::bottom, "Credits:")
+		.size(0.75f)
+		.x(10.0f)
+		.y(15.0f)
+		.add_to(queue);
+	ui::builder<ui::next::Text>(ui::Screen::bottom, STRING(credits))
+		.size(0.65f)
+		.x(15.0f)
+		.under(queue.back())
+		.add_to(queue);
+
+	queue.render_finite_button(KEY_B);
+
+//	toggle_focus();
 }
 

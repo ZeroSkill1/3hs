@@ -124,6 +124,10 @@ void ui::clear(ui::Scr screen)
 #undef CBOT
 }
 
+namespace ui{
+void init(C3D_RenderTarget*,C3D_RenderTarget*);
+}
+
 bool ui::global_init()
 {
 	gfxInitDefault();
@@ -133,6 +137,8 @@ bool ui::global_init()
 
 	g_bot = C2D_CreateScreenTarget(GFX_BOTTOM, GFX_LEFT);
 	g_top = C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
+
+	ui::init(g_top, g_bot);
 
 	return true;
 }

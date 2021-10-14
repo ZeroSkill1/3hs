@@ -15,6 +15,7 @@
 
 #include "bindings.hh"
 
+
 #define quick_global_draw()          \
   do {                               \
     ui::Widgets wids; ui::Keys keys; \
@@ -126,6 +127,7 @@ namespace ui
 		quit_no_end, // Quit the loop and don't end the frame
 	};
 
+#ifndef inc_ui_base_hh
 	typedef struct Keys
 	{
 		touchPosition touch;
@@ -133,7 +135,7 @@ namespace ui
 		u32 kHeld;
 		u32 kUp;
 	} Keys;
-
+#endif
 
 	class Widget
 	{

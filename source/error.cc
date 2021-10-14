@@ -261,6 +261,7 @@ static const std::map<Result, const char *> MOD_LOOKUP({
 
 // Getters
 
+
 static void get_lvl(Result& res, error_container& ret)
 {
 	ret.iLvl = R_LEVEL(res);
