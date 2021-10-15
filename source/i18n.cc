@@ -10,6 +10,7 @@
 #define STUB(id) [str::id] = ENGLISH(id)
 #define RAW(lid, sid) strtab[lid][sid]
 
+// [str::xxx] is a GCC extension
 #pragma GCC diagnostic ignored "-Wpedantic"
 static const char *strtab[lang::_i_max][str::_i_max] =
 {
@@ -27,7 +28,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 				"Thank you for using 3hs, a 3ds client for hShop\n"
 				"You can get this software for free at\n"
 				"https://hshop.erista.me/",
-			[str::credits] =
+			[str::credits_names] =
 				"MyPasswordIsWeak: Programming,\n"
 				"      Translations\n"
 				"TimmSkiller: Programming,\n"
@@ -105,6 +106,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 				"Luma3DS Game Patching was enabled.\n"
 				"For the change to take effect, you have to\nrestart your 3DS.",
 			[str::reboot_now] = "Restart now?",
+			[str::this_version] = "This is 3hs version %1",
+			[str::credits] = "Credits",
 		},
 
 	[lang::dutch] =
@@ -122,7 +125,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 				"hShop applicatie\n"
 				"Je kan deze software gratis verkrijgen op\n"
 				"https://hshop.erista.me/",
-			[str::credits] =
+			[str::credits_names] =
 				"MyPasswordIsWeak: Programmeren,\n"
 				"      Vertalingen\n"
 				"TimmSkiller: Programmeren,\n"
@@ -199,6 +202,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			STUB(disabled),
 			STUB(patching_reboot),
 			STUB(reboot_now),
+			STUB(this_version),
+			[str::credits] = "Met dank aan",
 		},
 
 	[lang::german] =
@@ -214,7 +219,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::credits_thanks] =
 				"Danke, dass du 3hs nutzt.\n3hs ist ein 3DS-Client für hShop.\n"
 				"Du kannst diese Software auf\nhttps://hshop.erista.me kostenlos herunterladen.\n",
-			[str::credits] =
+			[str::credits_names] =
 				"MyPasswordIsWeak: Programmierung,\n"
 				"      Übersetzungen\n"
 				"TimmSkiller: Programmierung,\n"
@@ -290,6 +295,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			STUB(disabled),
 			STUB(patching_reboot),
 			STUB(reboot_now),
+			STUB(this_version),
+			STUB(credits),
 		},
 
 	[lang::spanish] =
@@ -306,7 +313,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 				"Gracias por usar 3hs, un cliente de 3ds\npara hShop\n"
 				"Puedes conseguir este software gratuito en at\n"
 				"https://hshop.erista.me/",
-			[str::credits] =
+			[str::credits_names] =
 				"MyPasswordIsWeak: Programación,\n"
 				"      Traducción\n"
 				"TimmSkiller: Programación,\n"
@@ -382,6 +389,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			STUB(disabled),
 			STUB(patching_reboot),
 			STUB(reboot_now),
+			STUB(this_version),
+			STUB(credits),
 		},
 
 	[lang::uwulang] =
@@ -398,7 +407,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 				"Thank youWu foWor UwUsing 3hs,\na 3ds client fOwOr hShOwOp\n"
 				"You can get this sOwOftware fOwOr free at\n"
 				"https://hshop.erista.me/",
-			[str::credits] =
+			[str::credits_names] =
 				"MyPasswordIsWeak: PrOwOgramming,\n"
 				"      TranslatiOwOns\n"
 				"TimmSkiller: PrOwOgramming,\n"
@@ -474,6 +483,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			STUB(disabled),
 			STUB(patching_reboot),
 			STUB(reboot_now),
+			STUB(this_version),
+			STUB(credits),
 		},
 };
 #pragma GCC diagnostic pop

@@ -135,12 +135,12 @@ bool ui::RenderQueue::render_frame(const ui::Keys& keys)
 
 	C2D_SceneBegin(g_top);
 	for(ui::BaseWidget *wid : this->top)
-		ret &= wid->render(keys);
+		if(!wid->is_hidden()) ret &= wid->render(keys);
 	ret &= g_renderqueue.render_top(keys);
 
 	C2D_SceneBegin(g_bot);
 	for(ui::BaseWidget *wid : this->bot)
-		ret &= wid->render(keys);
+		if(!wid->is_hidden()) ret &= wid->render(keys);
 	ret &= g_renderqueue.render_bottom(keys);
 
 	C3D_FrameEnd(0);
@@ -151,7 +151,7 @@ bool ui::RenderQueue::render_bottom(const ui::Keys& keys)
 {
 	bool ret = true;
 	for(ui::BaseWidget *wid : this->bot)
-		ret &= wid->render(keys);
+		if(!wid->is_hidden()) ret &= wid->render(keys);
 	return ret;
 }
 
@@ -159,7 +159,7 @@ bool ui::RenderQueue::render_top(const ui::Keys& keys)
 {
 	bool ret = true;
 	for(ui::BaseWidget *wid : this->top)
-		ret &= wid->render(keys);
+		if(!wid->is_hidden()) ret &= wid->render(keys);
 	return ret;
 }
 
@@ -189,6 +189,9 @@ void ui::RenderQueue::render_finite_button(u32 kDownMask)
 	while((keys.kDown & kDownMask) == 0 && this->render_frame(keys))
 		keys = get_keys();
 }
+
+ui::RenderQueue *ui::RenderQueue::global()
+{ return &g_renderqueue; }
 
 /* class SpriteStore */
 
@@ -400,4 +403,96 @@ void ui::next::Sprite::set_z(float z)
 	C2D_SpriteSetDepth(&this->sprite, z);
 }
 
+/* core widget class Button */
+
+void ui::next::Button::setup(const std::string& label)
+{
+	this->label.setup(this->screen, label);
+	this->readjust();
+}
+
+void ui::next::Button::setup()
+{
+	this->label.setup(this->screen, "");
+}
+
+float ui::next::Button::height()
+{ return this->h; }
+
+float ui::next::Button::width()
+{ return this->w; }
+
+void ui::next::Button::resize(float x, float y)
+{
+	this->w = x;
+	this->h = y;
+	this->readjust();
+}
+
+void ui::next::Button::resize_children(float x, float y)
+{
+	this->label.ptr()->resize(x, y);
+	this->readjust();
+}
+
+void ui::next::Button::set_x(float x)
+{
+	this->x = x;
+	this->readjust();
+}
+
+void ui::next::Button::set_y(float y)
+{
+	this->y = y;
+	this->readjust();
+}
+
+void ui::next::Button::set_z(float z)
+{
+	this->z = z;
+	this->label.ptr()->set_z(z);
+}
+
+void ui::next::Button::readjust()
+{
+	// Getting better results with the -1.0f somehow
+	this->label.ptr()->set_y(((this->h / 2) - (this->label.ptr()->height() / 2)) + this->y);
+	this->label.ptr()->set_x(((this->w / 2) - (this->label.ptr()->width() / 2)) + this->x);
+
+	this->ox = this->x + x;
+	this->oy = this->y + y;
+}
+
+bool ui::next::Button::render(const ui::Keys& keys)
+{
+	/* TODO: Listen to theme */
+	C2D_DrawRectSolid(this->x, this->y, this->z, this->w, this->h, C2D_Color32(0x32, 0x35, 0x36, 0xFF));
+	this->label.render(keys);
+
+	if(keys.touch.px >= this->x && keys.touch.px <= this->ox &&
+			keys.touch.py >= this->y && keys.touch.py <= this->oy)
+		return this->on_click();
+
+	return true;
+}
+
+void ui::next::Button::autowrap()
+{
+	this->w = this->label.ptr()->width() + 10.0f;
+	this->h = this->label.ptr()->height() + 2.0f;
+	this->readjust();
+}
+
+void ui::next::Button::connect(connect_type type, std::function<bool()> callback)
+{
+	switch(type)
+	{
+	case ui::next::Button::click:
+		this->on_click = callback;
+		break;
+	default:
+		//panic("Button::connect(): invalid state");
+		break;
+	}
+}
 

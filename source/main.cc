@@ -64,6 +64,12 @@ int main(int argc, char* argv[])
 	init_services();
 	ui::init();
 
+	ui::builder<ui::next::Text>(ui::Screen::top, STRING(luma_not_installed))
+		.x(ui::layout::center_x)
+		.y(4.0f)
+		.tag(ui::tag::action)
+		.add_to(ui::RenderQueue::global());
+
 	show_about();
 
 	ui::exit();

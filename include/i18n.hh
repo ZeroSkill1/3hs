@@ -32,7 +32,7 @@ namespace str
 		fail_init_networking = 6,
 		fail_fetch_index = 7, // %1: error message (in english, leave out in other langs?)
 		credits_thanks = 8,
-		credits = 9,
+		credits_names = 9,
 		press_to_install = 10,
 		version = 11,
 		prodcode = 12,
@@ -97,6 +97,8 @@ namespace str
 		disabled = 71,
 		patching_reboot = 72,
 		reboot_now = 73,
+		this_version = 74,
+		credits = 75,
 
 		_i_max,
 	};

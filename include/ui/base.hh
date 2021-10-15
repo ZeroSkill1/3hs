@@ -20,12 +20,16 @@
 		using ui::BaseWidget::BaseWidget; \
 	private:
 
+#define UI_REQUIRES_METHOD_VARIADIC(T, VarTs, method, Signature) \
+	template<typename ... VarTs, typename = std::enable_if<detail::has_##method<T, Signature>::value>>
 #define UI_REQUIRES_METHOD(T, method, Signature) \
 	template<typename = std::enable_if<detail::has_##method<T, Signature>::value>>
 
 
 namespace ui
 {
+	class BaseWidget; /* forward declaration */
+
 	namespace detail
 	{
 		// From: https://stackoverflow.com/questions/87372/check-if-a-class-has-a-member-function-of-a-given-signature
@@ -53,9 +57,25 @@ namespace ui
 					static constexpr bool value = type::value; \
 			}
 
+		make_has_struct(resize_children);
 		make_has_struct(autowrap);
+		make_has_struct(connect);
 		make_has_struct(resize);
 #undef make_has_struct
+
+		// This works somehow, unused (for now?)
+		template <typename C>
+		struct has_connect_enum {
+		private:
+			template <typename T>
+			static constexpr auto check(T*) -> typename
+				std::is_enum<typename T::connect_type>::type;
+			template <typename T>
+			static constexpr std::false_type check(...);
+			typedef decltype(check<C>(0)) type;
+		public:
+			static constexpr bool value = type::value;
+		};
 	}
 
 	enum class Screen
@@ -87,6 +107,11 @@ namespace ui
 		constexpr float bottom = 0.0f;
 	}
 
+	namespace tag
+	{
+		constexpr int action = -1; /* action header */
+	};
+
 	/* holds sprite ids used for ui::SpriteStore::get_by_id() */
 	enum class sprite
 	{
@@ -117,8 +142,6 @@ namespace ui
 		touchPosition touch;
 	};
 #endif
-
-	class BaseWidget;
 
 	/* gets the width of a screen */
 	constexpr inline float screen_width(ui::Screen scr)
@@ -179,11 +202,21 @@ namespace ui
 		virtual float get_y() { return this->y; }
 		virtual float get_z() { return this->z; }
 
+		enum connect_type { };
+
+		void set_hidden(bool b) { this->hidden = b; }
+		bool is_hidden() { return this->hidden; }
+
+		bool matches_tag(int t) { return this->tag == t; }
+		void set_tag(int t) { this->tag = t; }
+
 
 	protected:
 		ui::Screen screen;
 		float z = ui::layer::top;
+		bool hidden = false;
 		float x = 0, y = 0;
+		int tag = 0;
 
 
 	};
@@ -214,6 +247,21 @@ namespace ui
 		bool render_bottom(const ui::Keys&);
 		/* renders only the top widgets */
 		bool render_top(const ui::Keys&);
+		/* find a widget by tag
+		 * First searches top widgets, then bottom
+		 * Returns nullptr if no matches were found */
+		template <typename TWidget = ui::BaseWidget>
+		TWidget *find_tag(int t)
+		{
+			for(ui::BaseWidget *w : this->top)
+				if(w->matches_tag(t)) return (TWidget *) w;
+			for(ui::BaseWidget *w : this->bot)
+				if(w->matches_tag(t)) return (TWidget *) w;
+			return nullptr;
+		}
+
+		/* Gets the global RenderQueue */
+		static ui::RenderQueue *global();
 
 
 	private:
@@ -248,12 +296,27 @@ namespace ui
 		/* Sets the size of a widget. Not supported by all widgets */
 		UI_REQUIRES_METHOD(TWidget, resize, void(float, float))
 			ui::builder<TWidget>& size(float xy) { this->el->resize(xy, xy); return *this; }
+		/* Sets the size of any potential widget children. Not supported by all widgets */
+		UI_REQUIRES_METHOD(TWidget, resize_children, void())
+			ui::builder<TWidget>& size_children(float x, float y) { this->el->resize_children(x, y); return *this; }
+		/* Sets the size of any potential widget children. Not supported by all widgets */
+		UI_REQUIRES_METHOD(TWidget, resize_children, void())
+			ui::builder<TWidget>& size_children(float xy) { this->el->resize_children(xy, xy); return *this; }
 		/* Autowraps the widget. Not supported by all widgets */
 		UI_REQUIRES_METHOD(TWidget, autowrap, void())
 			ui::builder<TWidget>& wrap() { this->el->autowrap(); return *this; }
+		/* Connects a type and argument, effect depends on the widget.
+		 * Not supported by all widgets */
+		UI_REQUIRES_METHOD_VARIADIC(TWidget, Ts, connect, void(typename TWidget::connect_type, Ts...))
+			ui::builder<TWidget>& connect(typename TWidget::connect_type type,
+				Ts&& ... args) { this->el->connect(type, args...); return *this; }
 
 		/* Do a manual configuration with a callback */
 		ui::builder<TWidget>& configure(std::function<void(TWidget*)> conf) { conf(this->el); return *this; }
+		/* Hide/unhide the widget */
+		ui::builder<TWidget>& hide(bool hidden = true) { this->el->set_hidden(hidden); return *this; }
+		/* Set the tag of the widget */
+		ui::builder<TWidget>& tag(int t) { this->el->set_tag(t); return *this; }
 		/* Set x position. note: you most likely want to call this last */
 		ui::builder<TWidget>& x(float v) { this->el->set_x(v); return *this; }
 		/* Set y position. note: you most likely want to call this last */
@@ -271,6 +334,8 @@ namespace ui
 
 		/* Add the built widget to a RenderQueue */
 		void add_to(ui::RenderQueue& queue) { queue.push((ui::BaseWidget *) this->el); this->el = nullptr; }
+		/* Add the built widget to a RenderQueue */
+		void add_to(ui::RenderQueue *queue) { queue->push((ui::BaseWidget *) this->el); this->el = nullptr; }
 		/* finalize the built widget and return a pointer to it */
 		TWidget *finalize() { TWidget *ret = this->el; this->el = nullptr; return ret; }
 
@@ -296,6 +361,38 @@ namespace ui
 
 	private:
 		C2D_SpriteSheet sheet = nullptr;
+
+
+	};
+
+	/* A wrapper for ui::BaseWidget with automatic:tm: management */
+	template <typename TWidget>
+	class ScopedWidget
+	{
+	public:
+		~ScopedWidget()
+		{
+			if(this->wid != nullptr)
+			{
+				this->wid->destroy();
+				delete this->wid;
+			}
+		}
+
+		template <typename ... Ts>
+		void setup(ui::Screen scr, Ts&& ... args)
+		{
+			this->wid = new TWidget(scr);
+			this->wid->setup(args...);
+		}
+
+		// Shortcut
+		bool render(const ui::Keys& keys) { return this->wid->render(keys); }
+		TWidget *ptr() { return this->wid; }
+
+
+	private:
+		TWidget *wid = nullptr;
 
 
 	};
@@ -330,7 +427,7 @@ namespace ui
 			bool drawCenter = false;
 			std::string text;
 
-			float xsiz = 0.5f, ysiz = 0.5f;
+			float xsiz = 0.65f, ysiz = 0.65f;
 
 
 		};
@@ -351,6 +448,43 @@ namespace ui
 
 		private:
 			C2D_Sprite sprite;
+
+
+		};
+
+		class Button : public ui::BaseWidget
+		{ UI_WIDGET
+		public:
+			using click_cb_t = std::function<bool()>;
+
+			void setup(const std::string& label);
+			void setup();
+
+			bool render(const ui::Keys&) override;
+			float height() override;
+			float width() override;
+
+			void resize_children(float x, float y);
+			void resize(float x, float y);
+			void set_x(float x) override;
+			void set_y(float x) override;
+			void set_z(float z) override;
+
+			/* autowrap for text size */
+			void autowrap();
+
+			enum connect_type { click };
+			/* on_click */
+			void connect(connect_type type, click_cb_t callback);
+
+
+		private:
+			click_cb_t on_click = []() -> bool { return true; };
+			ScopedWidget<ui::next::Text> label;
+			float ox = 0.0f, oy = 0.0f;
+			float w = 0.0f, h = 0.0f;
+
+			void readjust();
 
 
 		};

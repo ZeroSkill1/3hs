@@ -7,6 +7,8 @@
 #include <ui/button.hh>
 #include <ui/text.hh>
 
+#include <ui/base.hh>
+
 
 static void toggle_btn_konami()
 {
@@ -43,5 +45,12 @@ void toggle_focus()
 {
 	ui::wid()->get<ui::Text>("curr_action_desc")->toggle();
 	toggle_btn_konami();
+}
+
+bool next::set_focus(bool focus)
+{
+	bool ret = ui::RenderQueue::global()->find_tag(ui::tag::action)->is_hidden();
+	ui::RenderQueue::global()->find_tag(ui::tag::action)->set_hidden(focus);
+	return ret;
 }
 
