@@ -25,6 +25,15 @@
 #define UI_REQUIRES_METHOD(T, method, Signature) \
 	template<typename = std::enable_if<detail::has_##method<T, Signature>::value>>
 
+// Button glyphs
+#define UI_GLYPH_A "\uE000"
+#define UI_GLYPH_B "\uE001"
+#define UI_GLYPH_X "\uE002"
+#define UI_GLYPH_Y "\uE003"
+#define UI_GLYPH_L "\uE004"
+#define UI_GLYPH_R "\uE005"
+#define UI_GLYPH_DPAD "\uE006"
+
 
 namespace ui
 {
@@ -58,6 +67,7 @@ namespace ui
 			}
 
 		make_has_struct(resize_children);
+		make_has_struct(set_border);
 		make_has_struct(autowrap);
 		make_has_struct(connect);
 		make_has_struct(resize);
@@ -85,19 +95,20 @@ namespace ui
 
 	namespace dimensions
 	{
-		constexpr float height       = 240.0f;
-		constexpr float width_bottom = 320.0f;
-		constexpr float width_top    = 400.0f;
+		constexpr float height       = 240.0f; /* height of both screens */
+		constexpr float width_bottom = 320.0f; /* width of the bottom screen */
+		constexpr float width_top    = 400.0f; /* width of the top screen */
 	}
 
 	namespace layout
 	{
-		constexpr float center_x = -1.0f;
-		constexpr float center_y = -2.0f;
-		constexpr float left     = -3.0f;
-		constexpr float right    = -4.0f;
-		constexpr float top      = -5.0f;
-		constexpr float bottom   = -6.0f;
+		constexpr float center_x = -1.0f; /* center x position */
+		constexpr float center_y = -2.0f; /* center y position */
+		constexpr float left     =  3.0f; /* left of the screen */
+		constexpr float right    = -4.0f; /* right of the screen */
+		constexpr float top      =  3.0f; /* top of the screen */
+		constexpr float bottom   = -6.0f; /* bottom of the screen */
+		constexpr float base     = 50.0f; /* base heigth */
 	}
 
 	namespace layer
@@ -240,6 +251,9 @@ namespace ui
 		/* returns false if this should be the last frame,
 		 * else returns true */
 		bool render_frame(const ui::Keys&);
+		/* returns false if this should be the last frame,
+		 * else returns true */
+		bool render_frame();
 		/* gets the last pushed element
 		 * returns nullptr if the queue is empty */
 		ui::BaseWidget *back();
@@ -262,6 +276,8 @@ namespace ui
 
 		/* Gets the global RenderQueue */
 		static ui::RenderQueue *global();
+		/* Gets the pressed keys */
+		static ui::Keys get_keys();
 
 
 	private:
@@ -305,6 +321,9 @@ namespace ui
 		/* Autowraps the widget. Not supported by all widgets */
 		UI_REQUIRES_METHOD(TWidget, autowrap, void())
 			ui::builder<TWidget>& wrap() { this->el->autowrap(); return *this; }
+		/* Sets a border around the widget. Not supported by all widgets */
+		UI_REQUIRES_METHOD(TWidget, set_border, void(bool))
+			ui::builder<TWidget>& border() { this->el->set_border(true); return *this; }
 		/* Connects a type and argument, effect depends on the widget.
 		 * Not supported by all widgets */
 		UI_REQUIRES_METHOD_VARIADIC(TWidget, Ts, connect, void(typename TWidget::connect_type, Ts...))
@@ -419,15 +438,13 @@ namespace ui
 			void push_str(const std::string& str);
 			void prepare_arrays();
 
-
+			float xsiz = 0.65f, ysiz = 0.65f;
 			std::vector<C2D_Text> lines;
 			C2D_TextBuf buf = nullptr;
 			bool doAutowrap = false;
 			float lineHeigth = 0.0f;
 			bool drawCenter = false;
 			std::string text;
-
-			float xsiz = 0.65f, ysiz = 0.65f;
 
 
 		};
@@ -474,7 +491,7 @@ namespace ui
 			void autowrap();
 
 			enum connect_type { click };
-			/* on_click */
+			/* click */
 			void connect(connect_type type, click_cb_t callback);
 
 
@@ -485,6 +502,35 @@ namespace ui
 			float w = 0.0f, h = 0.0f;
 
 			void readjust();
+
+
+		};
+
+		/* utility */
+
+		class ButtonCallback : public ui::BaseWidget
+		{ UI_WIDGET
+		public:
+			void setup(u32 keys);
+
+			bool render(const ui::Keys&) override;
+			float height() override { return 0.0f; }
+			float width() override { return 0.0f; }
+
+			enum connect_type {
+				none,
+				kdown,
+				kheld,
+				kup,
+			};
+			/* activate */
+			void connect(connect_type type, std::function<bool(u32)> cb);
+
+
+		private:
+			std::function<bool(u32)> cb = [](u32) -> bool { return true; };
+			connect_type type = none;
+			u32 keys;
 
 
 		};

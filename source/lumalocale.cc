@@ -3,12 +3,15 @@
 #include "settings.hh"
 #include "install.hh"
 #include "titles.hh"
+#include "util.hh"
 
 #include <ui/smdhicon.hh>
 #include <ui/selector.hh>
 #include <ui/confirm.hh>
 #include <ui/text.hh>
 #include <ui/core.hh>
+
+#include <ui/base.hh>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -43,36 +46,34 @@ static const char *get_auto_lang_str(TitleSMDH *smdh)
 
 static const char *get_manual_lang_str(TitleSMDH *smdh)
 {
-	ui::Widgets wids;
-
-	ui::SMDHIcon *icon = new ui::SMDHIcon(smdh, SMDHIconType::large);
-	icon->move(SCREEN_WIDTH(ui::Scr::top) / 2 - 30, SCREEN_HEIGHT() / 2 - 64);
-
 	TitleSMDHTitle *title = smdh_get_native_title(smdh);
-	ui::WrapText *label = new ui::WrapText(
-		smdh_u16conv(title->descShort, 0x40) + "\n" +
-		smdh_u16conv(title->descLong, 0x80)
-	);
-
-	label->set_basey(SCREEN_HEIGHT() / 2 + 10);
-	label->autowrap();
-	label->center();
+	bool focus = next::set_focus(true);
+	ui::RenderQueue queue;
 
 	u8 lang = 0;
 	// EN, JP, FR, DE, IT, ES, ZH, KO, NL, PT, RU, TW
-	static const char *langlut[] = { "EN", "JP", "FR", "DE", "IT", "ES", "ZH", "KO", "NL", "PT", "RU", "TW" };
-	ui::Selector<u8> *selector = new ui::Selector<u8>(
-		{ langlut[0], langlut[1], langlut[2], langlut[3], langlut[4], langlut[5], langlut[6], langlut[7], langlut[8], langlut[9], langlut[10], langlut[11] },
-		{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 },
-		&lang
-	);
+	static const std::vector<std::string> langlut = { "EN", "JP", "FR", "DE", "IT", "ES", "ZH", "KO", "NL", "PT", "RU", "TW" };
+	static const std::vector<u8> enumVals = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
 
-	wids.push_back(selector, ui::Scr::bottom);
-	wids.push_back(label);
-	wids.push_back(icon);
+	ui::builder<ui::next::SMDHIcon>(ui::Screen::top, smdh, SMDHIconType::large)
+		.x(ui::dimensions::width_top / 2 - 30)
+		.y(ui::dimensions::height / 2 - 64)
+		.border()
+		.add_to(queue);
+	ui::builder<ui::next::Text>(ui::Screen::top,
+			smdh_u16conv(title->descShort, 0x40) + "\n" +
+			smdh_u16conv(title->descLong, 0x80))
+		.x(ui::layout::center_x)
+		.under(queue.back())
+		.wrap()
+		.add_to(queue);
+	ui::builder<ui::next::Selector<u8>>(ui::Screen::bottom, langlut, enumVals, &lang)
+		.add_to(queue);
 
-	generic_main_breaking_loop(wids);
-	return langlut[lang];
+	queue.render_finite_button(KEY_B);
+
+	next::set_focus(focus);
+	return langlut[lang].c_str();
 }
 
 static const char *get_region_str(TitleSMDH *smdh)
@@ -186,6 +187,8 @@ void luma::set_gamepatching()
 
 void luma::set_locale(u64 tid)
 {
+	get_manual_lang_str(smdh_get(tid));
+
 	// we don't want to set a locale
 	if(get_settings()->lumalocalemode == LumaLocaleMode::disabled)
 		return;

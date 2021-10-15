@@ -19,10 +19,6 @@ float ui::transform(ui::BaseWidget *wid, float v)
 	if(v >= 0.0f) return v;
 	switch((int) v)
 	{
-	case (int) ui::layout::left:
-		return 3.0f; /* padding of 3.0f */
-	case (int) ui::layout::top:
-		return 3.0f; /* padding of 3.0f */
 	case (int) ui::layout::bottom:
 		return ui::dimensions::height - wid->height() - 3.0f; /* padding of 3.0f */
 	case (int) ui::layout::right:
@@ -115,7 +111,7 @@ ui::BaseWidget *ui::RenderQueue::back()
 	return this->backPtr;
 }
 
-static ui::Keys get_keys()
+ui::Keys ui::RenderQueue::get_keys()
 {
 	hidScanInput();
 	ui::Keys keys = {
@@ -147,6 +143,12 @@ bool ui::RenderQueue::render_frame(const ui::Keys& keys)
 	return ret;
 }
 
+bool ui::RenderQueue::render_frame()
+{
+	ui::Keys keys = ui::RenderQueue::get_keys();
+	return this->render_frame(keys);
+}
+
 bool ui::RenderQueue::render_bottom(const ui::Keys& keys)
 {
 	bool ret = true;
@@ -165,29 +167,27 @@ bool ui::RenderQueue::render_top(const ui::Keys& keys)
 
 void ui::RenderQueue::render_forever()
 {
-	ui::Keys keys = get_keys();
-	while(true) this->render_frame(keys), keys = get_keys();
+	while(true) this->render_frame();
 }
 
 void ui::RenderQueue::render_until_button(u32 kDownMask)
 {
-	ui::Keys keys = get_keys();
+	ui::Keys keys = ui::RenderQueue::get_keys();
 	while((keys.kDown & kDownMask) == 0)
-		this->render_frame(keys), get_keys();
+		this->render_frame(keys), keys = ui::RenderQueue::get_keys();
 }
 
 void ui::RenderQueue::render_finite()
 {
-	ui::Keys keys = get_keys();
-	while(this->render_frame(keys))
-		keys = get_keys();
+	while(this->render_frame())
+		;
 }
 
 void ui::RenderQueue::render_finite_button(u32 kDownMask)
 {
-	ui::Keys keys = get_keys();
+	ui::Keys keys = ui::RenderQueue::get_keys();
 	while((keys.kDown & kDownMask) == 0 && this->render_frame(keys))
-		keys = get_keys();
+		keys = ui::RenderQueue::get_keys();
 }
 
 ui::RenderQueue *ui::RenderQueue::global()
@@ -479,7 +479,7 @@ bool ui::next::Button::render(const ui::Keys& keys)
 void ui::next::Button::autowrap()
 {
 	this->w = this->label.ptr()->width() + 10.0f;
-	this->h = this->label.ptr()->height() + 2.0f;
+//	this->h = this->label.ptr()->height() + 2.0f; // We don't want to wrap the heigth usually
 	this->readjust();
 }
 
@@ -494,5 +494,38 @@ void ui::next::Button::connect(connect_type type, std::function<bool()> callback
 		//panic("Button::connect(): invalid state");
 		break;
 	}
+}
+
+/* core widget class ButtonCallback */
+
+void ui::next::ButtonCallback::setup(u32 keys)
+{ this->keys = keys; }
+
+bool ui::next::ButtonCallback::render(const ui::Keys& keys)
+{
+	switch(this->type)
+	{
+	case ui::next::ButtonCallback::kdown:
+		if(keys.kDown & this->keys)
+			return this->cb(keys.kDown);
+		break;
+	case ui::next::ButtonCallback::kheld:
+		if(keys.kHeld & this->keys)
+			return this->cb(keys.kHeld);
+		break;
+	case ui::next::ButtonCallback::kup:
+		if(keys.kUp & this->keys)
+			return this->cb(keys.kUp);
+		break;
+	case ui::next::ButtonCallback::none:
+		break;
+	}
+	return true;
+}
+
+void ui::next::ButtonCallback::connect(ui::next::ButtonCallback::connect_type type, std::function<bool(u32)> cb)
+{
+	this->type = type;
+	this->cb = cb;
 }
 
