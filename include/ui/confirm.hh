@@ -6,6 +6,8 @@
 #include "ui/core.hh"
 #include "ui/text.hh"
 
+#include <ui/base.hh>
+
 #include <string>
 
 
@@ -28,6 +30,30 @@ namespace ui
 
 
 	};
+
+	namespace next
+	{
+		class Confirm : public ui::BaseWidget
+		{ UI_WIDGET
+		public:
+			void setup(const std::string& label, bool& ret);
+
+			bool render(const ui::Keys&) override;
+			float height() override;
+			float width() override;
+
+			void set_y(float y) override;
+
+
+		private:
+			ui::RenderQueue queue;
+			bool *ret;
+
+			void adjust();
+
+
+		};
+	}
 }
 
 #endif

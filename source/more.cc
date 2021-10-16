@@ -10,6 +10,7 @@
 
 #include <ui/image_button.hh>
 #include <ui/button.hh>
+#include <ui/base.hh>
 
 #define ABOUT_I 0
 #define FIND_MISSING_I 1

@@ -2256,8 +2256,9 @@ JSON_HEDLEY_DIAGNOSTIC_POP
     #define JSON_CATCH(exception) catch(exception)
     #define JSON_INTERNAL_CATCH(exception) catch(exception)
 #else
-    #include <cstdlib>
-    #define JSON_THROW(exception) std::abort()
+    #include <panic.hh>
+// We want to panic() instead of std::abort()
+    #define JSON_THROW(exception) panic("Json failure\n" + std::string(exception.what()))
     #define JSON_TRY if(true)
     #define JSON_CATCH(exception) if(false)
     #define JSON_INTERNAL_CATCH(exception) if(false)

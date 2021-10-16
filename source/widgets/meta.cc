@@ -226,3 +226,91 @@ void ui::CatMeta::init_other()
 	this->stitle.move(moff, GRID_AL_Y(5));
 	this->sdesc.move(moff, GRID_AL_Y(7));
 }
+
+/* next */
+
+void ui::next::TitleMeta::setup(const hs::Title& meta)
+{ this->set_title(meta); }
+
+void ui::next::TitleMeta::set_title(const hs::Title& meta)
+{
+	this->queue.clear();
+
+	ui::builder<ui::next::Text>(this->screen, meta.name)
+		.x(this->get_x())
+		.y(this->get_y())
+		.scroll()
+		.add_to(this->queue);
+	ui::builder<ui::next::Text>(this->screen, STRING(name))
+		.size(0.45f, 0.45f)
+		.x(this->get_x())
+		.under(this->queue.back(), -1.0f)
+		.add_to(this->queue);
+
+	ui::builder<ui::next::Text>(this->screen, (*hs::get_index())[meta.cat]->displayName + " -> " + (*(*hs::get_index())[meta.cat])[meta.subcat]->displayName)
+		.x(this->get_x())
+		.under(this->queue.back(), 1.0f)
+		.scroll()
+		.add_to(this->queue);
+	ui::builder<ui::next::Text>(this->screen, STRING(category))
+		.size(0.45f, 0.45f)
+		.x(this->get_x())
+		.under(this->queue.back(), -1.0f)
+		.add_to(this->queue);
+
+	ui::builder<ui::next::Text>(this->screen, meta.tid)
+		.x(this->get_x())
+		.under(this->queue.back(), 1.0f)
+		.scroll()
+		.add_to(this->queue);
+	ui::builder<ui::next::Text>(this->screen, STRING(tid))
+		.size(0.45f, 0.45f)
+		.x(this->get_x())
+		.under(this->queue.back(), -1.0f)
+		.add_to(this->queue);
+
+	ui::builder<ui::next::Text>(this->screen, std::to_string(meta.id))
+		.x(this->get_x())
+		.under(this->queue.back(), 1.0f)
+		.scroll()
+		.add_to(this->queue);
+	ui::builder<ui::next::Text>(this->screen, STRING(landing_id))
+		.size(0.45f, 0.45f)
+		.x(this->get_x())
+		.under(this->queue.back(), -1.0f)
+		.add_to(this->queue);
+
+	ui::builder<ui::next::Text>(this->screen, ui::human_readable_size_block(meta.size))
+		.x(this->get_x())
+		.under(this->queue.back(), 1.0f)
+		.scroll()
+		.add_to(this->queue);
+	ui::builder<ui::next::Text>(this->screen, STRING(size))
+		.size(0.45f, 0.45f)
+		.x(this->get_x())
+		.under(this->queue.back(), -1.0f)
+		.add_to(this->queue);
+}
+
+bool ui::next::TitleMeta::render(const ui::Keys& keys)
+{
+	((void) keys); // unused
+	return this->queue.render_screen(keys, this->screen);
+}
+
+float ui::next::TitleMeta::width()
+{
+	return 0.0f; // unsupported
+}
+
+float ui::next::TitleMeta::height()
+{
+	return this->queue.back()->get_y() + this->get_y();
+}
+
+float ui::next::TitleMeta::get_y()
+{ return 10.0f; }
+
+float ui::next::TitleMeta::get_x()
+{ return 10.0f; }
+

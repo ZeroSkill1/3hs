@@ -8,9 +8,6 @@
 #include <ui/smdhicon.hh>
 #include <ui/selector.hh>
 #include <ui/confirm.hh>
-#include <ui/text.hh>
-#include <ui/core.hh>
-
 #include <ui/base.hh>
 
 #include <sys/types.h>
@@ -167,21 +164,19 @@ void luma::set_gamepatching()
 	// We should prompt for reboot...
 	if(!enable_gamepatching())
 	{
-		ui::Widgets wids;
+		ui::RenderQueue queue;
+		bool reboot;
 
-		ui::WrapText *rebootprompt = new ui::WrapText(STRING(patching_reboot));
-		rebootprompt->set_basey(70.0f);
-		rebootprompt->center();
+		ui::builder<ui::next::Text>(ui::Screen::top, STRING(patching_reboot))
+			.x(ui::layout::center_x)
+			.y(ui::layout::base)
+			.add_to(queue);
 
-		bool shouldReboot = true;
-		ui::Confirm *prompt = new ui::Confirm(STRING(reboot_now), shouldReboot);
+		ui::builder<ui::next::Confirm>(ui::Screen::bottom, STRING(reboot_now), reboot)
+			.y(80.0f).add_to(queue);
 
-		wids.push_back(rebootprompt);
-		wids.push_back(prompt);
-
-		generic_main_breaking_loop(wids);
-
-		if(shouldReboot) NS_RebootSystem();
+		queue.render_finite();
+		if(reboot) NS_RebootSystem();
 	}
 }
 

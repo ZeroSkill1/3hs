@@ -71,6 +71,7 @@ namespace ui
 		make_has_struct(autowrap);
 		make_has_struct(connect);
 		make_has_struct(resize);
+		make_has_struct(scroll);
 #undef make_has_struct
 
 		// This works somehow, unused (for now?)
@@ -120,7 +121,9 @@ namespace ui
 
 	namespace tag
 	{
-		constexpr int action = -1; /* action header */
+		constexpr int action   = -1; /* action header */
+		constexpr int more     = -2; /* more button */
+		constexpr int settings = -2; /* settings button */
 	};
 
 	/* holds sprite ids used for ui::SpriteStore::get_by_id() */
@@ -138,10 +141,14 @@ namespace ui
 #undef next_more_dark_idx
 		more_light = next_more_light_idx,
 #undef next_more_light_idx
-		search_dark = next_settings_dark_idx,
+		search_dark = next_search_dark_idx,
 #undef next_search_dark_idx
-		search_light = next_settings_light_idx,
+		search_light = next_search_light_idx,
 #undef next_search_light_idx
+		settings_dark = next_settings_dark_idx,
+#undef next_settings_dark_idx
+		settings_light = next_settings_light_idx,
+#undef next_settings_light_idx
 		spinner = next_spinner_idx,
 #undef next_spinner_idx
 	};
@@ -157,6 +164,9 @@ namespace ui
 	/* gets the width of a screen */
 	constexpr inline float screen_width(ui::Screen scr)
 	{ return scr == ui::Screen::top ? ui::dimensions::width_top : ui::dimensions::width_bottom; }
+	/* gets the height of the screen (exists for consistency) */
+	constexpr inline float screen_height()
+	{ return ui::dimensions::height; }
 
 	/* used internally by set_x, set_y,
 	 * returns the same coord unless it fits into
@@ -261,6 +271,14 @@ namespace ui
 		bool render_bottom(const ui::Keys&);
 		/* renders only the top widgets */
 		bool render_top(const ui::Keys&);
+		/* renders a frame on `screen' */
+		bool render_screen(const ui::Keys&, ui::Screen screen);
+		/* removes all widgets in the queue */
+		void clear();
+		/* runs the callback after the frame render is done. Runs only once
+		 * NOTE: you can only have 1 callback every frame
+		 * NOTE 2: only works on the global renderqueue */
+		void render_and_then(std::function<void()> cb);
 		/* find a widget by tag
 		 * First searches top widgets, then bottom
 		 * Returns nullptr if no matches were found */
@@ -281,6 +299,7 @@ namespace ui
 
 
 	private:
+		std::function<void()> *after_render_complete = nullptr;
 		ui::BaseWidget *backPtr = nullptr;
 		std::list<ui::BaseWidget *> top;
 		std::list<ui::BaseWidget *> bot;
@@ -324,6 +343,9 @@ namespace ui
 		/* Sets a border around the widget. Not supported by all widgets */
 		UI_REQUIRES_METHOD(TWidget, set_border, void(bool))
 			ui::builder<TWidget>& border() { this->el->set_border(true); return *this; }
+		/* Makes the widget scroll. Not supported by all widgets */
+		UI_REQUIRES_METHOD(TWidget, scroll, void())
+			ui::builder<TWidget>& scroll() { this->el->scroll(); return *this; }
 		/* Connects a type and argument, effect depends on the widget.
 		 * Not supported by all widgets */
 		UI_REQUIRES_METHOD_VARIADIC(TWidget, Ts, connect, void(typename TWidget::connect_type, Ts...))
@@ -347,9 +369,9 @@ namespace ui
 		/* positions the widget above another widget */
 		ui::builder<TWidget>& above(ui::BaseWidget *w, float pad = 3.0f) { this->el->set_y(ui::above(w, this->el, pad)); return *this; }
 		/* positions the widget right from another widget */
-		ui::builder<TWidget>& right(ui::BaseWidget *w, float pad = 3.0f) { this->el->set_y(ui::right(w, this->el, pad)); return *this; }
+		ui::builder<TWidget>& right(ui::BaseWidget *w, float pad = 3.0f) { this->el->set_x(ui::right(w, this->el, pad)); return *this; }
 		/* positions the widget left from another widget */
-		ui::builder<TWidget>& left(ui::BaseWidget *w, float pad = 3.0f) { this->el->set_y(ui::left(w, this->el, pad)); return *this; }
+		ui::builder<TWidget>& left(ui::BaseWidget *w, float pad = 3.0f) { this->el->set_x(ui::left(w, this->el, pad)); return *this; }
 
 		/* Add the built widget to a RenderQueue */
 		void add_to(ui::RenderQueue& queue) { queue.push((ui::BaseWidget *) this->el); this->el = nullptr; }
@@ -430,13 +452,20 @@ namespace ui
 
 			void resize(float x, float y);
 			void autowrap();
+			void scroll(); /* only supported with !center(), doesn't look amazing with multiline text but works */
 
 			void set_center_x() override;
+
+			/* sets the text of the widget to a new string */
+			void set_text(const std::string& label);
+			/* gets the current text of the widget */
+			const std::string& get_text();
 
 
 		private:
 			void push_str(const std::string& str);
 			void prepare_arrays();
+			void reset_scroll();
 
 			float xsiz = 0.65f, ysiz = 0.65f;
 			std::vector<C2D_Text> lines;
@@ -444,7 +473,16 @@ namespace ui
 			bool doAutowrap = false;
 			float lineHeigth = 0.0f;
 			bool drawCenter = false;
+			bool doScroll = false;
 			std::string text;
+
+			struct ScrollCtx {
+				size_t timing;
+				size_t offset;
+				float height;
+				float width;
+				float rx;
+			} sctx;
 
 
 		};
@@ -475,7 +513,9 @@ namespace ui
 			using click_cb_t = std::function<bool()>;
 
 			void setup(const std::string& label);
+			void setup(const C2D_Sprite& sprite);
 			void setup();
+			void destroy() override;
 
 			bool render(const ui::Keys&) override;
 			float height() override;
@@ -490,16 +530,21 @@ namespace ui
 			/* autowrap for text size */
 			void autowrap();
 
-			enum connect_type { click };
+			enum connect_type { click, nobg };
 			/* click */
 			void connect(connect_type type, click_cb_t callback);
+			/* nobg */
+			void connect(connect_type type);
+
+			float textwidth();
 
 
 		private:
 			click_cb_t on_click = []() -> bool { return true; };
-			ScopedWidget<ui::next::Text> label;
 			float ox = 0.0f, oy = 0.0f;
 			float w = 0.0f, h = 0.0f;
+			ui::BaseWidget *widget;
+			bool showBg = true;
 
 			void readjust();
 

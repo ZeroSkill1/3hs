@@ -12,7 +12,6 @@ void show_about()
 {
 	ui::RenderQueue queue;
 
-	// TODO: Button class
 	ui::builder<ui::next::Button>(ui::Screen::bottom, STRING(back))
 		.connect(ui::next::Button::click, []() -> bool { return false; })
 		.size(70.0f, 20.0f)

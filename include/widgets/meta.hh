@@ -8,6 +8,8 @@
 #include "ui/bindings.hh"
 #include "hs.hh"
 
+#include <ui/base.hh>
+
 
 namespace ui
 {
@@ -98,6 +100,30 @@ namespace ui
 
 
 	};
+
+	namespace next
+	{
+		class TitleMeta : public ui::BaseWidget
+		{ UI_WIDGET
+		public:
+			void setup(const hs::Title& meta);
+
+			void set_title(const hs::Title& meta);
+
+			float get_x() override;
+			float get_y() override;
+
+			bool render(const ui::Keys& keys) override;
+			float height() override;
+			float width() override;
+
+
+		private:
+			ui::RenderQueue queue;
+
+
+		};
+	}
 }
 
 #endif

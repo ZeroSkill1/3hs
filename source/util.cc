@@ -50,7 +50,17 @@ void toggle_focus()
 bool next::set_focus(bool focus)
 {
 	bool ret = ui::RenderQueue::global()->find_tag(ui::tag::action)->is_hidden();
+	ui::RenderQueue::global()->find_tag(ui::tag::settings)->set_hidden(focus);
 	ui::RenderQueue::global()->find_tag(ui::tag::action)->set_hidden(focus);
+	ui::RenderQueue::global()->find_tag(ui::tag::more)->set_hidden(focus);
 	return ret;
+}
+
+std::string next::set_desc(const std::string& nlabel)
+{
+	ui::next::Text *action = ui::RenderQueue::global()->find_tag<ui::next::Text>(ui::tag::action);
+	std::string old = action->get_text();
+	action->set_text(nlabel);
+	return old;
 }
 

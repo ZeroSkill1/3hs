@@ -88,13 +88,25 @@ bool ui::init()
 
 ui::RenderQueue::~RenderQueue()
 {
+	this->clear();
+}
+
+void ui::RenderQueue::clear()
+{
 	for(ui::BaseWidget *wid : this->bot)
 	{ wid->destroy(); delete wid; }
 	for(ui::BaseWidget *wid : this->top)
 	{ wid->destroy(); delete wid; }
 
+	this->backPtr = nullptr;
 	this->top.clear();
 	this->bot.clear();
+
+	if(this->after_render_complete != nullptr)
+	{
+		delete this->after_render_complete;
+		this->after_render_complete = nullptr;
+	}
 }
 
 void ui::RenderQueue::push(ui::BaseWidget *wid)
@@ -140,13 +152,30 @@ bool ui::RenderQueue::render_frame(const ui::Keys& keys)
 	ret &= g_renderqueue.render_bottom(keys);
 
 	C3D_FrameEnd(0);
+
+	if(g_renderqueue.after_render_complete != nullptr)
+	{
+		std::function<void()> *cb = g_renderqueue.after_render_complete;
+		g_renderqueue.after_render_complete = nullptr;
+		delete this->after_render_complete;
+		(*cb)();
+	}
+
 	return ret;
 }
+
+void ui::RenderQueue::render_and_then(std::function<void()> cb)
+{ this->after_render_complete = new std::function<void()>(cb); }
 
 bool ui::RenderQueue::render_frame()
 {
 	ui::Keys keys = ui::RenderQueue::get_keys();
 	return this->render_frame(keys);
+}
+
+bool ui::RenderQueue::render_screen(const ui::Keys& keys, ui::Screen screen)
+{
+	return screen == ui::Screen::top ? this->render_top(keys) : this->render_bottom(keys);
 }
 
 bool ui::RenderQueue::render_bottom(const ui::Keys& keys)
@@ -209,6 +238,8 @@ ui::SpriteStore::~SpriteStore()
 void ui::SpriteStore::open(const std::string& fname)
 {
 	this->sheet = C2D_SpriteSheetLoad(fname.c_str());
+//	if(this->sheet == nullptr)
+//		panic("Failed to open spritesheet: " + fname);
 }
 
 size_t ui::SpriteStore::size()
@@ -218,7 +249,11 @@ size_t ui::SpriteStore::size()
 
 C2D_Sprite ui::SpriteStore::get_by_id(ui::sprite id)
 {
-	C2D_Sprite ret; C2D_SpriteFromSheet(&ret, g_spritestore.sheet, (size_t) id);
+	C2D_Sprite ret;
+//	ret.image.subtex = nullptr;
+	C2D_SpriteFromSheet(&ret, g_spritestore.sheet, (size_t) id);
+//	if(ret.image.subtex == nullptr)
+//		panic("Failed to load sprite from spritesheet");
 	return ret;
 }
 
@@ -229,9 +264,6 @@ void ui::next::Text::setup(const std::string& label)
 {
 	this->text = label;
 	this->prepare_arrays();
-//	this->buf = C2D_TextBufNew(label.size() + 1);
-//	C2D_TextParse(&this->label, this->buf, label.c_str());
-//	C2D_TextOptimize(&this->label);
 }
 
 void ui::next::Text::prepare_arrays()
@@ -305,6 +337,28 @@ bool ui::next::Text::render(const ui::Keys& keys)
 
 	/* TODO: Respect theme colors */
 
+	if(this->doScroll)
+	{
+		if(this->sctx.offset > this->sctx.width)
+			this->reset_scroll();
+		else if(this->sctx.offset == 0)
+		{
+			if(this->sctx.timing > 20)
+				++this->sctx.offset;
+			++this->sctx.timing;
+		}
+		else if(this->sctx.timing % 3 == 0)
+		{
+			this->sctx.timing = 1;
+			++this->sctx.offset;
+			--this->sctx.rx;
+		}
+		else ++this->sctx.timing;
+
+		C2D_DrawRectSolid(0, this->y, 0.1f, this->x, this->sctx.height,
+			C2D_Color32(0x1C, 0x20, 0x21, 0xFF));
+	}
+
 	for(size_t i = 0; i < this->lines.size(); ++i)
 	{
 		if(this->drawCenter)
@@ -313,6 +367,12 @@ bool ui::next::Text::render(const ui::Keys& keys)
 				this->screen);
 
 			C2D_DrawText(&this->lines[i], C2D_WithColor, center,
+				this->y + (this->lineHeigth * i), this->z, this->xsiz, this->ysiz, C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF));
+		}
+		else if(this->doScroll)
+		{
+
+			C2D_DrawText(&this->lines[i], C2D_WithColor, this->sctx.rx,
 				this->y + (this->lineHeigth * i), this->z, this->xsiz, this->ysiz, C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF));
 		}
 		else
@@ -325,10 +385,30 @@ bool ui::next::Text::render(const ui::Keys& keys)
 	return true;
 }
 
+void ui::next::Text::reset_scroll()
+{
+	this->sctx.height = this->height();
+	this->sctx.width = this->width();
+	this->sctx.rx = this->x;
+	this->sctx.timing = 1;
+	this->sctx.offset = 0;
+}
+
 void ui::next::Text::autowrap()
 {
 	this->doAutowrap = true;
 	this->prepare_arrays();
+}
+
+void ui::next::Text::scroll()
+{
+	this->reset_scroll();
+	// Only scroll if required
+	if(this->sctx.width + this->x > ui::screen_width(this->screen))
+	{
+		this->doScroll = true;
+		this->z = 0.0f;
+	}
 }
 
 void ui::next::Text::set_center_x()
@@ -357,6 +437,15 @@ void ui::next::Text::resize(float x, float y)
 {
 	this->xsiz = x;
 	this->ysiz = y;
+}
+
+const std::string& ui::next::Text::get_text()
+{ return this->text; }
+
+void ui::next::Text::set_text(const std::string& label)
+{
+	this->text = label;
+	this->prepare_arrays();
 }
 
 /* core widget class Sprite */
@@ -405,15 +494,32 @@ void ui::next::Sprite::set_z(float z)
 
 /* core widget class Button */
 
-void ui::next::Button::setup(const std::string& label)
+void ui::next::Button::setup(const std::string& text)
 {
-	this->label.setup(this->screen, label);
+	ui::next::Text *label = new ui::next::Text(this->screen);
+	label->setup(text);
+
+	this->widget = label;
+	this->readjust();
+}
+
+void ui::next::Button::setup(const C2D_Sprite& sprite)
+{
+	ui::next::Sprite *label = new ui::next::Sprite(this->screen);
+	label->setup(sprite);
+	label->set_z(1.0f);
+
+	this->widget = label;
 	this->readjust();
 }
 
 void ui::next::Button::setup()
+{ this->setup(""); }
+
+void ui::next::Button::destroy()
 {
-	this->label.setup(this->screen, "");
+	this->widget->destroy();
+	delete this->widget;
 }
 
 float ui::next::Button::height()
@@ -431,7 +537,8 @@ void ui::next::Button::resize(float x, float y)
 
 void ui::next::Button::resize_children(float x, float y)
 {
-	this->label.ptr()->resize(x, y);
+	// Super unsafe... works though
+	((ui::next::Text *) this->widget)->resize(x, y);
 	this->readjust();
 }
 
@@ -450,24 +557,24 @@ void ui::next::Button::set_y(float y)
 void ui::next::Button::set_z(float z)
 {
 	this->z = z;
-	this->label.ptr()->set_z(z);
+	this->widget->set_z(z);
 }
 
 void ui::next::Button::readjust()
 {
 	// Getting better results with the -1.0f somehow
-	this->label.ptr()->set_y(((this->h / 2) - (this->label.ptr()->height() / 2)) + this->y);
-	this->label.ptr()->set_x(((this->w / 2) - (this->label.ptr()->width() / 2)) + this->x);
+	this->widget->set_y(((this->h / 2) - (this->widget->height() / 2)) + this->y);
+	this->widget->set_x(((this->w / 2) - (this->widget->width() / 2)) + this->x);
 
-	this->ox = this->x + x;
-	this->oy = this->y + y;
+	this->ox = this->x + this->w;
+	this->oy = this->y + this->h;
 }
 
 bool ui::next::Button::render(const ui::Keys& keys)
 {
 	/* TODO: Listen to theme */
-	C2D_DrawRectSolid(this->x, this->y, this->z, this->w, this->h, C2D_Color32(0x32, 0x35, 0x36, 0xFF));
-	this->label.render(keys);
+	if(this->showBg) C2D_DrawRectSolid(this->x, this->y, 0.0f, this->w, this->h, C2D_Color32(0x32, 0x35, 0x36, 0xFF));
+	this->widget->render(keys);
 
 	if(keys.touch.px >= this->x && keys.touch.px <= this->ox &&
 			keys.touch.py >= this->y && keys.touch.py <= this->oy)
@@ -478,9 +585,22 @@ bool ui::next::Button::render(const ui::Keys& keys)
 
 void ui::next::Button::autowrap()
 {
-	this->w = this->label.ptr()->width() + 10.0f;
-//	this->h = this->label.ptr()->height() + 2.0f; // We don't want to wrap the heigth usually
+	this->w = this->widget->width() + (this->showBg ? 0.0f : 10.0f);
+	this->h = this->widget->height() + (this->showBg ? 0.0f : 2.0f);
 	this->readjust();
+}
+
+void ui::next::Button::connect(connect_type type)
+{
+	switch(type)
+	{
+	case ui::next::Button::nobg:
+		this->showBg = false;
+		break;
+	default:
+		//panic("Button::connect(): invalid state");
+		break;
+	}
 }
 
 void ui::next::Button::connect(connect_type type, std::function<bool()> callback)
@@ -494,6 +614,11 @@ void ui::next::Button::connect(connect_type type, std::function<bool()> callback
 		//panic("Button::connect(): invalid state");
 		break;
 	}
+}
+
+float ui::next::Button::textwidth()
+{
+	return this->widget->width();
 }
 
 /* core widget class ButtonCallback */

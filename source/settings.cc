@@ -208,6 +208,7 @@ static void update_settings_ID(SettingsId ID)
 
 void show_settings()
 {
+	bool focus = next::set_focus(true);
 	toggle_focus();
 	ui::Widgets wids;
 	ui::Text *value;
@@ -242,6 +243,7 @@ void show_settings()
 	wids.push_back(list);
 
 	generic_main_breaking_loop(wids);
+	next::set_focus(focus);
 	toggle_focus();
 }
 

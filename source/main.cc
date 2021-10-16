@@ -64,13 +64,7 @@ int main(int argc, char* argv[])
 	/* init_services(); */
 	/* ui::init(); */
 
-	ui::builder<ui::next::Text>(ui::Screen::top, STRING(luma_not_installed))
-		.x(ui::layout::center_x)
-		.y(4.0f)
-		.tag(ui::tag::action)
-		.add_to(ui::RenderQueue::global());
-
-	/* show_about(); */
+	/* luma::set_gamepatching(); */
 
 	/* ui::exit(); */
 	/* exit_services(); */
@@ -91,6 +85,7 @@ int main(int argc, char* argv[])
 	plog::get()->addAppender(&colorAppender);
 #endif
 
+	panic_if_err_3ds(init_services());
 	if(!ui::global_init())
 	{
 		lfatal << "ui::global_init() failed, this should **never** happen";
@@ -98,12 +93,68 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	panic_if_err_3ds(init_services());
 	init_seeddb();
 	ensure_settings();
 	proxy::init();
 
 	osSetSpeedupEnable(true); // speedup for n3dses
+
+	/* new ui setup */
+ 	ui::builder<ui::next::Text>(ui::Screen::top, "") /* text is not immediately set */
+		.x(ui::layout::center_x)
+		.y(4.0f)
+		.tag(ui::tag::action)
+		.add_to(ui::RenderQueue::global());
+	
+	/* buttons */
+	ui::builder<ui::next::Button>(ui::Screen::bottom, ui::SpriteStore::get_by_id(ui::sprite::settings_dark))
+		.connect(ui::next::Button::click, []() -> bool {
+			ui::RenderQueue::global()->render_and_then(show_settings);
+			return true;
+		})
+		.connect(ui::next::Button::nobg)
+		.wrap()
+		.x(5.0f)
+		.y(210.0f)
+		.tag(ui::tag::more)
+		.add_to(ui::RenderQueue::global());
+
+	ui::builder<ui::next::Button>(ui::Screen::bottom, ui::SpriteStore::get_by_id(ui::sprite::more_dark))
+		.connect(ui::next::Button::click, []() -> bool {
+			ui::RenderQueue::global()->render_and_then(show_more);
+			return true;
+		})
+		.connect(ui::next::Button::nobg)
+		.wrap()
+		.right(ui::RenderQueue::global()->back())
+		.y(210.0f)
+		.tag(ui::tag::settings)
+		.add_to(ui::RenderQueue::global());
+
+	ui::builder<ui::next::Button>(ui::Screen::bottom, ui::SpriteStore::get_by_id(ui::sprite::search_dark))
+		.connect(ui::next::Button::click, []() -> bool {
+			ui::RenderQueue::global()->render_and_then(show_search);
+			return true;
+		})
+		.connect(ui::next::Button::nobg)
+		.wrap()
+		.right(ui::RenderQueue::global()->back())
+		.y(210.0f)
+		.tag(ui::tag::settings)
+		.add_to(ui::RenderQueue::global());
+
+	ui::builder<ui::next::Button>(ui::Screen::bottom, STRING(queue))
+		.connect(ui::next::Button::click, []() -> bool {
+			ui::RenderQueue::global()->render_and_then(show_queue);
+			return true;
+		})
+		.connect(ui::next::Button::nobg)
+		.wrap()
+		.right(ui::RenderQueue::global()->back())
+		.y(210.0f)
+		.tag(ui::tag::settings)
+		.add_to(ui::RenderQueue::global());
+
 
 	ui::wid()->push_back("version", new ui::Text(ui::mk_right_WText(VERSION, 3.0f, 5.0f, 0.4f, 0.4f, ui::Scr::bottom)), ui::Scr::bottom);
 	ui::wid()->push_back("header_desc", new ui::Text(ui::mk_center_WText(STRING(banner), 30.0f)), ui::Scr::top);

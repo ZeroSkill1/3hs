@@ -5,7 +5,7 @@
 #include <3rd/log.hh>
 
 #include <ui/confirm.hh>
-#include <ui/core.hh>
+#include <ui/base.hh>
 
 #include "install.hh"
 #include "queue.hh"
@@ -28,11 +28,15 @@ bool update_app()
 	if(nver == FULL_VERSION)
 		return false;
 
-	ui::Widgets wids; bool shouldUpdate = false;
-	wids.push_back("confirmation", new ui::Confirm(PSTRING(update_to, nver), shouldUpdate), ui::Scr::bottom);
-	generic_main_breaking_loop(wids);
+	bool update;
+	ui::RenderQueue queue;
 
-	if(!shouldUpdate)
+	ui::builder<ui::next::Confirm>(ui::Screen::bottom, PSTRING(update_to, nver), update)
+		.y(80.0f).add_to(queue);
+
+	queue.render_finite();
+
+	if(!update)
 	{
 		linfo << "User declined update";
 		return false;
