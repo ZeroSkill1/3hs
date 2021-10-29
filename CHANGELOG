@@ -1,6 +1,5 @@
 
 v0.2.0:
- - introduced hLink
  - implemented resuming downloads
  - fix konami code easter egg not working
  - fix bug where single line panic message wouldn't show

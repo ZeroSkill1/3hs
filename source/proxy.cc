@@ -63,8 +63,13 @@ void proxy::apply(CURL *curl)
 
 Result proxy::apply(httpcContext *context)
 {
-	return httpcSetProxy(context, g_proxy.port, g_proxy.host,
-		g_proxy.username, g_proxy.password);
+	if(g_proxy.host != "")
+	{
+		return httpcSetProxy(context, g_proxy.port, g_proxy.host,
+			g_proxy.username, g_proxy.password);
+	}
+
+	return 0;
 }
 
 static bool is_CRLF(const std::string& buf, std::string::size_type i)

@@ -27,7 +27,6 @@
 #include "build/more_icon.h"
 
 #include "lumalocale.hh"
-#include "hlink_view.hh"
 #include "image_ldr.hh"
 #include "settings.hh"
 #include "log_view.hh"
