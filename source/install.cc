@@ -10,7 +10,6 @@
 
 #include <widgets/indicators.hh>
 #include <net_common.hh>
-#include <curl/curl.h>
 #include <3rd/log.hh>
 #include <ui/util.hh>
 #include <malloc.h>
@@ -203,8 +202,8 @@ static Result i_install_resume_loop(std::function<std::string()> get_url, Handle
 }
 
 
-static Destination detect_dest(hs::Title *meta)
-{ return detect_dest(meta->tid); }
+static Destination detect_dest(const hsapi::Title& meta)
+{ return detect_dest(meta.tid); }
 
 Destination detect_dest(const std::string& tid)
 {
@@ -226,7 +225,7 @@ FS_MediaType to_mediatype(Destination dest)
 	return dest == DEST_Sdmc ? MEDIATYPE_SD : MEDIATYPE_NAND;
 }
 
-static Result i_install_hs_cia(hs::FullTitle *meta, prog_func prog, bool reinstallable)
+static Result i_install_hs_cia(const hsapi::FullTitle& meta, prog_func prog, bool reinstallable)
 {
 	Destination media = detect_dest(meta);
 	u64 freeSpace = 0;
@@ -235,7 +234,7 @@ static Result i_install_hs_cia(hs::FullTitle *meta, prog_func prog, bool reinsta
 	if(R_FAILED(res = get_free_space(media, &freeSpace)))
 		return res;
 
-	if(meta->size > freeSpace)
+	if(meta.size > freeSpace)
 		return APPERR_NOSPACE;
 
 	// Check if we are NOT on a n3ds and the game is n3ds exclusive
@@ -243,10 +242,15 @@ static Result i_install_hs_cia(hs::FullTitle *meta, prog_func prog, bool reinsta
 	if(R_FAILED(res = APT_CheckNew3DS(&isNew)))
 		return res;
 
-	if(!isNew && meta->prod.rfind("KTR-", 0) == 0)
+	if(!isNew && meta.prod.rfind("KTR-", 0) == 0)
 		return APPERR_NOSUPPORT;
 
-	return install_net_cia([meta]() -> std::string { return hs::get_download_link(meta); }, prog, reinstallable, meta->tid, to_mediatype(media));
+	return install_net_cia([meta]() -> std::string {
+		std::string ret;
+		if(R_FAILED(hsapi::get_download_link(ret, meta)))
+			return "";
+		return ret;
+	}, prog, reinstallable, meta.tid, to_mediatype(media));
 }
 
 
@@ -306,38 +310,31 @@ std::string tid_to_str(u64 tid)
 	return buf;
 }
 
-u64 str_to_tid(std::string tid)
+u64 str_to_tid(const std::string& tid)
 {
 	return strtoull(tid.c_str(), nullptr, 16);
 }
 
-Result install_net_cia(get_url_func get_url, prog_func prog, bool reinstallable, u64 tid, FS_MediaType dest)
+Result install_net_cia(get_url_func get_url, prog_func prog, bool reinstallable, hsapi::htid tid, FS_MediaType dest)
 {
-	return install_net_cia(get_url, prog, reinstallable, tid_to_str(tid), dest);
-}
-
-Result install_net_cia(get_url_func get_url, prog_func prog, bool reinstallable, std::string tid, FS_MediaType dest)
-{
-	if(reinstallable && tid != "")
+	if(reinstallable && tid != 0)
 	{
-		u64 itid = str_to_tid(tid);
 		// Ask ninty why this stupid restriction is in place
 		// Basically reinstalling the CURRENT cia requires you
 		// To NOT delete the cia but instead have a higher version
 		// and just install like normal
 		u64 selftid = 0;
-		if(!(R_FAILED(APT_GetProgramID(&selftid)) || selftid == itid))
+		if(!(R_FAILED(APT_GetProgramID(&selftid)) || selftid == tid))
 		{
 			Result res = 0;
-			if(R_FAILED(res = delete_if_exist(itid)))
+			if(R_FAILED(res = delete_if_exist(tid)))
 				return res;
 		}
 	}
 
-	else if(tid != "")
+	else if(tid != 0)
 	{
-		u64 itid = str_to_tid(tid);
-		if(title_exists(itid))
+		if(title_exists(tid))
 			return APPERR_NOREINSTALL;
 	}
 
@@ -352,7 +349,7 @@ Result install_net_cia(get_url_func get_url, prog_func prog, bool reinstallable,
 		return APPERR_CANCELLED;
 	}
 
-	if(!NET_OK(ret)) // If everything went ok in i_install_resume_loop, we return a 0
+	if(R_FAILED(ret)) // If everything went ok in i_install_resume_loop, we return a 0
 	{
 		AM_CancelCIAInstall(cia);
 		return ret;
@@ -362,12 +359,12 @@ Result install_net_cia(get_url_func get_url, prog_func prog, bool reinstallable,
 	linfo << "AM_FinishCiaInstall(...): " << ret;
 
 	// Install luma locale.txt file now, if we know the tid
-	if(tid != "") luma::set_locale(str_to_tid(tid));
+	if(tid != 0) luma::set_locale(tid);
 
 	return ret;
 }
 
-Result install_hs_cia(hs::FullTitle *meta, prog_func prog, bool reinstallable)
+Result install_hs_cia(const hsapi::FullTitle& meta, prog_func prog, bool reinstallable)
 {
 	return i_install_hs_cia(meta, prog, reinstallable);
 }

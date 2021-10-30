@@ -18,10 +18,8 @@
 #include "install.hh"
 #include "thread.hh"
 #include "queue.hh"
+#include "hsapi.hh"
 #include "i18n.hh"
-#include "hs.hh"
-
-#include <curl/curl.h>
 
 using handle_thread_t = thread<>;
 
@@ -127,10 +125,11 @@ static void handle_add_queue(int clientfd, iTransactionHeader header)
 	if(body.size() % sizeof(u64) != 0)
 		return send_response(clientfd, hlink::response::error, "body.size() % sizeof(u64) != 0");
 
-	for(size_t i = 0; i < body.size() / sizeof(u64); ++i)
+	for(size_t i = 0; i < body.size() / sizeof(hsapi::hid); ++i)
 	{
-		hs::hid id = ntohll(((const u64 *) body.data())[i]);
-		hs::FullTitle meta = hs::title_meta(id);
+		hsapi::hid id = ntohll(((const hsapi::hid *) body.data())[i]);
+		hsapi::FullTitle meta;
+		if(R_FAILED(hsapi::call(hsapi::title_meta, meta, std::move(id)))) continue;
 
 		// ~~Check if id exists~~ its UB now
 		queue_add(meta);

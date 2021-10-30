@@ -12,7 +12,6 @@
 #define LANGNAME_DUTCH "Nederlands"
 #define LANGNAME_GERMAN "Deutsch"
 #define LANGNAME_SPANISH "Español"
-#define LANGNAME_UWULANG "UwULang"
 
 // ParamSTRING
 #define PSTRING(x, ...) i18n::interpolate(str::x, __VA_ARGS__)
@@ -98,7 +97,9 @@ namespace str
 		patching_reboot = 72,
 		reboot_now = 73,
 		this_version = 74,
-		credits = 75,
+		retry_req = 75,
+		search_zero_results = 76,
+		credits = 77,
 
 		_i_max,
 	};
@@ -114,7 +115,6 @@ namespace lang
 		dutch   = 1,
 		german  = 2,
 		spanish = 3,
-		uwulang = 4,
 
 		_i_max,
 	};

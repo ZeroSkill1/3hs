@@ -1,6 +1,5 @@
 // vim: foldmethod=syntax
 
-#include <curl/curl.h>
 #include <3rd/log.hh>
 #include <3ds.h>
 
@@ -304,25 +303,11 @@ error_container get_error(Result res)
 {
 	error_container ret;
 
-	// CURL Error
-	if(res > 0)
-	{
-		ret.sDesc = curl_easy_strerror((CURLcode) res);
-		ret.type = ErrType_curl;
-		ret.iDesc = res;
-		ret.full = res;
-	}
-
-	// 3ds Error
-	else if(res <= 0)
-	{
-		ret.type = ErrType_3ds;
-		get_desc(res, ret);
-		get_lvl(res, ret);
-		get_sum(res, ret);
-		get_mod(res, ret);
-		ret.full = res;
-	}
+	get_desc(res, ret);
+	get_lvl(res, ret);
+	get_sum(res, ret);
+	get_mod(res, ret);
+	ret.full = res;
 
 	return ret;
 }
@@ -333,7 +318,7 @@ std::string pad8code(Result code)
 	return errpad;
 }
 
-std::string format_err(std::string msg, Result code)
+std::string format_err(const std::string& msg, Result code)
 {
 	return msg + " (" + std::to_string(code) + ")";
 }
@@ -344,20 +329,11 @@ void report_error(error_container& container, std::string note)
 	lerror << "| ERROR REPORT            |";
 	lerror << "===========================";
 	if(note != "") { lerror << "Note        : " << note; }
-	lerror << "Type        : " << (container.type == ErrType_curl ? "curl" : "3DS");
-	if(container.type == ErrType_curl)
-	{
-		lerror << "Error Code  : " << container.iDesc;
-		lerror << "Description : " << container.sDesc;
-	}
-	else
-	{
-		lerror << "Result Code : 0x" << pad8code(container.full);
-		lerror << "Description : " << format_err(container.sDesc, container.iDesc);
-		lerror << "Module      : " << format_err(container.sMod, container.iMod);
-		lerror << "Level       : " << format_err(container.sLvl, container.iLvl);
-		lerror << "Summary     : " << format_err(container.sSum, container.iSum);
-	}
+	lerror << "Result Code : 0x" << pad8code(container.full);
+	lerror << "Description : " << format_err(container.sDesc, container.iDesc);
+	lerror << "Module      : " << format_err(container.sMod, container.iMod);
+	lerror << "Level       : " << format_err(container.sLvl, container.iLvl);
+	lerror << "Summary     : " << format_err(container.sSum, container.iSum);
 	lerror << "===========================";
 }
 

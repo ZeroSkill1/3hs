@@ -19,11 +19,6 @@ struct _proxy
 	std::string password;
 } static g_proxy;
 
-// This is for curl.
-// If we simple do proxystr().c_str() the
-// pointer becomes invalid -> segfault
-static std::string g_proxystr;
-
 
 static std::string proxystr()
 {
@@ -51,14 +46,6 @@ static bool validate()
 	) return false;
 
 	return true;
-}
-
-void proxy::apply(CURL *curl)
-{
-	if(g_proxy.port != 0)
-	{
-		curl_easy_setopt(curl, CURLOPT_PROXY, g_proxystr.c_str());
-	}
 }
 
 Result proxy::apply(httpcContext *context)
@@ -136,9 +123,8 @@ void proxy::init()
 
 	g_proxy.port = strtoul(port.c_str(), nullptr, 10);
 	if(!validate()) panic(STRING(invalid_proxy));
-	g_proxystr = proxystr();
 
-	llog << "Using proxy: |" << g_proxystr << "|";
+	llog << "Using proxy: |" << proxystr() << "|";
 }
 
 

@@ -189,8 +189,8 @@ static void update_settings_ID(SettingsId ID)
 		break;
 	case ID_Language:
 		g_settings.language = get_enum<lang::type>(
-			{ LANGNAME_ENGLISH, LANGNAME_DUTCH, LANGNAME_GERMAN, LANGNAME_SPANISH, LANGNAME_UWULANG },
-			{ lang::english, lang::dutch, lang::german, lang::spanish, lang::uwulang },
+			{ LANGNAME_ENGLISH, LANGNAME_DUTCH, LANGNAME_GERMAN, LANGNAME_SPANISH },
+			{ lang::english, lang::dutch, lang::german, lang::spanish },
 			g_settings.language
 		);
 		break;

@@ -2,10 +2,10 @@
 #include "find_missing.hh"
 #include "install.hh"
 #include "titles.hh"
+#include "hsapi.hh"
 #include "queue.hh"
 #include "panic.hh"
 #include "util.hh"
-#include "hs.hh"
 
 #include <ui/loading.hh>
 #include <ui/core.hh>
@@ -33,8 +33,11 @@ void show_find_missing()
 			return category == 0x0000 /* normal */ || category == 0x8000 /* DSiWare/TWL */;
 		});
 
-		hs::BatchRelated related = hs::batch_related(installedGames);
-		std::vector<hs::Title> potentialInstalls;
+		hsapi::BatchRelated related;
+		if(R_FAILED(hsapi::batch_related(related, installedGames)))
+			return;
+
+		std::vector<hsapi::Title> potentialInstalls;
 
 		for(size_t i = 0; i < installedGames.size(); ++i)
 		{
@@ -42,13 +45,13 @@ void show_find_missing()
 			vecappend(potentialInstalls, related[installedGames[i]].dlc);
 		}
 
-		std::vector<hs::Title> newInstalls;
-		std::copy_if(potentialInstalls.begin(), potentialInstalls.end(), std::back_inserter(newInstalls), [installed](const hs::Title& title) -> bool {
+		std::vector<hsapi::Title> newInstalls;
+		std::copy_if(potentialInstalls.begin(), potentialInstalls.end(), std::back_inserter(newInstalls), [installed](const hsapi::Title& title) -> bool {
 			// TODO: also check the version int, wait for backend update to return version int for that
-			return std::find(installed.begin(), installed.end(), str_to_tid(title.tid)) != installed.end();
+			return std::find(installed.begin(), installed.end(), title.tid) != installed.end();
 		});
 
-		for(const hs::Title& title : newInstalls)
+		for(const hsapi::Title& title : newInstalls)
 			queue_add(title.id);
 
 	});

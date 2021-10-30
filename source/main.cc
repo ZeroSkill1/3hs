@@ -21,7 +21,6 @@
 #include <3rd/plog/Appenders/ColorConsoleAppender.h>
 #include <net_common.hh>
 #include <3rd/log.hh>
-#include <hs.hh>
 
 #include "build/settings_icon.h"
 #include "build/search_icon.h"
@@ -43,6 +42,7 @@
 #include "panic.hh"
 #include "about.hh"
 #include "proxy.hh"
+#include "hsapi.hh"
 #include "more.hh"
 #include "util.hh"
 #include "seed.hh"
@@ -68,7 +68,7 @@ int main(int argc, char* argv[])
 
 	/* ui::exit(); */
 	/* exit_services(); */
-	
+
 	/* return 0; */
 
 	((void) argc);
@@ -105,7 +105,7 @@ int main(int argc, char* argv[])
 		.y(4.0f)
 		.tag(ui::tag::action)
 		.add_to(ui::RenderQueue::global());
-	
+
 	/* buttons */
 	ui::builder<ui::next::Button>(ui::Screen::bottom, ui::SpriteStore::get_by_id(ui::sprite::settings_dark))
 		.connect(ui::next::Button::click, []() -> bool {
@@ -179,7 +179,7 @@ int main(int argc, char* argv[])
 		ui::wid()->push_back(new ui::Text(ui::mk_center_WText(STRING(install_luma), 78.0f)), ui::Scr::top);
 		standalone_main_breaking_loop();
 		ui::global_deinit();
-		hs::global_deinit();
+		hsapi::global_deinit();
 		exit_services();
 		return 3;
 	}
@@ -268,9 +268,9 @@ int main(int argc, char* argv[])
 			ui::framedraw(dummy, keys);
 	}
 
-	if(!hs::global_init())
+	if(!hsapi::global_init())
 	{
-		lfatal << "hs::global_init() failed";
+		lfatal << "hsapi::global_init() failed";
 		panic(STRING(fail_init_networking));
 		return 2;
 	}
@@ -281,60 +281,51 @@ int main(int argc, char* argv[])
 	if(update_app())
 	{
 		llog << "Updated from " VERSION;
-		hs::global_deinit();
+		hsapi::global_deinit();
 		ui::global_deinit();
 		exit_services();
 		return 0;
 	}
 #endif
 
-	hs::Index indx;
-	llog << "Fetching index";
-	ui::loading([&indx]() -> void {
-		indx = hs::Index::get();
-	});
-
-	if(index_failed(indx))
+	Result res = hsapi::call(hsapi::fetch_index);
+	if(R_FAILED(res))
 	{
-		lfatal << "Failed to fetch index, dns fucked? Server down? " << index_error(indx);
-		panic(PSTRING(fail_fetch_index, index_error(indx)));
+		error_container errcont = get_error(res);
+		lfatal << "Failed to fetch index, dns fucked? Server down? " << errcont.sDesc << "\n";
+		panic(PSTRING(fail_fetch_index, errcont.sDesc));
 		return 3;
 	}
-
-	hs::setup_index(&indx);
 
 	// Old logic was cursed, made it a bit better :blobaww:
 	while(aptMainLoop())
 	{
 cat:
-		std::string cat = next::sel_cat();
+		const std::string *cat = next::sel_cat();
 		// User wants to exit app
 		if(cat == next_cat_exit) break;
-		llog << "NEXT(c): " << cat;
+		llog << "NEXT(c): " << *cat;
 
 sub:
-		std::string sub = next::sel_sub(cat);
+		const std::string *sub = next::sel_sub(*cat);
 		if(sub == next_sub_back) goto cat;
 		if(sub == next_sub_exit) break;
-		llog << "NEXT(s): " << sub;
+		llog << "NEXT(s): " << *sub;
 
-		std::vector<hs::Title> titles;
-		ui::loading([&titles, cat, sub]() -> void {
-			titles = hs::titles_in(cat, sub);
-		});
-
+		std::vector<hsapi::Title> titles;
+		if(R_FAILED(hsapi::call(hsapi::titles_in, titles, *cat, *sub)))
+			goto sub;
 
  gam:
-		hs::shid id = next::sel_gam(titles);
+		hsapi::hid id = next::sel_gam(titles);
 		if(id == next_gam_back) goto sub;
 		if(id == next_gam_exit) break;
 
 		llog << "NEXT(g): " << id;
 
-		hs::FullTitle meta;
-		ui::loading([&meta, id]() -> void {
-			meta = hs::title_meta(id);
-		});
+		hsapi::FullTitle meta;
+		if(R_FAILED(hsapi::call(hsapi::title_meta, meta, std::move(id))))
+			goto gam;
 
 		if(show_extmeta(meta))
 		{
@@ -349,7 +340,7 @@ sub:
 
 
 	llog << "Goodbye, app deinit";
-	hs::global_deinit();
+	hsapi::global_deinit();
 	ui::global_deinit();
 	exit_services();
 	return 0;

@@ -2,6 +2,8 @@
 #include "widgets/meta.hh"
 #include "i18n.hh"
 
+#include "install.hh" // TODO: Move tid_to_str() somewhere else
+
 // Sorry for this macro mess, even i find it hard to read now.
 // D = Description, T = Title, C = Category, S = Subcategory
 
@@ -31,7 +33,7 @@
 	scroll_if_large(n)
 
 
-ui::TitleMeta::TitleMeta(hs::Title title)
+ui::TitleMeta::TitleMeta(const hsapi::Title& title)
 	: Widget("tmd")
 {
 	this->update_title(title);
@@ -60,13 +62,13 @@ ui::Results ui::TitleMeta::draw(ui::Keys& keys, ui::Scr target)
 	return ui::Results::go_on;
 }
 
-void ui::TitleMeta::update_title(hs::Title title)
+void ui::TitleMeta::update_title(const hsapi::Title& title)
 {
-	this->scat.replace_text((*hs::get_index())[title.cat]->displayName + " -> " + (*(*hs::get_index())[title.cat])[title.subcat]->displayName);
+	this->scat.replace_text(hsapi::get_index()->find(title.cat)->disp + " -> " + hsapi::get_index()->find(title.cat)->find(title.subcat)->disp);
 	this->ssize.replace_text(ui::human_readable_size_block(title.size));
 	this->sid.replace_text(std::to_string(title.id));
+	this->stid.replace_text(tid_to_str(title.tid));
 	this->sname.replace_text(title.name);
-	this->stid.replace_text(title.tid);
 
 	cnr(name);
 	cnr(cat);
@@ -99,7 +101,7 @@ void ui::TitleMeta::init_other()
 }
 
 
-ui::SubMeta::SubMeta(hs::Subcategory sub)
+ui::SubMeta::SubMeta(const hsapi::Subcategory& sub)
 	: Widget("smd")
 {
 	this->update_sub(sub);
@@ -128,12 +130,12 @@ ui::Results ui::SubMeta::draw(ui::Keys& keys, ui::Scr target)
 	return ui::Results::go_on;
 }
 
-void ui::SubMeta::update_sub(hs::Subcategory sub)
+void ui::SubMeta::update_sub(const hsapi::Subcategory& sub)
 {
 	this->ssize.replace_text(ui::human_readable_size(sub.size));
-	this->stitle.replace_text(std::to_string(sub.totalTitles));
-	this->scat.replace_text((*hs::get_index())[sub.cat]->displayName);
-	this->sname.replace_text(sub.displayName);
+	this->stitle.replace_text(std::to_string(sub.titles));
+	this->scat.replace_text(hsapi::get_index()->find(sub.cat)->disp);
+	this->sname.replace_text(sub.disp);
 	this->sdesc.replace_text(sub.desc);
 
 	cnr(desc);
@@ -167,7 +169,7 @@ void ui::SubMeta::init_other()
 }
 
 
-ui::CatMeta::CatMeta(hs::Category cat)
+ui::CatMeta::CatMeta(const hsapi::Category& cat)
 	: Widget("cmd")
 {
 	this->update_cat(cat);
@@ -195,11 +197,11 @@ ui::Results ui::CatMeta::draw(ui::Keys& keys, ui::Scr target)
 	return ui::Results::go_on;
 }
 
-void ui::CatMeta::update_cat(hs::Category cat)
+void ui::CatMeta::update_cat(const hsapi::Category& cat)
 {
 	this->ssize.replace_text(ui::human_readable_size(cat.size));
-	this->stitle.replace_text(std::to_string(cat.totalTitles));
-	this->sname.replace_text(cat.displayName);
+	this->stitle.replace_text(std::to_string(cat.titles));
+	this->sname.replace_text(cat.disp);
 	this->sdesc.replace_text(cat.desc);
 
 	cnr(desc);
@@ -229,10 +231,10 @@ void ui::CatMeta::init_other()
 
 /* next */
 
-void ui::next::TitleMeta::setup(const hs::Title& meta)
+void ui::next::TitleMeta::setup(const hsapi::Title& meta)
 { this->set_title(meta); }
 
-void ui::next::TitleMeta::set_title(const hs::Title& meta)
+void ui::next::TitleMeta::set_title(const hsapi::Title& meta)
 {
 	this->queue.clear();
 
@@ -247,7 +249,7 @@ void ui::next::TitleMeta::set_title(const hs::Title& meta)
 		.under(this->queue.back(), -1.0f)
 		.add_to(this->queue);
 
-	ui::builder<ui::next::Text>(this->screen, (*hs::get_index())[meta.cat]->displayName + " -> " + (*(*hs::get_index())[meta.cat])[meta.subcat]->displayName)
+	ui::builder<ui::next::Text>(this->screen, hsapi::get_index()->find(meta.cat)->disp + " -> " + hsapi::get_index()->find(meta.cat)->find(meta.subcat)->disp)
 		.x(this->get_x())
 		.under(this->queue.back(), 1.0f)
 		.scroll()
@@ -258,7 +260,7 @@ void ui::next::TitleMeta::set_title(const hs::Title& meta)
 		.under(this->queue.back(), -1.0f)
 		.add_to(this->queue);
 
-	ui::builder<ui::next::Text>(this->screen, meta.tid)
+	ui::builder<ui::next::Text>(this->screen, tid_to_str(meta.tid))
 		.x(this->get_x())
 		.under(this->queue.back(), 1.0f)
 		.scroll()

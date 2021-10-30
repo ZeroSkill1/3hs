@@ -453,7 +453,7 @@ void ui::next::Text::set_text(const std::string& label)
 void ui::next::Sprite::setup(C2D_Sprite sprite)
 {
 	// Compatibility with other methods
-	C2D_SpriteSetCenter(&sprite, 0.0f, 0.0f);
+	this->set_center(0.0f, 0.0f);
 	this->sprite = sprite;
 }
 
@@ -490,6 +490,16 @@ void ui::next::Sprite::set_z(float z)
 {
 	this->z = z;
 	C2D_SpriteSetDepth(&this->sprite, z);
+}
+
+void ui::next::Sprite::rotate(float degs)
+{
+	C2D_SpriteRotateDegrees(&this->sprite, degs);
+}
+
+void ui::next::Sprite::set_center(float x, float y)
+{
+	C2D_SpriteSetCenter(&this->sprite, x, y);
 }
 
 /* core widget class Button */
@@ -544,13 +554,13 @@ void ui::next::Button::resize_children(float x, float y)
 
 void ui::next::Button::set_x(float x)
 {
-	this->x = x;
+	this->x = ui::transform(this, x);
 	this->readjust();
 }
 
 void ui::next::Button::set_y(float y)
 {
-	this->y = y;
+	this->y = ui::transform(this, y);
 	this->readjust();
 }
 
@@ -562,10 +572,6 @@ void ui::next::Button::set_z(float z)
 
 void ui::next::Button::readjust()
 {
-	// Getting better results with the -1.0f somehow
-	this->widget->set_y(((this->h / 2) - (this->widget->height() / 2)) + this->y);
-	this->widget->set_x(((this->w / 2) - (this->widget->width() / 2)) + this->x);
-
 	this->ox = this->x + this->w;
 	this->oy = this->y + this->h;
 }

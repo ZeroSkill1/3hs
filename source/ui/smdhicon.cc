@@ -42,20 +42,17 @@ void ui::next::SMDHIcon::destroy()
 
 void ui::next::SMDHIcon::set_x(float x)
 {
-	this->params.pos.x = x;
-	this->x = x;
+	this->params.pos.x = this->x = ui::transform(this, x);
 }
 
 void ui::next::SMDHIcon::set_y(float y)
 {
-	this->params.pos.y = y;
-	this->y = y;
+	this->params.pos.y = this->y = ui::transform(this, y);
 }
 
 void ui::next::SMDHIcon::set_z(float z)
 {
-	this->params.depth = z;
-	this->z = z;
+	this->params.depth = this->z = z;
 }
 
 void ui::next::SMDHIcon::set_border(bool b)

@@ -500,6 +500,9 @@ namespace ui
 			void set_y(float y) override;
 			void set_z(float z) override;
 
+			void set_center(float x, float y);
+			void rotate(float degs);
+
 
 		private:
 			C2D_Sprite sprite;

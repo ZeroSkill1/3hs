@@ -114,7 +114,7 @@ void ui::next::Confirm::adjust()
 
 void ui::next::Confirm::set_y(float y)
 {
-	this->y = y;
+	this->y = ui::transform(this, y);
 	this->adjust();
 }
 
