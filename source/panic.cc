@@ -7,17 +7,17 @@
 #include "ui/text.hh"
 #include "ui/util.hh"
 
+#include "hsapi.hh"
 #include "i18n.hh"
-#include "hs.hh"
 
 
 Result init_services()
 {
 	Result res;
 
-#ifdef RELEASE // Not implmented in citra
+//#ifdef RELEASE // Not implmented in citra, but httpc isn't either and that's essential
 	if(R_FAILED(res = mcuHwcInit())) return res;
-#endif
+//#endif
 
 	if(R_FAILED(res = httpcInit(0))) return res;
 	if(R_FAILED(res = romfsInit())) return res;
@@ -58,25 +58,16 @@ static void push_error_widget(const error_container& err, ui::Widgets& errs, flo
 {
 	float height; push_a_widget(errs, &height);
 
-	if(err.type == ErrType_curl)
-	{
-		errs.push_back(new ui::Text(ui::mk_center_WText(format_err(err.sDesc, err.iDesc),
-			base + height)));
-	}
-
-	else if(err.type == ErrType_3ds)
-	{
-		errs.push_back(new ui::Text(ui::mk_center_WText(format_err(err.sDesc, err.iDesc),
-			base + height)));
-		errs.push_back(new ui::Text(ui::mk_center_WText(PSTRING(result_code, "0x" + pad8code(err.full)),
-			base + (height * 2))));
-		errs.push_back(new ui::Text(ui::mk_center_WText(PSTRING(level, format_err(err.sLvl, err.iLvl)),
-			base + (height * 3))));
-		errs.push_back(new ui::Text(ui::mk_center_WText(PSTRING(summary, format_err(err.sSum, err.iSum)),
-			base + (height * 4))));
-		errs.push_back(new ui::Text(ui::mk_center_WText(PSTRING(module, format_err(err.sMod, err.iMod)),
-			base + (height * 5))));
-	}
+	errs.push_back(new ui::Text(ui::mk_center_WText(format_err(err.sDesc, err.iDesc),
+		base + height)));
+	errs.push_back(new ui::Text(ui::mk_center_WText(PSTRING(result_code, "0x" + pad8code(err.full)),
+		base + (height * 2))));
+	errs.push_back(new ui::Text(ui::mk_center_WText(PSTRING(level, format_err(err.sLvl, err.iLvl)),
+		base + (height * 3))));
+	errs.push_back(new ui::Text(ui::mk_center_WText(PSTRING(summary, format_err(err.sSum, err.iSum)),
+		base + (height * 4))));
+	errs.push_back(new ui::Text(ui::mk_center_WText(PSTRING(module, format_err(err.sMod, err.iMod)),
+		base + (height * 5))));
 }
 
 void handle_error(error_container err)
@@ -103,7 +94,7 @@ void handle_error(error_container err)
 
 	// Deinit
 	exit_services();
-	hs::global_deinit();
+	hsapi::global_deinit();
 	ui::global_deinit();
 
 	// Exit

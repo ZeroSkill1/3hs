@@ -13,16 +13,16 @@
 #include "lumalocale.hh"
 #include "extmeta.hh"
 #include "queue.hh"
+#include "hsapi.hh"
 #include "util.hh"
 #include "i18n.hh"
-#include "hs.hh"
 
 
 static void search_is_empty(std::string prev)
 {
 	ui::Widgets wids;
 
-	ui::WrapText *msg = new ui::WrapText("Search gave 0 results\nPress " GLYPH_A " to go back");
+	ui::WrapText *msg = new ui::WrapText(STRING(search_zero_results));
 	msg->center(); msg->set_basey((SCREEN_HEIGHT() / 2) - 30);
 	wids.push_back(msg);
 
@@ -55,28 +55,27 @@ static void show_searchbar_search()
 
 	ui::wid()->get<ui::Text>("curr_action_desc")->toggle();
 
-	std::vector<hs::Title> titles;
-	ui::loading([&titles, query]() -> void {
-		titles = hs::search(query);
-	});
+	std::vector<hsapi::Title> titles;
+	Result rres = hsapi::call<std::vector<hsapi::Title>&, const std::string&>(hsapi::search, titles, query);
+	if(R_FAILED(rres))
+		return;
 
 	ui::wid()->get<ui::Text>("curr_action_desc")->replace_text(
 		PSTRING(results_query, query));
 
 	if(titles.size() == 0) return search_is_empty(prev);
 
-	ui::List<hs::Title> *list = new ui::List<hs::Title>(
-		[](hs::Title& title) -> std::string { return title.name; },
-		[&](ui::List<hs::Title> *self, size_t index, u32 keys) -> ui::Results {
+	ui::List<hsapi::Title> *list = new ui::List<hsapi::Title>(
+		[](hsapi::Title& title) -> std::string { return title.name; },
+		[&](ui::List<hsapi::Title> *self, size_t index, u32 keys) -> ui::Results {
 			if(keys & KEY_B) return ui::Results::quit_loop;
 			if(keys & KEY_A)
 			{
 				ui::end_frame();
 
-				hs::FullTitle meta;
-				ui::loading([&meta, &self, index]() -> void {
-					meta = hs::title_meta(self->at(index).id);
-				});
+				hsapi::FullTitle meta;
+				if(R_FAILED(hsapi::call(hsapi::title_meta, meta, std::move((hsapi::hid) self->at(index).id))))
+					return ui::Results::go_on;
 
 				if(show_extmeta(meta))
 				{
@@ -100,7 +99,7 @@ static void show_searchbar_search()
 	if(titles.size() > 0) meta->update_title(titles[0]);
 
 	wids.push_back("meta", meta, ui::Scr::bottom);
-	list->set_on_change([&](ui::List<hs::Title> *self, size_t index) {
+	list->set_on_change([&](ui::List<hsapi::Title> *self, size_t index) {
 		meta->update_title(self->at(index));
 	});
 

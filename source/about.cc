@@ -38,8 +38,8 @@ void show_about()
 	logo->get_sprite()->set_pos(
 		SCREEN_WIDTH(ui::Scr::top) / 2 - LOGO_X / 2, SCREEN_HEIGHT() - LOGO_Y - 40); wids.push_back("logo", logo);
 
-	wids.push_back("credits", new ui::Text(ui::mk_center_WText("Credits:", GRID_AL_Y(1), fsize, fsize, ui::Scr::bottom)), ui::Scr::bottom);
-	wids.push_back("credits_long", new ui::WrapText(STRING(credits)), ui::Scr::bottom);
+	wids.push_back("credits", new ui::Text(ui::mk_center_WText(STRING(credits), GRID_AL_Y(1), fsize, fsize, ui::Scr::bottom)), ui::Scr::bottom);
+	wids.push_back("credits_long", new ui::WrapText(STRING(credits_names)), ui::Scr::bottom);
 	wids.get<ui::WrapText>("credits_long")->set_basey(GRID_AL_Y(2));
 	wids.get<ui::WrapText>("credits_long")->set_pad(GRID_AL_X(1));
 

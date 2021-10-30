@@ -22,19 +22,20 @@
 #include "i18n.hh"
 #include "util.hh"
 
-static std::vector<hs::FullTitle> g_queue;
-std::vector<hs::FullTitle> *queue()
-{ return &g_queue; }
+static std::vector<hsapi::FullTitle> g_queue;
 
 
-void queue_add(hs::FullTitle meta)
+void queue_add(const hsapi::FullTitle& meta)
 {
 	g_queue.push_back(meta);
 }
 
-void queue_add(long int id)
+void queue_add(hsapi::hid id)
 {
-	queue_add(hs::title_meta(id));
+	hsapi::FullTitle meta;
+	Result res = hsapi::call(hsapi::title_meta, meta, std::move(id));
+	if(R_FAILED(res)) return;
+	queue_add(meta);
 }
 
 void queue_remove(size_t index)
@@ -59,9 +60,9 @@ void queue_process(size_t index)
 void queue_process_all()
 {
 	toggle_focus();
-	for(hs::FullTitle& meta : g_queue)
+	for(hsapi::FullTitle& meta : g_queue)
 	{
-		if(!NET_OK(process_hs(meta)))
+		if(R_FAILED(process_hs(meta)))
 			break;
 	}
 	luma::set_gamepatching();
@@ -96,7 +97,7 @@ Result process_uri(const std::string& uri, bool reinstallable, const std::string
 			return process_uri(uri, true, tid, media);
 	}
 
-	if(!NET_OK(res))
+	if(R_FAILED(res))
 	{
 		error_container err = get_error(res);
 		report_error(err, "User was installing from " + uri);
@@ -107,10 +108,15 @@ Result process_uri(const std::string& uri, bool reinstallable, const std::string
 	return res;
 }
 
-Result process_hs(long int id)
-{ return process_hs(hs::title_meta(id)); }
+Result process_hs(hsapi::hid id)
+{
+	hsapi::FullTitle meta;
+	Result res = hsapi::call(hsapi::title_meta, meta, std::move(id));
+	if(R_FAILED(res)) return 0; // user was already warned
+	return process_hs(meta);
+}
 
-Result process_hs(hs::FullTitle meta, bool reinstall)
+Result process_hs(hsapi::FullTitle& meta, bool reinstall)
 {
 	ui::Widgets wids;
 	ui::ProgressBar *bar = new ui::ProgressBar(0, 1); // = 0%
@@ -138,10 +144,10 @@ Result process_hs(hs::FullTitle meta, bool reinstall)
 	}
 
 	// Error!
-	if(!NET_OK(res))
+	if(R_FAILED(res))
 	{
 		error_container err = get_error(res);
-		report_error(err, "User was installing (" + meta.tid + ") (" + std::to_string(meta.id) + ")");
+		report_error(err, "User was installing (" + tid_to_str(meta.tid) + ") (" + std::to_string(meta.id) + ")");
 		handle_error(err);
 	}
 
@@ -172,9 +178,9 @@ void show_queue()
 		return queue_is_empty();
 
 	ui::Widgets wids;
-	ui::List<hs::FullTitle> *list = new ui::List<hs::FullTitle>(
-		[](hs::FullTitle& meta) -> std::string { return meta.name; },
-		[](ui::List<hs::FullTitle> *self, size_t index, u32 keys) -> ui::Results {
+	ui::List<hsapi::FullTitle> *list = new ui::List<hsapi::FullTitle>(
+		[](hsapi::FullTitle& meta) -> std::string { return meta.name; },
+		[](ui::List<hsapi::FullTitle> *self, size_t index, u32 keys) -> ui::Results {
 			if(keys & KEY_X)
 			{
 				if(self->out_of_bounds(index)) return ui::Results::go_on;
@@ -192,7 +198,7 @@ void show_queue()
 	if(g_queue.size() > 0) meta->update_title(g_queue[0]);
 
 	wids.push_back("meta", meta, ui::Scr::bottom);
-	list->set_on_change([&](ui::List<hs::FullTitle> *self, size_t index) {
+	list->set_on_change([&](ui::List<hsapi::FullTitle> *self, size_t index) {
 		if(self->out_of_bounds(index)) return;
 		meta->update_title(self->at(index));
 	});

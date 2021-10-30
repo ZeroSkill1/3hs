@@ -50,7 +50,6 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 	CHECKRET(httpcSetSSLOpt(&ctx, SSLCOPT_DisableVerify));
 	CHECKRET(httpcSetKeepAlive(&ctx, HTTPC_KEEPALIVE_ENABLED));
 	CHECKRET(httpcAddRequestHeaderField(&ctx, "Connection", "Keep-Alive"));
-	CHECKRET(httpcAddRequestHeaderField(&ctx, "User-Agent", USER_AGENT));
 	CHECKRET(proxy::apply(&ctx));
 
 	if(from != 0)
@@ -203,7 +202,7 @@ static Result i_install_resume_loop(std::function<std::string()> get_url, Handle
 }
 
 
-static Destination detect_dest(hs::Title *meta)
+static Destination detect_dest(hsapi::Title *meta)
 { return detect_dest(meta->tid); }
 
 Destination detect_dest(const std::string& tid)
@@ -226,7 +225,7 @@ FS_MediaType to_mediatype(Destination dest)
 	return dest == DEST_Sdmc ? MEDIATYPE_SD : MEDIATYPE_NAND;
 }
 
-static Result i_install_hs_cia(hs::FullTitle *meta, prog_func prog, bool reinstallable)
+static Result i_install_hs_cia(hsapi::FullTitle *meta, prog_func prog, bool reinstallable)
 {
 	Destination media = detect_dest(meta);
 	u64 freeSpace = 0;
@@ -246,7 +245,12 @@ static Result i_install_hs_cia(hs::FullTitle *meta, prog_func prog, bool reinsta
 	if(!isNew && meta->prod.rfind("KTR-", 0) == 0)
 		return APPERR_NOSUPPORT;
 
-	return install_net_cia([meta]() -> std::string { return hs::get_download_link(meta); }, prog, reinstallable, meta->tid, to_mediatype(media));
+	return install_net_cia([meta]() -> std::string {
+		std::string ret;
+		if(R_FAILED(hsapi::get_download_link(ret, *meta)))
+			return "";
+		return ret;
+	}, prog, reinstallable, meta->tid, to_mediatype(media));
 }
 
 
@@ -352,7 +356,7 @@ Result install_net_cia(get_url_func get_url, prog_func prog, bool reinstallable,
 		return APPERR_CANCELLED;
 	}
 
-	if(!NET_OK(ret)) // If everything went ok in i_install_resume_loop, we return a 0
+	if(R_FAILED(ret)) // If everything went ok in i_install_resume_loop, we return a 0
 	{
 		AM_CancelCIAInstall(cia);
 		return ret;
@@ -367,7 +371,7 @@ Result install_net_cia(get_url_func get_url, prog_func prog, bool reinstallable,
 	return ret;
 }
 
-Result install_hs_cia(hs::FullTitle *meta, prog_func prog, bool reinstallable)
+Result install_hs_cia(hsapi::FullTitle *meta, prog_func prog, bool reinstallable)
 {
 	return i_install_hs_cia(meta, prog, reinstallable);
 }

@@ -12,7 +12,7 @@
 #include "util.hh"
 
 
-bool show_extmeta(hs::FullTitle title)
+bool show_extmeta(const hsapi::FullTitle& title)
 {
 	std::string desc = swap_desc(STRING(more_about_content));
 
@@ -36,7 +36,7 @@ bool show_extmeta(hs::FullTitle title)
 	wids.push_back(confirm);
 
 	wids.push_back(new ui::Text(ui::mkWText(STRING(version), 9.0f, GRID_AL_Y(5), 0.45f, 0.45f)));
-	wids.push_back(new ui::Text(ui::mkWText(hs::parse_vstring(title.version) + " (" + std::to_string(title.version) + ")", 9.0f, GRID_AL_Y(4))));
+	wids.push_back(new ui::Text(ui::mkWText(hsapi::parse_vstring(title.version) + " (" + std::to_string(title.version) + ")", 9.0f, GRID_AL_Y(4))));
 	wids.push_back(new ui::Text(ui::mkWText(STRING(prodcode), 9.0f, GRID_AL_Y(7), 0.45f, 0.45f)));
 	wids.push_back(new ui::Text(ui::mkWText(title.prod, 9.0f, GRID_AL_Y(6))));
 

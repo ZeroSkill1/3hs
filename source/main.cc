@@ -18,9 +18,10 @@
 #include <widgets/konami.hh>
 #include <widgets/meta.hh>
 
+#include <3rd/plog/Appenders/ColorConsoleAppender.h>
 #include <net_common.hh>
 #include <3rd/log.hh>
-#include <hs.hh>
+#include <hsapi.hh>
 
 #include "build/settings_icon.h"
 #include "build/search_icon.h"
@@ -70,6 +71,14 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
+#ifndef RELEASE
+  // Colored logs appender for gdb
+	consoleDebugInit(debugDevice_SVC);
+
+	static plog::ColorConsoleAppender<plog::TxtFormatter> colorAppender(plog::streamStdErr);
+	plog::get()->addAppender(&colorAppender);
+#endif
+
 	panic_if_err_3ds(init_services());
 	init_seeddb();
 	ensure_settings();
@@ -77,7 +86,7 @@ int main(int argc, char* argv[])
 
 	osSetSpeedupEnable(true); // speedup for n3dses
 
-	ui::wid()->push_back("version", new ui::Text(ui::mk_right_WText(VERSION, 3.0f, 5.0f, 0.4f, 0.4f, ui::Scr::bottom)), ui::Scr::bottom);
+	ui::wid()->push_back("version", new ui::Text(ui::mk_right_WText("v" FULL_VERSION, 3.0f, 5.0f, 0.4f, 0.4f, ui::Scr::bottom)), ui::Scr::bottom);
 	ui::wid()->push_back("header_desc", new ui::Text(ui::mk_center_WText(STRING(banner), 30.0f)), ui::Scr::top);
 	ui::wid()->push_back("header", new ui::Text(ui::mk_center_WText("hShop", 0.0f, 1.0f, 1.0f)), ui::Scr::top);
 	ui::wid()->push_back("curr_action_desc", new ui::Text(ui::mk_center_WText("", 45.0f)), ui::Scr::top); // the first message is caused by ui::loading()
@@ -86,9 +95,9 @@ int main(int argc, char* argv[])
 	ui::wid()->push_back("konami", new ui::Konami(), ui::Scr::top);
 	ui::wid()->push_back("net_indicator", new ui::NetIndicator());
 
-#ifdef RELEASE
 	ui::wid()->push_back("batt_indicator", new ui::BatteryIndicator());
 
+#ifdef RELEASE
 	// Check if luma is installed
 	// 1. Citra is used; not compatible
 	// 2. Other cfw used; not supported
@@ -100,7 +109,7 @@ int main(int argc, char* argv[])
 		ui::wid()->push_back(new ui::Text(ui::mk_center_WText(STRING(install_luma), 78.0f)), ui::Scr::top);
 		standalone_main_breaking_loop();
 		ui::global_deinit();
-		hs::global_deinit();
+		hsapi::global_deinit();
 		exit_services();
 		return 3;
 	}
@@ -178,20 +187,9 @@ int main(int argc, char* argv[])
 
 	quick_global_draw();
 
-	if(osGetWifiStrength() == 0)
+	if(!hsapi::global_init())
 	{
-		lwarning << "No wifi found, waiting for wifi";
-
-		ui::wid()->get<ui::Text>("curr_action_desc")->replace_text(STRING(connect_wifi));
-		ui::Keys keys; ui::Widgets dummy;
-		// 0 = NO wifi at all
-		while(ui::framenext(keys) && osGetWifiStrength() == 0)
-			ui::framedraw(dummy, keys);
-	}
-
-	if(!hs::global_init())
-	{
-		lfatal << "hs::global_init() failed";
+		lfatal << "hsapi::global_init() failed";
 		panic(STRING(fail_init_networking));
 		return 2;
 	}
@@ -201,61 +199,54 @@ int main(int argc, char* argv[])
 	llog << "Checking for updates";
 	if(update_app())
 	{
-		llog << "Updated from " VERSION;
-		hs::global_deinit();
+		llog << "Updated from v" FULL_VERSION;
+		hsapi::global_deinit();
 		ui::global_deinit();
 		exit_services();
 		return 0;
 	}
 #endif
 
-	hs::Index indx;
 	llog << "Fetching index";
-	ui::loading([&indx]() -> void {
-		indx = hs::Index::get();
-	});
 
-	if(index_failed(indx))
+	Result res = hsapi::call(hsapi::fetch_index);
+	if(R_FAILED(res))
 	{
-		lfatal << "Failed to fetch index, dns fucked? Server down? " << index_error(indx);
-		panic(PSTRING(fail_fetch_index, index_error(indx)));
+		error_container errcont = get_error(res);
+		lfatal << "Failed to fetch index, dns fucked? Server down? " << errcont.sDesc << "\n";
+		panic(PSTRING(fail_fetch_index, errcont.sDesc));
 		return 3;
 	}
-
-	hs::setup_index(&indx);
 
 	// Old logic was cursed, made it a bit better :blobaww:
 	while(aptMainLoop())
 	{
 cat:
-		std::string cat = next::sel_cat();
+		const std::string *cat = next::sel_cat();
 		// User wants to exit app
 		if(cat == next_cat_exit) break;
-		llog << "NEXT(c): " << cat;
+		llog << "NEXT(c): " << *cat;
 
 sub:
-		std::string sub = next::sel_sub(cat);
+		const std::string *sub = next::sel_sub(*cat);
 		if(sub == next_sub_back) goto cat;
 		if(sub == next_sub_exit) break;
-		llog << "NEXT(s): " << sub;
+		llog << "NEXT(s): " << *sub;
 
-		std::vector<hs::Title> titles;
-		ui::loading([&titles, cat, sub]() -> void {
-			titles = hs::titles_in(cat, sub);
-		});
-
+		std::vector<hsapi::Title> titles;
+		if(R_FAILED(hsapi::call(hsapi::titles_in, titles, *cat, *sub)))
+			goto sub;
 
  gam:
-		hs::shid id = next::sel_gam(titles);
+		hsapi::hid id = next::sel_gam(titles);
 		if(id == next_gam_back) goto sub;
 		if(id == next_gam_exit) break;
 
 		llog << "NEXT(g): " << id;
 
-		hs::FullTitle meta;
-		ui::loading([&meta, id]() -> void {
-			meta = hs::title_meta(id);
-		});
+		hsapi::FullTitle meta;
+		if(R_FAILED(hsapi::call(hsapi::title_meta, meta, std::move(id))))
+			goto gam;
 
 		if(show_extmeta(meta))
 		{
@@ -270,7 +261,7 @@ sub:
 
 
 	llog << "Goodbye, app deinit";
-	hs::global_deinit();
+	hsapi::global_deinit();
 	ui::global_deinit();
 	exit_services();
 	return 0;

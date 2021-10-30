@@ -12,7 +12,6 @@
 #define LANGNAME_DUTCH "Nederlands"
 #define LANGNAME_GERMAN "Deutsch"
 #define LANGNAME_SPANISH "Español"
-#define LANGNAME_UWULANG "UwULang"
 
 // ParamSTRING
 #define PSTRING(x, ...) i18n::interpolate(str::x, __VA_ARGS__)
@@ -32,7 +31,7 @@ namespace str
 		fail_init_networking = 6,
 		fail_fetch_index = 7, // %1: error message (in english, leave out in other langs?)
 		credits_thanks = 8,
-		credits = 9,
+		credits_names = 9,
 		press_to_install = 10,
 		version = 11,
 		prodcode = 12,
@@ -48,7 +47,7 @@ namespace str
 		select_title = 22,
 		no_cats_index = 23,
 		empty_subcat = 24,
-		empty_cat = 25,
+		empty_cat = 25, // unused
 		fmt_24h = 26,
 		fmt_12h = 27,
 		unknown = 28,
@@ -97,6 +96,9 @@ namespace str
 		disabled = 71,
 		patching_reboot = 72,
 		reboot_now = 73,
+		retry_req = 74,
+		search_zero_results = 75,
+		credits = 76,
 
 		_i_max,
 	};
@@ -112,7 +114,6 @@ namespace lang
 		dutch   = 1,
 		german  = 2,
 		spanish = 3,
-		uwulang = 4,
 
 		_i_max,
 	};

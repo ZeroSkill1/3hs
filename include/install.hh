@@ -4,12 +4,9 @@
 
 #include <functional>
 #include <string>
-#include <hs.hh>
 #include <3ds.h>
 
-#define NET_CURL_ERR(r) ((r) > 0)
-#define NET_3DS_ERR(r) ((r) < 0)
-#define NET_OK(r) ((r) == 0)
+#include "hsapi.hh"
 
 enum Destination
 {
@@ -58,7 +55,7 @@ u64 str_to_tid(std::string tid);
 
 Result install_net_cia(get_url_func get_url, prog_func prog = default_prog_func, bool reinstallable = false, std::string tid = "", FS_MediaType dest = MEDIATYPE_SD);
 Result install_net_cia(get_url_func get_url, prog_func prog = default_prog_func, bool reinstallable = false, u64 tid = 0x0, FS_MediaType dest = MEDIATYPE_SD);
-Result install_hs_cia(hs::FullTitle *meta, prog_func prog = default_prog_func, bool reinstallable = false);
+Result install_hs_cia(hsapi::FullTitle *meta, prog_func prog = default_prog_func, bool reinstallable = false);
 
 #endif
 

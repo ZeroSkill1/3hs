@@ -27,7 +27,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 				"Thank you for using 3hs, a 3ds client for hShop\n"
 				"You can get this software for free at\n"
 				"https://hshop.erista.me/",
-			[str::credits] =
+			[str::credits_names] =
 				"MyPasswordIsWeak: Programming,\n"
 				"      Translations\n"
 				"TimmSkiller: Programming,\n"
@@ -105,6 +105,9 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 				"Luma3DS Game Patching was enabled.\n"
 				"For the change to take effect, you have to\nrestart your 3DS.",
 			[str::reboot_now] = "Restart now?",
+			[str::retry_req] = "Request failed. Do you want to retry?",
+			[str::search_zero_results] = "Search gave 0 results\nPress " GLYPH_A " to go back",
+			[str::credits] = "Credits",
 		},
 
 	[lang::dutch] =
@@ -122,7 +125,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 				"hShop applicatie\n"
 				"Je kan deze software gratis verkrijgen op\n"
 				"https://hshop.erista.me/",
-			[str::credits] =
+			[str::credits_names] =
 				"MyPasswordIsWeak: Programmeren,\n"
 				"      Vertalingen\n"
 				"TimmSkiller: Programmeren,\n"
@@ -193,12 +196,17 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::confirm] = "Accepteer",
 			[str::invalid_proxy] = "Ongeldige proxy instellingen",
 			[str::more_about_content] = "Meer over deze titel",
-			STUB(lumalocalemode),
-			STUB(automatic),
-			STUB(manual),
-			STUB(disabled),
-			STUB(patching_reboot),
-			STUB(reboot_now),
+			[str::lumalocalemode] = "LumaLocale modus",
+			[str::automatic] = "automatisch",
+			[str::manual] = "handmatig",
+			[str::disabled] = "uitgeschakeled",
+			[str::patching_reboot] =
+				"Luma3DS Game Patching is ingeschakeld\n"
+				"Om de verandering te zien, moet je je\n3DS herstarten",
+			[str::reboot_now] = "Nu herstarten?",
+			[str::retry_req] ="Opnieuw proberen gegevens te halen?",
+			[str::search_zero_results] =  "Zoekopdracht gaf 0 resultaten\nKlik op " GLYPH_A " om terug te gaan",
+			[str::credits] = "Met dank aan",
 		},
 
 	[lang::german] =
@@ -214,7 +222,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::credits_thanks] =
 				"Danke, dass du 3hs nutzt.\n3hs ist ein 3DS-Client für hShop.\n"
 				"Du kannst diese Software auf\nhttps://hshop.erista.me kostenlos herunterladen.\n",
-			[str::credits] =
+			[str::credits_names] =
 				"MyPasswordIsWeak: Programmierung,\n"
 				"      Übersetzungen\n"
 				"TimmSkiller: Programmierung,\n"
@@ -284,12 +292,17 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::confirm] = "Bestätigen",
 			[str::invalid_proxy] = "Ungültige Proxy-Einstellungen",
 			[str::more_about_content] = "Mehr über diesen Inhalt",
-			STUB(lumalocalemode),
-			STUB(automatic),
-			STUB(manual),
-			STUB(disabled),
-			STUB(patching_reboot),
-			STUB(reboot_now),
+			[str::lumalocalemode] = "LumaLocale-Modus",
+			[str::automatic] = "Automatisch",
+			[str::manual] = "Manuell",
+			[str::disabled] = "Deaktiviert",
+			[str::patching_reboot] =
+					"Luma3DS-Game-Patching wurde aktiviert.\n"
+					"Damit die Änderungen übernommen werden\nkönnen, musst du deinen 3DS neustarten.",
+			[str::reboot_now] = "Jetzt neustarten?",
+			[str::retry_req] = "Erneut versuchen?",
+			[str::search_zero_results] = "Suche ergab keine Ergebnisse\nDrücke " GLYPH_A " um zurückzukehren",
+			[str::credits] = "Mitwirkende",
 		},
 
 	[lang::spanish] =
@@ -306,7 +319,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 				"Gracias por usar 3hs, un cliente de 3ds\npara hShop\n"
 				"Puedes conseguir este software gratuito en at\n"
 				"https://hshop.erista.me/",
-			[str::credits] =
+			[str::credits_names] =
 				"MyPasswordIsWeak: Programación,\n"
 				"      Traducción\n"
 				"TimmSkiller: Programación,\n"
@@ -376,104 +389,17 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::confirm] = "Confirmar",
 			[str::invalid_proxy] = "Configuración de proxy inválida",
 			[str::more_about_content] = "Más sobre este contenido",
-			STUB(lumalocalemode),
-			STUB(automatic),
-			STUB(manual),
-			STUB(disabled),
-			STUB(patching_reboot),
-			STUB(reboot_now),
-		},
-
-	[lang::uwulang] =
-		{
-			[str::banner]  = "The ultimate 3DS content preservatiOwOn service.",
-			[str::loading] = "LOwOading ...",
-			[str::luma_not_installed] = "LUwUma3DS is nOwOt installed OwOn this system",
-			[str::install_luma] = "Please install Luma3DS OwOn a real 3DS",
-			[str::queue] = "QUwU",
-			[str::connect_wifi] = "Pleasew cOwOnnect tOwO WiFi and restart the app",
-			[str::fail_init_networking] = "Failed tow initialize netOwOrking",
-			[str::fail_fetch_index] = "Failed to fetch index\n%1",
-			[str::credits_thanks] =
-				"Thank youWu foWor UwUsing 3hs,\na 3ds client fOwOr hShOwOp\n"
-				"You can get this sOwOftware fOwOr free at\n"
-				"https://hshop.erista.me/",
-			[str::credits] =
-				"MyPasswordIsWeak: PrOwOgramming,\n"
-				"      TranslatiOwOns\n"
-				"TimmSkiller: PrOwOgramming,\n"
-				"      TranslatiOwOns\n"
-				"Laswell: Design, TranslatiOwOns\n"
-				"CremeChocolate: Art",
-			[str::press_to_install] =
-				"Press " GLYPH_A " if youwu want to install this title.\n"
-				"Press " GLYPH_B " if youwu don't want to.",
-			[str::version] = "VersiOwOn",
-			[str::prodcode] = "Product cOwOde",
-			[str::size] = "Size",
-			[str::name] = "Name",
-			[str::tid] = "Title ID",
-			[str::category] = "CategOwOry",
-			[str::landing_id] = "Landing ID",
-			[str::description] = "DescriptiOwOn",
-			[str::total_titles] = "Total Titles",
-			[str::select_cat] = "Select a categOwOry",
-			[str::select_subcat] = "Select a subcategOwOry",
-			[str::select_title] = "Select a title",
-			[str::no_cats_index] = "no categOwOries in index (?)",
-			[str::empty_subcat] = "Empty subcategOwOry (?)",
-			[str::empty_cat] = "Empty categOwOry (?)",
-			[str::fmt_24h] = "24 hoUwUr",
-			[str::fmt_12h] = "12 hoUwUr",
-			[str::unknown] = "UwUnknown",
-			[str::btrue] = "true",
-			[str::bfalse] = "false",
-			[str::top] = "tOwOp",
-			[str::bottom] = "bOwOttom",
-			[str::light_mode] = "Light mOwOde",
-			[str::resume_dl] = "ResUwUme downlOwOads",
-			[str::load_space] = "LOwOad Free Space indicatOwOr",
-			[str::show_battery] = "ShOwO Battery",
-			[str::time_format] = "Time fOwOrmat",
-			[str::progbar_screen] = "PrOwOgress bar screen",
-			[str::language] = "LangUwUage",
-			[str::value_x] = "ValUwU: %1",
-			[str::back] = "Back",
-			[str::invalid] = "invalid",
-			[str::title_doesnt_exist] = "Title dOwOesn't exist: %1",
-			[str::fail_create_tex] = "Failed to create tex",
-			[str::fail_load_smdh_icon] = "load_smdh_icon(): invalid SMDHIconType",
-			[str::netcon_lost] = "NetwOwOrk connectiOwOn lost (%1).\nRetrying in $t seconds...",
-			[str::about_app] = "AbOwOut",
-			[str::help_manual] = "Help/Manual",
-			[str::find_missing_content] = "Find missing cOwOntent",
-			[str::press_a_exit] = "Press " GLYPH_A " tOwO exit",
-			[str::fatal_panic] = "Fatal Panic OwOccurred",
-			[str::failed_open_seeddb] = "Failed to OwOpen seeddb.bin",
-			[str::update_to] = "Do yoUwU want tOwO UwUpdate to %1?",
-			[str::search_content] = "Search fOwOr content",
-			[str::search_content_action] = "Search fOwOr content...",
-			[str::results_query] = "ResUwUlts fOwOr qUwUery \"%1\"",
-			[str::result_code] = "ResUwUlt code: %1",
-			[str::level] = "Level: %1",
-			[str::summary] = "SUwUmmary: %1",
-			[str::module] = "MOwOdule: %1",
-			[str::hs_bunny_found] = "COwOngrats! You found the hShop bunny",
-			[str::already_installed_reinstall] = "Title already installed. Reinstall?",
-			[str::queue_empty] =
-				"QUwU is empty\n"
-				"Press " GLYPH_A " to gOwO back\n"
-				"Tip: press " GLYPH_Y " to add a title to the qUwU",
-			[str::cancel] = "Cancew",
-			[str::confirm] = "COwOnfirm",
-			[str::invalid_proxy] = "Invalid prOwOxy",
-			[str::more_about_content] = "MOwOre abOwOut this cOwOntent",
-			STUB(lumalocalemode),
-			STUB(automatic),
-			STUB(manual),
-			STUB(disabled),
-			STUB(patching_reboot),
-			STUB(reboot_now),
+			[str::lumalocalemode] = "modo LumaLocale",
+			[str::automatic] = "automático",
+			[str::manual] = "manual",
+			[str::disabled] = "desactivado",
+			[str::patching_reboot] =
+					"El Parcheo de Juegos de Luma3DS ha sido activado.\n"
+					"Para que el cambio tenga efecto, tienes que\nreinicia tu 3DS.",
+			[str::reboot_now] = "¿Reiniciar ahora?",
+			[str::retry_req] = "¿Quieres reintentar?",
+			[str::search_zero_results] = "La búsqueda no dió resultados\nPresiona " GLYPH_A " para regresar",
+			[str::credits] = "Créditos",
 		},
 };
 #pragma GCC diagnostic pop
@@ -503,7 +429,6 @@ const char *i18n::langname(lang::type id)
 	case lang::dutch: return LANGNAME_DUTCH;
 	case lang::german: return LANGNAME_GERMAN;
 	case lang::spanish: return LANGNAME_SPANISH;
-	case lang::uwulang: return LANGNAME_UWULANG;
 	}
 
 	return "invalid";

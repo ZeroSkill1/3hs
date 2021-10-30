@@ -53,14 +53,6 @@ static bool validate()
 	return true;
 }
 
-void proxy::apply(CURL *curl)
-{
-	if(g_proxy.host != "")
-	{
-		curl_easy_setopt(curl, CURLOPT_PROXY, g_proxystr.c_str());
-	}
-}
-
 Result proxy::apply(httpcContext *context)
 {
 	if(g_proxy.host != "")

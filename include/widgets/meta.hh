@@ -6,7 +6,7 @@
 #include "ui/core.hh"
 
 #include "ui/bindings.hh"
-#include "hs.hh"
+#include "hsapi.hh"
 
 
 namespace ui
@@ -14,12 +14,12 @@ namespace ui
 	class TitleMeta : public ui::Widget
 	{
 	public:
-		TitleMeta(hs::Title title);
+		TitleMeta(const hsapi::Title& title);
 		TitleMeta();
 		~TitleMeta();
 
 		ui::Results draw(ui::Keys&, ui::Scr) override;
-		void update_title(hs::Title title);
+		void update_title(const hsapi::Title& title);
 
 
 	private:
@@ -44,12 +44,12 @@ namespace ui
 	class SubMeta : public ui::Widget
 	{
 	public:
-		SubMeta(hs::Subcategory sub);
+		SubMeta(const hsapi::Subcategory& sub);
 		SubMeta();
 		~SubMeta();
 
 		ui::Results draw(ui::Keys&, ui::Scr) override;
-		void update_sub(hs::Subcategory sub);
+		void update_sub(const hsapi::Subcategory& sub);
 
 
 	private:
@@ -74,12 +74,12 @@ namespace ui
 	class CatMeta : public ui::Widget
 	{
 	public:
-		CatMeta(hs::Category cat);
+		CatMeta(const hsapi::Category& cat);
 		CatMeta();
 		~CatMeta();
 
 		ui::Results draw(ui::Keys&, ui::Scr) override;
-		void update_cat(hs::Category cat);
+		void update_cat(const hsapi::Category& cat);
 
 
 	private:

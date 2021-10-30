@@ -12,6 +12,8 @@ v0.2.0:
  - add luma locale emulator support
  - fix issue where 3hs wouldn't work if time & date was wrong
  - fix issue where extended meta wasn't showing in search
+ - make network calls more robust
+ - shrunk binary size by 1/4th
 
 v0.1.6:
  - added extended meta screen
