@@ -330,7 +330,7 @@ Result hsapi::get_latest_version_string(std::string& ret)
 }
 
 
-std::string update_location(const std::string& ver)
+std::string hsapi::update_location(const std::string& ver)
 {
 	return HS_UPDATE_BASE "/app-" + ver + ".cia";
 }
