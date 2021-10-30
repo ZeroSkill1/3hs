@@ -34,7 +34,7 @@ namespace ui
 	namespace next
 	{
 		class Confirm : public ui::BaseWidget
-		{ UI_WIDGET
+		{ UI_WIDGET("Confirm")
 		public:
 			void setup(const std::string& label, bool& ret);
 

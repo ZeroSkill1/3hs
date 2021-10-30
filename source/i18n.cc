@@ -401,10 +401,10 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 					"El Parcheo de Juegos de Luma3DS ha sido activado.\n"
 					"Para que el cambio tenga efecto, tienes que \nreinicia tu 3DS.",
 			[str::reboot_now] = "¿Reiniciar ahora?",
+			[str::this_version] = "Esto es 3hs, versión %1",
 			[str::retry_req] = "¿Quieres reintentar?",
 			[str::search_zero_results] = "La búsqueda no dió resultados\nPresiona " GLYPH_A " para regresar",
 			[str::credits] = "Créditos",
-			[str::this_version] = "Esto es 3hs, versión %1",
 		}
 };
 #pragma GCC diagnostic pop

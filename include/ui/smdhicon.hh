@@ -12,7 +12,7 @@ namespace ui
 	namespace next
 	{
 		class SMDHIcon : public ui::BaseWidget
-		{ UI_WIDGET
+		{ UI_WIDGET("SMDHIcon")
 		public:
 			void setup(TitleSMDH *smdh, SMDHIconType type = SMDHIconType::large);
 			void setup(u64 tid, SMDHIconType type = SMDHIconType::large);

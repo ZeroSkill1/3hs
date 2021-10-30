@@ -15,9 +15,10 @@
 #include <string>
 #include <list>
 
-#define UI_WIDGET \
+#define UI_WIDGET(name) \
 	public: \
 		using ui::BaseWidget::BaseWidget; \
+		const char *className = name; \
 	private:
 
 #define UI_REQUIRES_METHOD_VARIADIC(T, VarTs, method, Signature) \
@@ -441,7 +442,7 @@ namespace ui
 	namespace next
 	{
 		class Text : public ui::BaseWidget
-		{ UI_WIDGET
+		{ UI_WIDGET("Text")
 		public:
 			void setup(const std::string& label);
 			void destroy() override;
@@ -488,7 +489,7 @@ namespace ui
 		};
 
 		class Sprite : public ui::BaseWidget
-		{ UI_WIDGET
+		{ UI_WIDGET("Sprite")
 		public:
 			void setup(C2D_Sprite sprite);
 
@@ -511,7 +512,7 @@ namespace ui
 		};
 
 		class Button : public ui::BaseWidget
-		{ UI_WIDGET
+		{ UI_WIDGET("Button")
 		public:
 			using click_cb_t = std::function<bool()>;
 
@@ -557,7 +558,7 @@ namespace ui
 		/* utility */
 
 		class ButtonCallback : public ui::BaseWidget
-		{ UI_WIDGET
+		{ UI_WIDGET("ButtonCallback")
 		public:
 			void setup(u32 keys);
 

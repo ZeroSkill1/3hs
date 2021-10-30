@@ -104,7 +104,7 @@ namespace ui
 	namespace next
 	{
 		class TitleMeta : public ui::BaseWidget
-		{ UI_WIDGET
+		{ UI_WIDGET("TitleMeta")
 		public:
 			void setup(const hsapi::Title& meta);
 

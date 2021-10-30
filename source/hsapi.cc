@@ -16,7 +16,6 @@
 #define HS_UPDATE_BASE  "http://download2.erista.me/3hs"
 #define HS_CDN_BASE     "http://download4.erista.me"
 #define HS_BASE_LOC     "https://hshop.erista.me/api"
-#define HS_CERT         "romfs:/hscert.der"
 
 #define OK 0
 
@@ -164,6 +163,7 @@ static std::string url_encode(const std::string& str)
 {
 	std::string ret;
 	ret.reserve(str.size() * 3);
+	char hex[4];
 
 	for(size_t i = 0; i < str.size(); ++i)
 	{
@@ -174,7 +174,6 @@ static std::string url_encode(const std::string& str)
 		{
 			// C++ can be retarded at times
 			// Why is there no std::hex(uchar) function?
-			char hex[4];
 			snprintf(hex, 4, "%%%02X", str[i]);
 			ret += hex;
 			break;
@@ -329,7 +328,7 @@ Result hsapi::get_latest_version_string(std::string& ret)
 }
 
 
-std::string update_location(const std::string& ver)
+std::string hsapi::update_location(const std::string& ver)
 {
 	return HS_UPDATE_BASE "/app-" + ver + ".cia";
 }

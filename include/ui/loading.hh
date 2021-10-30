@@ -38,7 +38,7 @@ namespace ui
 		void loading(std::function<void()> callback);
 
 		class Spinner : public ui::BaseWidget
-		{ UI_WIDGET
+		{ UI_WIDGET("Spinner")
 		public:
 			void setup() override;
 

@@ -135,7 +135,7 @@ namespace ui
 	{
 		template <typename TEnum>
 		class Selector : public ui::BaseWidget
-		{ UI_WIDGET
+		{ UI_WIDGET("Selector")
 		public:
 			void setup(const std::vector<std::string>& labels, const std::vector<TEnum>& values, TEnum *res = nullptr)
 			{
