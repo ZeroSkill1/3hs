@@ -100,6 +100,8 @@ namespace str
 		retry_req = 75,
 		search_zero_results = 76,
 		credits = 77,
+		extra_content = 78,
+		ask_extra = 79,
 
 		_i_max,
 	};

@@ -12,7 +12,6 @@
 #define SOC_ALIGN       0x100000
 #define SOC_BUFFERSIZE  0x20000
 
-#define HS_CDN_BASE_API "https://download4.erista.me" // This one has https :/
 #define HS_UPDATE_BASE  "http://download2.erista.me/3hs"
 #define HS_CDN_BASE     "http://download4.erista.me"
 #define HS_BASE_LOC     "https://hshop.erista.me/api"
@@ -42,7 +41,8 @@ static Result basereq(const std::string& url, std::string& data, HTTPC_RequestMe
 	TRY(httpcSetSSLOpt(&ctx, SSLCOPT_DisableVerify));
 	TRY(httpcSetKeepAlive(&ctx, HTTPC_KEEPALIVE_ENABLED));
 	TRY(httpcAddRequestHeaderField(&ctx, "Connection", "Keep-Alive"));
-	TRY(httpcAddTrustedRootCA(&ctx, hscert_der, hscert_der_len));
+	if(url.find("https") == 0) // only use certs on https
+		TRY(httpcAddTrustedRootCA(&ctx, hscert_der, hscert_der_len));
 	TRY(proxy::apply(&ctx));
 
 	TRY(httpcBeginRequest(&ctx));
@@ -278,7 +278,7 @@ Result hsapi::get_download_link(std::string& ret, const hsapi::Title& meta)
 {
 	json j;
 	Result res = OK;
-	if(R_FAILED(res = basereq<json>(HS_CDN_BASE_API "/content/request?id=" + std::to_string(meta.id), j)))
+	if(R_FAILED(res = basereq<json>(HS_CDN_BASE "/content/request?id=" + std::to_string(meta.id), j)))
 		return res;
 
 	ret = HS_CDN_BASE "/content/" + std::to_string(meta.id) + "?token=" + j["token"].get<std::string>();

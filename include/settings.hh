@@ -37,6 +37,7 @@ typedef struct Settings
 	ProgressBarLocation progloc = ProgressBarLocation::bottom;
 	lang::type language = lang::english;
 	LumaLocaleMode lumalocalemode = LumaLocaleMode::automatic;
+	bool askForExtraContent = true;
 } Settings;
 
 

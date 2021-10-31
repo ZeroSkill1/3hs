@@ -114,9 +114,9 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 	return 0;
 }
 
-static void i_install_loop_thread_cb(Result& res, std::function<std::string()> get_url, cia_net_data& data)
+static void i_install_loop_thread_cb(Result& res, get_url_func get_url, cia_net_data& data)
 {
-	std::string url = get_url();
+	std::string url = get_url(res);
 	linfo << "Installing cia from <" << url << ">.";
 
 	if(!get_settings()->resumeDownloads)
@@ -129,7 +129,7 @@ static void i_install_loop_thread_cb(Result& res, std::function<std::string()> g
 	while(true)
 	{
 		if(url != "") // url == "" means we failed to fetch the url
-			res = i_install_net_cia(get_url(), &data, data.index);
+			res = i_install_net_cia(get_url(res), &data, data.index);
 
 		// User pressed start
 		if(data.itc == ITC::exit)
@@ -154,15 +154,16 @@ static void i_install_loop_thread_cb(Result& res, std::function<std::string()> g
 			}
 
 			data.itc = ITC::normal;
-			url = get_url();
+			url = get_url(res);
 			continue;
 		}
 
+		// Installation was a fail, so we stop
 		break;
 	}
 }
 
-static Result i_install_resume_loop(std::function<std::string()> get_url, Handle ciaHandle, prog_func prog)
+static Result i_install_resume_loop(get_url_func get_url, Handle ciaHandle, prog_func prog)
 {
 	cia_net_data data;
 	data.buffer = new u8[BUFSIZE];
@@ -171,7 +172,7 @@ static Result i_install_resume_loop(std::function<std::string()> get_url, Handle
 	Result res = 0;
 
 	// Install thread
-	thread<Result&, std::function<std::string()>, cia_net_data&> th
+	thread<Result&, get_url_func, cia_net_data&> th
 		(i_install_loop_thread_cb, res, get_url, data);
 
 	// UI Loop
@@ -245,9 +246,9 @@ static Result i_install_hs_cia(const hsapi::FullTitle& meta, prog_func prog, boo
 	if(!isNew && meta.prod.rfind("KTR-", 0) == 0)
 		return APPERR_NOSUPPORT;
 
-	return install_net_cia([meta]() -> std::string {
+	return install_net_cia([meta](Result& res) -> std::string {
 		std::string ret;
-		if(R_FAILED(hsapi::get_download_link(ret, meta)))
+		if(R_FAILED(res = hsapi::get_download_link(ret, meta)))
 			return "";
 		return ret;
 	}, prog, reinstallable, meta.tid, to_mediatype(media));

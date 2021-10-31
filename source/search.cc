@@ -88,7 +88,11 @@ static void show_searchbar_search()
 				return ui::Results::end_early;
 			}
 			else if(keys & KEY_Y)
-				queue_add(self->at(index).id);
+			{
+				ui::end_frame();
+				queue_add(self->at(index).id, true);
+				return ui::Results::quit_no_end;
+			}
 
 			return ui::Results::go_on;
 		}, titles

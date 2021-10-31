@@ -108,7 +108,12 @@ hsapi::hid next::sel_gam(std::vector<hsapi::Title>& titles)
 				return ui::Results::quit_no_end;
 			}
 			else if(keys & KEY_Y)
-				queue_add(self->at(index).id);
+			{
+				// it does some drawing :yeehad:
+				ui::end_frame();
+				queue_add(self->at(index).id, true);
+				return ui::Results::end_early;
+			}
 
 			return ui::Results::go_on;
 		}, titles
@@ -138,3 +143,4 @@ hsapi::hid next::sel_gam(std::vector<hsapi::Title>& titles)
 	// User pressed [START]
 	return next_gam_exit;
 }
+

@@ -9,9 +9,12 @@
 
 
 Result process_uri(const std::string& uri, bool reinstallable = false, hsapi::htid tid = 0x0, FS_MediaType media = MEDIATYPE_SD);
-Result process_hs(const hsapi::FullTitle& meta, bool reinstall = false);
+Result process_hs(const hsapi::FullTitle& meta, bool interactive = true, bool reinstall = false);
 Result process_hs(hsapi::hid id);
 
+std::vector<hsapi::FullTitle>& queue_get();
+
+void queue_add(hsapi::hid id, bool disp = true);
 void queue_add(const hsapi::FullTitle& meta);
 void queue_process(size_t index);
 void queue_remove(size_t index);

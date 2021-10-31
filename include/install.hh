@@ -16,13 +16,14 @@ enum Destination
 };
 
 typedef std::function<void(u64 /* done */, u64 /* total */)> prog_func;
-typedef std::function<std::string()> get_url_func;
+typedef std::function<std::string(Result&)> get_url_func;
 static void default_prog_func(u64, u64)
 { }
 
 static inline get_url_func makeurlwrap(const std::string& url)
 {
-	return [url]() -> std::string {
+	return [url](Result& r) -> std::string {
+		r = 0;
 		return url;
 	};
 }

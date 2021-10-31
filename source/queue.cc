@@ -15,6 +15,7 @@
 
 #include <vector>
 
+#include "find_missing.hh"
 #include "lumalocale.hh"
 #include "install.hh"
 #include "panic.hh"
@@ -23,17 +24,18 @@
 #include "util.hh"
 
 static std::vector<hsapi::FullTitle> g_queue;
-
+std::vector<hsapi::FullTitle>& queue_get() { return g_queue; }
 
 void queue_add(const hsapi::FullTitle& meta)
 {
 	g_queue.push_back(meta);
 }
 
-void queue_add(hsapi::hid id)
+void queue_add(hsapi::hid id, bool disp)
 {
 	hsapi::FullTitle meta;
-	Result res = hsapi::call(hsapi::title_meta, meta, std::move(id));
+	Result res = disp ? hsapi::call(hsapi::title_meta, meta, std::move(id))
+		: hsapi::scall(hsapi::title_meta, meta, std::move(id));
 	if(R_FAILED(res)) return;
 	queue_add(meta);
 }
@@ -62,7 +64,7 @@ void queue_process_all()
 	toggle_focus();
 	for(hsapi::FullTitle& meta : g_queue)
 	{
-		if(R_FAILED(process_hs(meta)))
+		if(R_FAILED(process_hs(meta, false)))
 			break;
 	}
 	luma::set_gamepatching();
@@ -116,7 +118,7 @@ Result process_hs(hsapi::hid id)
 	return process_hs(meta);
 }
 
-Result process_hs(const hsapi::FullTitle& meta, bool reinstall)
+Result process_hs(const hsapi::FullTitle& meta, bool interactive, bool reinstall)
 {
 	ui::Widgets wids;
 	ui::ProgressBar *bar = new ui::ProgressBar(0, 1); // = 0%
@@ -140,7 +142,7 @@ Result process_hs(const hsapi::FullTitle& meta, bool reinstall)
 		generic_main_breaking_loop(rei);
 
 		if(userWantsReinstall)
-			return process_hs(meta, true);
+			return process_hs(meta, interactive, true);
 	}
 
 	// Error!
@@ -149,6 +151,19 @@ Result process_hs(const hsapi::FullTitle& meta, bool reinstall)
 		error_container err = get_error(res);
 		report_error(err, "User was installing (" + tid_to_str(meta.tid) + ") (" + std::to_string(meta.id) + ")");
 		handle_error(err);
+	}
+
+	// Prompt to ask for extra content
+	else if(interactive && tid_can_have_missing(meta.tid) && get_settings()->askForExtraContent)
+	{
+		bool findMissing = true;
+
+		ui::Widgets ext;
+		ext.push_back(new ui::Confirm(STRING(extra_content), findMissing), ui::Scr::bottom);
+		generic_main_breaking_loop(ext);
+
+		if(findMissing)
+			show_find_missing(meta.tid);
 	}
 
 	ui::wid()->get<ui::FreeSpaceIndicator>("size_indicator")->update();
@@ -183,7 +198,8 @@ void show_queue()
 		[](ui::List<hsapi::FullTitle> *self, size_t index, u32 keys) -> ui::Results {
 			if(keys & KEY_X)
 			{
-				if(self->out_of_bounds(index)) return ui::Results::go_on;
+				if(self->out_of_bounds(index))
+					return ui::Results::go_on;
 				queue_remove(index);
 				self->update_text_reg();
 				if(g_queue.size() != 0 && self->get_pointer() >= g_queue.size())
@@ -211,9 +227,11 @@ void show_queue()
 
 	wids.push_back("install_all", new ui::Button("Install All", 10, 180, 100, 200), ui::Scr::bottom);
 	wids.get<ui::Button>("install_all")->set_on_click([list](bool) -> ui::Results {
-		queue_process_all(); list->update_text_reg();
+		ui::end_frame();
+		queue_process_all();
+		list->update_text_reg();
 		queue_is_empty(false);
-		return ui::Results::quit_loop;
+		return ui::Results::quit_no_end;
 	});
 
 	ui::Button *installSel = new ui::Button("Install Selected", 10, 210, 150, 230);
@@ -221,18 +239,21 @@ void show_queue()
 
 	installSel->set_on_click([list](bool) -> ui::Results {
 		if(list->out_of_bounds(list->get_pointer())) return ui::Results::go_on;
-		queue_process(list->get_pointer()); list->update_text_reg();
+		ui::end_frame();
+		queue_process(list->get_pointer());
+		list->update_text_reg();
 		if(g_queue.size() == 0)
 		{
 			queue_is_empty(false);
-			return ui::Results::quit_loop;
+			return ui::Results::quit_no_end;
 		}
-		return ui::Results::go_on;
+		list->set_pointer(list->get_pointer() - 1);
+		return ui::Results::end_early;
 	}); installSel->toggle_click();
+
 	wids.push_back(new ui::DoAfterFrames(20, [installSel]() -> ui::Results {
 		installSel->toggle_click(); return ui::Results::go_on;
 	}));
-
 
 	generic_main_breaking_loop(wids);
 	toggle_focus();

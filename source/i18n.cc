@@ -110,6 +110,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::retry_req] = "Request failed. Do you want to retry?",
 			[str::search_zero_results] = "Search gave 0 results\nPress " GLYPH_A " to go back",
 			[str::credits] = "Credits",
+			[str::extra_content] = "Add extra content to queue?",
+			[str::ask_extra] = "Ask for extra content",
 		},
 
 	[lang::dutch] =
@@ -210,6 +212,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::retry_req] ="Opnieuw proberen gegevens te halen?",
 			[str::search_zero_results] =  "Zoekopdracht gaf 0 resultaten\nKlik op " GLYPH_A " om terug te gaan",
 			[str::credits] = "Met dank aan",
+			STUB(extra_content),
+			STUB(ask_extra),
 		},
 
 	[lang::german] =
@@ -307,6 +311,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::retry_req] = "Erneut versuchen?",
 			[str::search_zero_results] = "Suche ergab keine Ergebnisse\nDrücke " GLYPH_A " um zurückzukehren",
 			[str::credits] = "Mitwirkende",
+			STUB(extra_content),
+			STUB(ask_extra),
 		},
 
 	[lang::spanish] =
@@ -405,6 +411,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::retry_req] = "¿Quieres reintentar?",
 			[str::search_zero_results] = "La búsqueda no dió resultados\nPresiona " GLYPH_A " para regresar",
 			[str::credits] = "Créditos",
+			STUB(extra_content),
+			STUB(ask_extra),
 		}
 };
 #pragma GCC diagnostic pop

@@ -78,6 +78,7 @@ enum SettingsId
 	ID_FreeSpace, ID_Battery,
 	ID_TimeFmt, ID_ProgLoc,
 	ID_Language, ID_Localemode,
+	ID_Extra,
 };
 
 typedef struct SettingInfo
@@ -89,14 +90,15 @@ typedef struct SettingInfo
 
 static std::vector<SettingInfo> g_settings_info =
 {
-	{ SURESTRING(light_mode)     , "Turn on light mode. This will change\nthe way most ui elements look."                               , ID_LightMode },
-	{ SURESTRING(resume_dl)      , "Should we start where we\nleft off downloading the first time\nif we failed the first try?"         , ID_Resumable },
-	{ SURESTRING(load_space)     , "Load the free space indicator.\nBootup time should be shorter\nif you disable this on large SDs"    , ID_FreeSpace },
-	{ SURESTRING(show_battery)   , "Toggle visibility of battery in\ntop right corner"                                                  , ID_Battery   },
-	{ SURESTRING(time_format)    , "Your preferred time format.\nEither 24h or 12h."                                                    , ID_TimeFmt   },
-	{ SURESTRING(progbar_screen) , "The screen to draw progress bars on"                                                                , ID_ProgLoc   },
-	{ SURESTRING(language)       , "The language 3hs is in.\nNote that to update all text you might\nneed to restart 3hs"               , ID_Language  },
+	{ SURESTRING(light_mode)     , "Turn on light mode. This will change\nthe way most ui elements look."                               , ID_LightMode  },
+	{ SURESTRING(resume_dl)      , "Should we start where we\nleft off downloading the first time\nif we failed the first try?"         , ID_Resumable  },
+	{ SURESTRING(load_space)     , "Load the free space indicator.\nBootup time should be shorter\nif you disable this on large SDs"    , ID_FreeSpace  },
+	{ SURESTRING(show_battery)   , "Toggle visibility of battery in\ntop right corner"                                                  , ID_Battery    },
+	{ SURESTRING(time_format)    , "Your preferred time format.\nEither 24h or 12h."                                                    , ID_TimeFmt    },
+	{ SURESTRING(progbar_screen) , "The screen to draw progress bars on"                                                                , ID_ProgLoc    },
+	{ SURESTRING(language)       , "The language 3hs is in.\nNote that to update all text you might\nneed to restart 3hs"               , ID_Language   },
 	{ SURESTRING(lumalocalemode) , "The mode LumaLocale autosetter\nuses. Automatic selects a language\nautomatically, manual manually" , ID_Localemode },
+	{ SURESTRING(ask_extra)      , "Ask for extra content after\nan installation."                                                      , ID_Extra      },
 };
 
 static const char *localemode2str(LumaLocaleMode mode)
@@ -133,6 +135,8 @@ static std::string serialize_id(SettingsId ID)
 		return i18n::langname(g_settings.language);
 	case ID_Localemode:
 		return localemode2str(g_settings.lumalocalemode);
+	case ID_Extra:
+		return g_settings.askForExtraContent ? STRING(btrue) : STRING(bfalse);
 	}
 
 	return STRING(unknown);
@@ -171,6 +175,9 @@ static void update_settings_ID(SettingsId ID)
 		break;
 	case ID_Battery:
 		g_settings.showBattery = !g_settings.showBattery;
+		break;
+	case ID_Extra:
+		g_settings.askForExtraContent = !g_settings.askForExtraContent;
 		break;
 	// Enums
 	case ID_TimeFmt:

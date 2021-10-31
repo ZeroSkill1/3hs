@@ -69,6 +69,9 @@ namespace hsapi
 		hsize size; /* filesize */
 		htid tid; /* title id of the title */
 		hid id; /* hShop id */
+
+		friend bool operator == (const Title& lhs, const Title& rhs)
+		{ return lhs.id == rhs.id; }
 	} Title;
 
 	typedef struct FullTitle : public Title
@@ -102,6 +105,20 @@ namespace hsapi
 	std::string update_location(const std::string& ver);
 	std::string parse_vstring(hiver ver);
 	Index *get_index();
+
+	// Silent call. ui::loading() is not called and it will stop after 3 tries
+	template <typename ... Ts>
+	Result scall(Result (*func)(Ts...), Ts&& ... args)
+	{
+		Result res = 0;
+		int tries = 0;
+
+		do {
+			res = (*func)(args...);
+			++tries;
+		} while(R_FAILED(res) && tries < 3);
+		return res;
+	}
 
 	// NOTE: You have to std::move() primitives (hid, hiver, htid, ...)
 	template <typename ... Ts>

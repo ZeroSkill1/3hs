@@ -292,10 +292,12 @@ int main(int argc, char* argv[])
 	if(R_FAILED(res))
 	{
 		error_container errcont = get_error(res);
-		lfatal << "Failed to fetch index, dns fucked? Server down? " << errcont.sDesc << "\n";
+		report_error(errcont, "Failed to fetch index, dns fucked? Server down?");
 		panic(PSTRING(fail_fetch_index, errcont.sDesc));
 		return 3;
 	}
+
+	lverbose << "Done fetching index.";
 
 	// Old logic was cursed, made it a bit better :blobaww:
 	while(aptMainLoop())
