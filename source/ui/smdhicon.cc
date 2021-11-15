@@ -2,13 +2,11 @@
 #include <ui/smdhicon.hh>
 
 #include "install.hh"
-#include "titles.hh"
 #include "panic.hh"
 #include "i18n.hh"
 
 
-
-void ui::next::SMDHIcon::setup(TitleSMDH *smdh, SMDHIconType type)
+void ui::next::SMDHIcon::setup(ctr::TitleSMDH *smdh, SMDHIconType type)
 {
 	unsigned int dim;
 	load_smdh_icon(&this->img, *smdh, type, &dim);
@@ -21,7 +19,7 @@ void ui::next::SMDHIcon::setup(TitleSMDH *smdh, SMDHIconType type)
 
 void ui::next::SMDHIcon::setup(u64 tid, SMDHIconType type)
 {
-	TitleSMDH *smdh = smdh_get(tid);
+	ctr::TitleSMDH *smdh = ctr::smdh::get(tid);
 	if(smdh == nullptr) panic(STRING(fail_load_smdh_icon));
 
 	unsigned int dim;

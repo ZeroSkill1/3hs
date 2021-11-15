@@ -1,9 +1,8 @@
 
 #include "lumalocale.hh"
 #include "settings.hh"
-#include "install.hh"
-#include "titles.hh"
 #include "util.hh"
+#include "ctr.hh"
 
 #include <ui/smdhicon.hh>
 #include <ui/selector.hh>
@@ -15,35 +14,35 @@
 #include <unistd.h>
 
 
-bool has_region(TitleSMDH *smdh, Region region)
+static bool has_region(ctr::TitleSMDH *smdh, ctr::Region region)
 {
 	// This is a mess
 	return
-		(smdh->region & (u32) RegionLockout::JPN && region == Region::JPN) ||
-		(smdh->region & (u32) RegionLockout::USA && region == Region::USA) ||
-		(smdh->region & (u32) RegionLockout::EUR && region == Region::EUR) ||
-		(smdh->region & (u32) RegionLockout::AUS && region == Region::EUR) ||
-		(smdh->region & (u32) RegionLockout::CHN && region == Region::CHN) ||
-		(smdh->region & (u32) RegionLockout::KOR && region == Region::KOR) ||
-		(smdh->region & (u32) RegionLockout::TWN && region == Region::TWN);
+		(smdh->region & (u32) ctr::RegionLockout::JPN && region == ctr::Region::JPN) ||
+		(smdh->region & (u32) ctr::RegionLockout::USA && region == ctr::Region::USA) ||
+		(smdh->region & (u32) ctr::RegionLockout::EUR && region == ctr::Region::EUR) ||
+		(smdh->region & (u32) ctr::RegionLockout::AUS && region == ctr::Region::EUR) ||
+		(smdh->region & (u32) ctr::RegionLockout::CHN && region == ctr::Region::CHN) ||
+		(smdh->region & (u32) ctr::RegionLockout::KOR && region == ctr::Region::KOR) ||
+		(smdh->region & (u32) ctr::RegionLockout::TWN && region == ctr::Region::TWN);
 }
 
-static const char *get_auto_lang_str(TitleSMDH *smdh)
+static const char *get_auto_lang_str(ctr::TitleSMDH *smdh)
 {
-	if(smdh->region & (u32) RegionLockout::JPN) return "JP";
-	if(smdh->region & (u32) RegionLockout::USA) return "EN";
-	if(smdh->region & (u32) RegionLockout::EUR) return "EN";
-	if(smdh->region & (u32) RegionLockout::AUS) return "EN";
-	if(smdh->region & (u32) RegionLockout::CHN) return "ZH";
-	if(smdh->region & (u32) RegionLockout::KOR) return "KR";
-	if(smdh->region & (u32) RegionLockout::TWN) return "TW";
+	if(smdh->region & (u32) ctr::RegionLockout::JPN) return "JP";
+	if(smdh->region & (u32) ctr::RegionLockout::USA) return "EN";
+	if(smdh->region & (u32) ctr::RegionLockout::EUR) return "EN";
+	if(smdh->region & (u32) ctr::RegionLockout::AUS) return "EN";
+	if(smdh->region & (u32) ctr::RegionLockout::CHN) return "ZH";
+	if(smdh->region & (u32) ctr::RegionLockout::KOR) return "KR";
+	if(smdh->region & (u32) ctr::RegionLockout::TWN) return "TW";
 	// Fail
 	return nullptr;
 }
 
-static const char *get_manual_lang_str(TitleSMDH *smdh)
+static const char *get_manual_lang_str(ctr::TitleSMDH *smdh)
 {
-	TitleSMDHTitle *title = smdh_get_native_title(smdh);
+	ctr::TitleSMDHTitle *title = ctr::smdh::get_native_title(smdh);
 	bool focus = next::set_focus(true);
 	ui::RenderQueue queue;
 
@@ -58,8 +57,8 @@ static const char *get_manual_lang_str(TitleSMDH *smdh)
 		.border()
 		.add_to(queue);
 	ui::builder<ui::next::Text>(ui::Screen::top,
-			smdh_u16conv(title->descShort, 0x40) + "\n" +
-			smdh_u16conv(title->descLong, 0x80))
+			ctr::smdh::u16conv(title->descShort, 0x40) + "\n" +
+			ctr::smdh::u16conv(title->descLong, 0x80))
 		.x(ui::layout::center_x)
 		.under(queue.back())
 		.wrap()
@@ -73,15 +72,15 @@ static const char *get_manual_lang_str(TitleSMDH *smdh)
 	return langlut[lang].c_str();
 }
 
-static const char *get_region_str(TitleSMDH *smdh)
+static const char *get_region_str(ctr::TitleSMDH *smdh)
 {
-	if(smdh->region & (u32) RegionLockout::JPN) return "JPN";
-	if(smdh->region & (u32) RegionLockout::USA) return "USA";
-	if(smdh->region & (u32) RegionLockout::EUR) return "EUR";
-	if(smdh->region & (u32) RegionLockout::AUS) return "EUR";
-	if(smdh->region & (u32) RegionLockout::CHN) return "CHN";
-	if(smdh->region & (u32) RegionLockout::KOR) return "KOR";
-	if(smdh->region & (u32) RegionLockout::TWN) return "TWN";
+	if(smdh->region & (u32) ctr::RegionLockout::JPN) return "JPN";
+	if(smdh->region & (u32) ctr::RegionLockout::USA) return "USA";
+	if(smdh->region & (u32) ctr::RegionLockout::EUR) return "EUR";
+	if(smdh->region & (u32) ctr::RegionLockout::AUS) return "EUR";
+	if(smdh->region & (u32) ctr::RegionLockout::CHN) return "CHN";
+	if(smdh->region & (u32) ctr::RegionLockout::KOR) return "KOR";
+	if(smdh->region & (u32) ctr::RegionLockout::TWN) return "TWN";
 	// Fail
 	return nullptr;
 }
@@ -93,7 +92,7 @@ static std::string ensure_path(u64 tid)
 #define ITER(x) do { path += (x); mkdir(path.c_str(), 0777); } while(0)
 	ITER("/luma");
 	ITER("/titles/");
-	ITER(tid_to_str(tid));
+	ITER(ctr::tid_to_str(tid));
 #undef ITER
 	return path + "/locale.txt";
 }
@@ -182,21 +181,21 @@ void luma::set_gamepatching()
 
 void luma::set_locale(u64 tid)
 {
-	get_manual_lang_str(smdh_get(tid));
+	get_manual_lang_str(ctr::smdh::get(tid));
 
 	// we don't want to set a locale
 	if(get_settings()->lumalocalemode == LumaLocaleMode::disabled)
 		return;
 
-	TitleSMDH *smdh = smdh_get(tid);
-	Region region = Region::WORLD;
+	ctr::TitleSMDH *smdh = ctr::smdh::get(tid);
+	ctr::Region region = ctr::Region::WORLD;
 	const char *langstr = nullptr;
 	const char *regstr = nullptr;
 
 	if(smdh == nullptr) return;
 
 	// We don't need to do anything
-	if(smdh->region == (u32) RegionLockout::WORLD)
+	if(smdh->region == (u32) ctr::RegionLockout::WORLD)
 		goto del_smdh;
 
 	u8 sysregion;
@@ -206,12 +205,12 @@ void luma::set_locale(u64 tid)
 	// Convert to Region
 	switch(sysregion)
 	{
-		case CFG_REGION_AUS: case CFG_REGION_EUR: region = Region::EUR; break;
-		case CFG_REGION_CHN: region = Region::CHN; break;
-		case CFG_REGION_JPN: region = Region::JPN; break;
-		case CFG_REGION_KOR: region = Region::KOR; break;
-		case CFG_REGION_TWN: region = Region::TWN; break;
-		case CFG_REGION_USA: region = Region::USA; break;
+		case CFG_REGION_AUS: case CFG_REGION_EUR: region = ctr::Region::EUR; break;
+		case CFG_REGION_CHN: region = ctr::Region::CHN; break;
+		case CFG_REGION_JPN: region = ctr::Region::JPN; break;
+		case CFG_REGION_KOR: region = ctr::Region::KOR; break;
+		case CFG_REGION_TWN: region = ctr::Region::TWN; break;
+		case CFG_REGION_USA: region = ctr::Region::USA; break;
 		default: goto del_smdh; // invalid region
 	}
 

@@ -7,8 +7,8 @@
 #include "proxy.hh"
 #include "panic.hh"
 #include "seed.hh"
+#include "ctr.hh"
 
-#include <widgets/indicators.hh>
 #include <net_common.hh>
 #include <3rd/log.hh>
 #include <ui/util.hh>
@@ -172,7 +172,7 @@ static Result i_install_resume_loop(get_url_func get_url, Handle ciaHandle, prog
 	Result res = 0;
 
 	// Install thread
-	thread<Result&, get_url_func, cia_net_data&> th
+	ctr::thread<Result&, get_url_func, cia_net_data&> th
 		(i_install_loop_thread_cb, res, get_url, data);
 
 	// UI Loop
@@ -206,11 +206,6 @@ static Result i_install_resume_loop(get_url_func get_url, Handle ciaHandle, prog
 static Destination detect_dest(const hsapi::Title& meta)
 { return detect_dest(meta.tid); }
 
-Destination detect_dest(const std::string& tid)
-{
-	return detect_dest(str_to_tid(tid));
-}
-
 // https://www.3dbrew.org/wiki/Titles#Title_IDs
 Destination detect_dest(u64 tid)
 {
@@ -232,7 +227,7 @@ static Result i_install_hs_cia(const hsapi::FullTitle& meta, prog_func prog, boo
 	u64 freeSpace = 0;
 	Result res;
 
-	if(R_FAILED(res = get_free_space(media, &freeSpace)))
+	if(R_FAILED(res = ctr::get_free_space(media, &freeSpace)))
 		return res;
 
 	if(meta.size > freeSpace)
@@ -302,18 +297,6 @@ Result delete_if_exist(u64 tid, FS_MediaType media)
 	if(title_exists(tid, media))
 		return delete_title(tid, media);
 	return 0;
-}
-
-std::string tid_to_str(u64 tid)
-{
-	if(tid == 0) return "";
-	char buf[17]; snprintf(buf, 17, "%016llX", tid);
-	return buf;
-}
-
-u64 str_to_tid(const std::string& tid)
-{
-	return strtoull(tid.c_str(), nullptr, 16);
 }
 
 Result install_net_cia(get_url_func get_url, prog_func prog, bool reinstallable, hsapi::htid tid, FS_MediaType dest)

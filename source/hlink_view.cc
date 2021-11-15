@@ -1,18 +1,17 @@
 
 #include "hlink_view.hh"
 #include "hlink.hh"
+#include "panic.hh"
 #include "util.hh"
+#include "i18n.hh"
 
 #include <ui/base.hh>
 #include <3rd/log.hh>
 
-#include "panic.hh"
 
-
-static void addreq(ui::RenderQueue& queue, const std::string *reqstr)
+static void addreq(ui::RenderQueue& queue, const std::string& reqstr)
 {
-	lverbose << "reqstr='" << *reqstr << "'";
-	ui::builder<ui::next::Text>(ui::Screen::bottom, "Last request\n" + *reqstr)
+	ui::builder<ui::next::Text>(ui::Screen::bottom, "Last request\n" + reqstr)
 		.x(ui::layout::center_x)
 		.y(ui::layout::base)
 		.add_to(queue);
@@ -23,14 +22,10 @@ void show_hlink()
 	bool focus = next::set_focus(true);
 	toggle_focus();
 
-	std::string _reqstr = "hello";
-	// For some reason the pointer proxy works
-	// but just a raw std::string doesn't???
-	std::string *reqstr = &_reqstr;
+	std::string reqstr = STRING(no_req);
 
 	hlink::create_server(
-		[reqstr](const std::string& from) -> bool {
-			lverbose << "reqstr='" << *reqstr << "'";
+		[&reqstr](const std::string& from) -> bool {
 			ui::RenderQueue queue;
 			addreq(queue, reqstr);
 			bool ret = false;
@@ -54,8 +49,7 @@ void show_hlink()
 			queue.render_finite();
 			return ret;
 		},
-		[reqstr](const std::string& err) -> void {
-			lverbose << "reqstr='" << *reqstr << "'";
+		[&reqstr](const std::string& err) -> void {
 			ui::RenderQueue queue;
 			addreq(queue, reqstr);
 
@@ -70,8 +64,7 @@ void show_hlink()
 
 			queue.render_finite_button(KEY_A);
 		},
-		[reqstr](const std::string& ip) -> void {
-			lverbose << "reqstr='" << *reqstr << "'";
+		[&reqstr](const std::string& ip) -> void {
 			ui::RenderQueue queue;
 			addreq(queue, reqstr);
 
@@ -87,9 +80,8 @@ void show_hlink()
 			return !((keys.kDown | keys.kHeld) & (KEY_START | KEY_B));
 		},
 		[&reqstr](const std::string& str) -> void {
-			lverbose << "reqstr='" << *reqstr << "', setting it to '" << str << "'";
 			ui::RenderQueue queue;
-			*reqstr = str;
+			reqstr = str;
 
 			addreq(queue, reqstr);
 			queue.render_frame();

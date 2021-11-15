@@ -20,8 +20,7 @@
 #include "queue.hh"
 #include "hsapi.hh"
 #include "i18n.hh"
-
-using handle_thread_t = thread<>;
+#include "ctr.hh"
 
 // All network byte order (BE)
 
@@ -151,11 +150,11 @@ static bool handle_launch(int clientfd, int server, iTransactionHeader header, s
 		return false;
 
 	uint64_t tid = ntohll(* (uint64_t *) body.data());
-	FS_MediaType media = to_mediatype(detect_dest(tid_to_str(tid)));
+	FS_MediaType media = to_mediatype(detect_dest(tid));
 
 	if(!title_exists(tid, media))
 	{
-		disp_error(PSTRING(title_doesnt_exist, tid_to_str(tid)));
+		disp_error(PSTRING(title_doesnt_exist, ctr::tid_to_str(tid)));
 		send_response(clientfd, hlink::response::notfound);
 		return false;
 	}
@@ -268,7 +267,7 @@ void hlink::create_server(
 	socklen_t clientaddrlen = sizeof(clientaddr);
 	memset(&clientaddr, 0x0, sizeof(clientaddr));
 
-	reuse_thread<> handleThread;
+	ctr::reuse_thread<> handleThread;
 	bool keepOpenSignal = true;
 
 	std::map<in_addr_t, bool> truststore;

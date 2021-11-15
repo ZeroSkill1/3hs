@@ -70,6 +70,7 @@ namespace ui
 		make_has_struct(resize_children);
 		make_has_struct(set_border);
 		make_has_struct(autowrap);
+		make_has_struct(finalize);
 		make_has_struct(connect);
 		make_has_struct(resize);
 		make_has_struct(scroll);
@@ -124,7 +125,9 @@ namespace ui
 	{
 		constexpr int action   = -1; /* action header */
 		constexpr int more     = -2; /* more button */
-		constexpr int settings = -2; /* settings button */
+		constexpr int settings = -3; /* settings button */
+		constexpr int search   = -4; /* search button */
+		constexpr int queue    = -5; /* queue button */
 	};
 
 	/* holds sprite ids used for ui::SpriteStore::get_by_id() */
@@ -215,7 +218,6 @@ namespace ui
 
 		virtual bool render(const ui::Keys& keys) = 0;
 		virtual void destroy() { }
-		virtual void setup() { }
 
 		virtual float height() = 0;
 		virtual float width() = 0;
@@ -223,6 +225,8 @@ namespace ui
 		virtual float get_x() { return this->x; }
 		virtual float get_y() { return this->y; }
 		virtual float get_z() { return this->z; }
+
+		virtual void finalize() { }
 
 		enum connect_type { };
 
@@ -235,7 +239,7 @@ namespace ui
 
 	protected:
 		ui::Screen screen;
-		float z = ui::layer::top;
+		float z = ui::layer::middle;
 		bool hidden = false;
 		float x = 0, y = 0;
 		int tag = 0;
@@ -265,9 +269,6 @@ namespace ui
 		/* returns false if this should be the last frame,
 		 * else returns true */
 		bool render_frame();
-		/* gets the last pushed element
-		 * returns nullptr if the queue is empty */
-		ui::BaseWidget *back();
 		/* renders only the bottom widgets */
 		bool render_bottom(const ui::Keys&);
 		/* renders only the top widgets */
@@ -279,7 +280,14 @@ namespace ui
 		/* runs the callback after the frame render is done. Runs only once
 		 * NOTE: you can only have 1 callback every frame
 		 * NOTE 2: only works on the global renderqueue */
+		void render_and_then(std::function<bool()> cb);
+		/* runs the callback after the frame render is done. Runs only once
+		 * NOTE: you can only have 1 callback every frame
+		 * NOTE 2: only works on the global renderqueue */
 		void render_and_then(std::function<void()> cb);
+		/* Detaches a callback set by
+		 * render_and_then */
+		void detach_after();
 		/* find a widget by tag
 		 * First searches top widgets, then bottom
 		 * Returns nullptr if no matches were found */
@@ -292,6 +300,13 @@ namespace ui
 				if(w->matches_tag(t)) return (TWidget *) w;
 			return nullptr;
 		}
+		/* gets the last pushed element
+		 * returns nullptr if the queue is empty */
+		template <typename TWidget = ui::BaseWidget>
+		TWidget *back()
+		{
+			return (TWidget *) this->backPtr;
+		}
 
 		/* Gets the global RenderQueue */
 		static ui::RenderQueue *global();
@@ -300,7 +315,7 @@ namespace ui
 
 
 	private:
-		std::function<void()> *after_render_complete = nullptr;
+		std::function<bool()> *after_render_complete = nullptr;
 		ui::BaseWidget *backPtr = nullptr;
 		std::list<ui::BaseWidget *> top;
 		std::list<ui::BaseWidget *> bot;
@@ -373,13 +388,21 @@ namespace ui
 		ui::builder<TWidget>& right(ui::BaseWidget *w, float pad = 3.0f) { this->el->set_x(ui::right(w, this->el, pad)); return *this; }
 		/* positions the widget left from another widget */
 		ui::builder<TWidget>& left(ui::BaseWidget *w, float pad = 3.0f) { this->el->set_x(ui::left(w, this->el, pad)); return *this; }
+		/* sets the y of the building widget to that of another one */
+		ui::builder<TWidget>& align_y(ui::BaseWidget *w) { this->el->set_y(w->get_y()); return *this; }
+		/* sets the x of the building widget to that of another one */
+		ui::builder<TWidget>& align_x(ui::BaseWidget *w) { this->el->set_x(w->get_x()); return *this; }
 
 		/* Add the built widget to a RenderQueue */
-		void add_to(ui::RenderQueue& queue) { queue.push((ui::BaseWidget *) this->el); this->el = nullptr; }
+		void add_to(ui::RenderQueue& queue) { queue.push((ui::BaseWidget *) this->finalize()); }
 		/* Add the built widget to a RenderQueue */
-		void add_to(ui::RenderQueue *queue) { queue->push((ui::BaseWidget *) this->el); this->el = nullptr; }
+		void add_to(ui::RenderQueue *queue) { queue->push((ui::BaseWidget *) this->finalize()); }
+		/* Add the built widget to a RenderQueue and your own pointer */
+		void add_to(TWidget **ret, ui::RenderQueue& queue) { *ret = this->finalize(); queue.push((ui::BaseWidget *) *ret); }
+		/* Add the built widget to a RenderQueue and your own pointer */
+		void add_to(TWidget **ret, ui::RenderQueue *queue) { *ret = this->finalize(); queue->push((ui::BaseWidget *) *ret); }
 		/* finalize the built widget and return a pointer to it */
-		TWidget *finalize() { TWidget *ret = this->el; this->el = nullptr; return ret; }
+		TWidget *finalize() { this->el->finalize(); TWidget *ret = this->el; this->el = nullptr; return ret; }
 
 
 	private:
@@ -518,12 +541,14 @@ namespace ui
 
 			void setup(const std::string& label);
 			void setup(const C2D_Sprite& sprite);
-			void setup();
 			void destroy() override;
+			void setup();
 
 			bool render(const ui::Keys&) override;
 			float height() override;
 			float width() override;
+
+			void set_border(bool b);
 
 			void resize_children(float x, float y);
 			void resize(float x, float y);
@@ -545,10 +570,10 @@ namespace ui
 
 		private:
 			click_cb_t on_click = []() -> bool { return true; };
+			bool showBg = true, showBorder = false;
 			float ox = 0.0f, oy = 0.0f;
 			float w = 0.0f, h = 0.0f;
 			ui::BaseWidget *widget;
-			bool showBg = true;
 
 			void readjust();
 

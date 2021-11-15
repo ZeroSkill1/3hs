@@ -52,6 +52,7 @@ release/
 devids.json
 
 # More stuff
+TODO
 scripts/extract_seeddb
 scripts/seeddb*
 

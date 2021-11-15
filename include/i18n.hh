@@ -102,6 +102,7 @@ namespace str
 		credits = 77,
 		extra_content = 78,
 		ask_extra = 79,
+		no_req = 80,
 
 		_i_max,
 	};

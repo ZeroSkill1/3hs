@@ -1,11 +1,11 @@
 
 #include "find_missing.hh"
 #include "install.hh"
-#include "titles.hh"
 #include "hsapi.hh"
 #include "queue.hh"
 #include "panic.hh"
 #include "util.hh"
+#include "ctr.hh"
 
 #include <ui/loading.hh>
 #include <ui/core.hh>
@@ -30,8 +30,8 @@ void show_find_missing(hsapi::htid tid)
 	ui::loading([tid]() -> void {
 
 		std::vector<hsapi::htid> installed;
-		panic_if_err_3ds(list_titles_on(MEDIATYPE_SD, installed));
-		list_titles_on(MEDIATYPE_GAME_CARD, installed); // it might error if there is no cart inserted so we don't want to panic if it fails
+		panic_if_err_3ds(ctr::list_titles_on(MEDIATYPE_SD, installed));
+		ctr::list_titles_on(MEDIATYPE_GAME_CARD, installed); // it might error if there is no cart inserted so we don't want to panic if it fails
 
 		std::vector<hsapi::htid> doCheckOn;
 		if(tid == 0) doCheckOn = installed;

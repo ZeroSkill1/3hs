@@ -22,6 +22,7 @@
 #include "error.hh"
 #include "i18n.hh"
 #include "util.hh"
+#include "ctr.hh"
 
 static std::vector<hsapi::FullTitle> g_queue;
 std::vector<hsapi::FullTitle>& queue_get() { return g_queue; }
@@ -149,7 +150,7 @@ Result process_hs(const hsapi::FullTitle& meta, bool interactive, bool reinstall
 	if(R_FAILED(res))
 	{
 		error_container err = get_error(res);
-		report_error(err, "User was installing (" + tid_to_str(meta.tid) + ") (" + std::to_string(meta.id) + ")");
+		report_error(err, "User was installing (" + ctr::tid_to_str(meta.tid) + ") (" + std::to_string(meta.id) + ")");
 		handle_error(err);
 	}
 

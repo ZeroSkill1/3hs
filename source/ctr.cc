@@ -1,10 +1,16 @@
 
 #include "install.hh"
-#include "titles.hh"
 #include "error.hh"
 #include "panic.hh"
+#include "ctr.hh"
 
 #include <string.h>
+
+#define AEXEFS_SMDH_PATH             { 0x00000000, 0x00000000, 0x00000002, 0x6E6F6369, 0x00000000 }
+#define MAKE_EXEFS_APATH(tid, media) { (u32) (tid & 0xFFFFFFFF), (u32) ((tid >> 32) & 0xFFFFFFFF), media, 0x00000000 }
+#define SMDH_MAGIC "SMDH"
+#define SMDH_MAGIC_LEN 4
+
 
 #define makebin(data) makebin_(data, sizeof(data))
 static FS_Path makebin_(const void *path, u32 size)
@@ -12,7 +18,7 @@ static FS_Path makebin_(const void *path, u32 size)
 	return { PATH_BINARY, size, path };
 }
 
-TitleSMDH *smdh_get(u64 tid)
+ctr::TitleSMDH *ctr::smdh::get(u64 tid)
 {
 	static const u32 smdhPath[5] = AEXEFS_SMDH_PATH;
 	u32 exefsArchivePath[4] = MAKE_EXEFS_APATH(tid, to_mediatype(detect_dest(tid)));
@@ -36,7 +42,7 @@ TitleSMDH *smdh_get(u64 tid)
 	return ret;
 }
 
-TitleSMDHTitle *smdh_get_native_title(TitleSMDH *smdh)
+ctr::TitleSMDHTitle *ctr::smdh::get_native_title(TitleSMDH *smdh)
 {
 	TitleSMDHTitle *title = nullptr;
 	u8 syslang;
@@ -74,7 +80,27 @@ TitleSMDHTitle *smdh_get_native_title(TitleSMDH *smdh)
 	return nullptr;
 }
 
-Result list_titles_on(FS_MediaType media, std::vector<u64>& ret)
+std::string ctr::smdh::u16conv(u16 *str, size_t size)
+{
+	std::string ret;
+	ret.reserve(size);
+
+	for(size_t i = 0; i < size; ++i)
+	{
+		const u8 lower = (str[i] >> 0) & 0xFF;
+		const u8 upper = (str[i] >> 8) & 0xFF;
+
+		// We're done
+		if(lower == 0) break;
+
+		ret.push_back(lower);
+		if(upper != 0) ret.push_back(upper);
+	}
+
+	return ret;
+}
+
+Result ctr::list_titles_on(FS_MediaType media, std::vector<u64>& ret)
 {
 	u32 tcount = 0;
 	Result res = AM_GetTitleCount(media, &tcount);
@@ -100,23 +126,35 @@ Result list_titles_on(FS_MediaType media, std::vector<u64>& ret)
 	return res;
 }
 
-std::string smdh_u16conv(u16 *str, size_t size)
+Result ctr::get_free_space(Destination media, u64 *size)
 {
-	std::string ret;
-	ret.reserve(size);
+	FS_ArchiveResource resource = { 0, 0, 0, 0 };
+	Result res = 0;
 
-	for(size_t i = 0; i < size; ++i)
+	switch(media)
 	{
-		const u8 lower = (str[i] >> 0) & 0xFF;
-		const u8 upper = (str[i] >> 8) & 0xFF;
-
-		// We're done
-		if(lower == 0) break;
-
-		ret.push_back(lower);
-		if(upper != 0) ret.push_back(upper);
+	case DEST_TWLNand: res = FSUSER_GetArchiveResource(&resource, SYSTEM_MEDIATYPE_TWL_NAND); break;
+	case DEST_CTRNand: res = FSUSER_GetArchiveResource(&resource, SYSTEM_MEDIATYPE_CTR_NAND); break;
+	case DEST_Sdmc: res = FSUSER_GetArchiveResource(&resource, SYSTEM_MEDIATYPE_SD); break;
 	}
 
-	return ret;
+	if(!R_FAILED(res)) *size = (u64) resource.clusterSize * (u64) resource.freeClusters;
+	return res;
+}
+
+u64 ctr::str_to_tid(const std::string& str)
+{
+	return strtoull(str.c_str(), nullptr, 16);
+}
+
+std::string ctr::tid_to_str(u64 tid)
+{
+	// is tid supposed to be 0 somewhere?
+	// if not we can remove this check
+	if(tid == 0) return "";
+
+	char buf[17];
+	snprintf(buf, 17, "%016llX", tid);
+	return buf;
 }
 

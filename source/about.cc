@@ -14,6 +14,7 @@ void show_about()
 
 	ui::builder<ui::next::Button>(ui::Screen::bottom, STRING(back))
 		.connect(ui::next::Button::click, []() -> bool { return false; })
+		.connect(ui::next::Button::nobg)
 		.size(70.0f, 20.0f)
 		.x(240.0f)
 		.y(210.0f)

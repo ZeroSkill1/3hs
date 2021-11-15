@@ -6,6 +6,8 @@
 #include <time.h>
 #include <3ds.h>
 
+#include "ctr.hh"
+
 #ifdef USE_SETTINGS_H
 # include "settings.hh"
 # define BG_CLR (get_settings()->isLightMode ? ui::constants::COLOR_TOP_LI : ui::constants::COLOR_TOP)
@@ -16,23 +18,6 @@
 #define BG_HEIGHT 10
 
 // FREE SPACE
-
-Result get_free_space(Destination media, u64 *size)
-{
-	FS_ArchiveResource resource = { 0, 0, 0, 0 };
-	Result res = 0;
-
-	switch(media)
-	{
-	case DEST_TWLNand: res = FSUSER_GetArchiveResource(&resource, SYSTEM_MEDIATYPE_TWL_NAND); break;
-	case DEST_CTRNand: res = FSUSER_GetArchiveResource(&resource, SYSTEM_MEDIATYPE_CTR_NAND); break;
-	case DEST_Sdmc: res = FSUSER_GetArchiveResource(&resource, SYSTEM_MEDIATYPE_SD); break;
-	}
-
-	if(!R_FAILED(res)) *size = (u64) resource.clusterSize * (u64) resource.freeClusters;
-	return res;
-}
-
 
 ui::FreeSpaceIndicator::FreeSpaceIndicator()
 	: Widget("free_space_indicator"), sdmc(ui::mk_left_WText(
@@ -55,9 +40,9 @@ void ui::FreeSpaceIndicator::update()
 	{
 		u64 nandt = 0, nandc = 0, sdmc = 0;
 
-		get_free_space(DEST_TWLNand, &nandt);
-		get_free_space(DEST_CTRNand, &nandc);
-		get_free_space(DEST_Sdmc, &sdmc);
+		ctr::get_free_space(DEST_TWLNand, &nandt);
+		ctr::get_free_space(DEST_CTRNand, &nandc);
+		ctr::get_free_space(DEST_Sdmc, &sdmc);
 
 		this->nandt.replace_text("TWLNand: " + human_readable_size<u64>(nandt));
 		this->nandc.replace_text("CTRNand: " + human_readable_size<u64>(nandc));

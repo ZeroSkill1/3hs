@@ -10,7 +10,7 @@ void ui::loading(ui::Widgets& wids, std::function<void()> callback)
 {
 	std::string old = swap_desc(STRING(loading));
 
-	thread<> th(callback);
+	ctr::thread<> th(callback);
 
 	ui::Keys keys;
 	while(!th.finished() && ui::framenext_nobreak(keys))
@@ -48,7 +48,7 @@ void ui::next::loading(ui::RenderQueue& queue, std::function<void()> callback)
 	std::string desc = ::next::set_desc(STRING(loading));
 	bool focus = ::next::set_focus(true);
 
-	thread<> th(callback);
+	ctr::thread<> th(callback);
 
 	ui::Keys keys = ui::RenderQueue::get_keys();
 	while(!th.finished() && queue.render_frame(keys))

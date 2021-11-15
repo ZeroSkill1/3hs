@@ -1,18 +1,10 @@
 
 #include <3ds.h>
 
-#include <ui/scrollingText.hh>
-#include <ui/progress_bar.hh>
 #include <ui/image_button.hh>
-#include <ui/smdhicon.hh>
-#include <ui/confirm.hh>
-#include <ui/loading.hh>
-#include <ui/button.hh>
-#include <ui/swkbd.hh>
-#include <ui/text.hh>
-#include <ui/util.hh>
-#include <ui/core.hh>
 #include <ui/list.hh>
+#include <ui/core.hh>
+#include <ui/base.hh>
 
 #include <widgets/indicators.hh>
 #include <widgets/konami.hh>
@@ -27,28 +19,21 @@
 #include "build/more_icon.h"
 
 #include "lumalocale.hh"
-#include "hlink_view.hh"
-#include "image_ldr.hh"
 #include "settings.hh"
 #include "log_view.hh"
 #include "extmeta.hh"
-#include "install.hh"
 #include "update.hh"
 #include "search.hh"
-#include "titles.hh"
-#include "thread.hh"
 #include "queue.hh"
-#include "error.hh"
 #include "panic.hh"
 #include "about.hh"
 #include "proxy.hh"
 #include "hsapi.hh"
 #include "more.hh"
-#include "util.hh"
-#include "seed.hh"
 #include "next.hh"
-#include "help.hh"
 #include "i18n.hh"
+#include "seed.hh"
+#include "util.hh"
 
 #ifdef RELEASE
 # define LOG_LEVEL plog::info
@@ -61,16 +46,6 @@
 
 int main(int argc, char* argv[])
 {
-	/* init_services(); */
-	/* ui::init(); */
-
-	/* luma::set_gamepatching(); */
-
-	/* ui::exit(); */
-	/* exit_services(); */
-
-	/* return 0; */
-
 	((void) argc);
 	((void) argv);
 
@@ -85,13 +60,40 @@ int main(int argc, char* argv[])
 	plog::get()->addAppender(&colorAppender);
 #endif
 
-	panic_if_err_3ds(init_services());
+
+	bool isLuma = false;
+	panic_if_err_3ds(init_services(isLuma));
 	if(!ui::global_init())
 	{
 		lfatal << "ui::global_init() failed, this should **never** happen";
 		ui::global_deinit();
 		return 1;
 	}
+
+#ifdef RELEASE
+	// Check if luma is installed
+	// 1. Citra is used; not compatible
+	// 2. Other cfw used; not supported
+	Handle lumaCheck;
+	if(!isLuma)
+	{
+		lfatal << "Luma3DS is not installed, user is using an unsupported CFW or running in Citra";
+		ui::RenderQueue queue;
+
+		ui::builder<ui::next::Text>(ui::Screen::top, STRING(luma_not_installed))
+			.x(ui::layout::center_x).y(45.0f)
+			.add_to(queue);
+		ui::builder<ui::next::Text>(ui::Screen::top, STRING(install_luma))
+			.x(ui::layout::center_x).under(queue.back())
+			.add_to(queue);
+
+		queue.render_finite_button(KEY_START | KEY_B);
+		ui::global_deinit();
+		exit_services();
+		return 3;
+	}
+	svcCloseHandle(lumaCheck);
+#endif
 
 	init_seeddb();
 	ensure_settings();
@@ -116,7 +118,7 @@ int main(int argc, char* argv[])
 		.wrap()
 		.x(5.0f)
 		.y(210.0f)
-		.tag(ui::tag::more)
+		.tag(ui::tag::settings)
 		.add_to(ui::RenderQueue::global());
 
 	ui::builder<ui::next::Button>(ui::Screen::bottom, ui::SpriteStore::get_by_id(ui::sprite::more_dark))
@@ -128,7 +130,7 @@ int main(int argc, char* argv[])
 		.wrap()
 		.right(ui::RenderQueue::global()->back())
 		.y(210.0f)
-		.tag(ui::tag::settings)
+		.tag(ui::tag::more)
 		.add_to(ui::RenderQueue::global());
 
 	ui::builder<ui::next::Button>(ui::Screen::bottom, ui::SpriteStore::get_by_id(ui::sprite::search_dark))
@@ -140,7 +142,7 @@ int main(int argc, char* argv[])
 		.wrap()
 		.right(ui::RenderQueue::global()->back())
 		.y(210.0f)
-		.tag(ui::tag::settings)
+		.tag(ui::tag::search)
 		.add_to(ui::RenderQueue::global());
 
 	ui::builder<ui::next::Button>(ui::Screen::bottom, STRING(queue))
@@ -152,9 +154,8 @@ int main(int argc, char* argv[])
 		.wrap()
 		.right(ui::RenderQueue::global()->back())
 		.y(210.0f)
-		.tag(ui::tag::settings)
+		.tag(ui::tag::queue)
 		.add_to(ui::RenderQueue::global());
-
 
 	ui::wid()->push_back("version", new ui::Text(ui::mk_right_WText(VERSION, 3.0f, 5.0f, 0.4f, 0.4f, ui::Scr::bottom)), ui::Scr::bottom);
 	ui::wid()->push_back("header_desc", new ui::Text(ui::mk_center_WText(STRING(banner), 30.0f)), ui::Scr::top);
@@ -167,23 +168,6 @@ int main(int argc, char* argv[])
 
 #ifdef RELEASE
 	ui::wid()->push_back("batt_indicator", new ui::BatteryIndicator());
-
-	// Check if luma is installed
-	// 1. Citra is used; not compatible
-	// 2. Other cfw used; not supported
-	Handle lumaCheck;
-	if(R_FAILED(svcConnectToPort(&lumaCheck, "hb:ldr")))
-	{
-		lfatal << "Luma3DS is not installed, user is using an unsupported CFW or running in Citra";
-		ui::wid()->get<ui::Text>("curr_action_desc")->replace_text(STRING(luma_not_installed));
-		ui::wid()->push_back(new ui::Text(ui::mk_center_WText(STRING(install_luma), 78.0f)), ui::Scr::top);
-		standalone_main_breaking_loop();
-		ui::global_deinit();
-		hsapi::global_deinit();
-		exit_services();
-		return 3;
-	}
-	svcCloseHandle(lumaCheck);
 #endif
 
 	// DRM Check
@@ -198,13 +182,6 @@ int main(int argc, char* argv[])
 	}
 #endif
 	// end DRM Check
-
-	if(get_settings()->firstRun)
-	{
-		show_help();
-		get_settings()->firstRun = false;
-		save_settings();
-	}
 
 	ui::wid()->push_back("settings",
 		new ui::ImageButton(
@@ -255,19 +232,6 @@ int main(int argc, char* argv[])
 	// TODO: Add net status widget
 	// TODO: Add logs button
 
-	quick_global_draw();
-
-	if(osGetWifiStrength() == 0)
-	{
-		lwarning << "No wifi found, waiting for wifi";
-
-		ui::wid()->get<ui::Text>("curr_action_desc")->replace_text(STRING(connect_wifi));
-		ui::Keys keys; ui::Widgets dummy;
-		// 0 = NO wifi at all
-		while(ui::framenext(keys) && osGetWifiStrength() == 0)
-			ui::framedraw(dummy, keys);
-	}
-
 	if(!hsapi::global_init())
 	{
 		lfatal << "hsapi::global_init() failed";
@@ -297,19 +261,28 @@ int main(int argc, char* argv[])
 		return 3;
 	}
 
+//	show_extmeta_lazy({ "au", "Yo-Kai Watch also known as some very long title that doesn't fit on one line", "games", 875560960, 0x000400000017C200, 1 });
+
 	lverbose << "Done fetching index.";
+
+	size_t catptr = 0, subptr = 0, gamptr = 0;
+	const std::string *associatedcat = nullptr;
+	const std::string *associatedsub = nullptr;
 
 	// Old logic was cursed, made it a bit better :blobaww:
 	while(aptMainLoop())
 	{
 cat:
-		const std::string *cat = next::sel_cat();
+		const std::string *cat = next::sel_cat(&catptr);
 		// User wants to exit app
 		if(cat == next_cat_exit) break;
 		llog << "NEXT(c): " << *cat;
 
 sub:
-		const std::string *sub = next::sel_sub(*cat);
+		if(associatedcat != cat) subptr = 0;
+		associatedcat = cat;
+
+		const std::string *sub = next::sel_sub(*cat, &subptr);
 		if(sub == next_sub_back) goto cat;
 		if(sub == next_sub_exit) break;
 		llog << "NEXT(s): " << *sub;
@@ -319,7 +292,10 @@ sub:
 			goto sub;
 
  gam:
-		hsapi::hid id = next::sel_gam(titles);
+ 		if(associatedsub != sub) gamptr = 0;
+		associatedsub = sub;
+
+		hsapi::hid id = next::sel_gam(titles, &gamptr);
 		if(id == next_gam_back) goto sub;
 		if(id == next_gam_exit) break;
 

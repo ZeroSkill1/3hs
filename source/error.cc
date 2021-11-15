@@ -314,7 +314,7 @@ error_container get_error(Result res)
 
 std::string pad8code(Result code)
 {
-	char errpad[9]; snprintf(errpad, 9, "%08lX", code);
+	char errpad[9]; snprintf(errpad, 9, "%08lX", (unsigned long) code);
 	return errpad;
 }
 

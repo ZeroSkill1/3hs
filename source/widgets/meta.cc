@@ -2,7 +2,7 @@
 #include "widgets/meta.hh"
 #include "i18n.hh"
 
-#include "install.hh" // TODO: Move tid_to_str() somewhere else
+#include "ctr.hh"
 
 // Sorry for this macro mess, even i find it hard to read now.
 // D = Description, T = Title, C = Category, S = Subcategory
@@ -67,7 +67,7 @@ void ui::TitleMeta::update_title(const hsapi::Title& title)
 	this->scat.replace_text(hsapi::get_index()->find(title.cat)->disp + " -> " + hsapi::get_index()->find(title.cat)->find(title.subcat)->disp);
 	this->ssize.replace_text(ui::human_readable_size_block(title.size));
 	this->sid.replace_text(std::to_string(title.id));
-	this->stid.replace_text(tid_to_str(title.tid));
+	this->stid.replace_text(ctr::tid_to_str(title.tid));
 	this->sname.replace_text(title.name);
 
 	cnr(name);
@@ -260,7 +260,7 @@ void ui::next::TitleMeta::set_title(const hsapi::Title& meta)
 		.under(this->queue.back(), -1.0f)
 		.add_to(this->queue);
 
-	ui::builder<ui::next::Text>(this->screen, tid_to_str(meta.tid))
+	ui::builder<ui::next::Text>(this->screen, ctr::tid_to_str(meta.tid))
 		.x(this->get_x())
 		.under(this->queue.back(), 1.0f)
 		.scroll()

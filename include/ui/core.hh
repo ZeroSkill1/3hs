@@ -130,10 +130,8 @@ namespace ui
 #ifndef inc_ui_base_hh
 	typedef struct Keys
 	{
+		u32 kDown, kHeld, kUp;
 		touchPosition touch;
-		u32 kDown;
-		u32 kHeld;
-		u32 kUp;
 	} Keys;
 #endif
 
@@ -237,25 +235,25 @@ namespace ui
 		ss << std::fixed << inte; return ss.str();
 	}
 
-	template <typename T>
-	std::string human_readable_size(T inte)
+	template <typename TInt>
+	std::string human_readable_size(TInt i)
 	{
 		// Sorry for this mess.....
-		if(inte < 1024) return std::to_string(inte) + " B"; /* < 1 KiB */
-		if(inte < 1024 * 1024) /* < 1 MiB */
-			return floating_prec<float>((float) inte / 1024) + " KiB";
-		if(inte < 1024 * 1024 * 1024) /* < 1 GiB */
-			return floating_prec<float>((float) inte / 1024 / 1024) + " MiB";
-		if(inte < (long long) 1024 * 1024 * 1024 * 1024) /* < 1TiB */
-			return floating_prec<float>((float) inte / 1024 / 1024 / 1024) + " GiB";
-		return floating_prec<float>((float) inte / 1024 / 1024 / 1024 / 1024) + " TiB";
+		if(i < 1024) return std::to_string(i) + " B"; /* < 1 KiB */
+		if(i < 1024 * 1024) /* < 1 MiB */
+			return floating_prec<float>((float) i / 1024) + " KiB";
+		if(i < 1024 * 1024 * 1024) /* < 1 GiB */
+			return floating_prec<float>((float) i / 1024 / 1024) + " MiB";
+		if(i < (long long) 1024 * 1024 * 1024 * 1024) /* < 1TiB */
+			return floating_prec<float>((float) i / 1024 / 1024 / 1024) + " GiB";
+		return floating_prec<float>((float) i / 1024 / 1024 / 1024 / 1024) + " TiB";
 	}
 
-	template <typename T>
-	std::string human_readable_size_block(T inte)
+	template <typename TInt>
+	std::string human_readable_size_block(TInt i)
 	{
-		std::string ret = human_readable_size<T>(inte);
-		T blk = (double) inte / 1024 / 128;
+		std::string ret = human_readable_size<TInt>(i);
+		TInt blk = (double) i / 1024 / 128;
 		blk = blk == 0 ? 1 : blk;
 
 		return ret + std::string(" (") + std::to_string(blk) + (blk == 1 ? " block)" : " blocks)");

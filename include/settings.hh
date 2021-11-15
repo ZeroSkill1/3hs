@@ -33,7 +33,7 @@ typedef struct Settings
 	bool showBattery = true;
 	bool showNet = true;
 	Timefmt timeFormat = Timefmt::good;
-	bool firstRun = true;
+	bool unused0 = true; /* used to be: firstRun */
 	ProgressBarLocation progloc = ProgressBarLocation::bottom;
 	lang::type language = lang::english;
 	LumaLocaleMode lumalocalemode = LumaLocaleMode::automatic;

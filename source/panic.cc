@@ -11,14 +11,16 @@
 #include "i18n.hh"
 
 
-Result init_services()
+Result init_services(bool& isLuma)
 {
 	Result res;
 
-#ifdef RELEASE // Not implmented in citra
-	if(R_FAILED(res = mcuHwcInit())) return res;
-#endif
+	Handle lumaCheck;
+	isLuma = R_SUCCEEDED(svcConnectToPort(&lumaCheck, "hb:ldr"));
+	svcCloseHandle(lumaCheck);
 
+	// Doesn't work in citra
+	if(isLuma) if(R_FAILED(res = mcuHwcInit())) return res;
 	if(R_FAILED(res = httpcInit(0))) return res;
 	if(R_FAILED(res = romfsInit())) return res;
 	if(R_FAILED(res = cfguInit())) return res;

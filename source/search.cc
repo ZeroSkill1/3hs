@@ -14,6 +14,7 @@
 #include "extmeta.hh"
 #include "queue.hh"
 #include "hsapi.hh"
+#include "next.hh"
 #include "util.hh"
 #include "i18n.hh"
 
@@ -65,7 +66,15 @@ static void show_searchbar_search()
 
 	if(titles.size() == 0) return search_is_empty(prev);
 
-	ui::List<hsapi::Title> *list = new ui::List<hsapi::Title>(
+	size_t cur = 0;
+	do {
+		hsapi::hid id = next::sel_gam(titles, &cur);
+		if(id == next_gam_exit || id == next_gam_back)
+			return;
+
+	} while(true);
+
+/*	ui::List<hsapi::Title> *list = new ui::List<hsapi::Title>(
 		[](hsapi::Title& title) -> std::string { return title.name; },
 		[&](ui::List<hsapi::Title> *self, size_t index, u32 keys) -> ui::Results {
 			if(keys & KEY_B) return ui::Results::quit_loop;
@@ -105,7 +114,7 @@ static void show_searchbar_search()
 	wids.push_back("meta", meta, ui::Scr::bottom);
 	list->set_on_change([&](ui::List<hsapi::Title> *self, size_t index) {
 		meta->update_title(self->at(index));
-	});
+	});*/
 
 
 	generic_main_breaking_loop(wids);

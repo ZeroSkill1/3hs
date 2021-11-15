@@ -7,6 +7,9 @@
 #include <functional>
 #include <3rd/log.hh>
 
+#include <ui/base.hh>
+#include <panic.hh>
+
 #define exec_onch() this->on_change(this, this->point)
 
 #define LIST_ARR ("→")
@@ -120,7 +123,6 @@ namespace ui
 		}
 
 		T& at(size_t index)
-
 		{ return (*this)[index]; }
 
 		T& operator [] (size_t index)
@@ -204,6 +206,346 @@ namespace ui
 			this->create_text(&this->arrow, "→");
 		}
 	};
+
+	namespace next
+	{
+		template <typename T>
+		class List : public ui::BaseWidget
+		{ UI_WIDGET("List")
+		public:
+			using on_select_type = std::function<bool(List<T> *, size_t, u32)>;
+			using on_change_type = std::function<void(List<T> *, size_t)>;
+			using to_string_type = std::function<std::string(const T&)>;
+
+			static constexpr size_t button_timeout_held = 7;
+			static constexpr float scrollbar_width = 5.0f;
+			static constexpr float selector_offset = 3.0f;
+			static constexpr float text_spacing = 17.0f;
+			static constexpr size_t button_timeout = 11;
+			static constexpr float text_offset = 6.0f;
+			static constexpr float text_size = 0.65;
+
+			enum connect_type { select, change, to_string, buttons };
+
+			void setup(std::vector<T> *items)
+			{
+				this->charsLeft = this->capacity = 1;
+				this->buf = C2D_TextBufNew(1);
+				this->items = items;
+
+				this->buttonTimeout = 0;
+				this->amountRows = 12;
+				this->keys = KEY_A;
+				this->view = 0;
+				this->pos = 0;
+
+				this->sx = ui::screen_width(this->screen) - scrollbar_width - 5.0f;
+			}
+
+			void destroy()
+			{
+				if(this->buf != nullptr)
+					C2D_TextBufDelete(this->buf);
+			}
+
+			void finalize() override { this->update(); }
+
+			bool render(const ui::Keys& keys) override
+			{
+				/* handle input */
+				u32 effective = keys.kDown | keys.kHeld;
+
+				if(this->buttonTimeout != 0) {
+					--this->buttonTimeout;
+					// please don't scream at me for using goto as a convenience
+					goto builtin_controls_done;
+				}
+
+				if(effective & KEY_UP)
+				{
+					this->buttonTimeout = button_timeout;
+					if(this->pos > 0)
+					{
+						if(this->pos == this->view)
+							--this->view;
+						--this->pos;
+					}
+					else
+					{
+						this->pos = this->lines.size() - 1;
+						this->view = this->last_full_view();
+					}
+					this->on_change_(this, this->pos);
+					this->update_scrolldata();
+				}
+
+				if(effective & KEY_DOWN)
+				{
+					this->buttonTimeout = button_timeout;
+					size_t old = this->pos;
+					if(this->pos < this->lines.size() - 1)
+					{
+						++this->pos;
+						if(this->pos == this->view + this->amountRows - 1 && this->view < this->last_full_view())
+							++this->view;
+					}
+					else
+					{
+						this->view = 0;
+						this->pos = 0;
+					}
+					if(this->pos != old)
+					{
+						this->on_change_(this, this->pos);
+						this->update_scrolldata();
+					}
+				}
+
+				if(effective & KEY_LEFT)
+				{
+					this->buttonTimeout = button_timeout;
+					this->view -= this->min<int>(this->amountRows, this->view);
+					this->pos -= this->min<int>(this->amountRows, this->pos);
+					this->on_change_(this, this->pos);
+					this->update_scrolldata();
+				}
+
+				if(effective & KEY_RIGHT)
+				{
+					this->buttonTimeout = button_timeout;
+					this->view = this->min<size_t>(this->view + this->amountRows, this->last_full_view());
+					this->pos = this->min<size_t>(this->pos + this->amountRows, this->lines.size() - 1);
+					this->on_change_(this, this->pos);
+					this->update_scrolldata();
+				}
+
+				if(keys.kHeld & (KEY_UP | KEY_DOWN | KEY_LEFT | KEY_RIGHT))
+					this->buttonTimeout = button_timeout_held; /* the timeout is a bit less if we want to hold */
+
+builtin_controls_done:
+
+				/* render the on-screen elements */
+				size_t end = this->view + (this->lines.size() > this->amountRows
+					? this->amountRows - 1 : this->lines.size());
+				for(size_t i = this->view, j = 0; i < end; ++i, ++j)
+				{
+					// TODO: Theme support
+					if(i == this->pos)
+					{
+						constexpr u32 white = C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF);
+						C2D_DrawLine(this->x, this->y + text_spacing * j + selector_offset,
+							white, this->x, this->y + text_spacing * j + this->selh - selector_offset,
+							white, 1.5f, this->z);
+					}
+
+					C2D_DrawText(&this->lines[i], C2D_WithColor, this->x + text_offset,
+						this->y + text_spacing * j, this->z, text_size, text_size,
+						C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF));
+				}
+
+				/* render scrollbar */
+				if(this->lines.size() > this->amountRows)
+				{
+					C2D_DrawRectSolid(this->sx - 1.0f, 0.0f, this->z, ui::screen_width(this->screen) - this->sx + 1.0f,
+						ui::screen_height(), C2D_Color32(0x1C, 0x20, 0x21, 0xFF));
+					C2D_DrawRectSolid(this->sx, this->sy, this->z, 5.0f, this->sh,
+						C2D_Color32(0x3C, 0x3C, 0x3C, 0xFF));
+				}
+
+				if(keys.kDown & this->keys)
+					return this->on_select_(this, this->pos, keys.kDown);
+				return true;
+			}
+
+			float height() override
+			{
+				return this->lines.size() < this->amountRows
+					? this->lines.size() * text_spacing
+					: this->amountRows * text_spacing;
+			}
+
+			float width() override
+			{
+				return this->sx + scrollbar_width - this->x;
+			}
+
+			void connect(connect_type t, on_select_type cb)
+			{
+				if(t != select) panic("EINVAL");
+				this->on_select_ = cb;
+			}
+
+			void connect(connect_type t, on_change_type cb)
+			{
+				if(t != change) panic("EINVAL");
+				this->on_change_ = cb;
+			}
+
+			void connect(connect_type t, to_string_type cb)
+			{
+				if(t != to_string) panic("EINVAL");
+				this->to_string_ = cb;
+			}
+
+			void connect(connect_type t, u32 k)
+			{
+				if(t != buttons) panic("EINVAL");
+				this->keys |= k;
+			}
+
+			/* Rerenders all items in the list
+			 * NOTE: if you simply want to update a certain item
+			 *       consider using update(size_t)
+			 **/
+			void update()
+			{
+				this->clear();
+				this->lines.reserve(this->items->size() - this->lines.capacity());
+				for(T& i : *this->items)
+					this->append_text(i);
+				this->update_scrolldata();
+			}
+
+			/* Rerenders an item in the list
+			 **/
+			void update(size_t i)
+			{
+				std::string s = this->to_string_(i);
+			}
+
+			/* Amount of items ready to be rendered
+			 **/
+			size_t size() { return this->lines.size(); }
+
+			/* Appends an item to items and appends it to the available texts to be rendered
+			 **/
+			void append(const T& val)
+			{
+				this->items->push_back(val);
+				this->append_text(val);
+			}
+
+			/* Add a key that triggers select
+			 **/
+			void key(u32 k)
+			{
+				this->keys |= k;
+			}
+
+			/* Amount of items visable
+			 **/
+			size_t visable()
+			{
+				return this->lines.size() > this->amountRows
+					? this->amountRows : this->lines.size();
+			}
+
+			/* Returns the element at i with range checking
+			 **/
+			T& at(size_t i)
+			{
+				return this->items->at(i);
+			}
+
+			/* Gets the current cursor position
+			 **/
+			size_t get_pos()
+			{
+				return this->pos;
+			}
+
+			/* Sets the current cursor position
+			 **/
+			void set_pos(size_t p)
+			{
+				if(p > 0 && p < this->lines.size())
+					this->pos = p;
+			}
+
+
+		private:
+			on_select_type on_select_ = [](List<T> *, size_t, u32) -> bool { return true; };
+			on_change_type on_change_ = [](List<T> *, size_t) -> void { };
+			to_string_type to_string_ = [](const T&) -> std::string { return ""; };
+
+			size_t charsLeft;
+			size_t capacity;
+			C2D_TextBuf buf;
+
+			float selw; /* width of the selected text */
+			float selh; /* height of the selected text */
+			float sh; /* scrollbar height */
+			float sx; /* scrollbar x */
+			float sy; /* scrollbar y */
+
+			std::vector<C2D_Text> lines;
+			std::vector<T> *items;
+
+			u32 keys; /* keys that trigger select */
+
+			int buttonTimeout; /* amount of frames that need to pass before the next button can be pressed */
+			size_t amountRows; /* amount of rows to be drawn */
+			size_t view; /* first viewable element */
+			size_t pos; /* cursor position */
+
+			template <typename TInt>
+			TInt min(TInt a, TInt b)
+			{
+				return a > b ? b : a;
+			}
+
+			void append_text(const T& val)
+			{
+				std::string s = this->to_string_(val);
+				this->alloc(s.size() + 1 /* +1 for NULL term */);
+				this->lines.emplace_back();
+				C2D_TextParse(&this->lines.back(), this->buf, s.c_str());
+				C2D_TextOptimize(&this->lines.back());
+			}
+
+			void update_scrolldata()
+			{
+				/* selw, selh */
+				C2D_TextGetDimensions(&this->lines[this->pos], text_size, text_size,
+					&this->selw, &this->selh);
+				/* sy */
+				this->sy = ((float) this->view / (float) this->lines.size()) * this->height()
+					+ this->y;
+				/* sh */
+				this->sh = this->min<float>(
+						ui::screen_height() - this->sy - this->y,
+						((float) this->visable() / (float) this->lines.size()) * this->height()
+					);
+			}
+
+			void clear()
+			{
+				this->charsLeft = this->capacity;
+				C2D_TextBufClear(this->buf);
+				this->lines.clear();
+			}
+
+			void alloc(size_t n)
+			{
+				if(this->charsLeft < n)
+				{
+					this->capacity += n * 2;
+					this->buf = C2D_TextBufResize(this->buf, this->capacity);
+					this->charsLeft += n * 2;
+				}
+
+				this->charsLeft -= n;
+			}
+
+			size_t last_full_view()
+			{
+				return this->lines.size() > this->amountRows
+					? this->lines.size() - this->amountRows + 1 : 0;
+			}
+
+
+		};
+	}
 }
 
 #undef exec_onch

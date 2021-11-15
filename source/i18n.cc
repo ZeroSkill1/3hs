@@ -112,6 +112,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::credits] = "Credits",
 			[str::extra_content] = "Add extra content to queue?",
 			[str::ask_extra] = "Ask for extra content",
+			[str::no_req] = "no requests made yet",
 		},
 
 	[lang::dutch] =
@@ -214,6 +215,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::credits] = "Met dank aan",
 			STUB(extra_content),
 			STUB(ask_extra),
+			STUB(no_req),
 		},
 
 	[lang::german] =
@@ -313,6 +315,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::credits] = "Mitwirkende",
 			STUB(extra_content),
 			STUB(ask_extra),
+			STUB(no_req),
 		},
 
 	[lang::spanish] =
@@ -413,6 +416,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::credits] = "Créditos",
 			STUB(extra_content),
 			STUB(ask_extra),
+			STUB(no_req),
 		}
 };
 #pragma GCC diagnostic pop

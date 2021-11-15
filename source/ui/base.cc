@@ -1,5 +1,6 @@
 
 #include <ui/base.hh>
+#include <panic.hh>
 
 /* internal constants */
 #define SPRITESHEET_PATH "romfs:/gfx/next.t3x"
@@ -102,11 +103,7 @@ void ui::RenderQueue::clear()
 	this->top.clear();
 	this->bot.clear();
 
-	if(this->after_render_complete != nullptr)
-	{
-		delete this->after_render_complete;
-		this->after_render_complete = nullptr;
-	}
+	this->detach_after();
 }
 
 void ui::RenderQueue::push(ui::BaseWidget *wid)
@@ -116,11 +113,6 @@ void ui::RenderQueue::push(ui::BaseWidget *wid)
 	if(wid->renders_on() == ui::Screen::top)
 		this->top.push_back(wid);
 	this->backPtr = wid;
-}
-
-ui::BaseWidget *ui::RenderQueue::back()
-{
-	return this->backPtr;
 }
 
 ui::Keys ui::RenderQueue::get_keys()
@@ -155,17 +147,33 @@ bool ui::RenderQueue::render_frame(const ui::Keys& keys)
 
 	if(g_renderqueue.after_render_complete != nullptr)
 	{
-		std::function<void()> *cb = g_renderqueue.after_render_complete;
+		std::function<bool()> *func = g_renderqueue.after_render_complete;
 		g_renderqueue.after_render_complete = nullptr;
-		delete this->after_render_complete;
-		(*cb)();
+		ret &= (*func)();
+		delete func;
 	}
 
 	return ret;
 }
 
+void ui::RenderQueue::render_and_then(std::function<bool()> cb)
+{
+	if(this->after_render_complete != nullptr)
+		panic("illegal double after_render_complete");
+	this->after_render_complete = new std::function<bool()>(cb);
+}
+
 void ui::RenderQueue::render_and_then(std::function<void()> cb)
-{ this->after_render_complete = new std::function<void()>(cb); }
+{ this->render_and_then(std::function<bool()>([cb]() { cb(); return true; })); }
+
+void ui::RenderQueue::detach_after()
+{
+	if(this->after_render_complete != nullptr)
+	{
+		delete this->after_render_complete;
+		this->after_render_complete = nullptr;
+	}
+}
 
 bool ui::RenderQueue::render_frame()
 {
@@ -261,10 +269,7 @@ C2D_Sprite ui::SpriteStore::get_by_id(ui::sprite id)
 /* core widget class Text */
 
 void ui::next::Text::setup(const std::string& label)
-{
-	this->text = label;
-	this->prepare_arrays();
-}
+{ this->set_text(label); }
 
 void ui::next::Text::prepare_arrays()
 {
@@ -273,7 +278,7 @@ void ui::next::Text::prepare_arrays()
 	{
 		// Reset
 		C2D_TextBufClear(this->buf);
-		this->buf = C2D_TextBufResize(this->buf, this->text.size());
+		this->buf = C2D_TextBufResize(this->buf, this->text.size() + 1);
 		this->lines.clear();
 	}
 
@@ -570,8 +575,17 @@ void ui::next::Button::set_z(float z)
 	this->widget->set_z(z);
 }
 
+void ui::next::Button::set_border(bool b)
+{
+	this->showBorder = b;
+}
+
 void ui::next::Button::readjust()
 {
+	/* center the subwidget in the container */
+	this->widget->set_y(((this->h / 2) - (this->widget->height() / 2)) + this->y);
+	this->widget->set_x(((this->w / 2) - (this->widget->width() / 2)) + this->x);
+
 	this->ox = this->x + this->w;
 	this->oy = this->y + this->h;
 }
@@ -579,7 +593,8 @@ void ui::next::Button::readjust()
 bool ui::next::Button::render(const ui::Keys& keys)
 {
 	/* TODO: Listen to theme */
-	if(this->showBg) C2D_DrawRectSolid(this->x, this->y, 0.0f, this->w, this->h, C2D_Color32(0x32, 0x35, 0x36, 0xFF));
+	if(this->showBorder) C2D_DrawRectSolid(this->x - 1, this->y - 1, 0.0f, this->w + 2, this->h + 2, C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF));
+	if(this->showBg) C2D_DrawRectSolid(this->x, this->y, 0.1f, this->w, this->h, C2D_Color32(0x32, 0x35, 0x36, 0xFF));
 	this->widget->render(keys);
 
 	if(keys.touch.px >= this->x && keys.touch.px <= this->ox &&

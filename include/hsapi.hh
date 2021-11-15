@@ -137,6 +137,7 @@ namespace hsapi
 
 				ui::RenderQueue queue; bool cont = true;
 				ui::builder<ui::next::Confirm>(ui::Screen::bottom, STRING(retry_req), cont)
+					.y(ui::layout::center_y)
 					.add_to(queue);
 				queue.render_finite();
 

@@ -51,7 +51,9 @@ bool next::set_focus(bool focus)
 {
 	bool ret = ui::RenderQueue::global()->find_tag(ui::tag::action)->is_hidden();
 	ui::RenderQueue::global()->find_tag(ui::tag::settings)->set_hidden(focus);
+	ui::RenderQueue::global()->find_tag(ui::tag::search)->set_hidden(focus);
 	ui::RenderQueue::global()->find_tag(ui::tag::action)->set_hidden(focus);
+	ui::RenderQueue::global()->find_tag(ui::tag::queue)->set_hidden(focus);
 	ui::RenderQueue::global()->find_tag(ui::tag::more)->set_hidden(focus);
 	return ret;
 }

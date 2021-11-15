@@ -1,9 +1,9 @@
 
 #include "net_common.hh"
-#include "install.hh" // TODO: Move str_to_tid() somewhere else
 #include "hsapi.hh"
 #include "error.hh"
 #include "proxy.hh"
+#include "ctr.hh"
 
 #include <3rd/json.hh>
 #include <3rd/log.hh>
@@ -143,7 +143,7 @@ static void serialize_title(hsapi::Title& t, json& jt)
 {
 	t.size = jt["size"].get<hsapi::hsize>();
 	t.id = jt["id"].get<hsapi::hid>();
-	t.tid = str_to_tid(jt["title_id"].get<std::string>());
+	t.tid = ctr::str_to_tid(jt["title_id"].get<std::string>());
 	t.cat = jt["category"].get<std::string>();
 	t.subcat = jt["subcategory"].get<std::string>();
 	t.name = jt["name"].get<std::string>();
@@ -300,8 +300,8 @@ Result hsapi::batch_related(hsapi::BatchRelated& ret, const std::vector<hsapi::h
 {
 	if(tids.size() == 0) return OK;
 
-	std::string url = HS_BASE_LOC "/title/related/batch?title_ids=" + tid_to_str(tids[0]);
-	for(size_t i = 1; i < tids.size(); ++i) url += "&title_ids=" + tid_to_str(tids[i]);
+	std::string url = HS_BASE_LOC "/title/related/batch?title_ids=" + ctr::tid_to_str(tids[0]);
+	for(size_t i = 1; i < tids.size(); ++i) url += "&title_ids=" + ctr::tid_to_str(tids[i]);
 
 	json j;
 	Result res = OK;
@@ -310,7 +310,7 @@ Result hsapi::batch_related(hsapi::BatchRelated& ret, const std::vector<hsapi::h
 
 	for(json::iterator it = j.begin(); it != j.end(); ++it)
 	{
-		htid tid = str_to_tid(it.key());
+		htid tid = ctr::str_to_tid(it.key());
 		serialize_titles(ret[tid].updates, it.value()["updates"]);
 		serialize_titles(ret[tid].dlc, it.value()["dlc"]);
 	}

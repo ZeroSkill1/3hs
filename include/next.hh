@@ -16,9 +16,9 @@
 
 namespace next
 {
-	const std::string *sel_cat();
-	const std::string *sel_sub(const std::string& cat);
-	hsapi::hid sel_gam(std::vector<hsapi::Title>& titles);
+	const std::string *sel_cat(size_t *cursor = nullptr);
+	const std::string *sel_sub(const std::string& cat, size_t *cursor = nullptr);
+	hsapi::hid sel_gam(std::vector<hsapi::Title>& titles, size_t *cursor = nullptr);
 }
 
 #endif

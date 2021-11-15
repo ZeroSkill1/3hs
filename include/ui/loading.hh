@@ -40,7 +40,7 @@ namespace ui
 		class Spinner : public ui::BaseWidget
 		{ UI_WIDGET("Spinner")
 		public:
-			void setup() override;
+			void setup();
 
 			bool render(const ui::Keys&) override;
 			float height() override;
