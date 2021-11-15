@@ -6,7 +6,8 @@
 #include "ui/text.hh"
 #include "ui/core.hh"
 
-#include <type_traits>
+#include <ui/base.hh>
+
 #include <functional>
 
 
@@ -43,6 +44,50 @@ namespace ui
 
 
 	};
+
+	namespace next
+	{
+		class AppletSwkbd : public ui::BaseWidget
+		{ UI_WIDGET("AppletSwkbd")
+		public:
+			void setup(std::string *ret, int maxLen = 200, SwkbdType type = SWKBD_TYPE_NORMAL,
+				int numBtns = 2);
+
+			bool render(const ui::Keys&) override;
+			float height() override;
+			float width() override;
+			
+			enum connect_type { button, result };
+
+			void connect(connect_type, SwkbdButton *b); /* button */
+			void connect(connect_type, SwkbdResult *r); /* result */
+
+			/* set the hint text, the text displayed transparantly
+			 * if you don't have any text entered */
+			void hint(const std::string& h);
+			/* Sets the password mode, see enum SwkbdPasswordMode for possible values */
+			void passmode(SwkbdPasswordMode mode);
+			/* Sets the initial search text */
+			void init_text(const std::string& t);
+			/* Sets the valid input mode,
+			 * filterflags is a bitfield of SWKBD_FILTER_* */
+			void valid(SwkbdValidInput mode, u32 filterFlags = 0, u32 maxDigits = 0);
+
+
+		private:
+			SwkbdButton *buttonPtr = nullptr;
+			SwkbdResult *resPtr = nullptr;
+			SwkbdState state;
+			std::string *ret;
+			size_t len;
+
+
+		};
+	}
+
+	/* Gets string input with ui::next::AppletSwkbd */
+	std::string keyboard(std::function<void(ui::next::AppletSwkbd *)> configure,
+		SwkbdButton *btn = nullptr, SwkbdResult *res = nullptr);
 
 /*	class Swkbd
 	{

@@ -1,28 +1,29 @@
 
-#include "extmeta.hh"
+#include <algorithm>
 
+#include <widgets/meta.hh>
 #include <ui/base.hh>
 
-#include <iostream>
-
-#include <ui/scrollingText.hh>
-#include <widgets/meta.hh>
-#include <ui/core.hh>
-
+#include "extmeta.hh"
 #include "thread.hh"
 #include "panic.hh"
 #include "i18n.hh"
 #include "util.hh"
 #include "ctr.hh"
 
+enum class extmeta_return { yes, no, none };
 
-bool show_extmeta_lazy(const hsapi::Title& base)
+/* don't call with exmeta_return::none */
+static bool to_bool(extmeta_return r)
 {
+	return r == extmeta_return::yes;
+}
+
+static extmeta_return extmeta(ui::RenderQueue& queue, const hsapi::Title& base, const std::string& version_s, const std::string& prodcode_s)
+{
+	extmeta_return ret = extmeta_return::none;
 	ui::next::Text *prodcode;
 	ui::next::Text *version;
-	ui::RenderQueue queue;
-
-	bool ret = true;
 
 	ui::builder<ui::next::Text>(ui::Screen::top, STRING(press_to_install))
 		.x(ui::layout::center_x)
@@ -36,7 +37,7 @@ bool show_extmeta_lazy(const hsapi::Title& base)
 	 * "Press a to install, b to not"
 	 * =======================
 	 * version     prod
-	 * tid         
+	 * tid
 	 * size
 	 * landing id
 	 ***/
@@ -70,7 +71,7 @@ bool show_extmeta_lazy(const hsapi::Title& base)
 		.add_to(queue);
 
 	/* version */
-	ui::builder<ui::next::Text>(ui::Screen::bottom, "1.0.0 (1024)" /*STRING(loading)*/) 
+	ui::builder<ui::next::Text>(ui::Screen::bottom, version_s)
 		.x(9.0f)
 		.y(20.0f)
 		.add_to(&version, queue);
@@ -81,7 +82,7 @@ bool show_extmeta_lazy(const hsapi::Title& base)
 		.add_to(queue);
 
 	/* product code */
-	ui::builder<ui::next::Text>(ui::Screen::bottom, "CTR-P-ABCD" /*STRING(loading)*/)
+	ui::builder<ui::next::Text>(ui::Screen::bottom, prodcode_s)
 		.x(175.0f)
 		.align_y(version)
 		.add_to(&prodcode, queue);
@@ -125,89 +126,77 @@ bool show_extmeta_lazy(const hsapi::Title& base)
 		.add_to(queue);
 
 	ui::builder<ui::next::ButtonCallback>(ui::Screen::top, KEY_B)
-		.connect(ui::next::ButtonCallback::kdown, [&ret](u32) -> bool { return ret = false; })
+		.connect(ui::next::ButtonCallback::kdown, [&ret](u32) -> bool { ret = extmeta_return::no; return false; })
 		.add_to(queue);
 
-	// launch fetch additional data thread,
-	ctr::thread<> th([base, version, prodcode]() -> void {
+	ui::builder<ui::next::ButtonCallback>(ui::Screen::top, KEY_A)
+		.connect(ui::next::ButtonCallback::kdown, [&ret](u32) -> bool { ret = extmeta_return::yes; return false; })
+		.add_to(queue);
+
+	queue.render_finite();
+	return ret;
+}
+
+static extmeta_return extmeta(const hsapi::FullTitle& title)
+{
+	ui::RenderQueue queue;
+	return extmeta(queue, title, hsapi::parse_vstring(title.version) + " (" + std::to_string(title.version) + ")", title.prod);
+}
+
+bool show_extmeta_lazy(const hsapi::Title& base, hsapi::FullTitle *full)
+{
+	std::string desc = next::set_desc(STRING(more_about_content));
+	ui::RenderQueue queue;
+	bool ret = true;
+
+	std::string version, prodcode;
+
+	ctr::thread<std::string&, std::string&, ui::RenderQueue&, hsapi::FullTitle*> th([&base]
+			(std::string& version, std::string& prodcode, ui::RenderQueue& queue, hsapi::FullTitle *fullptr) -> void {
 		hsapi::FullTitle full;
 		if(R_FAILED(hsapi::title_meta(full, base.id)))
 			return;
-		version->set_text("hello");
-		prodcode->set_text("hello");
-	});
-#if 0
-		/* gotta wait for the frame to finish before modifying the widgets */
-	//	ui::RenderQueue::global()->render_and_then([full, version, prodcode]() -> void {
-//			version->set_text(hsapi::parse_vstring(full.version) + " (" + std::to_string(full.version) + ")");
-//			prodcode->set_text(full.prod);
-			std::cerr << (long long) version;
-			std::cerr << full.prod << "\n";
-//		});
-	});
-#endif
-		ui::RenderQueue::global()->render_and_then([version]() -> void {
-			version->set_text("hello");
-		});
+		if(fullptr != nullptr)
+			*fullptr = full;
+		version = hsapi::parse_vstring(full.version) + " (" + std::to_string(full.version) + ")";
+		prodcode = full.prod;
+		queue.signal(ui::RenderQueue::signal_cancel);
+	}, version, prodcode, queue, full);
 
-//		.x(9.0f)
-//		.y(20.0f)
-	version->set_text("fucks");
-	queue.render_finite_button(KEY_Y);
+	extmeta_return res = extmeta(queue, base, STRING(loading), STRING(loading));
+	/* second thread returned more data */
+	if(res == extmeta_return::none)
+	{
+		queue.clear();
+		res = extmeta(queue, base, version, prodcode);
+	}
+	ret = to_bool(res);
 
 	/* At this point we're done rendering and
 	 * waiting for the *fetching* of the full data
 	 * and *setting* of the renderqueue callback */
 	th.join();
-	/* We clear the renderqueue callback here
-	 * because else it may operate on an invalid
-	 * renderqueue in the next frame */
-	ui::RenderQueue::global()->detach_after();
 
+	next::set_desc(desc);
 	return ret;
+}
+
+bool show_extmeta_lazy(std::vector<hsapi::Title>& titles, hsapi::hid id, hsapi::FullTitle *full)
+{
+	std::vector<hsapi::Title>::iterator it =
+		std::find_if(titles.begin(), titles.end(), [id](const hsapi::Title& t) -> bool {
+			return t.id == id;
+		});
+
+	panic_assert(it != titles.end(), "Could not find id in vector");
+	return show_extmeta_lazy(*it, full);
 }
 
 bool show_extmeta(const hsapi::FullTitle& title)
 {
-	std::string odesc = next::set_desc(STRING(more_about_content));
-	bool oret = true;
-
-	ui::RenderQueue queue;
-
-	ui::builder<ui::next::Text>(ui::Screen::top, STRING(press_to_install))
-		.x(ui::layout::center_x)
-		.y(170.0f)
-		.add_to(queue);
-
-	ui::builder<ui::next::Text>(ui::Screen::top, hsapi::parse_vstring(title.version) + " (" + std::to_string(title.version) + ")")
-		.x(9.0f)
-		.y(40.0f)
-		.add_to(queue);
-	ui::builder<ui::next::Text>(ui::Screen::top, STRING(version))
-		.size(0.45f)
-		.x(9.0f)
-		.under(queue.back(), -1.0f)
-		.add_to(queue);
-	ui::builder<ui::next::Text>(ui::Screen::top, title.prod)
-		.x(9.0f)
-		.under(queue.back(), 1.0f)
-		.add_to(queue);
-	ui::builder<ui::next::Text>(ui::Screen::top, STRING(prodcode))
-		.size(0.45f)
-		.x(9.0f)
-		.under(queue.back(), -1.0f)
-		.add_to(queue);
-
-
-	ui::builder<ui::next::TitleMeta>(ui::Screen::bottom, title)
-		.add_to(queue);
-
-	ui::builder<ui::next::ButtonCallback>(ui::Screen::top, KEY_B)
-		.connect(ui::next::ButtonCallback::kdown, [&oret](u32) -> bool { return oret = false; })
-		.add_to(queue);
-
-	queue.render_finite_button(KEY_A);
-	next::set_desc(odesc);
-	return oret;
+	std::string desc = next::set_desc(STRING(more_about_content));
+	bool ret = to_bool(extmeta(title));
+	next::set_desc(desc);
+	return ret;
 }
 

@@ -371,19 +371,19 @@ builtin_controls_done:
 
 			void connect(connect_type t, on_select_type cb)
 			{
-				if(t != select) panic("EINVAL");
+				panic_assert(t == select, "EINVAL");
 				this->on_select_ = cb;
 			}
 
 			void connect(connect_type t, on_change_type cb)
 			{
-				if(t != change) panic("EINVAL");
+				panic_assert(t == change, "EINVAL");
 				this->on_change_ = cb;
 			}
 
 			void connect(connect_type t, to_string_type cb)
 			{
-				if(t != to_string) panic("EINVAL");
+				panic_assert(t == to_string, "EINVAL");
 				this->to_string_ = cb;
 			}
 

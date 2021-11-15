@@ -113,6 +113,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::extra_content] = "Add extra content to queue?",
 			[str::ask_extra] = "Ask for extra content",
 			[str::no_req] = "no requests made yet",
+			[str::invalid_query] = "Invalid query\nPress " GLYPH_A " to go back",
 		},
 
 	[lang::dutch] =
@@ -216,6 +217,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			STUB(extra_content),
 			STUB(ask_extra),
 			STUB(no_req),
+			[str::invalid_query] = "Ongeldige zoekopdracht\nKlik op " GLYPH_A " om terug te gaan",
 		},
 
 	[lang::german] =
@@ -316,6 +318,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			STUB(extra_content),
 			STUB(ask_extra),
 			STUB(no_req),
+			STUB(invalid_query),
 		},
 
 	[lang::spanish] =
@@ -417,6 +420,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			STUB(extra_content),
 			STUB(ask_extra),
 			STUB(no_req),
+			STUB(invalid_query),
 		}
 };
 #pragma GCC diagnostic pop

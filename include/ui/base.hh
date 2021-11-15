@@ -281,13 +281,14 @@ namespace ui
 		 * NOTE: you can only have 1 callback every frame
 		 * NOTE 2: only works on the global renderqueue */
 		void render_and_then(std::function<bool()> cb);
-		/* runs the callback after the frame render is done. Runs only once
-		 * NOTE: you can only have 1 callback every frame
-		 * NOTE 2: only works on the global renderqueue */
 		void render_and_then(std::function<void()> cb);
 		/* Detaches a callback set by
 		 * render_and_then */
 		void detach_after();
+		/* Signals the RenderQueue */
+		void signal(u8 bits);
+		/* Unsets a signal from the RenderQueue */
+		void unsignal(u8 bits);
 		/* find a widget by tag
 		 * First searches top widgets, then bottom
 		 * Returns nullptr if no matches were found */
@@ -313,12 +314,15 @@ namespace ui
 		/* Gets the pressed keys */
 		static ui::Keys get_keys();
 
+		enum signal { signal_cancel = 1 };
+
 
 	private:
 		std::function<bool()> *after_render_complete = nullptr;
 		ui::BaseWidget *backPtr = nullptr;
 		std::list<ui::BaseWidget *> top;
 		std::list<ui::BaseWidget *> bot;
+		u8 signalBit = 0;
 
 
 	};
@@ -449,6 +453,13 @@ namespace ui
 		{
 			this->wid = new TWidget(scr);
 			this->wid->setup(args...);
+		}
+
+		/* for some widgets it's of great importance to call this when
+		 * you're finished configuring, you should always do it just in case */
+		void finalize()
+		{
+			this->wid->finalize();
 		}
 
 		// Shortcut

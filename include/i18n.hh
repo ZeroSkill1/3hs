@@ -103,6 +103,7 @@ namespace str
 		extra_content = 78,
 		ask_extra = 79,
 		no_req = 80,
+		invalid_query = 81,
 
 		_i_max,
 	};

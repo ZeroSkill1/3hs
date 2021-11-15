@@ -1,6 +1,8 @@
 
 #include <3ds.h>
 
+#include <algorithm>
+
 #include <ui/image_button.hh>
 #include <ui/list.hh>
 #include <ui/core.hh>
@@ -261,8 +263,6 @@ int main(int argc, char* argv[])
 		return 3;
 	}
 
-//	show_extmeta_lazy({ "au", "Yo-Kai Watch also known as some very long title that doesn't fit on one line", "games", 875560960, 0x000400000017C200, 1 });
-
 	lverbose << "Done fetching index.";
 
 	size_t catptr = 0, subptr = 0, gamptr = 0;
@@ -302,10 +302,7 @@ sub:
 		llog << "NEXT(g): " << id;
 
 		hsapi::FullTitle meta;
-		if(R_FAILED(hsapi::call(hsapi::title_meta, meta, std::move(id))))
-			goto gam;
-
-		if(show_extmeta(meta))
+		if(show_extmeta_lazy(titles, id, &meta))
 		{
 			toggle_focus();
 			process_hs(meta);

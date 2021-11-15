@@ -124,6 +124,8 @@ static const std::map<Result, std::map<Result, const char *>> ERR_LOOKUP({
 			{ 4, "Title count and list mismatch"                 },
 			{ 5, "Server doesn't support Range"                  },
 			{ 6, "Server doesn't support Content-Length"         },
+			{ 7, "Failed to parse server json"                   },
+			{ 8, "Server didn't return status code 200"          },
 		}
 	},
 });

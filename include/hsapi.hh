@@ -10,7 +10,7 @@
 
 #include <ui/confirm.hh>
 #include <ui/loading.hh>
-#include <ui/core.hh>
+#include <ui/base.hh>
 
 #include "panic.hh"
 #include "error.hh"

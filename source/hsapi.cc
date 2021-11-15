@@ -36,7 +36,7 @@ static Result basereq(const std::string& url, std::string& data, HTTPC_RequestMe
 	httpcContext ctx;
 	Result res = OK;
 
-#define TRY(expr) do { res = (expr); if(R_FAILED(res)) return res; } while(0)
+#define TRY(expr) do { res = (expr); if(R_FAILED(res)) { httpcCloseContext(&ctx); return res; } } while(0)
 	TRY(httpcOpenContext(&ctx, reqmeth, url.c_str(), 0));
 	TRY(httpcSetSSLOpt(&ctx, SSLCOPT_DisableVerify));
 	TRY(httpcSetKeepAlive(&ctx, HTTPC_KEEPALIVE_ENABLED));
@@ -61,6 +61,12 @@ static Result basereq(const std::string& url, std::string& data, HTTPC_RequestMe
 		lverbose << "Redirected to " << redir;
 		httpcCloseContext(&ctx);
 		return basereq(redir, data, reqmeth);
+	}
+
+	if(status != 200)
+	{
+		httpcCloseContext(&ctx);
+		return APPERR_NON200;
 	}
 
 	u32 totalSize = 0;

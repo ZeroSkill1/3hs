@@ -99,6 +99,8 @@ void ui::RenderQueue::clear()
 	for(ui::BaseWidget *wid : this->top)
 	{ wid->destroy(); delete wid; }
 
+	this->signalBit = 0;
+
 	this->backPtr = nullptr;
 	this->top.clear();
 	this->bot.clear();
@@ -128,6 +130,9 @@ ui::Keys ui::RenderQueue::get_keys()
 
 bool ui::RenderQueue::render_frame(const ui::Keys& keys)
 {
+	if(this->signalBit & ui::RenderQueue::signal_cancel)
+		return false;
+
 	C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
 	C2D_TargetClear(g_top, C2D_Color32(0x1C, 0x20, 0x21, 0xFF)); /* TODO: Theme intergration */
 	C2D_TargetClear(g_bot, C2D_Color32(0x1C, 0x20, 0x21, 0xFF));
@@ -158,8 +163,7 @@ bool ui::RenderQueue::render_frame(const ui::Keys& keys)
 
 void ui::RenderQueue::render_and_then(std::function<bool()> cb)
 {
-	if(this->after_render_complete != nullptr)
-		panic("illegal double after_render_complete");
+	panic_assert(this->after_render_complete == nullptr, "illegal double after_render_complete");
 	this->after_render_complete = new std::function<bool()>(cb);
 }
 
@@ -174,6 +178,12 @@ void ui::RenderQueue::detach_after()
 		this->after_render_complete = nullptr;
 	}
 }
+
+void ui::RenderQueue::signal(u8 bits)
+{ this->signalBit |= bits; }
+
+void ui::RenderQueue::unsignal(u8 bits)
+{ this->signalBit &= ~bits; }
 
 bool ui::RenderQueue::render_frame()
 {
@@ -246,8 +256,7 @@ ui::SpriteStore::~SpriteStore()
 void ui::SpriteStore::open(const std::string& fname)
 {
 	this->sheet = C2D_SpriteSheetLoad(fname.c_str());
-//	if(this->sheet == nullptr)
-//		panic("Failed to open spritesheet: " + fname);
+	panic_assert(this->sheet != nullptr, "failed to open spritesheet");
 }
 
 size_t ui::SpriteStore::size()
@@ -258,10 +267,7 @@ size_t ui::SpriteStore::size()
 C2D_Sprite ui::SpriteStore::get_by_id(ui::sprite id)
 {
 	C2D_Sprite ret;
-//	ret.image.subtex = nullptr;
 	C2D_SpriteFromSheet(&ret, g_spritestore.sheet, (size_t) id);
-//	if(ret.image.subtex == nullptr)
-//		panic("Failed to load sprite from spritesheet");
 	return ret;
 }
 
@@ -619,7 +625,7 @@ void ui::next::Button::connect(connect_type type)
 		this->showBg = false;
 		break;
 	default:
-		//panic("Button::connect(): invalid state");
+		panic("EINVAL");
 		break;
 	}
 }
@@ -632,7 +638,7 @@ void ui::next::Button::connect(connect_type type, std::function<bool()> callback
 		this->on_click = callback;
 		break;
 	default:
-		//panic("Button::connect(): invalid state");
+		panic("EINVAL");
 		break;
 	}
 }

@@ -3,12 +3,11 @@
 
 #include <stdlib.h>
 
-#include "ui/core.hh"
-#include "ui/text.hh"
-#include "ui/util.hh"
+#include <ui/base.hh>
 
 #include "hsapi.hh"
 #include "i18n.hh"
+#include "util.hh"
 
 
 Result init_services(bool& isLuma)
@@ -49,50 +48,76 @@ void exit_services()
 	psExit();
 }
 
-static void push_a_widget(ui::Widgets& wids, float *height = nullptr)
+
+static void pusha(ui::RenderQueue& queue)
 {
-	ui::Text *text = new ui::Text(ui::mk_center_WText(STRING(press_a_exit), SCREEN_HEIGHT() - 30.0f));
-	if(height != nullptr) *height = ui::text_height(&text->gtext().ctext) - 3.0f;
-	wids.push_back(text);
+	ui::builder<ui::next::Text>(ui::Screen::top, STRING(press_a_exit))
+		.x(ui::layout::center_x)
+		.y(ui::layout::bottom)
+		.add_to(queue);
 }
 
-static void push_error_widget(const error_container& err, ui::Widgets& errs, float base = 70.0f)
+static void pusherror(const error_container& err, ui::RenderQueue& queue)
 {
-	float height; push_a_widget(errs, &height);
-
-	errs.push_back(new ui::Text(ui::mk_center_WText(format_err(err.sDesc, err.iDesc),
-		base + height)));
-	errs.push_back(new ui::Text(ui::mk_center_WText(PSTRING(result_code, "0x" + pad8code(err.full)),
-		base + (height * 2))));
-	errs.push_back(new ui::Text(ui::mk_center_WText(PSTRING(level, format_err(err.sLvl, err.iLvl)),
-		base + (height * 3))));
-	errs.push_back(new ui::Text(ui::mk_center_WText(PSTRING(summary, format_err(err.sSum, err.iSum)),
-		base + (height * 4))));
-	errs.push_back(new ui::Text(ui::mk_center_WText(PSTRING(module, format_err(err.sMod, err.iMod)),
-		base + (height * 5))));
+	ui::builder<ui::next::Text>(ui::Screen::top, format_err(err.sDesc, err.iDesc))
+		.x(ui::layout::center_x)
+		.y(ui::layout::base)
+		.wrap()
+		.add_to(queue);
+	ui::builder<ui::next::Text>(ui::Screen::top, PSTRING(result_code, "0x" + pad8code(err.full)))
+		.x(ui::layout::center_x)
+		.under(queue.back())
+		.add_to(queue);
+	ui::builder<ui::next::Text>(ui::Screen::top, PSTRING(level, format_err(err.sLvl, err.iLvl)))
+		.x(ui::layout::center_x)
+		.under(queue.back())
+		.add_to(queue);
+	ui::builder<ui::next::Text>(ui::Screen::top, PSTRING(summary, format_err(err.sSum, err.iSum)))
+		.x(ui::layout::center_x)
+		.under(queue.back())
+		.add_to(queue);
+	ui::builder<ui::next::Text>(ui::Screen::top, PSTRING(module, format_err(err.sMod, err.iMod)))
+		.x(ui::layout::center_x)
+		.under(queue.back())
+		.add_to(queue);
 }
 
-void handle_error(error_container err)
+void handle_error(const error_container& err)
 {
-	ui::Widgets errs;
-	errs.push_back(new ui::PressToContinue(KEY_A));
-	push_error_widget(err, errs);
-
-	generic_main_breaking_loop(errs);
+	ui::RenderQueue queue;
+	pusha(queue);
+	pusherror(err, queue);
+	queue.render_finite_button(KEY_A);
 }
 
 
-[[noreturn]] static void panic_core(std::string caller, ui::Widgets& wids)
+[[noreturn]] static void panic_core(const std::string& caller, ui::RenderQueue& queue)
 {
-	wids.push_back(new ui::PressToContinue(KEY_A));
-	ui::Text *desc = ui::wid()->get<ui::Text>("curr_action_desc");
-	if(desc == nullptr)
-		wids.push_back(new ui::Text(ui::mk_center_WText(STRING(fatal_panic), 45.0f)));
-	else { desc->replace_text(STRING(fatal_panic)); desc->visibility(true); }
+	ui::next::Text *action = ui::RenderQueue::global()->find_tag<ui::next::Text>(ui::tag::action);
+	/* panic may be called before core ui is set-up so we can't be sure
+	 * ui::tag::action is already active */
+	if(action == nullptr)
+	{
+		ui::builder<ui::next::Text>(ui::Screen::top, STRING(fatal_panic))
+			.x(ui::layout::center_x)
+			.y(4.0f)
+			.add_to(&action, ui::RenderQueue::global());
+	}
 
-	wids.push_back("caller", new ui::Text(ui::mk_center_WText(caller, 70.0f)));
+	else
+	{
+		/* this will be the final focus shift so we don't need to revert the state after */
+		next::set_desc(STRING(fatal_panic));
+		next::set_focus(false);
+	}
 
-	generic_main_breaking_loop(wids);
+	pusha(queue);
+	ui::builder<ui::next::Text>(ui::Screen::top, caller)
+		.x(ui::layout::center_x)
+		.under(action)
+		.add_to(queue);
+
+	queue.render_finite_button(KEY_A);
 
 	// Deinit
 	exit_services();
@@ -103,34 +128,32 @@ void handle_error(error_container err)
 	exit(1);
 }
 
-[[noreturn]] void panic_impl(std::string caller, std::string msg)
+[[noreturn]] void panic_impl(const std::string& caller, const std::string& msg)
 {
-	ui::Widgets wids;
+	ui::RenderQueue queue;
 
-	ui::WrapText *text = new ui::WrapText(msg);
-	wids.push_back(text);
-	text->set_basey(90.0f);
-	text->center();
+	ui::builder<ui::next::Text>(ui::Screen::top, msg)
+		.x(ui::layout::center_x)
+		.y(ui::layout::base)
+		.wrap()
+		.add_to(queue);
 
-	push_a_widget(wids);
-
-	panic_core(caller, wids);
+	panic_core(caller, queue);
 }
 
-[[noreturn]] void panic_impl(std::string caller, Result res)
+[[noreturn]] void panic_impl(const std::string& caller, Result res)
 {
-	ui::Widgets wids;
+	ui::RenderQueue queue;
 
 	error_container err = get_error(res);
-	push_error_widget(err, wids, 90.0f);
+	pusherror(err, queue);
 
-	panic_core(caller, wids);
+	panic_core(caller, queue);
 }
 
-[[noreturn]] void panic_impl(std::string caller)
+[[noreturn]] void panic_impl(const std::string& caller)
 {
-	ui::Widgets wids;
-
-	panic_core(caller, wids);
+	ui::RenderQueue queue;
+	panic_core(caller, queue);
 }
 
