@@ -10,19 +10,12 @@
 #include "panic.hh"
 #include "i18n.hh"
 
-struct _proxy
-{
-	std::string host;
-	u16 port = 0;
-
-	std::string username;
-	std::string password;
-} static g_proxy;
+static proxy::Params g_proxy;
 
 
 static std::string proxystr()
 {
-	if(g_proxy.username != "")
+	if(g_proxy.port != 0)
 	{
 		return "http://" + g_proxy.username + ":" + g_proxy.password + "@"
 			+ g_proxy.host + ":" + std::to_string(g_proxy.port);
@@ -31,21 +24,42 @@ static std::string proxystr()
 	return "http://" + g_proxy.host + ":" + std::to_string(g_proxy.port);
 }
 
-static bool validate()
+static bool validate() { return proxy::validate(g_proxy); }
+bool proxy::validate(const proxy::Params& p)
 {
-	if(g_proxy.host == "")
+	/* no proxy set is always valid */
+	if(p.host == "")
 		return true;
 
 	// 0xFFFF = overflow, 0xFFFF+ are invalid ports
-	if(g_proxy.port == 0 || g_proxy.port >= 0xFFFF)
+	if(p.port == 0 || p.port >= 0xFFFF)
 		return false;
 
-	if(
-		(g_proxy.username != "" && g_proxy.password == "") ||
-		(g_proxy.username == "" && g_proxy.password != "")
-	) return false;
-
 	return true;
+}
+
+proxy::Params& proxy::proxy()
+{ return g_proxy; }
+
+void proxy::write()
+{
+	FILE *proxyfile = fopen("/3ds/3hs/proxy", "w");
+	if(proxyfile == nullptr) return;
+
+	std::string data =
+		g_proxy.host     + ":" + std::to_string(g_proxy.port) + "\n" +
+		g_proxy.username + ":" + g_proxy.password;
+
+	fwrite(data.c_str(), data.size(), 1, proxyfile);
+	fclose(proxyfile);
+}
+
+void proxy::clear()
+{
+	g_proxy.password = "";
+	g_proxy.username = "";
+	g_proxy.host = ""; 
+	g_proxy.port = 0;
 }
 
 Result proxy::apply(httpcContext *context)
@@ -122,9 +136,13 @@ void proxy::init()
 	put_semisep(proxyport, g_proxy.host, port);
 
 	g_proxy.port = strtoul(port.c_str(), nullptr, 10);
-	if(!validate()) panic(STRING(invalid_proxy));
+	if(!::validate()) panic(STRING(invalid_proxy));
 
 	llog << "Using proxy: |" << proxystr() << "|";
 }
 
+bool proxy::is_set()
+{
+	return g_proxy.port != 0;
+}
 

@@ -59,7 +59,7 @@ static extmeta_return extmeta(ui::RenderQueue& queue, const hsapi::Title& base, 
 
 	/* category -> subcategory */
 	// on the bottom screen there are cases where this overflows,
-	// but i don't think that can happen on the top screen sinc it's a bit bigger
+	// but i don't think that can happen on the top screen since it's a bit bigger
 	ui::builder<ui::next::Text>(ui::Screen::top, hsapi::get_index()->find(base.cat)->disp + " -> " + hsapi::get_index()->find(base.cat)->find(base.subcat)->disp)
 		.x(9.0f)
 		.under(queue.back(), 1.0f)
@@ -83,12 +83,12 @@ static extmeta_return extmeta(ui::RenderQueue& queue, const hsapi::Title& base, 
 
 	/* product code */
 	ui::builder<ui::next::Text>(ui::Screen::bottom, prodcode_s)
-		.x(175.0f)
+		.x(150.0f)
 		.align_y(version)
 		.add_to(&prodcode, queue);
 	ui::builder<ui::next::Text>(ui::Screen::bottom, STRING(prodcode))
 		.size(0.45f)
-		.x(175.0f)
+		.x(150.0f)
 		.under(queue.back(), -1.0f)
 		.add_to(queue);
 

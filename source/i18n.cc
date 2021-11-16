@@ -1,6 +1,7 @@
 
+#include <ui/base.hh> /* for UI_GLYPH_* */
+
 #include "settings.hh"
-#include "ui/core.hh"
 #include "panic.hh"
 #include "i18n.hh"
 
@@ -36,8 +37,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 				"Laswell: Design, Translations\n"
 				"CremeChocolate: Art",
 			[str::press_to_install] =
-				"Press " GLYPH_A " if you want to install this title.\n"
-				"Press " GLYPH_B " if you don't want to.",
+				"Press " UI_GLYPH_A " if you want to install this title.\n"
+				"Press " UI_GLYPH_B " if you don't want to.",
 			[str::version] = "Version",
 			[str::prodcode] = "Product code",
 			[str::size] = "Size",
@@ -77,7 +78,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::about_app] = "About",
 			[str::help_manual] = "Help/Manual",
 			[str::find_missing_content] = "Find missing content",
-			[str::press_a_exit] = "Press " GLYPH_A " to exit",
+			[str::press_a_exit] = "Press " UI_GLYPH_A " to exit",
 			[str::fatal_panic] = "Fatal Panic Occurred",
 			[str::failed_open_seeddb] = "Failed to open seeddb.bin",
 			[str::update_to] = "Do you want to update to %1?",
@@ -92,8 +93,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::already_installed_reinstall] = "Title already installed. Reinstall?",
 			[str::queue_empty] =
 				"Queue is empty\n"
-				"Press " GLYPH_A " to go back\n"
-				"Tip: press " GLYPH_Y " to add a title to the queue",
+				"Press " UI_GLYPH_A " to go back\n"
+				"Tip: press " UI_GLYPH_Y " to add a title to the queue",
 			[str::cancel] = "Cancel",
 			[str::confirm] = "Confirm",
 			[str::invalid_proxy] = "Invalid proxy settings",
@@ -108,12 +109,21 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::reboot_now] = "Restart now?",
 			[str::this_version] = "This is 3hs version %1",
 			[str::retry_req] = "Request failed. Do you want to retry?",
-			[str::search_zero_results] = "Search gave 0 results\nPress " GLYPH_A " to go back",
+			[str::search_zero_results] = "Search gave 0 results\nPress " UI_GLYPH_A " to go back",
 			[str::credits] = "Credits",
 			[str::extra_content] = "Add extra content to queue?",
 			[str::ask_extra] = "Ask for extra content",
 			[str::no_req] = "no requests made yet",
-			[str::invalid_query] = "Invalid query\nPress " GLYPH_A " to go back",
+			[str::invalid_query] = "Invalid query\nPress " UI_GLYPH_A " to go back",
+			[str::min_constraint] = "Current 3hs version %1 is lower than the required version %2",
+			[str::proxy] = "Proxy",
+			[str::none] = "(none)",
+			[str::press_a_to_view] = "Click " UI_GLYPH_A " to view",
+			[str::host] = "Host",
+			[str::port] = "Port",
+			[str::username] = "Username",
+			[str::password] = "Password",
+			[str::clear] = "Clear",
 		},
 
 	[lang::dutch] =
@@ -139,8 +149,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 				"Laswell: Design, Vertalingen\n"
 				"CremeChocolate: Kunst",
 			[str::press_to_install] =
-				"Klik op " GLYPH_A " als je deze titel wilt installeren.\n"
-				"Klik op " GLYPH_B " als je dat niet wilt.",
+				"Klik op " UI_GLYPH_A " als je deze titel wilt installeren.\n"
+				"Klik op " UI_GLYPH_B " als je dat niet wilt.",
 			[str::version] = "Versie",
 			[str::prodcode] = "Productie code",
 			[str::size] = "Grootte",
@@ -180,7 +190,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::about_app] = "Informatie over applicatie",
 			[str::help_manual] = "Hulp/Gebruikshandleiding",
 			[str::find_missing_content] = "Vind missende titels",
-			[str::press_a_exit] = "Klik op " GLYPH_A " om af te sluiten",
+			[str::press_a_exit] = "Klik op " UI_GLYPH_A " om af te sluiten",
 			[str::fatal_panic] = "Fatale fout",
 			[str::failed_open_seeddb] = "Kon seeddb.bin niet openen",
 			[str::update_to] = "Wil je updaten naar versie %1?",
@@ -195,8 +205,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::already_installed_reinstall] = "Titel is al geïnstalleerd. Herinstalleeren?",
 			[str::queue_empty] =
 				"De wachtrij is leeg\n"
-				"Klik op " GLYPH_A " om terug te gaan\n"
-				"Tip: klik op " GLYPH_Y " om een titel toe te voegen\n"
+				"Klik op " UI_GLYPH_A " om terug te gaan\n"
+				"Tip: klik op " UI_GLYPH_Y " om een titel toe te voegen\n"
 				"aan de wachtrij",
 			[str::cancel] = "Weiger",
 			[str::confirm] = "Accepteer",
@@ -212,12 +222,21 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::reboot_now] = "Nu herstarten?",
 			[str::this_version] = "Dit is 3hs versie %1",
 			[str::retry_req] ="Opnieuw proberen gegevens te halen?",
-			[str::search_zero_results] =  "Zoekopdracht gaf 0 resultaten\nKlik op " GLYPH_A " om terug te gaan",
+			[str::search_zero_results] =  "Zoekopdracht gaf 0 resultaten\nKlik op " UI_GLYPH_A " om terug te gaan",
 			[str::credits] = "Met dank aan",
 			STUB(extra_content),
 			STUB(ask_extra),
 			STUB(no_req),
-			[str::invalid_query] = "Ongeldige zoekopdracht\nKlik op " GLYPH_A " om terug te gaan",
+			[str::invalid_query] = "Ongeldige zoekopdracht\nKlik op " UI_GLYPH_A " om terug te gaan",
+			STUB(min_constraint),
+			[str::proxy] = "Proxy",
+			[str::none] = "(geen)",
+			[str::press_a_to_view] = "Klik op " UI_GLYPH_A " om de waarde te bekijken",
+			STUB(host),
+			STUB(port),
+			STUB(username),
+			STUB(password),
+			STUB(clear),
 		},
 
 	[lang::german] =
@@ -241,8 +260,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 				"Laswell: Design, Übersetzungen\n"
 				"CremeChocolate: Kunstwerke",
 			[str::press_to_install] =
-				"Drücke " GLYPH_A " falls du diesen Inhalt zu installieren\nmöchtest.\n"
-				"Drücke " GLYPH_B " falls nicht.",
+				"Drücke " UI_GLYPH_A " falls du diesen Inhalt zu installieren\nmöchtest.\n"
+				"Drücke " UI_GLYPH_B " falls nicht.",
 			[str::version] = "Version",
 			[str::prodcode] = "Produkt-Code",
 			[str::size] = "Größe",
@@ -282,7 +301,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::about_app] = "Über",
 			[str::help_manual] = "Hilfe/Anleitung",
 			[str::find_missing_content] = "Suche nach fehlenden Inhalten",
-			[str::press_a_exit] = "Drücke " GLYPH_A " um die App zu schließen",
+			[str::press_a_exit] = "Drücke " UI_GLYPH_A " um die App zu schließen",
 			[str::fatal_panic] = "Schwerwiegender Fehler aufgetreten",
 			[str::failed_open_seeddb] = "Konnte seeddb.bin nicht öffnen",
 			[str::update_to] = "Möchtest du auf Version %1 updaten?",
@@ -297,8 +316,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::already_installed_reinstall] = "Inhalt ist bereits installiert. Neuinstallieren?",
 			[str::queue_empty] =
 				"Warteschlange ist leer\n"
-				"Drücke " GLYPH_A " um zurückzukehren\n"
-				"Tipp: Drücke " GLYPH_Y " um einen Inhalt zur Warteschlange\nhinzuzufügen",
+				"Drücke " UI_GLYPH_A " um zurückzukehren\n"
+				"Tipp: Drücke " UI_GLYPH_Y " um einen Inhalt zur Warteschlange\nhinzuzufügen",
 			[str::cancel] = "Abbrechen",
 			[str::confirm] = "Bestätigen",
 			[str::invalid_proxy] = "Ungültige Proxy-Einstellungen",
@@ -313,18 +332,27 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::reboot_now] = "Jetzt neustarten?",
 			[str::this_version] = "Dies ist 3hs Version %1",
 			[str::retry_req] = "Erneut versuchen?",
-			[str::search_zero_results] = "Suche ergab keine Ergebnisse\nDrücke " GLYPH_A " um zurückzukehren",
+			[str::search_zero_results] = "Suche ergab keine Ergebnisse\nDrücke " UI_GLYPH_A " um zurückzukehren",
 			[str::credits] = "Mitwirkende",
 			STUB(extra_content),
 			STUB(ask_extra),
 			STUB(no_req),
 			STUB(invalid_query),
+			STUB(min_constraint),
+			[str::proxy] = "Proxy",
+			STUB(none),
+			STUB(press_a_to_view),
+			STUB(host),
+			STUB(port),
+			STUB(username),
+			STUB(password),
+			STUB(clear),
 		},
 
 	[lang::spanish] =
 		{
 			[str::banner]  = "El servicio de preservación de 3DS definitivo.",
-			[str::loading] = "Loading ...",
+			[str::loading] = "Cargando ...",
 			[str::luma_not_installed] = "Luma3DS no está instalado en este sistema",
 			[str::install_luma] = "Por favor installe Luma3DS en una 3DS real",
 			[str::queue] = "Cola",
@@ -343,8 +371,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 				"Laswell: Diseño, Traducción\n"
 				"CremeChocolate: Arte",
 			[str::press_to_install] =
-				"Presiona " GLYPH_A " si quieres instalar este título.\n"
-				"Presiona " GLYPH_B " si no quieres.",
+				"Presiona " UI_GLYPH_A " si quieres instalar este título.\n"
+				"Presiona " UI_GLYPH_B " si no quieres.",
 			[str::version] = "Versión",
 			[str::prodcode] = "Código de producto",
 			[str::size] = "Tamaño",
@@ -384,7 +412,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::about_app] = "Acerca de",
 			[str::help_manual] = "Ayuda/Manual",
 			[str::find_missing_content] = "Buscar contenido ausente",
-			[str::press_a_exit] = "Presiona " GLYPH_A " para salir",
+			[str::press_a_exit] = "Presiona " UI_GLYPH_A " para salir",
 			[str::fatal_panic] = "Ocurrió un error fatal de pánico",
 			[str::failed_open_seeddb] = "No se pudo abrir seeddb.bin",
 			[str::update_to] = "¿Quieres actualizar a %1?",
@@ -399,8 +427,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::already_installed_reinstall] = "Título ya instalado. ¿Reinstalar?",
 			[str::queue_empty] =
 				"La cola está vacia\n"
-				"Presiona " GLYPH_A " para volver\n"
-				"Consejo: presiona " GLYPH_Y " para añadir un título\na la cola",
+				"Presiona " UI_GLYPH_A " para volver\n"
+				"Consejo: presiona " UI_GLYPH_Y " para añadir un título\na la cola",
 			[str::cancel] = "Cancelar",
 			[str::confirm] = "Confirmar",
 			[str::invalid_proxy] = "Configuración de proxy inválida",
@@ -415,12 +443,21 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::reboot_now] = "¿Reiniciar ahora?",
 			[str::this_version] = "Esto es 3hs, versión %1",
 			[str::retry_req] = "¿Quieres reintentar?",
-			[str::search_zero_results] = "La búsqueda no dió resultados\nPresiona " GLYPH_A " para regresar",
+			[str::search_zero_results] = "La búsqueda no dió resultados\nPresiona " UI_GLYPH_A " para regresar",
 			[str::credits] = "Créditos",
 			STUB(extra_content),
 			STUB(ask_extra),
 			STUB(no_req),
 			STUB(invalid_query),
+			STUB(min_constraint),
+			[str::proxy] = "Proxy",
+			STUB(none),
+			STUB(press_a_to_view),
+			STUB(host),
+			STUB(port),
+			STUB(username),
+			STUB(password),
+			STUB(clear),
 		}
 };
 #pragma GCC diagnostic pop

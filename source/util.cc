@@ -1,6 +1,4 @@
 
-#include "util.hh"
-
 #include <widgets/konami.hh>
 
 #include <ui/image_button.hh>
@@ -8,6 +6,9 @@
 #include <ui/text.hh>
 
 #include <ui/base.hh>
+
+#include "util.hh"
+#include "i18n.hh"
 
 
 static void toggle_btn_konami()

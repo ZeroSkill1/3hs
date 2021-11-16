@@ -2,7 +2,6 @@
 #ifndef inc_update_hh
 #define inc_update_hh
 
-#define VERSION "v" FULL_VERSION
 
 #define UP_BASE "http://download2.erista.me/3hs"
 #define UP_VERSION UP_BASE "/version"
@@ -17,7 +16,18 @@
 # define DEVID
 #endif
 
-#include <net_common.hh>
+#define VERSION_MAJOR 0
+#define VERSION_MINOR 1
+#define VERSION_PATCH 6
+
+#define INT_TO_STR(i) INT_TO_STR_(i)
+#define INT_TO_STR_(i) #i
+
+#define MK_UA(MA,MI,PA) "hShop (3DS/CTR/KTR; ARMv6) 3hs/" MA "." MI "." PA
+#define VERSION INT_TO_STR(VERSION_MAJOR) "." INT_TO_STR(VERSION_MINOR) "." INT_TO_STR(VERSION_PATCH)
+#define VVERSION "v" VERSION
+#define USER_AGENT MK_UA(INT_TO_STR(VERSION_MAJOR), INT_TO_STR(VERSION_MINOR), INT_TO_STR(VERSION_PATCH))
+
 #include <string>
 
 

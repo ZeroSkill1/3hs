@@ -25,7 +25,7 @@ bool update_app()
 		return false; // We will then error at index
 
 	linfo << "Fetched new version " << nver << ", current version is " << VERSION;
-	if(nver == FULL_VERSION)
+	if(nver == VERSION)
 		return false;
 
 	bool update;

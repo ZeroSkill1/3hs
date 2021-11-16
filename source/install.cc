@@ -3,13 +3,13 @@
 #include "settings.hh"
 #include "install.hh"
 #include "thread.hh"
+#include "update.hh" /* includes net constants */
 #include "error.hh"
 #include "proxy.hh"
 #include "panic.hh"
 #include "seed.hh"
 #include "ctr.hh"
 
-#include <net_common.hh>
 #include <3rd/log.hh>
 #include <ui/util.hh>
 #include <malloc.h>

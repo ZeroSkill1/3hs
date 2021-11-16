@@ -56,7 +56,7 @@ namespace ui
 			bool render(const ui::Keys&) override;
 			float height() override;
 			float width() override;
-			
+
 			enum connect_type { button, result };
 
 			void connect(connect_type, SwkbdButton *b); /* button */
@@ -88,6 +88,9 @@ namespace ui
 	/* Gets string input with ui::next::AppletSwkbd */
 	std::string keyboard(std::function<void(ui::next::AppletSwkbd *)> configure,
 		SwkbdButton *btn = nullptr, SwkbdResult *res = nullptr);
+	/* Gets a number with ui::next::AppletSwkbd */
+	uint64_t numpad(std::function<void(ui::next::AppletSwkbd *)> configure,
+		size_t length = 10, SwkbdButton *btn = nullptr, SwkbdResult *res = nullptr);
 
 /*	class Swkbd
 	{

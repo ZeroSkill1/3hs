@@ -13,7 +13,6 @@
 #include <widgets/meta.hh>
 
 #include <3rd/plog/Appenders/ColorConsoleAppender.h>
-#include <net_common.hh>
 #include <3rd/log.hh>
 
 #include "build/settings_icon.h"
@@ -52,7 +51,7 @@ int main(int argc, char* argv[])
 	((void) argv);
 
 	plog::init(LOG_LEVEL, LOGFILE);
-	linfo << "version=" FULL_VERSION;
+	linfo << "version=" VVERSION;
 
 #ifndef RELEASE
 	// Colored logs appender for gdb
@@ -253,6 +252,9 @@ int main(int argc, char* argv[])
 		return 0;
 	}
 #endif
+
+	ui::RenderQueue::global()->render_frame();
+	show_settings();
 
 	Result res = hsapi::call(hsapi::fetch_index);
 	if(R_FAILED(res))

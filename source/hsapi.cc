@@ -1,5 +1,5 @@
 
-#include "net_common.hh"
+#include "update.hh" /* includes net constants */
 #include "hsapi.hh"
 #include "error.hh"
 #include "proxy.hh"
@@ -41,6 +41,7 @@ static Result basereq(const std::string& url, std::string& data, HTTPC_RequestMe
 	TRY(httpcSetSSLOpt(&ctx, SSLCOPT_DisableVerify));
 	TRY(httpcSetKeepAlive(&ctx, HTTPC_KEEPALIVE_ENABLED));
 	TRY(httpcAddRequestHeaderField(&ctx, "Connection", "Keep-Alive"));
+	TRY(httpcAddRequestHeaderField(&ctx, "User-Agent", USER_AGENT));
 	if(url.find("https") == 0) // only use certs on https
 		TRY(httpcAddTrustedRootCA(&ctx, hscert_der, hscert_der_len));
 	TRY(proxy::apply(&ctx));
@@ -55,7 +56,7 @@ static Result basereq(const std::string& url, std::string& data, HTTPC_RequestMe
 	if(status / 100 == 3)
 	{
 		char newurl[2048];
-		httpcGetResponseHeader(&ctx, "location", newurl, 2048);
+		TRY(httpcGetResponseHeader(&ctx, "location", newurl, 2048));
 		std::string redir(newurl);
 
 		lverbose << "Redirected to " << redir;
@@ -65,6 +66,20 @@ static Result basereq(const std::string& url, std::string& data, HTTPC_RequestMe
 
 	if(status != 200)
 	{
+#ifdef RELEASE
+		// We _may_ require a different 3hs version
+		if(status == 400)
+		{
+			char minver[2048] = {0};
+			/* we can assume it doesn't have the header if this fails */
+			if(R_SUCCEEDED(httpcGetResponseHeader(&ctx, "x-minimum", minver, 2048)))
+			{
+				httpcCloseContext(&ctx);
+				panic(PSTRING(min_constraint, VVERSION, minver));
+			}
+		}
+#endif
+
 		httpcCloseContext(&ctx);
 		return APPERR_NON200;
 	}

@@ -92,8 +92,8 @@ bool ui::next::AppletSwkbd::render(const ui::Keys& keys)
 
 	/* why is this cast necessairy? */
 	ui::RenderQueue::global()->render_and_then((std::function<bool()>) [this]() -> bool {
-		char *buf = new char[this->len];
-		SwkbdButton btn = swkbdInputText(&this->state, buf, this->len);
+		char *buf = new char[this->len + 1];
+		SwkbdButton btn = swkbdInputText(&this->state, buf, this->len + 1);
 		*this->ret = buf;
 		delete [] buf;
 
@@ -137,5 +137,24 @@ std::string ui::keyboard(std::function<void(ui::next::AppletSwkbd *)> configure,
 
 	queue.render_finite();
 	return ret;
+}
+
+/* numpad */
+
+uint64_t ui::numpad(std::function<void(ui::next::AppletSwkbd *)> configure,
+	size_t length, SwkbdButton *btn, SwkbdResult *res)
+{
+	ui::RenderQueue queue;
+	std::string ret;
+
+	ui::next::AppletSwkbd *swkbd;
+	ui::builder<ui::next::AppletSwkbd>(ui::Screen::top, &ret, length, SWKBD_TYPE_NUMPAD)
+		.connect(ui::next::AppletSwkbd::button, btn)
+		.connect(ui::next::AppletSwkbd::result, res)
+		.add_to(&swkbd, queue);
+	configure(swkbd);
+
+	queue.render_finite();
+	return strtoull(ret.c_str(), nullptr, 10);
 }
 

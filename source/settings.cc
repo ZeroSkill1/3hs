@@ -4,9 +4,8 @@
 #include <widgets/indicators.hh>
 
 #include <ui/selector.hh>
-#include <ui/button.hh>
-#include <ui/text.hh>
-#include <ui/core.hh>
+#include <ui/swkbd.hh>
+#include <ui/base.hh>
 #include <ui/list.hh>
 
 #include <unistd.h>
@@ -14,7 +13,9 @@
 
 #include <string>
 
+#include "proxy.hh"
 #include "util.hh"
+
 
 static bool g_loaded = false;
 static Settings g_settings;
@@ -78,7 +79,7 @@ enum SettingsId
 	ID_FreeSpace, ID_Battery,
 	ID_TimeFmt, ID_ProgLoc,
 	ID_Language, ID_Localemode,
-	ID_Extra,
+	ID_Extra, ID_Proxy,
 };
 
 typedef struct SettingInfo
@@ -87,19 +88,6 @@ typedef struct SettingInfo
 	std::string desc;
 	SettingsId ID;
 } SettingInfo;
-
-static std::vector<SettingInfo> g_settings_info =
-{
-	{ SURESTRING(light_mode)     , "Turn on light mode. This will change\nthe way most ui elements look."                               , ID_LightMode  },
-	{ SURESTRING(resume_dl)      , "Should we start where we\nleft off downloading the first time\nif we failed the first try?"         , ID_Resumable  },
-	{ SURESTRING(load_space)     , "Load the free space indicator.\nBootup time should be shorter\nif you disable this on large SDs"    , ID_FreeSpace  },
-	{ SURESTRING(show_battery)   , "Toggle visibility of battery in\ntop right corner"                                                  , ID_Battery    },
-	{ SURESTRING(time_format)    , "Your preferred time format.\nEither 24h or 12h."                                                    , ID_TimeFmt    },
-	{ SURESTRING(progbar_screen) , "The screen to draw progress bars on"                                                                , ID_ProgLoc    },
-	{ SURESTRING(language)       , "The language 3hs is in.\nNote that to update all text you might\nneed to restart 3hs"               , ID_Language   },
-	{ SURESTRING(lumalocalemode) , "The mode LumaLocale autosetter\nuses. Automatic selects a language\nautomatically, manual manually" , ID_Localemode },
-	{ SURESTRING(ask_extra)      , "Ask for extra content after\nan installation."                                                      , ID_Extra      },
-};
 
 static const char *localemode2str(LumaLocaleMode mode)
 {
@@ -137,6 +125,8 @@ static std::string serialize_id(SettingsId ID)
 		return localemode2str(g_settings.lumalocalemode);
 	case ID_Extra:
 		return g_settings.askForExtraContent ? STRING(btrue) : STRING(bfalse);
+	case ID_Proxy:
+		return proxy::is_set() ? STRING(press_a_to_view) : STRING(none);
 	}
 
 	return STRING(unknown);
@@ -154,6 +144,146 @@ static TEnum get_enum(std::vector<std::string> keys, std::vector<TEnum> values, 
 	generic_main_breaking_loop(wids);
 
 	return ret;
+}
+
+template <typename TEnum>
+static void read_set_enum(const std::vector<std::string>& keys,
+	const std::vector<TEnum>& values, TEnum& val)
+{
+	ui::RenderQueue queue;
+
+	ui::builder<ui::next::Selector<TEnum>>(ui::Screen::bottom, keys, values, &val)
+		.add_to(queue);
+
+	queue.render_finite();
+}
+
+static void clean_proxy_content(std::string& s)
+{
+	if(s.find("https://") == 0)
+		s.replace(0, 8, "");
+	if(s.find("http://") == 0)
+		s.replace(0, 7, "");
+	std::string::size_type pos;
+	while((pos = s.find(":")) != std::string::npos)
+		s.replace(pos, 1, "");
+	while((pos = s.find("\n")) != std::string::npos)
+		s.replace(pos, 1, "");
+}
+
+static void show_update_proxy()
+{
+	ui::RenderQueue queue;
+
+	ui::next::Button *password;
+	ui::next::Button *username;
+	ui::next::Button *host;
+	ui::next::Button *port;
+
+	constexpr float w = ui::screen_width(ui::Screen::bottom) - 10.0f;
+	constexpr float h = 20;
+
+#define UPDATE_LABELS() do { \
+		port->set_label(proxy::proxy().port == 0 ? "" : std::to_string(proxy::proxy().port)); \
+		password->set_label(proxy::proxy().password); \
+		username->set_label(proxy::proxy().username); \
+		host->set_label(proxy::proxy().host); \
+	} while(0)
+
+#define BASIC_CALLBACK(name) \
+		[&name]() -> bool { \
+			ui::RenderQueue::global()->render_and_then([&name]() -> void { \
+				SwkbdButton btn; \
+				std::string val = ui::keyboard([](ui::next::AppletSwkbd *swkbd) -> void { \
+					swkbd->hint(STRING(name)); \
+				}, &btn); \
+			\
+				if(btn == SWKBD_BUTTON_CONFIRM) \
+				{ \
+					clean_proxy_content(val); \
+					proxy::proxy().name = val; \
+					name->set_label(val); \
+				} \
+			}); \
+			return true; \
+		}
+
+	/* host */
+	ui::builder<ui::next::Text>(ui::Screen::bottom, STRING(host))
+		.x(ui::layout::left)
+		.y(10.0f)
+		.add_to(queue);
+	ui::builder<ui::next::Button>(ui::Screen::bottom)
+		.connect(ui::next::Button::click, BASIC_CALLBACK(host))
+		.size(w, h)
+		.x(ui::layout::center_x)
+		.under(queue.back())
+		.add_to(&host, queue);
+	/* port */
+	ui::builder<ui::next::Text>(ui::Screen::bottom, STRING(port))
+		.x(ui::layout::left)
+		.under(queue.back())
+		.add_to(queue);
+	ui::builder<ui::next::Button>(ui::Screen::bottom)
+		.connect(ui::next::Button::click, [&port]() -> bool {
+			ui::RenderQueue::global()->render_and_then([&port]() -> void { \
+				SwkbdButton btn;
+				uint64_t val = ui::numpad([](ui::next::AppletSwkbd *swkbd) -> void { \
+					swkbd->hint(STRING(port));
+				}, 5 /* max is 65535: 5 digits */, &btn);
+
+				if(btn == SWKBD_BUTTON_CONFIRM)
+				{
+					val &= 0xFFFF; /* limit to a max of 0xFFFF */
+					proxy::proxy().port = val;
+					port->set_label(std::to_string(val));
+				}
+			});
+			return true;
+		})
+		.size(w, h)
+		.x(ui::layout::center_x)
+		.under(queue.back())
+		.add_to(&port, queue);
+	/* username */
+	ui::builder<ui::next::Text>(ui::Screen::bottom, STRING(username))
+		.x(ui::layout::left)
+		.under(queue.back())
+		.add_to(queue);
+	ui::builder<ui::next::Button>(ui::Screen::bottom)
+		.connect(ui::next::Button::click, BASIC_CALLBACK(username))
+		.size(w, h)
+		.x(ui::layout::center_x)
+		.under(queue.back())
+		.add_to(&username, queue);
+	/* password */
+	ui::builder<ui::next::Text>(ui::Screen::bottom, STRING(password))
+		.x(ui::layout::left)
+		.under(queue.back())
+		.add_to(queue);
+	ui::builder<ui::next::Button>(ui::Screen::bottom)
+		.connect(ui::next::Button::click, BASIC_CALLBACK(password))
+		.size(w, h)
+		.x(ui::layout::center_x)
+		.under(queue.back())
+		.add_to(&password, queue);
+
+	ui::builder<ui::next::Button>(ui::Screen::bottom, STRING(clear))
+		.connect(ui::next::Button::click, [host, port, username, password]() -> bool {
+			proxy::clear();
+			UPDATE_LABELS();
+			return true;
+		})
+		.connect(ui::next::Button::nobg)
+		.x(10.0f)
+		.y(210.0f)
+		.wrap()
+		.add_to(queue);
+
+	UPDATE_LABELS();
+	queue.render_finite_button(KEY_B | KEY_A);
+#undef BASIC_CALLBACK
+#undef UPDATE_LABELS
 }
 
 static void update_settings_ID(SettingsId ID)
@@ -181,32 +311,36 @@ static void update_settings_ID(SettingsId ID)
 		break;
 	// Enums
 	case ID_TimeFmt:
-		g_settings.timeFormat = get_enum<Timefmt>(
+		read_set_enum<Timefmt>(
 			{ i18n::getstr(str::fmt_24h, get_lang()), i18n::getstr(str::fmt_12h, get_lang()) },
 			{ Timefmt::good, Timefmt::bad },
 			g_settings.timeFormat
 		);
 		break;
 	case ID_ProgLoc:
-		g_settings.progloc = get_enum<ProgressBarLocation>(
+		read_set_enum<ProgressBarLocation>(
 			{ STRING(top), STRING(bottom) },
 			{ ProgressBarLocation::top, ProgressBarLocation::bottom },
 			g_settings.progloc
 		);
 		break;
 	case ID_Language:
-		g_settings.language = get_enum<lang::type>(
+		read_set_enum<lang::type>(
 			{ LANGNAME_ENGLISH, LANGNAME_DUTCH, LANGNAME_GERMAN, LANGNAME_SPANISH },
 			{ lang::english, lang::dutch, lang::german, lang::spanish },
 			g_settings.language
 		);
 		break;
 	case ID_Localemode:
-		g_settings.lumalocalemode = get_enum<LumaLocaleMode>(
+		read_set_enum<LumaLocaleMode>(
 			{ STRING(automatic), STRING(manual), STRING(disabled) },
 			{ LumaLocaleMode::automatic, LumaLocaleMode::manual, LumaLocaleMode::disabled },
 			g_settings.lumalocalemode
 		);
+		break;
+	case ID_Proxy:
+		show_update_proxy();
+		proxy::write();
 		break;
 	}
 
@@ -215,42 +349,61 @@ static void update_settings_ID(SettingsId ID)
 
 void show_settings()
 {
+	std::vector<SettingInfo> settingsInfo =
+	{
+		{ STRING(progbar_screen) , "The screen to draw progress bars on"                                                                , ID_ProgLoc    },
+		{ STRING(light_mode)     , "Turn on light mode. This will change the way most ui elements look."                                , ID_LightMode  },
+		{ STRING(resume_dl)      , "Should we start where we left off downloading the first time if we failed the first try?"           , ID_Resumable  },
+		{ STRING(load_space)     , "Load the free space indicator. Bootup time should be shorter if you disable this on large SDs"      , ID_FreeSpace  },
+		{ STRING(show_battery)   , "Toggle visibility of battery in top right corner"                                                   , ID_Battery    },
+		{ STRING(time_format)    , "Your preferred time format. Either 24h or 12h."                                                     , ID_TimeFmt    },
+		{ STRING(progbar_screen) , "The screen to draw progress bars on"                                                                , ID_ProgLoc    },
+		{ STRING(language)       , "The language 3hs is in. Note that to update all text you might need to restart 3hs"                 , ID_Language   },
+		{ STRING(lumalocalemode) , "The mode LumaLocale autosetter uses. Automatic selects a language automatically, manual manually"   , ID_Localemode },
+		{ STRING(ask_extra)      , "Ask for extra content after an installation."                                                       , ID_Extra      },
+		{ STRING(proxy)          , "Configure a proxy"                                                                                  , ID_Proxy      },
+	};
+
+	panic_assert(settingsInfo.size() > 0, "empty settings meta table");
+
+	using list_t = ui::next::List<SettingInfo>;
+
 	bool focus = next::set_focus(true);
-	toggle_focus();
-	ui::Widgets wids;
-	ui::Text *value;
 
-	wids.push_back("back", new ui::Button(STRING(back), 240, 210, 310, 230), ui::Scr::bottom);
-	wids.get<ui::Button>("back")->set_on_click([](bool) -> ui::Results {
-		return ui::Results::quit_loop;
-	});
+	ui::RenderQueue queue;
+	ui::next::Text *value;
+	ui::next::Text *desc;
+	list_t *list;
 
-	ui::List<SettingInfo> *list = new ui::List<SettingInfo>(
-		[](SettingInfo& entry) -> std::string { return entry.name; },
-		[&value](ui::List<SettingInfo> *self, size_t i, u32) -> ui::Results {
-			update_settings_ID(self->at(i).ID);
-			value->replace_text(PSTRING(value_x, serialize_id(self->at(i).ID)));
-			return ui::Results::end_early;
-		}, g_settings_info
-	);
+	ui::builder<ui::next::Text>(ui::Screen::bottom, settingsInfo[0].desc)
+		.x(10.0f)
+		.y(20.0f)
+		.wrap()
+		.add_to(&desc, queue);
+	ui::builder<ui::next::Text>(ui::Screen::bottom, PSTRING(value_x, serialize_id(settingsInfo[0].ID)))
+		.x(20.0f)
+		.under(desc, 5.0f)
+		.wrap()
+		.add_to(&value, queue);
+	ui::builder<list_t>(ui::Screen::top, &settingsInfo)
+		.connect(list_t::to_string, [](const SettingInfo& entry) -> std::string { return entry.name; })
+		.connect(list_t::select, [value](list_t *self, size_t i, u32 kDown) -> bool {
+			((void) kDown);
+			ui::RenderQueue::global()->render_and_then([self, i, value]() -> void {
+				update_settings_ID(self->at(i).ID);
+				value->set_text(PSTRING(value_x, serialize_id(self->at(i).ID)));
+			});
+			return true;
+		})
+		.connect(list_t::change, [value, desc](list_t *self, size_t i) -> void {
+			value->set_text(PSTRING(value_x, serialize_id(self->at(i).ID)));
+			desc->set_text(self->at(i).desc);
+			value->set_y(ui::under(desc, value, 5.0f));
+		})
+		.x(5.0f).y(5.0f)
+		.add_to(&list, queue);
 
-	ui::WrapText *desc = new ui::WrapText(list->at(0).desc);
-	wids.push_back(desc, ui::Scr::bottom);
-	desc->set_basey(20); desc->set_pad(10);
-
-	value = new ui::Text(ui::mk_left_WText(PSTRING(value_x, serialize_id(list->at(0).ID)),
-		80, 20));
-	wids.push_back(value, ui::Scr::bottom);
-
-	list->set_on_change([&desc, &value](ui::List<SettingInfo> *self, size_t i) -> void {
-		value->replace_text(PSTRING(value_x, serialize_id(self->at(i).ID)));
-		desc->replace_text(self->at(i).desc);
-	});
-
-	wids.push_back(list);
-
-	generic_main_breaking_loop(wids);
+	queue.render_finite_button(KEY_B);
 	next::set_focus(focus);
-	toggle_focus();
 }
 

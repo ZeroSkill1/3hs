@@ -231,6 +231,106 @@ void ui::CatMeta::init_other()
 
 /* next */
 
+#define PAIR(val, title) do { \
+	ui::builder<ui::next::Text>(this->screen, val) \
+		.x(this->get_x()) \
+		.under(this->queue.back(), 1.0f) \
+		.scroll() \
+		.add_to(this->queue); \
+	ui::builder<ui::next::Text>(this->screen, title) \
+		.size(0.45f) \
+		.x(this->get_x()) \
+		.under(this->queue.back(), -1.0f) \
+		.add_to(this->queue); \
+	} while(0)
+
+/* CatMeta */
+
+void ui::next::CatMeta::setup(const hsapi::Category& cat)
+{ this->set_cat(cat); }
+
+void ui::next::CatMeta::set_cat(const hsapi::Category& cat)
+{
+	this->queue.clear();
+
+	ui::builder<ui::next::Text>(this->screen, cat.disp)
+		.x(this->get_x())
+		.y(this->get_y())
+		.scroll()
+		.add_to(this->queue);
+	ui::builder<ui::next::Text>(this->screen, STRING(name))
+		.size(0.45f)
+		.x(this->get_x())
+		.under(this->queue.back(), -1.0f)
+		.add_to(this->queue);
+
+	PAIR(ui::human_readable_size_block(cat.size), STRING(size));
+	PAIR(std::to_string(cat.titles), STRING(total_titles));
+	PAIR(cat.desc, STRING(description));
+}
+
+bool ui::next::CatMeta::render(const ui::Keys& keys)
+{
+	return this->queue.render_screen(keys, this->screen);
+}
+
+float ui::next::CatMeta::width()
+{ return 0.0f; } /* fullscreen */
+
+float ui::next::CatMeta::height()
+{ return 0.0f; } /* fullscreen */
+
+float ui::next::CatMeta::get_y()
+{ return 10.0f; }
+
+float ui::next::CatMeta::get_x()
+{ return 10.0f; }
+
+/* SubMeta */
+
+void ui::next::SubMeta::setup(const hsapi::Subcategory& sub)
+{ this->set_sub(sub); }
+
+void ui::next::SubMeta::set_sub(const hsapi::Subcategory& sub)
+{
+	this->queue.clear();
+
+	ui::builder<ui::next::Text>(this->screen, sub.disp)
+		.x(this->get_x())
+		.y(this->get_y())
+		.scroll()
+		.add_to(this->queue);
+	ui::builder<ui::next::Text>(this->screen, STRING(name))
+		.size(0.45f)
+		.x(this->get_x())
+		.under(this->queue.back(), -1.0f)
+		.add_to(this->queue);
+
+	PAIR(ui::human_readable_size_block(sub.size), STRING(size));
+	PAIR(sub.cat, STRING(category));
+	PAIR(std::to_string(sub.titles), STRING(total_titles));
+	PAIR(sub.desc, STRING(description));
+}
+
+bool ui::next::SubMeta::render(const ui::Keys& keys)
+{
+	return this->queue.render_screen(keys, this->screen);
+}
+
+float ui::next::SubMeta::width()
+{ return 0.0f; } /* fullscreen */
+
+float ui::next::SubMeta::height()
+{ return 0.0f; } /* fullscreen */
+
+float ui::next::SubMeta::get_y()
+{ return 10.0f; }
+
+float ui::next::SubMeta::get_x()
+{ return 10.0f; }
+
+/* TitleMeta */
+
 void ui::next::TitleMeta::setup(const hsapi::Title& meta)
 { this->set_title(meta); }
 
@@ -244,71 +344,29 @@ void ui::next::TitleMeta::set_title(const hsapi::Title& meta)
 		.scroll()
 		.add_to(this->queue);
 	ui::builder<ui::next::Text>(this->screen, STRING(name))
-		.size(0.45f, 0.45f)
+		.size(0.45f)
 		.x(this->get_x())
 		.under(this->queue.back(), -1.0f)
 		.add_to(this->queue);
 
-	ui::builder<ui::next::Text>(this->screen, hsapi::get_index()->find(meta.cat)->disp + " -> " + hsapi::get_index()->find(meta.cat)->find(meta.subcat)->disp)
-		.x(this->get_x())
-		.under(this->queue.back(), 1.0f)
-		.scroll()
-		.add_to(this->queue);
-	ui::builder<ui::next::Text>(this->screen, STRING(category))
-		.size(0.45f, 0.45f)
-		.x(this->get_x())
-		.under(this->queue.back(), -1.0f)
-		.add_to(this->queue);
-
-	ui::builder<ui::next::Text>(this->screen, ctr::tid_to_str(meta.tid))
-		.x(this->get_x())
-		.under(this->queue.back(), 1.0f)
-		.scroll()
-		.add_to(this->queue);
-	ui::builder<ui::next::Text>(this->screen, STRING(tid))
-		.size(0.45f, 0.45f)
-		.x(this->get_x())
-		.under(this->queue.back(), -1.0f)
-		.add_to(this->queue);
-
-	ui::builder<ui::next::Text>(this->screen, std::to_string(meta.id))
-		.x(this->get_x())
-		.under(this->queue.back(), 1.0f)
-		.scroll()
-		.add_to(this->queue);
-	ui::builder<ui::next::Text>(this->screen, STRING(landing_id))
-		.size(0.45f, 0.45f)
-		.x(this->get_x())
-		.under(this->queue.back(), -1.0f)
-		.add_to(this->queue);
-
-	ui::builder<ui::next::Text>(this->screen, ui::human_readable_size_block(meta.size))
-		.x(this->get_x())
-		.under(this->queue.back(), 1.0f)
-		.scroll()
-		.add_to(this->queue);
-	ui::builder<ui::next::Text>(this->screen, STRING(size))
-		.size(0.45f, 0.45f)
-		.x(this->get_x())
-		.under(this->queue.back(), -1.0f)
-		.add_to(this->queue);
+	PAIR(hsapi::get_index()->find(meta.cat)->disp+ " -> " +
+			hsapi::get_index()->find(meta.cat)->find(meta.subcat)->disp,
+		STRING(category));
+	PAIR(ctr::tid_to_str(meta.tid), STRING(tid));
+	PAIR(std::to_string(meta.id), STRING(landing_id));
+	PAIR(ui::human_readable_size_block(meta.size), STRING(size));
 }
 
 bool ui::next::TitleMeta::render(const ui::Keys& keys)
 {
-	((void) keys); // unused
 	return this->queue.render_screen(keys, this->screen);
 }
 
 float ui::next::TitleMeta::width()
-{
-	return 0.0f; // unsupported
-}
+{ return 0.0f; } /* fullscreen */
 
 float ui::next::TitleMeta::height()
-{
-	return this->queue.back()->get_y() + this->get_y();
-}
+{ return 0.0f; } /* fullscreen */
 
 float ui::next::TitleMeta::get_y()
 { return 10.0f; }

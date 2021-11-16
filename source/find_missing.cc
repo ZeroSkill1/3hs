@@ -4,11 +4,9 @@
 #include "hsapi.hh"
 #include "queue.hh"
 #include "panic.hh"
-#include "util.hh"
 #include "ctr.hh"
 
 #include <ui/loading.hh>
-#include <ui/core.hh>
 
 #include <algorithm>
 
@@ -25,8 +23,6 @@ bool tid_can_have_missing(hsapi::htid tid)
 
 void show_find_missing(hsapi::htid tid)
 {
-	toggle_focus();
-
 	ui::loading([tid]() -> void {
 
 		std::vector<hsapi::htid> installed;
@@ -65,7 +61,5 @@ void show_find_missing(hsapi::htid tid)
 			queue_add(title.id, false);
 
 	});
-
-	toggle_focus();
 }
 

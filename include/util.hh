@@ -2,6 +2,7 @@
 #ifndef inc_util_hh
 #define inc_util_hh
 
+#include <ui/base.hh>
 #include <string>
 
 

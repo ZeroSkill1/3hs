@@ -12,13 +12,6 @@ void show_about()
 {
 	ui::RenderQueue queue;
 
-	ui::builder<ui::next::Button>(ui::Screen::bottom, STRING(back))
-		.connect(ui::next::Button::click, []() -> bool { return false; })
-		.connect(ui::next::Button::nobg)
-		.size(70.0f, 20.0f)
-		.x(240.0f)
-		.y(210.0f)
-		.add_to(queue);
 	ui::builder<ui::next::Text>(ui::Screen::top, STRING(credits_thanks))
 		.x(ui::layout::center_x)
 		.y(ui::layout::base)
@@ -42,7 +35,7 @@ void show_about()
 		.add_to(queue);
 
 	bool focus = next::set_focus(true);
-	queue.render_finite_button(KEY_START);
+	queue.render_finite_button(KEY_B | KEY_A | KEY_START);
 	next::set_focus(focus);
 }
 

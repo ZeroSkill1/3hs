@@ -104,6 +104,15 @@ namespace str
 		ask_extra = 79,
 		no_req = 80,
 		invalid_query = 81,
+		min_constraint = 82, // %1 = current version, %2 = minimum version
+		proxy = 83,
+		none = 84,
+		press_a_to_view = 85,
+		host = 86,
+		port = 87,
+		username = 88,
+		password = 89,
+		clear = 90,
 
 		_i_max,
 	};

@@ -15,6 +15,7 @@
 
 const std::string *next::sel_cat(size_t *cursor)
 {
+	panic_assert(hsapi::get_index()->categories.size() > *cursor, "invalid cursor position");
 	using list_t = ui::next::List<hsapi::Category>;
 
 	std::string desc = next::set_desc(STRING(select_cat));
@@ -23,7 +24,12 @@ const std::string *next::sel_cat(size_t *cursor)
 
 	ui::RenderQueue queue;
 
+	ui::next::CatMeta *meta;
 	list_t *list;
+
+	ui::builder<ui::next::CatMeta>(ui::Screen::bottom, hsapi::get_index()->categories[*cursor])
+		.add_to(&meta, queue);
+
 	ui::builder<list_t>(ui::Screen::top, &hsapi::get_index()->categories)
 		.connect(list_t::to_string, [](const hsapi::Category& cat) -> std::string { return cat.disp; })
 		.connect(list_t::select, [&ret](list_t *self, size_t i, u32 kDown) -> bool {
@@ -32,8 +38,8 @@ const std::string *next::sel_cat(size_t *cursor)
 				ret = next_cat_exit;
 			return false;
 		})
-		.connect(list_t::change, [](list_t *self, size_t i) -> void {
-			self->at(i).name;
+		.connect(list_t::change, [meta](list_t *self, size_t i) -> void {
+			meta->set_cat(self->at(i));
 		})
 		.connect(list_t::buttons, KEY_START)
 		.x(5.0f).y(25.0f)
@@ -59,7 +65,16 @@ const std::string *next::sel_sub(const std::string& cat, size_t *cursor)
 	hsapi::Category *rcat = hsapi::get_index()->find(cat);
 	ui::RenderQueue queue;
 
+	panic_assert(rcat, "couldn't find category");
+
+	ui::next::SubMeta *meta;
 	list_t *list;
+
+	panic_assert(rcat->subcategories.size() > *cursor, "invalid cursor position");
+
+	ui::builder<ui::next::SubMeta>(ui::Screen::bottom, rcat->subcategories[*cursor])
+		.add_to(&meta, queue);
+
 	ui::builder<list_t>(ui::Screen::top, &rcat->subcategories)
 		.connect(list_t::to_string, [](const hsapi::Subcategory& scat) -> std::string { return scat.disp; })
 		.connect(list_t::select, [&ret](list_t *self, size_t i, u32 kDown) -> bool {
@@ -68,14 +83,12 @@ const std::string *next::sel_sub(const std::string& cat, size_t *cursor)
 			if(kDown & KEY_START) ret = next_sub_exit;
 			return false;
 		})
-		.connect(list_t::change, [](list_t *self, size_t i) -> void {
-			self->at(i).name;
+		.connect(list_t::change, [meta](list_t *self, size_t i) -> void {
+			meta->set_sub(self->at(i));
 		})
 		.connect(list_t::buttons, KEY_B | KEY_START)
 		.x(5.0f).y(25.0f)
 		.add_to(&list, queue);
-
-
 
 	if(cursor != nullptr) list->set_pos(*cursor);
 	queue.render_finite();
@@ -88,6 +101,7 @@ const std::string *next::sel_sub(const std::string& cat, size_t *cursor)
 
 hsapi::hid next::sel_gam(std::vector<hsapi::Title>& titles, size_t *cursor)
 {
+	panic_assert(titles.size() > *cursor, "invalid cursor position");
 	using list_t = ui::next::List<hsapi::Title>;
 
 	std::string desc = next::set_desc(STRING(select_title));
@@ -96,7 +110,12 @@ hsapi::hid next::sel_gam(std::vector<hsapi::Title>& titles, size_t *cursor)
 
 	ui::RenderQueue queue;
 
+	ui::next::TitleMeta *meta;
 	list_t *list;
+
+	ui::builder<ui::next::TitleMeta>(ui::Screen::bottom, titles[*cursor])
+		.add_to(&meta, queue);
+
 	ui::builder<list_t>(ui::Screen::top, &titles)
 		.connect(list_t::to_string, [](const hsapi::Title& title) -> std::string { return title.name; })
 		.connect(list_t::select, [&ret](list_t *self, size_t i, u32 kDown) -> bool {
@@ -113,8 +132,8 @@ hsapi::hid next::sel_gam(std::vector<hsapi::Title>& titles, size_t *cursor)
 			}
 			return false;
 		})
-		.connect(list_t::change, [](list_t *self, size_t i) -> void {
-			self->at(i).id;
+		.connect(list_t::change, [meta](list_t *self, size_t i) -> void {
+			meta->set_title(self->at(i));
 		})
 		.connect(list_t::buttons, KEY_B | KEY_Y | KEY_START)
 		.x(5.0f).y(25.0f)

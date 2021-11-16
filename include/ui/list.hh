@@ -532,6 +532,9 @@ builtin_controls_done:
 					this->capacity += n * 2;
 					this->buf = C2D_TextBufResize(this->buf, this->capacity);
 					this->charsLeft += n * 2;
+					/* we need to update all text items */
+					for(C2D_Text& line : this->lines)
+						line.buf = this->buf;
 				}
 
 				this->charsLeft -= n;

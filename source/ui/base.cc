@@ -133,6 +133,8 @@ bool ui::RenderQueue::render_frame(const ui::Keys& keys)
 	if(this->signalBit & ui::RenderQueue::signal_cancel)
 		return false;
 
+	if(!aptMainLoop()) return false;
+
 	C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
 	C2D_TargetClear(g_top, C2D_Color32(0x1C, 0x20, 0x21, 0xFF)); /* TODO: Theme intergration */
 	C2D_TargetClear(g_bot, C2D_Color32(0x1C, 0x20, 0x21, 0xFF));
@@ -517,11 +519,8 @@ void ui::next::Sprite::set_center(float x, float y)
 
 void ui::next::Button::setup(const std::string& text)
 {
-	ui::next::Text *label = new ui::next::Text(this->screen);
-	label->setup(text);
-
-	this->widget = label;
-	this->readjust();
+	this->widget = nullptr;
+	this->set_label(text);
 }
 
 void ui::next::Button::setup(const C2D_Sprite& sprite)
@@ -529,6 +528,7 @@ void ui::next::Button::setup(const C2D_Sprite& sprite)
 	ui::next::Sprite *label = new ui::next::Sprite(this->screen);
 	label->setup(sprite);
 	label->set_z(1.0f);
+	label->finalize();
 
 	this->widget = label;
 	this->readjust();
@@ -536,6 +536,22 @@ void ui::next::Button::setup(const C2D_Sprite& sprite)
 
 void ui::next::Button::setup()
 { this->setup(""); }
+
+void ui::next::Button::set_label(const std::string& v)
+{
+	if(this->widget != nullptr)
+	{
+		this->widget->destroy();
+		delete this->widget;
+	}
+
+	ui::next::Text *label = new ui::next::Text(this->screen);
+	label->setup(v);
+	label->finalize();
+
+	this->widget = label;
+	this->readjust();
+}
 
 void ui::next::Button::destroy()
 {

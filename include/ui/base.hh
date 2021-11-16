@@ -569,6 +569,8 @@ namespace ui
 
 			/* autowrap for text size */
 			void autowrap();
+			/* update the label or set one */
+			void set_label(const std::string& v);
 
 			enum connect_type { click, nobg };
 			/* click */
@@ -582,9 +584,9 @@ namespace ui
 		private:
 			click_cb_t on_click = []() -> bool { return true; };
 			bool showBg = true, showBorder = false;
+			ui::BaseWidget *widget = nullptr;
 			float ox = 0.0f, oy = 0.0f;
 			float w = 0.0f, h = 0.0f;
-			ui::BaseWidget *widget;
 
 			void readjust();
 

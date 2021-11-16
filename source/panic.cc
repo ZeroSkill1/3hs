@@ -57,11 +57,11 @@ static void pusha(ui::RenderQueue& queue)
 		.add_to(queue);
 }
 
-static void pusherror(const error_container& err, ui::RenderQueue& queue)
+static void pusherror(const error_container& err, ui::RenderQueue& queue, float base)
 {
 	ui::builder<ui::next::Text>(ui::Screen::top, format_err(err.sDesc, err.iDesc))
 		.x(ui::layout::center_x)
-		.y(ui::layout::base)
+		.y(base)
 		.wrap()
 		.add_to(queue);
 	ui::builder<ui::next::Text>(ui::Screen::top, PSTRING(result_code, "0x" + pad8code(err.full)))
@@ -86,7 +86,7 @@ void handle_error(const error_container& err)
 {
 	ui::RenderQueue queue;
 	pusha(queue);
-	pusherror(err, queue);
+	pusherror(err, queue, 50.0f);
 	queue.render_finite_button(KEY_A);
 }
 
@@ -134,7 +134,7 @@ void handle_error(const error_container& err)
 
 	ui::builder<ui::next::Text>(ui::Screen::top, msg)
 		.x(ui::layout::center_x)
-		.y(ui::layout::base)
+		.y(70.0f)
 		.wrap()
 		.add_to(queue);
 
@@ -146,7 +146,7 @@ void handle_error(const error_container& err)
 	ui::RenderQueue queue;
 
 	error_container err = get_error(res);
-	pusherror(err, queue);
+	pusherror(err, queue, 70.0f);
 
 	panic_core(caller, queue);
 }
