@@ -253,9 +253,6 @@ int main(int argc, char* argv[])
 	}
 #endif
 
-	ui::RenderQueue::global()->render_frame();
-	show_settings();
-
 	Result res = hsapi::call(hsapi::fetch_index);
 	if(R_FAILED(res))
 	{

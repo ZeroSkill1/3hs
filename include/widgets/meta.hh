@@ -107,7 +107,7 @@ namespace ui
 		{ UI_WIDGET("CatMeta")
 		public:
 			void setup(const hsapi::Category& cat);
-			
+
 			void set_cat(const hsapi::Category& cat);
 
 			float get_x() override;
@@ -128,7 +128,7 @@ namespace ui
 		{ UI_WIDGET("SubMeta")
 		public:
 			void setup(const hsapi::Subcategory& sub);
-			
+
 			void set_sub(const hsapi::Subcategory& sub);
 
 			float get_x() override;

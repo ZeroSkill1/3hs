@@ -459,7 +459,10 @@ builtin_controls_done:
 			void set_pos(size_t p)
 			{
 				if(p > 0 && p < this->lines.size())
+				{
+					this->view = p > this->last_full_view() ? this->last_full_view() : p;
 					this->pos = p;
+				}
 			}
 
 

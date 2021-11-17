@@ -58,7 +58,7 @@ void proxy::clear()
 {
 	g_proxy.password = "";
 	g_proxy.username = "";
-	g_proxy.host = ""; 
+	g_proxy.host = "";
 	g_proxy.port = 0;
 }
 
