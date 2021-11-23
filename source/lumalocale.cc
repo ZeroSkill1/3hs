@@ -4,6 +4,8 @@
 #include "util.hh"
 #include "ctr.hh"
 
+#include <3rd/log.hh>
+
 #include <ui/smdhicon.hh>
 #include <ui/selector.hh>
 #include <ui/confirm.hh>
@@ -40,37 +42,40 @@ static const char *get_auto_lang_str(ctr::TitleSMDH *smdh)
 	return nullptr;
 }
 
+#define LANG_INVALID 12
 static const char *get_manual_lang_str(ctr::TitleSMDH *smdh)
 {
 	ctr::TitleSMDHTitle *title = ctr::smdh::get_native_title(smdh);
-	bool focus = next::set_focus(true);
+	bool focus = set_focus(true);
 	ui::RenderQueue queue;
 
-	u8 lang = 0;
+	u8 lang = LANG_INVALID;
 	// EN, JP, FR, DE, IT, ES, ZH, KO, NL, PT, RU, TW
 	static const std::vector<std::string> langlut = { "EN", "JP", "FR", "DE", "IT", "ES", "ZH", "KO", "NL", "PT", "RU", "TW" };
 	static const std::vector<u8> enumVals = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
 
-	ui::builder<ui::next::SMDHIcon>(ui::Screen::top, smdh, SMDHIconType::large)
+	ui::builder<ui::SMDHIcon>(ui::Screen::top, smdh, SMDHIconType::large)
 		.x(ui::dimensions::width_top / 2 - 30)
 		.y(ui::dimensions::height / 2 - 64)
 		.border()
 		.add_to(queue);
-	ui::builder<ui::next::Text>(ui::Screen::top,
+	ui::builder<ui::Text>(ui::Screen::top,
 			ctr::smdh::u16conv(title->descShort, 0x40) + "\n" +
 			ctr::smdh::u16conv(title->descLong, 0x80))
 		.x(ui::layout::center_x)
 		.under(queue.back())
 		.wrap()
 		.add_to(queue);
-	ui::builder<ui::next::Selector<u8>>(ui::Screen::bottom, langlut, enumVals, &lang)
+	ui::builder<ui::Selector<u8>>(ui::Screen::bottom, langlut, enumVals, &lang)
 		.add_to(queue);
 
 	queue.render_finite_button(KEY_B);
 
-	next::set_focus(focus);
-	return langlut[lang].c_str();
+	set_focus(focus);
+	return lang == LANG_INVALID
+		? "\0" : langlut[lang].c_str();
 }
+#undef LANG_INVALID
 
 static const char *get_region_str(ctr::TitleSMDH *smdh)
 {
@@ -155,7 +160,7 @@ static bool enable_gamepatching()
 	return false;
 }
 
-void luma::set_gamepatching()
+void luma::maybe_set_gamepatching()
 {
 	if(get_settings()->lumalocalemode == LumaLocaleMode::disabled)
 		return;
@@ -166,12 +171,12 @@ void luma::set_gamepatching()
 		ui::RenderQueue queue;
 		bool reboot;
 
-		ui::builder<ui::next::Text>(ui::Screen::top, STRING(patching_reboot))
+		ui::builder<ui::Text>(ui::Screen::top, STRING(patching_reboot))
 			.x(ui::layout::center_x)
 			.y(ui::layout::base)
 			.add_to(queue);
 
-		ui::builder<ui::next::Confirm>(ui::Screen::bottom, STRING(reboot_now), reboot)
+		ui::builder<ui::Confirm>(ui::Screen::bottom, STRING(reboot_now), reboot)
 			.y(80.0f).add_to(queue);
 
 		queue.render_finite();
@@ -181,8 +186,6 @@ void luma::set_gamepatching()
 
 void luma::set_locale(u64 tid)
 {
-	get_manual_lang_str(ctr::smdh::get(tid));
-
 	// we don't want to set a locale
 	if(get_settings()->lumalocalemode == LumaLocaleMode::disabled)
 		return;
@@ -219,9 +222,17 @@ void luma::set_locale(u64 tid)
 	regstr = get_region_str(smdh);
 
 	if(get_settings()->lumalocalemode == LumaLocaleMode::automatic)
+	{
 		langstr = get_auto_lang_str(smdh);
+		linfo << "(lumalocale) Automatically deduced " << regstr << " " << langstr;
+	}
 	else if(get_settings()->lumalocalemode == LumaLocaleMode::manual)
+	{
 		langstr = get_manual_lang_str(smdh);
+		/* cancelled the selection */
+		if(langstr[0] == '\0') goto del_smdh;
+		linfo << "(lumalocale) Manually selected " << regstr << " " << langstr;
+	}
 
 	write_file(tid, regstr, langstr);
 

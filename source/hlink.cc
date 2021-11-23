@@ -127,10 +127,10 @@ static void handle_add_queue(int clientfd, iTransactionHeader header)
 	for(size_t i = 0; i < body.size() / sizeof(hsapi::hid); ++i)
 	{
 		hsapi::hid id = ntohll(((const hsapi::hid *) body.data())[i]);
-		hsapi::FullTitle meta;
-		if(R_FAILED(hsapi::call(hsapi::title_meta, meta, std::move(id)))) continue;
 
-		// ~~Check if id exists~~ its UB now
+		hsapi::FullTitle meta;
+		if(R_FAILED(hsapi::call(hsapi::title_meta, meta, std::move(id))))
+			continue;
 		queue_add(meta);
 	}
 
@@ -150,9 +150,9 @@ static bool handle_launch(int clientfd, int server, iTransactionHeader header, s
 		return false;
 
 	uint64_t tid = ntohll(* (uint64_t *) body.data());
-	FS_MediaType media = to_mediatype(detect_dest(tid));
+	FS_MediaType media = detect_media(tid);
 
-	if(!title_exists(tid, media))
+	if(!ctr::title_exists(tid, media))
 	{
 		disp_error(PSTRING(title_doesnt_exist, ctr::tid_to_str(tid)));
 		send_response(clientfd, hlink::response::notfound);

@@ -16,18 +16,18 @@
 const std::string *next::sel_cat(size_t *cursor)
 {
 	panic_assert(hsapi::get_index()->categories.size() > *cursor, "invalid cursor position");
-	using list_t = ui::next::List<hsapi::Category>;
+	using list_t = ui::List<hsapi::Category>;
 
-	std::string desc = next::set_desc(STRING(select_cat));
-	bool focus = next::set_focus(false);
+	std::string desc = set_desc(STRING(select_cat));
+	bool focus = set_focus(false);
 	const std::string *ret = nullptr;
 
 	ui::RenderQueue queue;
 
-	ui::next::CatMeta *meta;
+	ui::CatMeta *meta;
 	list_t *list;
 
-	ui::builder<ui::next::CatMeta>(ui::Screen::bottom, hsapi::get_index()->categories[*cursor])
+	ui::builder<ui::CatMeta>(ui::Screen::bottom, hsapi::get_index()->categories[*cursor])
 		.add_to(&meta, queue);
 
 	ui::builder<list_t>(ui::Screen::top, &hsapi::get_index()->categories)
@@ -49,17 +49,17 @@ const std::string *next::sel_cat(size_t *cursor)
 	queue.render_finite();
 	if(cursor != nullptr) *cursor = list->get_pos();
 
-	next::set_focus(focus);
-	next::set_desc(desc);
+	set_focus(focus);
+	set_desc(desc);
 	return ret;
 }
 
 const std::string *next::sel_sub(const std::string& cat, size_t *cursor)
 {
-	using list_t = ui::next::List<hsapi::Subcategory>;
+	using list_t = ui::List<hsapi::Subcategory>;
 
-	std::string desc = next::set_desc(STRING(select_cat));
-	bool focus = next::set_focus(false);
+	std::string desc = set_desc(STRING(select_cat));
+	bool focus = set_focus(false);
 	const std::string *ret = nullptr;
 
 	hsapi::Category *rcat = hsapi::get_index()->find(cat);
@@ -67,12 +67,12 @@ const std::string *next::sel_sub(const std::string& cat, size_t *cursor)
 
 	panic_assert(rcat, "couldn't find category");
 
-	ui::next::SubMeta *meta;
+	ui::SubMeta *meta;
 	list_t *list;
 
 	panic_assert(rcat->subcategories.size() > *cursor, "invalid cursor position");
 
-	ui::builder<ui::next::SubMeta>(ui::Screen::bottom, rcat->subcategories[*cursor])
+	ui::builder<ui::SubMeta>(ui::Screen::bottom, rcat->subcategories[*cursor])
 		.add_to(&meta, queue);
 
 	ui::builder<list_t>(ui::Screen::top, &rcat->subcategories)
@@ -94,26 +94,26 @@ const std::string *next::sel_sub(const std::string& cat, size_t *cursor)
 	queue.render_finite();
 	if(cursor != nullptr) *cursor = list->get_pos();
 
-	next::set_focus(focus);
-	next::set_desc(desc);
+	set_focus(focus);
+	set_desc(desc);
 	return ret;
 }
 
 hsapi::hid next::sel_gam(std::vector<hsapi::Title>& titles, size_t *cursor)
 {
 	panic_assert(titles.size() > *cursor, "invalid cursor position");
-	using list_t = ui::next::List<hsapi::Title>;
+	using list_t = ui::List<hsapi::Title>;
 
-	std::string desc = next::set_desc(STRING(select_title));
-	bool focus = next::set_focus(false);
+	std::string desc = set_desc(STRING(select_title));
+	bool focus = set_focus(false);
 	hsapi::hid ret = next_gam_back;
 
 	ui::RenderQueue queue;
 
-	ui::next::TitleMeta *meta;
+	ui::TitleMeta *meta;
 	list_t *list;
 
-	ui::builder<ui::next::TitleMeta>(ui::Screen::bottom, titles[*cursor])
+	ui::builder<ui::TitleMeta>(ui::Screen::bottom, titles[*cursor])
 		.add_to(&meta, queue);
 
 	ui::builder<list_t>(ui::Screen::top, &titles)
@@ -143,8 +143,8 @@ hsapi::hid next::sel_gam(std::vector<hsapi::Title>& titles, size_t *cursor)
 	queue.render_finite();
 	if(cursor != nullptr) *cursor = list->get_pos();
 
-	next::set_focus(focus);
-	next::set_desc(desc);
+	set_focus(focus);
+	set_desc(desc);
 	return ret;
 }
 

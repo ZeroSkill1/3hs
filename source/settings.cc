@@ -1,11 +1,8 @@
 
 #include "settings.hh"
 
-#include <widgets/indicators.hh>
-
 #include <ui/selector.hh>
 #include <ui/swkbd.hh>
-#include <ui/base.hh>
 #include <ui/list.hh>
 
 #include <unistd.h>
@@ -133,26 +130,12 @@ static std::string serialize_id(SettingsId ID)
 }
 
 template <typename TEnum>
-static TEnum get_enum(std::vector<std::string> keys, std::vector<TEnum> values, TEnum now)
-{
-	ui::end_frame();
-	ui::Widgets wids;
-	TEnum ret = now;
-
-	wids.push_back("selector", new ui::Selector<TEnum>(keys, values, &ret), ui::Scr::bottom);
-	wids.get<ui::Selector<TEnum>>("selector")->search_set_idx(now);
-	generic_main_breaking_loop(wids);
-
-	return ret;
-}
-
-template <typename TEnum>
 static void read_set_enum(const std::vector<std::string>& keys,
 	const std::vector<TEnum>& values, TEnum& val)
 {
 	ui::RenderQueue queue;
 
-	ui::builder<ui::next::Selector<TEnum>>(ui::Screen::bottom, keys, values, &val)
+	ui::builder<ui::Selector<TEnum>>(ui::Screen::bottom, keys, values, &val)
 		.add_to(queue);
 
 	queue.render_finite();
@@ -175,10 +158,10 @@ static void show_update_proxy()
 {
 	ui::RenderQueue queue;
 
-	ui::next::Button *password;
-	ui::next::Button *username;
-	ui::next::Button *host;
-	ui::next::Button *port;
+	ui::Button *password;
+	ui::Button *username;
+	ui::Button *host;
+	ui::Button *port;
 
 	constexpr float w = ui::screen_width(ui::Screen::bottom) - 10.0f;
 	constexpr float h = 20;
@@ -194,7 +177,7 @@ static void show_update_proxy()
 		[&name]() -> bool { \
 			ui::RenderQueue::global()->render_and_then([&name]() -> void { \
 				SwkbdButton btn; \
-				std::string val = ui::keyboard([](ui::next::AppletSwkbd *swkbd) -> void { \
+				std::string val = ui::keyboard([](ui::AppletSwkbd *swkbd) -> void { \
 					swkbd->hint(STRING(name)); \
 				}, &btn); \
 			\
@@ -209,26 +192,26 @@ static void show_update_proxy()
 		}
 
 	/* host */
-	ui::builder<ui::next::Text>(ui::Screen::bottom, STRING(host))
+	ui::builder<ui::Text>(ui::Screen::bottom, STRING(host))
 		.x(ui::layout::left)
 		.y(10.0f)
 		.add_to(queue);
-	ui::builder<ui::next::Button>(ui::Screen::bottom)
-		.connect(ui::next::Button::click, BASIC_CALLBACK(host))
+	ui::builder<ui::Button>(ui::Screen::bottom)
+		.connect(ui::Button::click, BASIC_CALLBACK(host))
 		.size(w, h)
 		.x(ui::layout::center_x)
 		.under(queue.back())
 		.add_to(&host, queue);
 	/* port */
-	ui::builder<ui::next::Text>(ui::Screen::bottom, STRING(port))
+	ui::builder<ui::Text>(ui::Screen::bottom, STRING(port))
 		.x(ui::layout::left)
 		.under(queue.back())
 		.add_to(queue);
-	ui::builder<ui::next::Button>(ui::Screen::bottom)
-		.connect(ui::next::Button::click, [&port]() -> bool {
+	ui::builder<ui::Button>(ui::Screen::bottom)
+		.connect(ui::Button::click, [&port]() -> bool {
 			ui::RenderQueue::global()->render_and_then([&port]() -> void { \
 				SwkbdButton btn;
-				uint64_t val = ui::numpad([](ui::next::AppletSwkbd *swkbd) -> void { \
+				uint64_t val = ui::numpad([](ui::AppletSwkbd *swkbd) -> void { \
 					swkbd->hint(STRING(port));
 				}, 5 /* max is 65535: 5 digits */, &btn);
 
@@ -246,35 +229,35 @@ static void show_update_proxy()
 		.under(queue.back())
 		.add_to(&port, queue);
 	/* username */
-	ui::builder<ui::next::Text>(ui::Screen::bottom, STRING(username))
+	ui::builder<ui::Text>(ui::Screen::bottom, STRING(username))
 		.x(ui::layout::left)
 		.under(queue.back())
 		.add_to(queue);
-	ui::builder<ui::next::Button>(ui::Screen::bottom)
-		.connect(ui::next::Button::click, BASIC_CALLBACK(username))
+	ui::builder<ui::Button>(ui::Screen::bottom)
+		.connect(ui::Button::click, BASIC_CALLBACK(username))
 		.size(w, h)
 		.x(ui::layout::center_x)
 		.under(queue.back())
 		.add_to(&username, queue);
 	/* password */
-	ui::builder<ui::next::Text>(ui::Screen::bottom, STRING(password))
+	ui::builder<ui::Text>(ui::Screen::bottom, STRING(password))
 		.x(ui::layout::left)
 		.under(queue.back())
 		.add_to(queue);
-	ui::builder<ui::next::Button>(ui::Screen::bottom)
-		.connect(ui::next::Button::click, BASIC_CALLBACK(password))
+	ui::builder<ui::Button>(ui::Screen::bottom)
+		.connect(ui::Button::click, BASIC_CALLBACK(password))
 		.size(w, h)
 		.x(ui::layout::center_x)
 		.under(queue.back())
 		.add_to(&password, queue);
 
-	ui::builder<ui::next::Button>(ui::Screen::bottom, STRING(clear))
-		.connect(ui::next::Button::click, [host, port, username, password]() -> bool {
+	ui::builder<ui::Button>(ui::Screen::bottom, STRING(clear))
+		.connect(ui::Button::click, [host, port, username, password]() -> bool {
 			proxy::clear();
 			UPDATE_LABELS();
 			return true;
 		})
-		.connect(ui::next::Button::nobg)
+		.connect(ui::Button::nobg)
 		.x(10.0f)
 		.y(210.0f)
 		.wrap()
@@ -301,7 +284,8 @@ static void update_settings_ID(SettingsId ID)
 		g_settings.loadFreeSpace = !g_settings.loadFreeSpace;
 		// If we switched it from off to on and we've never drawed the widget before
 		// It wouldn't draw the widget until another update
-		ui::wid()->get<ui::FreeSpaceIndicator>("size_indicator")->update();
+		// TODO: Transfer this to whatever the new version will be
+//		ui::wid()->get<ui::FreeSpaceIndicator>("size_indicator")->update();
 		break;
 	case ID_Battery:
 		g_settings.showBattery = !g_settings.showBattery;
@@ -351,36 +335,35 @@ void show_settings()
 {
 	std::vector<SettingInfo> settingsInfo =
 	{
-		{ STRING(progbar_screen) , "The screen to draw progress bars on"                                                                , ID_ProgLoc    },
-		{ STRING(light_mode)     , "Turn on light mode. This will change the way most ui elements look."                                , ID_LightMode  },
-		{ STRING(resume_dl)      , "Should we start where we left off downloading the first time if we failed the first try?"           , ID_Resumable  },
-		{ STRING(load_space)     , "Load the free space indicator. Bootup time should be shorter if you disable this on large SDs"      , ID_FreeSpace  },
-		{ STRING(show_battery)   , "Toggle visibility of battery in top right corner"                                                   , ID_Battery    },
-		{ STRING(time_format)    , "Your preferred time format. Either 24h or 12h."                                                     , ID_TimeFmt    },
-		{ STRING(progbar_screen) , "The screen to draw progress bars on"                                                                , ID_ProgLoc    },
-		{ STRING(language)       , "The language 3hs is in. Note that to update all text you might need to restart 3hs"                 , ID_Language   },
-		{ STRING(lumalocalemode) , "The mode LumaLocale autosetter uses. Automatic selects a language automatically, manual manually"   , ID_Localemode },
-		{ STRING(ask_extra)      , "Ask for extra content after an installation."                                                       , ID_Extra      },
-		{ STRING(proxy)          , "Configure a proxy"                                                                                  , ID_Proxy      },
+//		{ STRING(light_mode)     , STRING(light_mode_desc)     , ID_LightMode  }, // TODO
+		{ STRING(resume_dl)      , STRING(resume_dl_desc)      , ID_Resumable  },
+		{ STRING(load_space)     , STRING(load_space_desc)     , ID_FreeSpace  },
+		{ STRING(show_battery)   , STRING(show_battery_desc)   , ID_Battery    },
+		{ STRING(time_format)    , STRING(time_format_desc)    , ID_TimeFmt    },
+		{ STRING(progbar_screen) , STRING(progbar_screen_desc) , ID_ProgLoc    },
+		{ STRING(language)       , STRING(language_desc)       , ID_Language   },
+		{ STRING(lumalocalemode) , STRING(lumalocalemode)      , ID_Localemode },
+		{ STRING(ask_extra)      , STRING(ask_extra_desc)      , ID_Extra      },
+		{ STRING(proxy)          , STRING(proxy_desc)          , ID_Proxy      },
 	};
 
 	panic_assert(settingsInfo.size() > 0, "empty settings meta table");
 
-	using list_t = ui::next::List<SettingInfo>;
+	using list_t = ui::List<SettingInfo>;
 
-	bool focus = next::set_focus(true);
+	bool focus = set_focus(true);
 
 	ui::RenderQueue queue;
-	ui::next::Text *value;
-	ui::next::Text *desc;
+	ui::Text *value;
+	ui::Text *desc;
 	list_t *list;
 
-	ui::builder<ui::next::Text>(ui::Screen::bottom, settingsInfo[0].desc)
+	ui::builder<ui::Text>(ui::Screen::bottom, settingsInfo[0].desc)
 		.x(10.0f)
 		.y(20.0f)
 		.wrap()
 		.add_to(&desc, queue);
-	ui::builder<ui::next::Text>(ui::Screen::bottom, PSTRING(value_x, serialize_id(settingsInfo[0].ID)))
+	ui::builder<ui::Text>(ui::Screen::bottom, PSTRING(value_x, serialize_id(settingsInfo[0].ID)))
 		.x(20.0f)
 		.under(desc, 5.0f)
 		.wrap()
@@ -404,6 +387,6 @@ void show_settings()
 		.add_to(&list, queue);
 
 	queue.render_finite_button(KEY_B);
-	next::set_focus(focus);
+	set_focus(focus);
 }
 

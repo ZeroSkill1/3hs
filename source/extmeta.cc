@@ -11,6 +11,9 @@
 #include "util.hh"
 #include "ctr.hh"
 
+/* for some reason it complains about svcGetThreadPriority() if i put this at the top??? */
+#include <3rd/log.hh>
+
 enum class extmeta_return { yes, no, none };
 
 /* don't call with exmeta_return::none */
@@ -22,10 +25,10 @@ static bool to_bool(extmeta_return r)
 static extmeta_return extmeta(ui::RenderQueue& queue, const hsapi::Title& base, const std::string& version_s, const std::string& prodcode_s)
 {
 	extmeta_return ret = extmeta_return::none;
-	ui::next::Text *prodcode;
-	ui::next::Text *version;
+	ui::Text *prodcode;
+	ui::Text *version;
 
-	ui::builder<ui::next::Text>(ui::Screen::top, STRING(press_to_install))
+	ui::builder<ui::Text>(ui::Screen::top, STRING(press_to_install))
 		.x(ui::layout::center_x)
 		.y(170.0f)
 		.add_to(queue);
@@ -43,7 +46,7 @@ static extmeta_return extmeta(ui::RenderQueue& queue, const hsapi::Title& base, 
 	 ***/
 
 	/* name */
-	ui::builder<ui::next::Text>(ui::Screen::top, base.name)
+	ui::builder<ui::Text>(ui::Screen::top, base.name)
 		.x(9.0f)
 		.y(25.0f)
 		// if this overflows to the point where it overlaps with
@@ -51,7 +54,7 @@ static extmeta_return extmeta(ui::RenderQueue& queue, const hsapi::Title& base, 
 		// don't think we have such titles
 		.wrap()
 		.add_to(queue);
-	ui::builder<ui::next::Text>(ui::Screen::top, STRING(name))
+	ui::builder<ui::Text>(ui::Screen::top, STRING(name))
 		.size(0.45f)
 		.x(9.0f)
 		.under(queue.back(), -1.0f)
@@ -60,77 +63,77 @@ static extmeta_return extmeta(ui::RenderQueue& queue, const hsapi::Title& base, 
 	/* category -> subcategory */
 	// on the bottom screen there are cases where this overflows,
 	// but i don't think that can happen on the top screen since it's a bit bigger
-	ui::builder<ui::next::Text>(ui::Screen::top, hsapi::get_index()->find(base.cat)->disp + " -> " + hsapi::get_index()->find(base.cat)->find(base.subcat)->disp)
+	ui::builder<ui::Text>(ui::Screen::top, hsapi::get_index()->find(base.cat)->disp + " -> " + hsapi::get_index()->find(base.cat)->find(base.subcat)->disp)
 		.x(9.0f)
 		.under(queue.back(), 1.0f)
 		.add_to(queue);
-	ui::builder<ui::next::Text>(ui::Screen::top, STRING(category))
+	ui::builder<ui::Text>(ui::Screen::top, STRING(category))
 		.size(0.45f)
 		.x(9.0f)
 		.under(queue.back(), -1.0f)
 		.add_to(queue);
 
 	/* version */
-	ui::builder<ui::next::Text>(ui::Screen::bottom, version_s)
+	ui::builder<ui::Text>(ui::Screen::bottom, version_s)
 		.x(9.0f)
 		.y(20.0f)
 		.add_to(&version, queue);
-	ui::builder<ui::next::Text>(ui::Screen::bottom, STRING(version))
+	ui::builder<ui::Text>(ui::Screen::bottom, STRING(version))
 		.size(0.45f)
 		.x(9.0f)
 		.under(queue.back(), -1.0f)
 		.add_to(queue);
 
 	/* product code */
-	ui::builder<ui::next::Text>(ui::Screen::bottom, prodcode_s)
+	ui::builder<ui::Text>(ui::Screen::bottom, prodcode_s)
 		.x(150.0f)
 		.align_y(version)
 		.add_to(&prodcode, queue);
-	ui::builder<ui::next::Text>(ui::Screen::bottom, STRING(prodcode))
+	ui::builder<ui::Text>(ui::Screen::bottom, STRING(prodcode))
 		.size(0.45f)
 		.x(150.0f)
 		.under(queue.back(), -1.0f)
 		.add_to(queue);
 
 	/* size */
-	ui::builder<ui::next::Text>(ui::Screen::bottom, ui::human_readable_size_block<hsapi::hsize>(base.size))
+	ui::builder<ui::Text>(ui::Screen::bottom, ui::human_readable_size_block<hsapi::hsize>(base.size))
 		.x(9.0f)
 		.under(queue.back(), 1.0f)
 		.add_to(queue);
-	ui::builder<ui::next::Text>(ui::Screen::bottom, STRING(size))
+	ui::builder<ui::Text>(ui::Screen::bottom, STRING(size))
 		.size(0.45f)
 		.x(9.0f)
 		.under(queue.back(), -1.0f)
 		.add_to(queue);
 
 	/* title id */
-	ui::builder<ui::next::Text>(ui::Screen::bottom, ctr::tid_to_str(base.tid))
+	ui::builder<ui::Text>(ui::Screen::bottom, ctr::tid_to_str(base.tid))
 		.x(9.0f)
 		.under(queue.back(), 1.0f)
 		.add_to(queue);
-	ui::builder<ui::next::Text>(ui::Screen::bottom, STRING(tid))
+	ui::builder<ui::Text>(ui::Screen::bottom, STRING(tid))
 		.size(0.45f)
 		.x(9.0f)
 		.under(queue.back(), -1.0f)
 		.add_to(queue);
 
 	/* landing id */
-	ui::builder<ui::next::Text>(ui::Screen::bottom, std::to_string(base.id))
+	ui::builder<ui::Text>(ui::Screen::bottom, std::to_string(base.id))
 		.x(9.0f)
 		.under(queue.back(), 1.0f)
 		.add_to(queue);
-	ui::builder<ui::next::Text>(ui::Screen::bottom, STRING(landing_id))
+	ui::builder<ui::Text>(ui::Screen::bottom, STRING(landing_id))
 		.size(0.45f)
 		.x(9.0f)
 		.under(queue.back(), -1.0f)
 		.add_to(queue);
 
-	ui::builder<ui::next::ButtonCallback>(ui::Screen::top, KEY_B)
-		.connect(ui::next::ButtonCallback::kdown, [&ret](u32) -> bool { ret = extmeta_return::no; return false; })
+	ui::builder<ui::ButtonCallback>(ui::Screen::top, KEY_B)
+		.connect(ui::ButtonCallback::kdown, [&ret](u32) -> bool { ret = extmeta_return::no; return false; })
 		.add_to(queue);
 
-	ui::builder<ui::next::ButtonCallback>(ui::Screen::top, KEY_A)
-		.connect(ui::next::ButtonCallback::kdown, [&ret](u32) -> bool { ret = extmeta_return::yes; return false; })
+	ui::builder<ui::ButtonCallback>(ui::Screen::top, KEY_A)
+		.connect(ui::ButtonCallback::kdown, [&ret](u32) -> bool { ret = extmeta_return::yes; return false; })
 		.add_to(queue);
 
 	queue.render_finite();
@@ -145,7 +148,7 @@ static extmeta_return extmeta(const hsapi::FullTitle& title)
 
 bool show_extmeta_lazy(const hsapi::Title& base, hsapi::FullTitle *full)
 {
-	std::string desc = next::set_desc(STRING(more_about_content));
+	std::string desc = set_desc(STRING(more_about_content));
 	ui::RenderQueue queue;
 	bool ret = true;
 
@@ -167,6 +170,7 @@ bool show_extmeta_lazy(const hsapi::Title& base, hsapi::FullTitle *full)
 	/* second thread returned more data */
 	if(res == extmeta_return::none)
 	{
+		linfo << "Lazy load finished before choice was made.";
 		queue.clear();
 		res = extmeta(queue, base, version, prodcode);
 	}
@@ -177,7 +181,7 @@ bool show_extmeta_lazy(const hsapi::Title& base, hsapi::FullTitle *full)
 	 * and *setting* of the renderqueue callback */
 	th.join();
 
-	next::set_desc(desc);
+	set_desc(desc);
 	return ret;
 }
 
@@ -194,9 +198,9 @@ bool show_extmeta_lazy(std::vector<hsapi::Title>& titles, hsapi::hid id, hsapi::
 
 bool show_extmeta(const hsapi::FullTitle& title)
 {
-	std::string desc = next::set_desc(STRING(more_about_content));
+	std::string desc = set_desc(STRING(more_about_content));
 	bool ret = to_bool(extmeta(title));
-	next::set_desc(desc);
+	set_desc(desc);
 	return ret;
 }
 

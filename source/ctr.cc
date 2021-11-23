@@ -82,21 +82,18 @@ ctr::TitleSMDHTitle *ctr::smdh::get_native_title(TitleSMDH *smdh)
 
 std::string ctr::smdh::u16conv(u16 *str, size_t size)
 {
-	std::string ret;
-	ret.reserve(size);
+	u16 *strexpand = (u16 *) malloc(sizeof(u16) * (size + 1));
+	memcpy(strexpand, str, size * sizeof(u16));
+	strexpand[size] = 0; /* all this for a NULL term */
 
-	for(size_t i = 0; i < size; ++i)
-	{
-		const u8 lower = (str[i] >> 0) & 0xFF;
-		const u8 upper = (str[i] >> 8) & 0xFF;
+	u8 *buf = (u8 *) malloc(size * 4);
+	ssize_t units = utf16_to_utf8(buf, str, size * 4);
+	if(units == -1 || units > (ssize_t) size * 4)
+		panic("Failed to decode utf16 sequence, units=" + std::to_string(units));
 
-		// We're done
-		if(lower == 0) break;
-
-		ret.push_back(lower);
-		if(upper != 0) ret.push_back(upper);
-	}
-
+	free((void *) strexpand);
+	std::string ret((char *) buf, units);
+	free((void *) buf);
 	return ret;
 }
 
@@ -156,5 +153,51 @@ std::string ctr::tid_to_str(u64 tid)
 	char buf[17];
 	snprintf(buf, 17, "%016llX", tid);
 	return buf;
+}
+
+bool ctr::title_exists(u64 tid, FS_MediaType media)
+{
+	u32 tcount = 0;
+
+	if(R_FAILED(AM_GetTitleCount(media, &tcount)))
+		return false;
+
+	u64 *tids = new u64[tcount];
+	if(R_FAILED(AM_GetTitleList(&tcount, media, tcount, tids)))
+	{
+		delete [] tids;
+		return false;
+	}
+
+	for(size_t i = 0; i < tcount; ++i)
+	{
+		if(tids[i] == tid)
+		{
+			delete [] tids;
+			return true;
+		}
+	}
+
+	delete [] tids;
+	return false;
+}
+
+Result ctr::delete_title(u64 tid, FS_MediaType media)
+{
+	Result ret = 0;
+
+	if(R_FAILED(ret = AM_DeleteTitle(media, tid))) return ret;
+	if(R_FAILED(ret = AM_DeleteTicket(tid))) return ret;
+
+	// Reloads the databases
+	if(media == MEDIATYPE_SD) ret = AM_QueryAvailableExternalTitleDatabase(NULL);
+	return ret;
+}
+
+Result ctr::delete_if_exist(u64 tid, FS_MediaType media)
+{
+	if(title_exists(tid, media))
+		return delete_title(tid, media);
+	return 0;
 }
 

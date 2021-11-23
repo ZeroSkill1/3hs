@@ -11,6 +11,7 @@
 #include <3ds.h>
 
 #include <functional>
+#include <sstream>
 #include <vector>
 #include <string>
 #include <list>
@@ -473,154 +474,182 @@ namespace ui
 
 	};
 
-	namespace next
+	class Text : public ui::BaseWidget
+	{ UI_WIDGET("Text")
+	public:
+		void setup(const std::string& label);
+		void destroy() override;
+
+		bool render(const ui::Keys&) override;
+		float height() override;
+		float width() override;
+
+		void resize(float x, float y);
+		void autowrap();
+		void scroll(); /* only supported with !center(), doesn't look amazing with multiline text but works */
+
+		void set_center_x() override;
+
+		/* sets the text of the widget to a new string */
+		void set_text(const std::string& label);
+		/* gets the current text of the widget */
+		const std::string& get_text();
+
+
+	private:
+		void push_str(const std::string& str);
+		void prepare_arrays();
+		void reset_scroll();
+
+		float xsiz = 0.65f, ysiz = 0.65f;
+		std::vector<C2D_Text> lines;
+		C2D_TextBuf buf = nullptr;
+		bool doAutowrap = false;
+		float lineHeigth = 0.0f;
+		bool drawCenter = false;
+		bool doScroll = false;
+		std::string text;
+
+		struct ScrollCtx {
+			size_t timing;
+			size_t offset;
+			float height;
+			float width;
+			float rx;
+		} sctx;
+
+
+	};
+
+	class Sprite : public ui::BaseWidget
+	{ UI_WIDGET("Sprite")
+	public:
+		void setup(C2D_Sprite sprite);
+
+		bool render(const ui::Keys&) override;
+		float height() override;
+		float width() override;
+
+		void set_x(float x) override;
+		void set_y(float y) override;
+		void set_z(float z) override;
+
+		void set_center(float x, float y);
+		void rotate(float degs);
+
+
+	private:
+		C2D_Sprite sprite;
+
+
+	};
+
+	class Button : public ui::BaseWidget
+	{ UI_WIDGET("Button")
+	public:
+		using click_cb_t = std::function<bool()>;
+
+		void setup(const std::string& label);
+		void setup(const C2D_Sprite& sprite);
+		void destroy() override;
+		void setup();
+
+		bool render(const ui::Keys&) override;
+		float height() override;
+		float width() override;
+
+		void set_border(bool b);
+
+		void resize_children(float x, float y);
+		void resize(float x, float y);
+		void set_x(float x) override;
+		void set_y(float x) override;
+		void set_z(float z) override;
+
+		/* autowrap for text size */
+		void autowrap();
+		/* update the label or set one */
+		void set_label(const std::string& v);
+
+		enum connect_type { click, nobg };
+		/* click */
+		void connect(connect_type type, click_cb_t callback);
+		/* nobg */
+		void connect(connect_type type);
+
+		float textwidth();
+
+
+	private:
+		click_cb_t on_click = []() -> bool { return true; };
+		bool showBg = true, showBorder = false;
+		ui::BaseWidget *widget = nullptr;
+		float ox = 0.0f, oy = 0.0f;
+		float w = 0.0f, h = 0.0f;
+
+		void readjust();
+
+
+	};
+
+	/* utility */
+
+	class ButtonCallback : public ui::BaseWidget
+	{ UI_WIDGET("ButtonCallback")
+	public:
+		void setup(u32 keys);
+
+		bool render(const ui::Keys&) override;
+		float height() override { return 0.0f; }
+		float width() override { return 0.0f; }
+
+		enum connect_type {
+			none,
+			kdown,
+			kheld,
+			kup,
+		};
+		/* activate */
+		void connect(connect_type type, std::function<bool(u32)> cb);
+
+
+	private:
+		std::function<bool(u32)> cb = [](u32) -> bool { return true; };
+		connect_type type = none;
+		u32 keys;
+
+
+	};
+
+	template <typename T>
+	std::string floating_prec(T inte, int prec = 2)
 	{
-		class Text : public ui::BaseWidget
-		{ UI_WIDGET("Text")
-		public:
-			void setup(const std::string& label);
-			void destroy() override;
+		std::ostringstream ss; ss.precision(prec);
+		ss << std::fixed << inte; return ss.str();
+	}
 
-			bool render(const ui::Keys&) override;
-			float height() override;
-			float width() override;
+	template <typename TInt>
+	std::string human_readable_size(TInt i)
+	{
+		// Sorry for this mess.....
+		if(i < 1024) return std::to_string(i) + " B"; /* < 1 KiB */
+		if(i < 1024 * 1024) /* < 1 MiB */
+			return floating_prec<float>((float) i / 1024) + " KiB";
+		if(i < 1024 * 1024 * 1024) /* < 1 GiB */
+			return floating_prec<float>((float) i / 1024 / 1024) + " MiB";
+		if(i < (long long) 1024 * 1024 * 1024 * 1024) /* < 1TiB */
+			return floating_prec<float>((float) i / 1024 / 1024 / 1024) + " GiB";
+		return floating_prec<float>((float) i / 1024 / 1024 / 1024 / 1024) + " TiB";
+	}
 
-			void resize(float x, float y);
-			void autowrap();
-			void scroll(); /* only supported with !center(), doesn't look amazing with multiline text but works */
+	template <typename TInt>
+	std::string human_readable_size_block(TInt i)
+	{
+		std::string ret = human_readable_size<TInt>(i);
+		TInt blk = (double) i / 1024 / 128;
+		blk = blk == 0 ? 1 : blk;
 
-			void set_center_x() override;
-
-			/* sets the text of the widget to a new string */
-			void set_text(const std::string& label);
-			/* gets the current text of the widget */
-			const std::string& get_text();
-
-
-		private:
-			void push_str(const std::string& str);
-			void prepare_arrays();
-			void reset_scroll();
-
-			float xsiz = 0.65f, ysiz = 0.65f;
-			std::vector<C2D_Text> lines;
-			C2D_TextBuf buf = nullptr;
-			bool doAutowrap = false;
-			float lineHeigth = 0.0f;
-			bool drawCenter = false;
-			bool doScroll = false;
-			std::string text;
-
-			struct ScrollCtx {
-				size_t timing;
-				size_t offset;
-				float height;
-				float width;
-				float rx;
-			} sctx;
-
-
-		};
-
-		class Sprite : public ui::BaseWidget
-		{ UI_WIDGET("Sprite")
-		public:
-			void setup(C2D_Sprite sprite);
-
-			bool render(const ui::Keys&) override;
-			float height() override;
-			float width() override;
-
-			void set_x(float x) override;
-			void set_y(float y) override;
-			void set_z(float z) override;
-
-			void set_center(float x, float y);
-			void rotate(float degs);
-
-
-		private:
-			C2D_Sprite sprite;
-
-
-		};
-
-		class Button : public ui::BaseWidget
-		{ UI_WIDGET("Button")
-		public:
-			using click_cb_t = std::function<bool()>;
-
-			void setup(const std::string& label);
-			void setup(const C2D_Sprite& sprite);
-			void destroy() override;
-			void setup();
-
-			bool render(const ui::Keys&) override;
-			float height() override;
-			float width() override;
-
-			void set_border(bool b);
-
-			void resize_children(float x, float y);
-			void resize(float x, float y);
-			void set_x(float x) override;
-			void set_y(float x) override;
-			void set_z(float z) override;
-
-			/* autowrap for text size */
-			void autowrap();
-			/* update the label or set one */
-			void set_label(const std::string& v);
-
-			enum connect_type { click, nobg };
-			/* click */
-			void connect(connect_type type, click_cb_t callback);
-			/* nobg */
-			void connect(connect_type type);
-
-			float textwidth();
-
-
-		private:
-			click_cb_t on_click = []() -> bool { return true; };
-			bool showBg = true, showBorder = false;
-			ui::BaseWidget *widget = nullptr;
-			float ox = 0.0f, oy = 0.0f;
-			float w = 0.0f, h = 0.0f;
-
-			void readjust();
-
-
-		};
-
-		/* utility */
-
-		class ButtonCallback : public ui::BaseWidget
-		{ UI_WIDGET("ButtonCallback")
-		public:
-			void setup(u32 keys);
-
-			bool render(const ui::Keys&) override;
-			float height() override { return 0.0f; }
-			float width() override { return 0.0f; }
-
-			enum connect_type {
-				none,
-				kdown,
-				kheld,
-				kup,
-			};
-			/* activate */
-			void connect(connect_type type, std::function<bool(u32)> cb);
-
-
-		private:
-			std::function<bool(u32)> cb = [](u32) -> bool { return true; };
-			connect_type type = none;
-			u32 keys;
-
-
-		};
+		return ret + std::string(" (") + std::to_string(blk) + (blk == 1 ? " block)" : " blocks)");
 	}
 }
 

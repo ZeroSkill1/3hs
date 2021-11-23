@@ -87,6 +87,10 @@ namespace ctr {
 	Result list_titles_on(FS_MediaType media, std::vector<u64>& ret);
 	Result get_free_space(Destination media, u64 *size);
 
+	Result delete_if_exist(u64 tid, FS_MediaType media = MEDIATYPE_SD);
+	Result delete_title(u64 tid, FS_MediaType media = MEDIATYPE_SD);
+	bool title_exists(u64 tid, FS_MediaType media = MEDIATYPE_SD);
+
 	namespace smdh
 	{
 		TitleSMDHTitle *get_native_title(TitleSMDH *smdh);

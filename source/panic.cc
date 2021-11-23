@@ -51,7 +51,7 @@ void exit_services()
 
 static void pusha(ui::RenderQueue& queue)
 {
-	ui::builder<ui::next::Text>(ui::Screen::top, STRING(press_a_exit))
+	ui::builder<ui::Text>(ui::Screen::top, STRING(press_a_exit))
 		.x(ui::layout::center_x)
 		.y(ui::layout::bottom)
 		.add_to(queue);
@@ -59,24 +59,24 @@ static void pusha(ui::RenderQueue& queue)
 
 static void pusherror(const error_container& err, ui::RenderQueue& queue, float base)
 {
-	ui::builder<ui::next::Text>(ui::Screen::top, format_err(err.sDesc, err.iDesc))
+	ui::builder<ui::Text>(ui::Screen::top, format_err(err.sDesc, err.iDesc))
 		.x(ui::layout::center_x)
 		.y(base)
 		.wrap()
 		.add_to(queue);
-	ui::builder<ui::next::Text>(ui::Screen::top, PSTRING(result_code, "0x" + pad8code(err.full)))
+	ui::builder<ui::Text>(ui::Screen::top, PSTRING(result_code, "0x" + pad8code(err.full)))
 		.x(ui::layout::center_x)
 		.under(queue.back())
 		.add_to(queue);
-	ui::builder<ui::next::Text>(ui::Screen::top, PSTRING(level, format_err(err.sLvl, err.iLvl)))
+	ui::builder<ui::Text>(ui::Screen::top, PSTRING(level, format_err(err.sLvl, err.iLvl)))
 		.x(ui::layout::center_x)
 		.under(queue.back())
 		.add_to(queue);
-	ui::builder<ui::next::Text>(ui::Screen::top, PSTRING(summary, format_err(err.sSum, err.iSum)))
+	ui::builder<ui::Text>(ui::Screen::top, PSTRING(summary, format_err(err.sSum, err.iSum)))
 		.x(ui::layout::center_x)
 		.under(queue.back())
 		.add_to(queue);
-	ui::builder<ui::next::Text>(ui::Screen::top, PSTRING(module, format_err(err.sMod, err.iMod)))
+	ui::builder<ui::Text>(ui::Screen::top, PSTRING(module, format_err(err.sMod, err.iMod)))
 		.x(ui::layout::center_x)
 		.under(queue.back())
 		.add_to(queue);
@@ -93,12 +93,12 @@ void handle_error(const error_container& err)
 
 [[noreturn]] static void panic_core(const std::string& caller, ui::RenderQueue& queue)
 {
-	ui::next::Text *action = ui::RenderQueue::global()->find_tag<ui::next::Text>(ui::tag::action);
+	ui::Text *action = ui::RenderQueue::global()->find_tag<ui::Text>(ui::tag::action);
 	/* panic may be called before core ui is set-up so we can't be sure
 	 * ui::tag::action is already active */
 	if(action == nullptr)
 	{
-		ui::builder<ui::next::Text>(ui::Screen::top, STRING(fatal_panic))
+		ui::builder<ui::Text>(ui::Screen::top, STRING(fatal_panic))
 			.x(ui::layout::center_x)
 			.y(4.0f)
 			.add_to(&action, ui::RenderQueue::global());
@@ -107,12 +107,12 @@ void handle_error(const error_container& err)
 	else
 	{
 		/* this will be the final focus shift so we don't need to revert the state after */
-		next::set_desc(STRING(fatal_panic));
-		next::set_focus(false);
+		set_desc(STRING(fatal_panic));
+		set_focus(false);
 	}
 
 	pusha(queue);
-	ui::builder<ui::next::Text>(ui::Screen::top, caller)
+	ui::builder<ui::Text>(ui::Screen::top, caller)
 		.x(ui::layout::center_x)
 		.under(action)
 		.add_to(queue);
@@ -122,7 +122,7 @@ void handle_error(const error_container& err)
 	// Deinit
 	exit_services();
 	hsapi::global_deinit();
-	ui::global_deinit();
+	ui::exit();
 
 	// Exit
 	exit(1);
@@ -132,7 +132,7 @@ void handle_error(const error_container& err)
 {
 	ui::RenderQueue queue;
 
-	ui::builder<ui::next::Text>(ui::Screen::top, msg)
+	ui::builder<ui::Text>(ui::Screen::top, msg)
 		.x(ui::layout::center_x)
 		.y(70.0f)
 		.wrap()

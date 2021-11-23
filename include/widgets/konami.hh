@@ -2,6 +2,7 @@
 #ifndef inc_ui_konami_hh
 #define inc_ui_konami_hh
 
+#if 0
 #include "ui/bindings.hh"
 #include "ui/sprite.hh"
 #include "ui/core.hh"
@@ -24,5 +25,6 @@ namespace ui
 
 	};
 }
+#endif
 
 #endif

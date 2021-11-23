@@ -1,4 +1,4 @@
-
+#if 0
 #ifndef inc_widgets_indicators_hh
 #define inc_widgets_indicators_hh
 
@@ -87,4 +87,4 @@ namespace ui
 }
 
 #endif
-
+#endif

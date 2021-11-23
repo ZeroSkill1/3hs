@@ -113,6 +113,17 @@ namespace str
 		username = 88,
 		password = 89,
 		clear = 90,
+		progbar_screen_desc = 91,
+		light_mode_desc = 92,
+		resume_dl_desc = 93,
+		load_space_desc = 94,
+		show_battery_desc = 95,
+		time_format_desc = 96,
+		language_desc = 97,
+		lumalocalemode_desc = 98,
+		ask_extra_desc = 99,
+		proxy_desc = 100,
+		install_all = 101,
 
 		_i_max,
 	};

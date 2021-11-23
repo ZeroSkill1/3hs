@@ -6,7 +6,7 @@
 #include "i18n.hh"
 
 
-void ui::next::SMDHIcon::setup(ctr::TitleSMDH *smdh, SMDHIconType type)
+void ui::SMDHIcon::setup(ctr::TitleSMDH *smdh, SMDHIconType type)
 {
 	unsigned int dim;
 	load_smdh_icon(&this->img, *smdh, type, &dim);
@@ -17,7 +17,7 @@ void ui::next::SMDHIcon::setup(ctr::TitleSMDH *smdh, SMDHIconType type)
 		this->params.pos.x = this->params.pos.y = 0;
 }
 
-void ui::next::SMDHIcon::setup(u64 tid, SMDHIconType type)
+void ui::SMDHIcon::setup(u64 tid, SMDHIconType type)
 {
 	ctr::TitleSMDH *smdh = ctr::smdh::get(tid);
 	if(smdh == nullptr) panic(STRING(fail_load_smdh_icon));
@@ -33,42 +33,42 @@ void ui::next::SMDHIcon::setup(u64 tid, SMDHIconType type)
 		this->params.angle = this->params.pos.x = this->params.pos.y = 0;
 }
 
-void ui::next::SMDHIcon::destroy()
+void ui::SMDHIcon::destroy()
 {
 	delete_smdh_icon(this->img);
 }
 
-void ui::next::SMDHIcon::set_x(float x)
+void ui::SMDHIcon::set_x(float x)
 {
 	this->params.pos.x = this->x = ui::transform(this, x);
 }
 
-void ui::next::SMDHIcon::set_y(float y)
+void ui::SMDHIcon::set_y(float y)
 {
 	this->params.pos.y = this->y = ui::transform(this, y);
 }
 
-void ui::next::SMDHIcon::set_z(float z)
+void ui::SMDHIcon::set_z(float z)
 {
 	this->params.depth = this->z = z;
 }
 
-void ui::next::SMDHIcon::set_border(bool b)
+void ui::SMDHIcon::set_border(bool b)
 {
 	this->drawBorder = b;
 }
 
-float ui::next::SMDHIcon::width()
+float ui::SMDHIcon::width()
 {
 	return this->params.pos.w;
 }
 
-float ui::next::SMDHIcon::height()
+float ui::SMDHIcon::height()
 {
 	return this->params.pos.h;
 }
 
-bool ui::next::SMDHIcon::render(const ui::Keys& keys)
+bool ui::SMDHIcon::render(const ui::Keys& keys)
 {
 	((void) keys);
 	if(this->drawBorder)

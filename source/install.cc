@@ -1,5 +1,4 @@
 
-#include "lumalocale.hh"
 #include "settings.hh"
 #include "install.hh"
 #include "thread.hh"
@@ -11,7 +10,6 @@
 #include "ctr.hh"
 
 #include <3rd/log.hh>
-#include <ui/util.hh>
 #include <malloc.h>
 #include <3ds.h>
 
@@ -103,7 +101,8 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 		if(data->itc == ITC::exit)
 			break;
 
-		CHECKRET(FSFILE_Write(data->cia, &written, data->index, data->buffer, BUFSIZE, FS_WRITE_FLUSH));
+		lverbose << "Writing to cia handle, size=" << dlnext << ",index=" << data->index << ",totalSize=" << data->totalSize;
+		CHECKRET(FSFILE_Write(data->cia, &written, data->index, data->buffer, dlnext, FS_WRITE_FLUSH));
 
 		remaining = data->totalSize - dled - from;
 		data->index += dlnext;
@@ -117,7 +116,6 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 static void i_install_loop_thread_cb(Result& res, get_url_func get_url, cia_net_data& data)
 {
 	std::string url = get_url(res);
-	linfo << "Installing cia from <" << url << ">.";
 
 	if(!get_settings()->resumeDownloads)
 	{
@@ -241,67 +239,20 @@ static Result i_install_hs_cia(const hsapi::FullTitle& meta, prog_func prog, boo
 	if(!isNew && meta.prod.rfind("KTR-", 0) == 0)
 		return APPERR_NOSUPPORT;
 
-	return install_net_cia([meta](Result& res) -> std::string {
+	return install::net_cia([meta](Result& res) -> std::string {
 		std::string ret;
 		if(R_FAILED(res = hsapi::get_download_link(ret, meta)))
 			return "";
 		return ret;
-	}, prog, reinstallable, meta.tid, to_mediatype(media));
+	}, meta.tid, prog, reinstallable);
 }
 
 
 // public api
 
-// This func returns true
-// on failure because there are probably
-// worse problems if it fails to query titles
-bool title_exists(u64 tid, FS_MediaType media)
+Result install::net_cia(get_url_func get_url, hsapi::htid tid, prog_func prog, bool reinstallable)
 {
-	u32 tcount = 0;
-
-	if(R_FAILED(AM_GetTitleCount(media, &tcount)))
-		return true;
-
-	u64 *tids = new u64[tcount];
-	if(R_FAILED(AM_GetTitleList(&tcount, media, tcount, tids)))
-		goto fail;
-
-	for(size_t i = 0; i < tcount; ++i)
-	{
-		if(tids[i] == tid)
-			goto fail;
-	}
-
-
-	delete [] tids;
-	return false;
-fail:
-	delete [] tids;
-	return true;
-}
-
-Result delete_title(u64 tid, FS_MediaType media)
-{
-	Result ret = 0;
-
-	if(R_FAILED(ret = AM_DeleteTitle(media, tid))) return ret;
-	if(R_FAILED(ret = AM_DeleteTicket(tid))) return ret;
-
-	// Reloads the databases
-	if(media == MEDIATYPE_SD) ret = AM_QueryAvailableExternalTitleDatabase(NULL);
-	return ret;
-}
-
-Result delete_if_exist(u64 tid, FS_MediaType media)
-{
-	if(title_exists(tid, media))
-		return delete_title(tid, media);
-	return 0;
-}
-
-Result install_net_cia(get_url_func get_url, prog_func prog, bool reinstallable, hsapi::htid tid, FS_MediaType dest)
-{
-	if(reinstallable && tid != 0)
+	if(reinstallable)
 	{
 		// Ask ninty why this stupid restriction is in place
 		// Basically reinstalling the CURRENT cia requires you
@@ -311,29 +262,24 @@ Result install_net_cia(get_url_func get_url, prog_func prog, bool reinstallable,
 		if(!(R_FAILED(APT_GetProgramID(&selftid)) || selftid == tid))
 		{
 			Result res = 0;
-			if(R_FAILED(res = delete_if_exist(tid)))
+			if(R_FAILED(res = ctr::delete_if_exist(tid)))
 				return res;
 		}
 	}
 
-	else if(tid != 0)
+	else
 	{
-		if(title_exists(tid))
+		if(ctr::title_exists(tid))
 			return APPERR_NOREINSTALL;
 	}
 
 	Handle cia; Result ret;
-	ret = AM_StartCiaInstall(dest, &cia); linfo << "AM_StartCiaInstall(...): " << ret;
+	ret = AM_StartCiaInstall(detect_media(tid), &cia);
+	linfo << "AM_StartCiaInstall(...): " << ret;
 	if(R_FAILED(ret)) return ret;
 
 	ret = i_install_resume_loop(get_url, cia, prog);
-	if(ret == APPERR_CANCELLED)
-	{
-		AM_CancelCIAInstall(cia);
-		return APPERR_CANCELLED;
-	}
-
-	if(R_FAILED(ret)) // If everything went ok in i_install_resume_loop, we return a 0
+	if(R_FAILED(ret))
 	{
 		AM_CancelCIAInstall(cia);
 		return ret;
@@ -342,13 +288,10 @@ Result install_net_cia(get_url_func get_url, prog_func prog, bool reinstallable,
 	ret = AM_FinishCiaInstall(cia);
 	linfo << "AM_FinishCiaInstall(...): " << ret;
 
-	// Install luma locale.txt file now, if we know the tid
-	if(tid != 0) luma::set_locale(tid);
-
 	return ret;
 }
 
-Result install_hs_cia(const hsapi::FullTitle& meta, prog_func prog, bool reinstallable)
+Result install::hs_cia(const hsapi::FullTitle& meta, prog_func prog, bool reinstallable)
 {
 	return i_install_hs_cia(meta, prog, reinstallable);
 }

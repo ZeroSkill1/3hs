@@ -14,6 +14,7 @@
 
 #include "panic.hh"
 #include "error.hh"
+#include "util.hh"
 #include "i18n.hh"
 
 
@@ -124,9 +125,11 @@ namespace hsapi
 	template <typename ... Ts>
 	Result call(Result (*func)(Ts...), Ts&& ... args)
 	{
+		std::string desc = set_desc(STRING(loading));
+		bool focus = set_focus(false);
 		Result res = 0;
 		do {
-			ui::next::loading([&res, func, &args...]() -> void {
+			ui::loading([&res, func, &args...]() -> void {
 				res = (*func)(args...);
 			});
 
@@ -136,7 +139,7 @@ namespace hsapi
 				handle_error(err);
 
 				ui::RenderQueue queue; bool cont = true;
-				ui::builder<ui::next::Confirm>(ui::Screen::bottom, STRING(retry_req), cont)
+				ui::builder<ui::Confirm>(ui::Screen::bottom, STRING(retry_req), cont)
 					.y(ui::layout::center_y)
 					.add_to(queue);
 				queue.render_finite();
@@ -144,6 +147,8 @@ namespace hsapi
 				if(!cont) break;
 			}
 		} while(R_FAILED(res));
+		set_focus(focus);
+		set_desc(desc);
 		return res;
 	}
 }

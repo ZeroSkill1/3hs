@@ -6,47 +6,10 @@
 #include "i18n.hh"
 
 
-void ui::loading(ui::Widgets& wids, std::function<void()> callback)
+void ui::loading(ui::RenderQueue& queue, std::function<void()> callback)
 {
-	std::string old = swap_desc(STRING(loading));
-
-	ctr::thread<> th(callback);
-
-	ui::Keys keys;
-	while(!th.finished() && ui::framenext_nobreak(keys))
-		ui::framedraw(wids, keys);
-
-	swap_desc(old);
-}
-
-void ui::loading(std::function<void()> callback)
-{
-	ui::Widgets wids;
-	wids.push_back(new ui::Spinner());
-	ui::loading(wids, callback);
-}
-
-
-ui::Spinner::Spinner() : Widget("spinner"),
-	sprite(SHEET("spinner"), spinner_spinner_idx)
-{
-	this->sprite.get_sprite()->set_pos(SCREEN_WIDTH(ui::Scr::top) / 2,
-		SCREEN_HEIGHT() / 2);
-	this->sprite.get_sprite()->set_center(.5f, .5f);
-}
-
-ui::Results ui::Spinner::draw(ui::Keys& keys, ui::Scr screen)
-{
-	this->sprite.get_sprite()->rotate_degrees(1.0f);
-	this->sprite.draw(keys, screen);
-	return ui::Results::go_on;
-}
-
-
-void ui::next::loading(ui::RenderQueue& queue, std::function<void()> callback)
-{
-	std::string desc = ::next::set_desc(STRING(loading));
-	bool focus = ::next::set_focus(true);
+	std::string desc = ::set_desc(STRING(loading));
+	bool focus = ::set_focus(true);
 
 	ctr::thread<> th(callback);
 
@@ -54,43 +17,43 @@ void ui::next::loading(ui::RenderQueue& queue, std::function<void()> callback)
 	while(!th.finished() && queue.render_frame(keys))
 		keys = ui::RenderQueue::get_keys();
 
-	::next::set_focus(focus);
-	::next::set_desc(desc);
+	::set_focus(focus);
+	::set_desc(desc);
 }
 
-void ui::next::loading(std::function<void()> callback)
+void ui::loading(std::function<void()> callback)
 {
 	RenderQueue queue;
 
-	ui::builder<ui::next::Spinner>(ui::Screen::top)
+	ui::builder<ui::Spinner>(ui::Screen::top)
 		.x(ui::layout::center_x)
 		.y(ui::layout::center_y)
 		.add_to(queue);
 
-	ui::next::loading(queue, callback);
+	ui::loading(queue, callback);
 }
 
 /* class Spinner */
 
-void ui::next::Spinner::setup()
+void ui::Spinner::setup()
 {
 	this->sprite.setup(this->screen, ui::SpriteStore::get_by_id(ui::sprite::spinner));
 	this->sprite.ptr()->set_center(0.5f, 0.5f);
 }
 
-bool ui::next::Spinner::render(const ui::Keys& keys)
+bool ui::Spinner::render(const ui::Keys& keys)
 {
 	this->sprite.ptr()->rotate(1.0f);
 	return this->sprite.render(keys);
 }
 
-float ui::next::Spinner::width()
+float ui::Spinner::width()
 { return this->sprite.ptr()->width(); }
 
-float ui::next::Spinner::height()
+float ui::Spinner::height()
 { return this->sprite.ptr()->height(); }
 
-void ui::next::Spinner::set_x(float x)
+void ui::Spinner::set_x(float x)
 {
 	if((int) x == ui::layout::center_x)
 	{
@@ -102,7 +65,7 @@ void ui::next::Spinner::set_x(float x)
 	this->x = x;
 }
 
-void ui::next::Spinner::set_y(float y)
+void ui::Spinner::set_y(float y)
 {
 	if((int) y == ui::layout::center_y)
 	{
@@ -114,6 +77,81 @@ void ui::next::Spinner::set_y(float y)
 	this->y = y;
 }
 
-void ui::next::Spinner::set_z(float z)
+void ui::Spinner::set_z(float z)
 { this->sprite.ptr()->set_z(z); }
+
+void ui::detail::TimeoutScreenHelper::setup(const std::string& fmt, size_t nsecs, bool *shouldStop)
+{
+	this->fmt = fmt;
+	this->startTime = this->lastCheck = time(NULL);
+	this->shouldStop = shouldStop;
+	this->nsecs = nsecs;
+
+	this->text.setup(ui::Screen::top, "");
+	this->text.ptr()->set_x(ui::layout::center_x);
+	this->text.ptr()->set_y(80.0f);
+
+	this->update_text(this->startTime);
+}
+
+void ui::detail::TimeoutScreenHelper::update_text(time_t now)
+{
+	std::string ntxt;
+	ntxt.reserve(this->fmt.size());
+
+	for(size_t i = 0; i < this->fmt.size(); ++i)
+	{
+		switch(this->fmt[i])
+		{
+		case '$':
+			++i;
+			if(this->fmt[i] == 't')
+				ntxt += std::to_string(this->nsecs - (now - this->startTime));
+			else ntxt.push_back(this->fmt[i]);
+			break;
+
+		default:
+			ntxt.push_back(this->fmt[i]);
+			break;
+
+		}
+	}
+
+	this->text.ptr()->set_text(ntxt);
+}
+
+bool ui::detail::TimeoutScreenHelper::render(const ui::Keys& keys)
+{
+	if(keys.kDown & KEY_START && this->shouldStop != nullptr)
+	{
+		*this->shouldStop = true;
+		return false;
+	}
+
+	time_t now = time(NULL);
+	if(this->lastCheck != now)
+	{
+		this->update_text(now);
+		this->lastCheck = now;
+	}
+
+	if(now - this->startTime >= this->nsecs)
+		return false;
+
+	return this->text.render(keys);
+}
+
+// timeoutscreen()
+
+bool ui::timeoutscreen(const std::string& fmt, size_t nsecs, bool allowCancel)
+{
+	ui::RenderQueue queue;
+	bool ret = false;
+
+	ui::builder<ui::detail::TimeoutScreenHelper>(ui::Screen::top, fmt, nsecs, allowCancel ? &ret : nullptr)
+		.add_to(queue);
+
+	queue.render_finite();
+	return ret;
+}
 

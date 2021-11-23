@@ -1,4 +1,4 @@
-
+#if 0
 #include "widgets/indicators.hh"
 #include "build/net_icons.h"
 #include "build/battery.h"
@@ -253,4 +253,4 @@ std::string ui::TimeIndicator::time()
 #endif
 
 }
-
+#endif

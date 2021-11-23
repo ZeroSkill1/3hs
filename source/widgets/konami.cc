@@ -1,4 +1,6 @@
 
+#if 0
+
 #include "widgets/konami.hh"
 #include "build/bun.h"
 #include "ui/text.hh"
@@ -60,3 +62,6 @@ void ui::Konami::show_bunny()
 	wids.push_back("bun", bunny, ui::Scr::top);
 	generic_main_breaking_loop(wids);
 }
+
+#endif
+

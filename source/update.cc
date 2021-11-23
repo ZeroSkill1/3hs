@@ -6,6 +6,7 @@
 #include <ui/confirm.hh>
 #include <ui/base.hh>
 
+#include "installgui.hh"
 #include "install.hh"
 #include "queue.hh"
 #include "proxy.hh"
@@ -31,7 +32,7 @@ bool update_app()
 	bool update;
 	ui::RenderQueue queue;
 
-	ui::builder<ui::next::Confirm>(ui::Screen::bottom, PSTRING(update_to, nver), update)
+	ui::builder<ui::Confirm>(ui::Screen::bottom, PSTRING(update_to, nver), update)
 		.y(80.0f).add_to(queue);
 
 	queue.render_finite();
@@ -49,7 +50,7 @@ bool update_app()
 		return false;
 	}
 
-	process_uri(hsapi::update_location(nver), true, tid);
+	install::gui::net_cia(hsapi::update_location(nver), true, tid);
 	return true;
 }
 

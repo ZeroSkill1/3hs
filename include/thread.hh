@@ -30,7 +30,6 @@ namespace ctr
 
 			this->threadobj = threadCreate(&thread::_entrypoint, params, 64 * 1024, prio - 1,
 				-2, false);
-			this->alive = true;
 		}
 
 		~thread()
@@ -42,13 +41,14 @@ namespace ctr
 		/* wait for the thread to finish */
 		void join()
 		{
-			if(this->alive) threadJoin(this->threadobj, U64_MAX);
+			if(this->threadobj != nullptr)
+				threadJoin(this->threadobj, U64_MAX);
 		}
 
 		/* returns if the thread is done */
 		bool finished()
 		{
-			return !this->alive;
+			return this->threadobj == nullptr;
 		}
 
 
@@ -63,11 +63,10 @@ namespace ctr
 		{
 			ThreadFuncParams *params = (ThreadFuncParams *) arg;
 			params->func();
-			params->self->alive = false;
+			params->self->threadobj = nullptr;
 			delete params;
 		}
 
-		bool alive = false;
 		Thread threadobj;
 
 

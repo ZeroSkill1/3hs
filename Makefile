@@ -65,7 +65,7 @@ ASFLAGS	:=	$(ARCH)
 LDFLAGS	=	-specs=3dsx.specs $(ARCH) -Wl,-Map,$(notdir $*.map)
 
 ifneq ($(RELEASE),)
-	CFLAGS	+= -DRELEASE -O2 -DNDEBUG
+	CFLAGS	+= -DRELEASE -O2
 else
 	CFLAGS  += -ggdb3
 endif

@@ -9,34 +9,31 @@
 
 namespace ui
 {
-	namespace next
-	{
-		class SMDHIcon : public ui::BaseWidget
-		{ UI_WIDGET("SMDHIcon")
-		public:
-			void setup(ctr::TitleSMDH *smdh, SMDHIconType type = SMDHIconType::large);
-			void setup(u64 tid, SMDHIconType type = SMDHIconType::large);
-			void destroy() override;
+	class SMDHIcon : public ui::BaseWidget
+	{ UI_WIDGET("SMDHIcon")
+	public:
+		void setup(ctr::TitleSMDH *smdh, SMDHIconType type = SMDHIconType::large);
+		void setup(u64 tid, SMDHIconType type = SMDHIconType::large);
+		void destroy() override;
 
-			bool render(const ui::Keys& keys) override;
-			float height() override;
-			float width() override;
+		bool render(const ui::Keys& keys) override;
+		float height() override;
+		float width() override;
 
-			void set_x(float x) override;
-			void set_y(float y) override;
-			void set_z(float z) override;
+		void set_x(float x) override;
+		void set_y(float y) override;
+		void set_z(float z) override;
 
-			void set_border(bool b);
+		void set_border(bool b);
 
 
-		private:
-			bool drawBorder = false;
-			C2D_DrawParams params;
-			C2D_Image img;
+	private:
+		bool drawBorder = false;
+		C2D_DrawParams params;
+		C2D_Image img;
 
 
-		};
-	}
+	};
 }
 
 #endif

@@ -2,170 +2,74 @@
 #ifndef inc_ui_meta_hh
 #define inc_ui_meta_hh
 
-#include "ui/scrollingText.hh"
-#include "ui/core.hh"
-
-#include "ui/bindings.hh"
-#include "hsapi.hh"
-
 #include <ui/base.hh>
+#include "hsapi.hh"
 
 
 namespace ui
 {
-	class TitleMeta : public ui::Widget
-	{
+	class CatMeta : public ui::BaseWidget
+	{ UI_WIDGET("CatMeta")
 	public:
-		TitleMeta(const hsapi::Title& title);
-		TitleMeta();
-		~TitleMeta();
+		void setup(const hsapi::Category& cat);
 
-		ui::Results draw(ui::Keys&, ui::Scr) override;
-		void update_title(const hsapi::Title& title);
+		void set_cat(const hsapi::Category& cat);
+
+		float get_x() override;
+		float get_y() override;
+
+		bool render(const ui::Keys& keys) override;
+		float height() override;
+		float width() override;
 
 
 	private:
-		void init_other();
-
-		c2d::TextBuf cbuf;
-		c2d::Text cname;
-		c2d::Text csize;
-		c2d::Text ccat;
-		c2d::Text ctid;
-		c2d::Text cid;
-
-		ui::ScrollingText sname;
-		ui::ScrollingText ssize;
-		ui::ScrollingText scat;
-		ui::ScrollingText stid;
-		ui::ScrollingText sid;
+		ui::RenderQueue queue;
 
 
 	};
 
-	class SubMeta : public ui::Widget
-	{
+	class SubMeta : public ui::BaseWidget
+	{ UI_WIDGET("SubMeta")
 	public:
-		SubMeta(const hsapi::Subcategory& sub);
-		SubMeta();
-		~SubMeta();
+		void setup(const hsapi::Subcategory& sub);
 
-		ui::Results draw(ui::Keys&, ui::Scr) override;
-		void update_sub(const hsapi::Subcategory& sub);
+		void set_sub(const hsapi::Subcategory& sub);
+
+		float get_x() override;
+		float get_y() override;
+
+		bool render(const ui::Keys& keys) override;
+		float height() override;
+		float width() override;
 
 
 	private:
-		void init_other();
-
-		c2d::TextBuf cbuf;
-		c2d::Text ctitle;
-		c2d::Text cname;
-		c2d::Text csize;
-		c2d::Text cdesc;
-		c2d::Text ccat;
-
-		ui::ScrollingText stitle;
-		ui::ScrollingText sname;
-		ui::ScrollingText ssize;
-		ui::ScrollingText sdesc;
-		ui::ScrollingText scat;
+		ui::RenderQueue queue;
 
 
 	};
 
-	class CatMeta : public ui::Widget
-	{
+	class TitleMeta : public ui::BaseWidget
+	{ UI_WIDGET("TitleMeta")
 	public:
-		CatMeta(const hsapi::Category& cat);
-		CatMeta();
-		~CatMeta();
+		void setup(const hsapi::Title& meta);
 
-		ui::Results draw(ui::Keys&, ui::Scr) override;
-		void update_cat(const hsapi::Category& cat);
+		void set_title(const hsapi::Title& meta);
+
+		float get_x() override;
+		float get_y() override;
+
+		bool render(const ui::Keys& keys) override;
+		float height() override;
+		float width() override;
 
 
 	private:
-		void init_other();
-
-		c2d::TextBuf cbuf;
-		c2d::Text ctitle;
-		c2d::Text cname;
-		c2d::Text csize;
-		c2d::Text cdesc;
-
-		ui::ScrollingText stitle;
-		ui::ScrollingText sname;
-		ui::ScrollingText ssize;
-		ui::ScrollingText sdesc;
+		ui::RenderQueue queue;
 
 
 	};
-
-	namespace next
-	{
-		class CatMeta : public ui::BaseWidget
-		{ UI_WIDGET("CatMeta")
-		public:
-			void setup(const hsapi::Category& cat);
-
-			void set_cat(const hsapi::Category& cat);
-
-			float get_x() override;
-			float get_y() override;
-
-			bool render(const ui::Keys& keys) override;
-			float height() override;
-			float width() override;
-
-
-		private:
-			ui::RenderQueue queue;
-
-
-		};
-
-		class SubMeta : public ui::BaseWidget
-		{ UI_WIDGET("SubMeta")
-		public:
-			void setup(const hsapi::Subcategory& sub);
-
-			void set_sub(const hsapi::Subcategory& sub);
-
-			float get_x() override;
-			float get_y() override;
-
-			bool render(const ui::Keys& keys) override;
-			float height() override;
-			float width() override;
-
-
-		private:
-			ui::RenderQueue queue;
-
-
-		};
-
-		class TitleMeta : public ui::BaseWidget
-		{ UI_WIDGET("TitleMeta")
-		public:
-			void setup(const hsapi::Title& meta);
-
-			void set_title(const hsapi::Title& meta);
-
-			float get_x() override;
-			float get_y() override;
-
-			bool render(const ui::Keys& keys) override;
-			float height() override;
-			float width() override;
-
-
-		private:
-			ui::RenderQueue queue;
-
-
-		};
-	}
 }
 
 #endif

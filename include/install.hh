@@ -43,16 +43,19 @@ static inline Result httpcSetProxy(httpcContext *context, u16 port,
 	);
 }
 
+FS_MediaType to_mediatype(Destination dest);
 Destination detect_dest(u64 tid);
 
-FS_MediaType to_mediatype(Destination dest);
+static inline FS_MediaType detect_media(u64 tid)
+{ return to_mediatype(detect_dest(tid)); }
 
-Result delete_if_exist(u64 tid, FS_MediaType media = MEDIATYPE_SD);
-Result delete_title(u64 tid, FS_MediaType media = MEDIATYPE_SD);
-bool title_exists(u64 tid, FS_MediaType media = MEDIATYPE_SD);
-
-Result install_net_cia(get_url_func get_url, prog_func prog = default_prog_func, bool reinstallable = false, u64 tid = 0x0, FS_MediaType dest = MEDIATYPE_SD);
-Result install_hs_cia(const hsapi::FullTitle& meta, prog_func prog = default_prog_func, bool reinstallable = false);
+namespace install
+{
+	Result net_cia(get_url_func get_url, u64 tid, prog_func prog = default_prog_func,
+		bool reinstallable = false);
+	Result hs_cia(const hsapi::FullTitle& meta, prog_func prog = default_prog_func,
+		bool reinstallable = false);
+}
 
 #endif
 
