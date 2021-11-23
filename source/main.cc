@@ -102,7 +102,7 @@ int main(int argc, char* argv[])
 	osSetSpeedupEnable(true); // speedup for n3dses
 
 	/* new ui setup */
- 	ui::builder<ui::Text>(ui::Screen::top, "") /* text is not immediately set */
+	ui::builder<ui::Text>(ui::Screen::top, "") /* text is not immediately set */
 		.x(ui::layout::center_x)
 		.y(4.0f)
 		.tag(ui::tag::action)
@@ -155,6 +155,14 @@ int main(int argc, char* argv[])
 		.right(ui::RenderQueue::global()->back())
 		.y(210.0f)
 		.tag(ui::tag::queue)
+		.add_to(ui::RenderQueue::global());
+
+	ui::builder<ui::KonamiListner>(ui::Screen::top)
+		.tag(ui::tag::konami)
+		.add_to(ui::RenderQueue::global());
+
+	ui::builder<ui::FreeSpaceIndicator>(ui::Screen::top)
+		.tag(ui::tag::free_indicator)
 		.add_to(ui::RenderQueue::global());
 
 	/* ui::wid()->push_back("version", new ui::Text(ui::mk_right_WText(VERSION, 3.0f, 5.0f, 0.4f, 0.4f, ui::Scr::bottom)), ui::Scr::bottom); */
@@ -244,8 +252,8 @@ sub:
 				goto sub;
 		}
 
- gam:
- 		if(associatedsub != sub) gamptr = 0;
+gam:
+		if(associatedsub != sub) gamptr = 0;
 		associatedsub = sub;
 
 		hsapi::hid id = next::sel_gam(titles, &gamptr);

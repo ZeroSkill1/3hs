@@ -1,42 +1,56 @@
-#if 0
+
 #include "widgets/indicators.hh"
-#include "build/net_icons.h"
-#include "build/battery.h"
 
 #include <time.h>
 #include <3ds.h>
 
+#include "settings.hh"
 #include "ctr.hh"
 
-#ifdef USE_SETTINGS_H
-# include "settings.hh"
-# define BG_CLR (get_settings()->isLightMode ? ui::constants::COLOR_TOP_LI : ui::constants::COLOR_TOP)
-#else
-# define BG_CLR ui::constants::COLOR_TOP
-#endif
+#define TAG_TWL 1
+#define TAG_CTR 2
+#define TAG_SD  3
 
-#define BG_HEIGHT 10
-
-// FREE SPACE
-
-ui::FreeSpaceIndicator::FreeSpaceIndicator()
-	: Widget("free_space_indicator"), sdmc(ui::mk_left_WText(
+/*
 		"", SCREEN_HEIGHT() - 10, 4.0f, 0.4f, 0.35f
 	)), nandt(ui::mk_center_WText(
 		"", SCREEN_HEIGHT() - 10, 0.4f, 0.35f
 	)), nandc(ui::mk_right_WText(
 		"", SCREEN_HEIGHT() - 10, 4.0f, 0.4f, 0.35f
 	))
+*/
+
+void ui::FreeSpaceIndicator::setup()
 {
-	this->force_foreground();
+	this->z = 1.0f; /* force on foreground */
+
+	ui::builder<ui::Text>(this->screen, "")
+		.size(0.4f, 0.35f)
+		.x(ui::layout::left)
+		.y(ui::screen_height() - 10.0f)
+		.tag(TAG_SD)
+		.add_to(this->queue);
+
+	ui::builder<ui::Text>(this->screen, "")
+		.size(0.4f, 0.35f)
+		.x(ui::layout::center_x)
+		.y(ui::screen_height() - 10.0f)
+		.tag(TAG_TWL)
+		.add_to(this->queue);
+
+	ui::builder<ui::Text>(this->screen, "")
+		.size(0.4f, 0.35f)
+		.x(ui::layout::right)
+		.y(ui::screen_height() - 10.0f)
+		.tag(TAG_CTR)
+		.add_to(this->queue);
+
 	this->update();
 }
 
 void ui::FreeSpaceIndicator::update()
 {
-#ifdef USE_SETTINGS_H
 	if(get_settings()->loadFreeSpace)
-#endif
 	{
 		u64 nandt = 0, nandc = 0, sdmc = 0;
 
@@ -44,27 +58,28 @@ void ui::FreeSpaceIndicator::update()
 		ctr::get_free_space(DEST_CTRNand, &nandc);
 		ctr::get_free_space(DEST_Sdmc, &sdmc);
 
-		this->nandt.replace_text("TWLNand: " + human_readable_size<u64>(nandt));
-		this->nandc.replace_text("CTRNand: " + human_readable_size<u64>(nandc));
-		this->sdmc.replace_text("SD: " + human_readable_size<u64>(sdmc));
+		// TODO: Evenly distribute the space?
+
+		this->queue.find_tag<ui::Text>(TAG_SD)->set_text("SD: " + human_readable_size<u64>(sdmc));
+		this->queue.find_tag<ui::Text>(TAG_SD)->set_x(ui::layout::left);
+
+		this->queue.find_tag<ui::Text>(TAG_TWL)->set_text("TWLNand: " + human_readable_size<u64>(nandt));
+		this->queue.find_tag<ui::Text>(TAG_TWL)->set_x(ui::layout::center_x);
+
+		this->queue.find_tag<ui::Text>(TAG_CTR)->set_text("CTRNand: " + human_readable_size<u64>(nandc));
+		this->queue.find_tag<ui::Text>(TAG_CTR)->set_x(ui::layout::right);
 	}
 }
 
-ui::Results ui::FreeSpaceIndicator::draw(Keys& keys, Scr screen)
+bool ui::FreeSpaceIndicator::render(const ui::Keys& keys)
 {
-#ifdef USE_SETTINGS_H
-	if(get_settings()->loadFreeSpace)
-#endif
-	{
-		C2D_DrawRectSolid(0, SCREEN_HEIGHT() - BG_HEIGHT, Z_OFF, SCREEN_WIDTH(screen), BG_HEIGHT, BG_CLR);
-		this->nandt.draw(keys, screen);
-		this->nandc.draw(keys, screen);
-		this->sdmc.draw(keys, screen);
-	}
-
-	return ui::Results::go_on;
+	return get_settings()->loadFreeSpace
+		? this->queue.render_screen(keys, this->screen)
+		: true;
 }
 
+
+#if 0
 // NET
 
 ui::NetIndicator::NetIndicator()

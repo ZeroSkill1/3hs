@@ -1,6 +1,8 @@
 
 #include "settings.hh"
 
+#include <widgets/indicators.hh>
+
 #include <ui/selector.hh>
 #include <ui/swkbd.hh>
 #include <ui/list.hh>
@@ -284,8 +286,7 @@ static void update_settings_ID(SettingsId ID)
 		g_settings.loadFreeSpace = !g_settings.loadFreeSpace;
 		// If we switched it from off to on and we've never drawed the widget before
 		// It wouldn't draw the widget until another update
-		// TODO: Transfer this to whatever the new version will be
-//		ui::wid()->get<ui::FreeSpaceIndicator>("size_indicator")->update();
+		ui::RenderQueue::global()->find_tag<ui::FreeSpaceIndicator>(ui::tag::free_indicator)->update();
 		break;
 	case ID_Battery:
 		g_settings.showBattery = !g_settings.showBattery;
@@ -383,7 +384,7 @@ void show_settings()
 			desc->set_text(self->at(i).desc);
 			value->set_y(ui::under(desc, value, 5.0f));
 		})
-		.x(5.0f).y(5.0f)
+		.x(5.0f).y(25.0f)
 		.add_to(&list, queue);
 
 	queue.render_finite_button(KEY_B);

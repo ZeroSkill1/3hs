@@ -124,11 +124,13 @@ namespace ui
 
 	namespace tag
 	{
-		constexpr int action   = -1; /* action header */
-		constexpr int more     = -2; /* more button */
-		constexpr int settings = -3; /* settings button */
-		constexpr int search   = -4; /* search button */
-		constexpr int queue    = -5; /* queue button */
+		constexpr int action         = -1; /* action header */
+		constexpr int more           = -2; /* more button */
+		constexpr int settings       = -3; /* settings button */
+		constexpr int search         = -4; /* search button */
+		constexpr int queue          = -5; /* queue button */
+		constexpr int konami         = -6; /* konami listner */
+		constexpr int free_indicator = -7; /* free space indicator */
 	};
 
 	/* holds sprite ids used for ui::SpriteStore::get_by_id() */
@@ -203,6 +205,9 @@ namespace ui
 
 		/* not supposed to be overriden */
 		virtual ~BaseWidget() = default;
+
+		/* a simple basic constructor */
+		virtual void setup() { }
 
 		virtual void set_x(float x)
 		{

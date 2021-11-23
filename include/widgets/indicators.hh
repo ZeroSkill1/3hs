@@ -1,21 +1,31 @@
-#if 0
 #ifndef inc_widgets_indicators_hh
 #define inc_widgets_indicators_hh
 
-#include <ui/bindings.hh>
-#include <ui/core.hh>
-#include <ui/text.hh>
-
-#include "install.hh"
+#include <ui/base.hh>
 
 #define NET_SPRITE_BUF_LEN 4
 #define BAT_SPRITE_BUF_LEN 4
 
 
-Result get_free_space(Destination media, u64 *size);
-
 namespace ui
 {
+	class FreeSpaceIndicator : public ui::BaseWidget
+	{ UI_WIDGET("FreeSpaceIndicator")
+	public:
+		void setup();
+		bool render(const ui::Keys& keys) override;
+		float height() override { return 0.0f; }
+		float width() override { return 0.0f; }
+		void update();
+
+
+	private:
+		ui::RenderQueue queue;
+
+
+	};
+
+#if 0
 	class FreeSpaceIndicator : public Widget
 	{
 	public:
@@ -84,7 +94,7 @@ namespace ui
 
 
 	};
+#endif
 }
 
-#endif
 #endif
