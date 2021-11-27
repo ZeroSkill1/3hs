@@ -3,6 +3,7 @@
 
 #include "find_missing.hh"
 #include "hlink_view.hh"
+#include "log_view.hh"
 #include "about.hh"
 #include "i18n.hh"
 #include "util.hh"
@@ -12,6 +13,7 @@
 enum MoreInds {
 	IND_ABOUT = 0,
 	IND_FIND_MISSING,
+	IND_LOG,
 #ifndef RELEASE
 	IND_HLINK,
 #endif
@@ -47,6 +49,15 @@ void show_more()
 		.x(ui::layout::center_x)
 		.under(buttons[IND_ABOUT], 5.0f)
 		.finalize();
+	buttons[IND_LOG] = ui::builder<ui::Button>(ui::Screen::bottom, STRING(log))
+		.connect(ui::Button::click, []() -> bool {
+			ui::RenderQueue::global()->render_and_then(show_logs_menu);
+			return true;
+		})
+		.size(w, h)
+		.x(ui::layout::center_x)
+		.under(buttons[IND_FIND_MISSING], 5.0f)
+		.finalize();
 #ifndef RELEASE
 	buttons[IND_HLINK] = ui::builder<ui::Button>(ui::Screen::bottom, "hLink")
 		.connect(ui::Button::click, []() -> bool {
@@ -55,7 +66,7 @@ void show_more()
 		})
 		.size(w, h)
 		.x(ui::layout::center_x)
-		.under(buttons[IND_FIND_MISSING], 5.0f)
+		.under(buttons[IND_LOG], 5.0f)
 		.finalize();
 #endif
 
@@ -70,6 +81,9 @@ void show_more()
 				break;
 			case IND_FIND_MISSING:
 				show_find_missing();
+				break;
+			case IND_LOG:
+				show_logs_menu();
 				break;
 #ifndef RELEASE
 			case IND_HLINK:

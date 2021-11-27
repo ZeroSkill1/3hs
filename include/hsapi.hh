@@ -1,4 +1,3 @@
-
 #ifndef inc_hsapi_hh
 #define inc_hsapi_hh
 

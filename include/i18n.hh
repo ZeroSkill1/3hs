@@ -124,6 +124,13 @@ namespace str
 		ask_extra_desc = 99,
 		proxy_desc = 100,
 		install_all = 101,
+		install_no_base = 102,
+		warn_no_base = 103,
+		warn_no_base_desc = 104,
+		replaying_errors = 105,
+		log = 106,
+		upload_logs = 107,
+		clear_logs = 108,
 
 		_i_max,
 	};

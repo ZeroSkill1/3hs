@@ -50,7 +50,7 @@ bool update_app()
 		return false;
 	}
 
-	install::gui::net_cia(hsapi::update_location(nver), true, tid);
+	install::gui::net_cia(hsapi::update_location(nver), tid, false);
 	return true;
 }
 

@@ -25,24 +25,43 @@ namespace ui
 
 	};
 
-#if 0
-	class FreeSpaceIndicator : public Widget
-	{
+	class TimeIndicator : public ui::BaseWidget
+	{ UI_WIDGET("TimeIndicator")
 	public:
-		FreeSpaceIndicator();
-
-		ui::Results draw(Keys&, Scr) override;
+		void setup();
+		bool render(const ui::Keys& keys) override;
+		float height() override { return 0.0f; }
+		float width() override { return 0.0f; }
 		void update();
 
+		static std::string time(time_t stamp);
 
-	private:
-		ui::Text sdmc;
-		ui::Text nandt;
-		ui::Text nandc;
+
+	public:
+		ui::ScopedWidget<ui::Text> text;
+		time_t lastCheck;
 
 
 	};
 
+	class BatteryIndicator : public ui::BaseWidget
+	{ UI_WIDGET("BatteryIndicator")
+	public:
+		void setup();
+		bool render(const ui::Keys& keys) override;
+		float height() override { return 0.0f; }
+		float width() override { return 0.0f; }
+		void update();
+
+
+	private:
+		ui::RenderQueue queue;
+		u8 level = 0;
+
+
+	};
+
+#if 0
 	class NetIndicator : public Widget
 	{
 	public:
@@ -77,20 +96,6 @@ namespace ui
 
 		ui::Text percentage;
 		u8 level = 0;
-
-
-	};
-
-	class TimeIndicator : public Widget
-	{
-	public:
-		TimeIndicator();
-
-		ui::Results draw(Keys&, Scr) override;
-		static std::string time();
-
-	public:
-		ui::Text txt;
 
 
 	};

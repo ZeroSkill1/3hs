@@ -66,7 +66,15 @@ void queue_process_all()
 	if(errs.size() != g_queue.size())
 		luma::maybe_set_gamepatching();
 
-	// TODO: Displays errs
+	if(errs.size() != 0)
+	{
+		ui::notice(STRING(replaying_errors));
+		for(Result res : errs)
+		{
+			error_container err = get_error(res);
+			handle_error(err);
+		}
+	}
 
 	queue_clear();
 }
@@ -112,7 +120,6 @@ void show_queue()
 				size_t i = self->get_pos(); /* for some reason the i param corrupted (?) */
 				if(kDown & KEY_X)
 					queue_remove(i);
-				// TODO: fix segv when clicking [A] & error
 				else if(kDown & KEY_A)
 					queue_process(i);
 
@@ -141,7 +148,7 @@ void show_queue()
 
 	ui::builder<ui::Button>(ui::Screen::bottom, STRING(install_all))
 		.connect(ui::Button::click, []() -> bool {
-			queue_process_all();
+			ui::RenderQueue::global()->render_and_then(queue_process_all);
 			/* the queue will always be empty after this */
 			return false;
 		})

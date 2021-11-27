@@ -201,3 +201,17 @@ Result ctr::delete_if_exist(u64 tid, FS_MediaType media)
 	return 0;
 }
 
+bool ctr::is_base_tid(u64 tid)
+{
+	u16 cat = tid & 0x0000FFFF;
+	/* 0x4 = AddOnContents,
+	 * which updates also include (0xE) */
+	return cat & 0x4;
+}
+
+u64 ctr::get_base_tid(u64 tid)
+{
+	/* clear the bits of cat (2nd u16) */
+	return tid & 0xFFFF0000FFFFFFFF;
+}
+

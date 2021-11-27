@@ -62,4 +62,3 @@ void show_find_missing(hsapi::htid tid)
 
 	});
 }
-

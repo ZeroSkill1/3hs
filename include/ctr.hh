@@ -91,6 +91,11 @@ namespace ctr {
 	Result delete_title(u64 tid, FS_MediaType media = MEDIATYPE_SD);
 	bool title_exists(u64 tid, FS_MediaType media = MEDIATYPE_SD);
 
+	bool is_base_tid(u64 tid);
+	u64 get_base_tid(u64 tid);
+
+	u16& tid_cat(u64& tid);
+
 	namespace smdh
 	{
 		TitleSMDHTitle *get_native_title(TitleSMDH *smdh);

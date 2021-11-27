@@ -196,6 +196,9 @@ namespace ui
 	/* global deinitialization */
 	void exit();
 
+	/* [msg]\nPress [A] to continue */
+	void notice(const std::string& msg);
+
 	/* base widget class */
 	class BaseWidget
 	{
@@ -472,6 +475,9 @@ namespace ui
 		bool render(const ui::Keys& keys) { return this->wid->render(keys); }
 		TWidget *ptr() { return this->wid; }
 
+		TWidget *operator -> () { return this->wid; }
+		TWidget& operator * () { return *this->wid; }
+
 
 	private:
 		TWidget *wid = nullptr;
@@ -483,6 +489,7 @@ namespace ui
 	{ UI_WIDGET("Text")
 	public:
 		void setup(const std::string& label);
+		void setup(); /* inits with an empty string */
 		void destroy() override;
 
 		bool render(const ui::Keys&) override;

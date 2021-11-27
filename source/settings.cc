@@ -78,7 +78,7 @@ enum SettingsId
 	ID_FreeSpace, ID_Battery,
 	ID_TimeFmt, ID_ProgLoc,
 	ID_Language, ID_Localemode,
-	ID_Extra, ID_Proxy,
+	ID_Extra, ID_Proxy, ID_WarnNoBase,
 };
 
 typedef struct SettingInfo
@@ -112,6 +112,8 @@ static std::string serialize_id(SettingsId ID)
 		return g_settings.loadFreeSpace ? STRING(btrue) : STRING(bfalse);
 	case ID_Battery:
 		return g_settings.showBattery ? STRING(btrue) : STRING(bfalse);
+	case ID_WarnNoBase:
+		return g_settings.warnNoBase ? STRING(btrue) : STRING(bfalse);
 	case ID_TimeFmt:
 		return g_settings.timeFormat == Timefmt::good
 			? STRING(fmt_24h) : STRING(fmt_12h);
@@ -282,6 +284,9 @@ static void update_settings_ID(SettingsId ID)
 	case ID_Resumable:
 		g_settings.resumeDownloads = !g_settings.resumeDownloads;
 		break;
+	case ID_WarnNoBase:
+		g_settings.warnNoBase = !g_settings.warnNoBase;
+		break;
 	case ID_FreeSpace:
 		g_settings.loadFreeSpace = !g_settings.loadFreeSpace;
 		// If we switched it from off to on and we've never drawed the widget before
@@ -346,6 +351,7 @@ void show_settings()
 		{ STRING(lumalocalemode) , STRING(lumalocalemode)      , ID_Localemode },
 		{ STRING(ask_extra)      , STRING(ask_extra_desc)      , ID_Extra      },
 		{ STRING(proxy)          , STRING(proxy_desc)          , ID_Proxy      },
+		{ STRING(warn_no_base)   , STRING(warn_no_base_desc)   , ID_WarnNoBase },
 	};
 
 	panic_assert(settingsInfo.size() > 0, "empty settings meta table");

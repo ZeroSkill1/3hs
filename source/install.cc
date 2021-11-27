@@ -94,6 +94,7 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 			|| R_FAILED(res = httpcGetDownloadSizeState(&ctx, &dled, nullptr)))
 		{
 			// Error
+			httpcCancelConnection(&ctx);
 			httpcCloseContext(&ctx);
 			return res;
 		}

@@ -21,6 +21,7 @@ void ui::Confirm::setup(const std::string& label, bool& ret)
 		.x(ui::layout::center_x)
 		.y(this->y)
 		.tag(2)
+		.wrap()
 		.add_to(this->queue);
 
 	this->adjust();

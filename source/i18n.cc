@@ -135,6 +135,13 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::ask_extra_desc] = "Ask for extra content after an installation.",
 			[str::proxy_desc] = "Configure a proxy. If you don't know what you're doing don't touch this",
 			[str::install_all] = "Install all",
+			[str::install_no_base] = "DLC/Update doesn't have the base game installed. Install regardless?",
+			[str::warn_no_base] = "Warn if a base game is not installed",
+			[str::warn_no_base_desc] = "Give a warning if you're trying to install a DLC/update and the base game is not installed.",
+			[str::replaying_errors] = "Replaying errors occurred while processing the queue.",
+			[str::log] = "Logs",
+			[str::upload_logs] = "Upload logs",
+			[str::clear_logs] = "Clear logs",
 		},
 
 	[lang::dutch] =
@@ -259,6 +266,13 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			STUB(ask_extra_desc),
 			STUB(proxy_desc),
 			STUB(install_all),
+			STUB(install_no_base),
+			STUB(warn_no_base),
+			STUB(warn_no_base_desc),
+			STUB(replaying_errors),
+			STUB(log),
+			STUB(upload_logs),
+			STUB(clear_logs),
 		},
 
 	[lang::german] =
@@ -380,6 +394,13 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			STUB(ask_extra_desc),
 			STUB(proxy_desc),
 			STUB(install_all),
+			STUB(install_no_base),
+			STUB(warn_no_base),
+			STUB(warn_no_base_desc),
+			STUB(replaying_errors),
+			STUB(log),
+			STUB(upload_logs),
+			STUB(clear_logs),
 		},
 
 	[lang::spanish] =
@@ -502,6 +523,13 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			STUB(ask_extra_desc),
 			STUB(proxy_desc),
 			STUB(install_all),
+			STUB(install_no_base),
+			STUB(warn_no_base),
+			STUB(warn_no_base_desc),
+			STUB(replaying_errors),
+			STUB(log),
+			STUB(upload_logs),
+			STUB(clear_logs),
 		}
 };
 #pragma GCC diagnostic pop

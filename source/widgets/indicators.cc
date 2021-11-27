@@ -11,36 +11,30 @@
 #define TAG_CTR 2
 #define TAG_SD  3
 
-/*
-		"", SCREEN_HEIGHT() - 10, 4.0f, 0.4f, 0.35f
-	)), nandt(ui::mk_center_WText(
-		"", SCREEN_HEIGHT() - 10, 0.4f, 0.35f
-	)), nandc(ui::mk_right_WText(
-		"", SCREEN_HEIGHT() - 10, 4.0f, 0.4f, 0.35f
-	))
-*/
+#define TAG_PERC 4
+#define TAG_FG   5
+
+#define DIM_X 0.35f
+#define DIM_Y 0.35f
 
 void ui::FreeSpaceIndicator::setup()
 {
 	this->z = 1.0f; /* force on foreground */
 
-	ui::builder<ui::Text>(this->screen, "")
-		.size(0.4f, 0.35f)
-		.x(ui::layout::left)
+	ui::builder<ui::Text>(this->screen)
+		.size(DIM_X, DIM_Y)
 		.y(ui::screen_height() - 10.0f)
 		.tag(TAG_SD)
 		.add_to(this->queue);
 
-	ui::builder<ui::Text>(this->screen, "")
-		.size(0.4f, 0.35f)
-		.x(ui::layout::center_x)
+	ui::builder<ui::Text>(this->screen)
+		.size(DIM_X, DIM_Y)
 		.y(ui::screen_height() - 10.0f)
 		.tag(TAG_TWL)
 		.add_to(this->queue);
 
-	ui::builder<ui::Text>(this->screen, "")
-		.size(0.4f, 0.35f)
-		.x(ui::layout::right)
+	ui::builder<ui::Text>(this->screen)
+		.size(DIM_X, DIM_Y)
 		.y(ui::screen_height() - 10.0f)
 		.tag(TAG_CTR)
 		.add_to(this->queue);
@@ -58,16 +52,18 @@ void ui::FreeSpaceIndicator::update()
 		ctr::get_free_space(DEST_CTRNand, &nandc);
 		ctr::get_free_space(DEST_Sdmc, &sdmc);
 
-		// TODO: Evenly distribute the space?
+		ui::Text *sd = this->queue.find_tag<ui::Text>(TAG_SD);
+		ui::Text *twl = this->queue.find_tag<ui::Text>(TAG_TWL);
+		ui::Text *ctr = this->queue.find_tag<ui::Text>(TAG_CTR);
 
-		this->queue.find_tag<ui::Text>(TAG_SD)->set_text("SD: " + human_readable_size<u64>(sdmc));
-		this->queue.find_tag<ui::Text>(TAG_SD)->set_x(ui::layout::left);
+		sd->set_text("SD: " + human_readable_size<u64>(sdmc) + " | ");
+		sd->set_x(ui::layout::left);
 
-		this->queue.find_tag<ui::Text>(TAG_TWL)->set_text("TWLNand: " + human_readable_size<u64>(nandt));
-		this->queue.find_tag<ui::Text>(TAG_TWL)->set_x(ui::layout::center_x);
+		twl->set_text("TWLNand: " + human_readable_size<u64>(nandt) + " | ");
+		twl->set_x(ui::right(sd, twl));
 
-		this->queue.find_tag<ui::Text>(TAG_CTR)->set_text("CTRNand: " + human_readable_size<u64>(nandc));
-		this->queue.find_tag<ui::Text>(TAG_CTR)->set_x(ui::layout::right);
+		ctr->set_text("CTRNand: " + human_readable_size<u64>(nandc));
+		ctr->set_x(ui::right(twl, ctr));
 	}
 }
 
@@ -78,142 +74,47 @@ bool ui::FreeSpaceIndicator::render(const ui::Keys& keys)
 		: true;
 }
 
+/* TimeIndicator */
 
-#if 0
-// NET
-
-ui::NetIndicator::NetIndicator()
-	: Widget("net_indicator")
+void ui::TimeIndicator::setup()
 {
-	this->sheet = c2d::SpriteSheet::from_file(SHEET("net_icons"));
+	this->text.setup(this->screen);
+	this->text->resize(0.4f, 0.4f);
+	this->text->set_y(3.0f);
+	this->text->set_x(5.0f);
 
-/*	this->sprites[0] = c2d::Sprite::from_sheet(&this->sheet, net_icons_net0_idx);
-	this->sprites[1] = c2d::Sprite::from_sheet(&this->sheet, net_icons_net1_idx);
-	this->sprites[2] = c2d::Sprite::from_sheet(&this->sheet, net_icons_net2_idx);
-	this->sprites[3] = c2d::Sprite::from_sheet(&this->sheet, net_icons_net3_idx);
-
-	// Configure each sprite...
-	for(size_t i = 0; i < NET_SPRITE_BUF_LEN; ++i)
-	{
-		this->sprites[i].move(10, 10);
-	}*/
+	this->lastCheck = 0;
+	this->update();
 }
 
-ui::Results ui::NetIndicator::draw(ui::Keys&, ui::Scr)
-{
-#ifdef USE_CONFIG_H
-	if(get_settings()->showNet)
-#endif
-	{
-//		this->sprite[osGetWifiStrength()].draw();
-	}
-
-	return ui::Results::go_on;
-}
-
-// BATTERY
-
-ui::BatteryIndicator::BatteryIndicator()
-	: Widget("battery_indicator"), sheet(c2d::SpriteSheet::from_file(SHEET("battery"))),
-		percentage(ui::mk_right_WText("0%", 5.0f, 40.0f, 0.5f, 0.5f))
+bool ui::TimeIndicator::render(const ui::Keys& keys)
 {
 	this->update();
-
-	this->light = c2d::Sprite::from_sheet(&this->sheet, battery_battery_light_idx);
-	this->dark = c2d::Sprite::from_sheet(&this->sheet, battery_battery_dark_idx);
-
-	this->light.move(SCREEN_WIDTH(ui::Scr::top) - 33.0f, 5.0f);
-	this->dark.move(SCREEN_WIDTH(ui::Scr::top) - 33.0f, 5.0f);
+	this->text->render(keys);
+	return true;
 }
 
-ui::BatteryIndicator::~BatteryIndicator()
-{
-	this->sheet.free();
-}
-
-void ui::BatteryIndicator::update()
-{
-	u8 nlvl = 0;
-
-	if(R_FAILED(MCUHWC_GetBatteryLevel(&nlvl)) || this->level == nlvl)
-		return;
-
-	this->level = nlvl;
-	this->percentage.replace_text(std::to_string(level) + "%");
-}
-
-static u8 lvl2batlvl(u8 lvl)
-{
-	u8 ret = lvl / 25 + 1;
-	return ret > 4 ? 4 : ret;
-}
-
-ui::Results ui::BatteryIndicator::draw(ui::Keys& keys, ui::Scr target)
-{
-#ifdef USE_SETTINGS_H
-	if(get_settings()->showBattery)
-#endif
-	{
-		this->update();
-		this->percentage.draw(keys, target);
-
-		this->draw_lvl(lvl2batlvl(this->level));
-	}
-
-	return ui::Results::go_on;
-}
-
-void ui::BatteryIndicator::draw_lvl(u8 lvl)
-{
-#ifdef USE_SETTINGS_H
-# define container (get_settings()->isLightMode ? this->light : this->dark)
-# define color_green (get_settings()->isLightMode ? C2D_Color32f(0x00, 0xFF, 0x00, 0xFF) \
-                                                  : C2D_Color32f(0x00, 0xA2, 0x00, 0xFF))
-# define color_red (get_settings()->isLightMode ? C2D_Color32f(0xFF, 0x00, 0x00, 0xFF) \
-                                                : C2D_Color32f(0xDA, 0x00, 0x00, 0xFF))
-#else
-# define container this->dark
-# define color_green C2D_Color32f(0x00, 0xFF, 0x00, 0xFF)
-# define color_red C2D_Color32f(0xFF, 0x00, 0x00, 0xFF)
-#endif
-
-	float width = lvl * 5.0f;
-	C2D_DrawRectSolid(SCREEN_WIDTH(ui::Scr::top) - 9.0f - width, 7.0f, 0.0f, width, 12.0f,
-		lvl == 1 ? color_red : color_green);
-
-	container.draw();
-
-#undef color_green
-#undef color_red
-#undef container
-}
-
-// TIME
-
-ui::TimeIndicator::TimeIndicator()
-	: Widget("time_indicator"), txt(ui::mk_left_WText("00:00:00", 3.0f, 5.0f, 0.4f, 0.4f))
-{
-
-}
-
-ui::Results ui::TimeIndicator::draw(ui::Keys& keys, ui::Scr target)
-{
-	this->txt.replace_text(ui::TimeIndicator::time());
-	this->txt.draw(keys, target);
-	return ui::Results::go_on;
-}
-
-std::string ui::TimeIndicator::time()
+void ui::TimeIndicator::update()
 {
 	time_t now = ::time(nullptr);
+	/* accuracy of time() is 1 sec, and our
+	 * clock is as well; if now != lastCheck
+	 * the diff is 1 sec */
+	if(now > this->lastCheck)
+	{
+		this->text->set_text(ui::TimeIndicator::time(now));
+		this->lastCheck = now;
+	}
+}
+
+std::string ui::TimeIndicator::time(time_t now)
+{
 	struct tm *tm;
 	if((tm = localtime(&now)) == nullptr)
 		return "00:00:00";
 
-#ifdef USE_SETTINGS_H
 	// 24h aka good
 	if(get_settings()->timeFormat == Timefmt::good)
-#endif
 	{
 		constexpr int size = 3 /* hh: */ + 3 /* mm: */ + 2 /* ss */ + 1 /* NULL term */;
 		char str[size];
@@ -222,7 +123,6 @@ std::string ui::TimeIndicator::time()
 		return std::string(str, size);
 	}
 
-#ifdef USE_SETTINGS_H
 	// 12h aka american aka bad
 	else
 	{
@@ -265,7 +165,91 @@ std::string ui::TimeIndicator::time()
 
 		return std::string(str, size);
 	}
-#endif
-
 }
+
+/* BatteryIndicator */
+
+void ui::BatteryIndicator::setup()
+{
+	ui::builder<ui::Text>(this->screen)
+		.size(0.5f)
+		.y(5.0f)
+		.tag(TAG_PERC)
+		.add_to(this->queue);
+	ui::builder<ui::Sprite>(this->screen, ui::SpriteStore::get_by_id(ui::sprite::battery_dark))
+		.x(ui::screen_width(ui::Screen::top) - 37.0f)
+		.y(5.0f)
+		.tag(TAG_FG)
+		.add_to(this->queue);
+}
+
+void ui::BatteryIndicator::update()
+{
+	u8 nlvl = 0;
+
+	if(R_FAILED(MCUHWC_GetBatteryLevel(&nlvl)) || this->level == nlvl)
+		return;
+
+	this->level = nlvl;
+	ui::Text *perc = this->queue.find_tag<ui::Text>(TAG_PERC);
+	ui::Sprite *fg = this->queue.find_tag<ui::Sprite>(TAG_FG);
+
+	perc->set_text(std::to_string(this->level) + "%");
+	perc->set_x(ui::left(fg, perc));
+}
+
+static u8 lvl2batlvl(u8 lvl)
+{
+	u8 ret = lvl / 25 + 1;
+	return ret > 4 ? 4 : ret;
+}
+
+bool ui::BatteryIndicator::render(const ui::Keys& keys)
+{
+	if(get_settings()->showBattery)
+	{
+		this->update();
+
+		float width = lvl2batlvl(this->level) * 5.0f;
+		C2D_DrawRectSolid(ui::screen_width(ui::Screen::top) - 13.0f - width, 7.0f, 0.0f,
+			width, 12.0f, this->level == 1 ? C2D_Color32f(0xDA, 0x00, 0x00, 0xFF)
+			: C2D_Color32f(0x00, 0xA2, 0x00, 0xFF));
+		this->queue.render_top(keys);
+	}
+
+	return true;
+}
+
+#if 0
+// NET
+
+ui::NetIndicator::NetIndicator()
+	: Widget("net_indicator")
+{
+	this->sheet = c2d::SpriteSheet::from_file(SHEET("net_icons"));
+
+/*	this->sprites[0] = c2d::Sprite::from_sheet(&this->sheet, net_icons_net0_idx);
+	this->sprites[1] = c2d::Sprite::from_sheet(&this->sheet, net_icons_net1_idx);
+	this->sprites[2] = c2d::Sprite::from_sheet(&this->sheet, net_icons_net2_idx);
+	this->sprites[3] = c2d::Sprite::from_sheet(&this->sheet, net_icons_net3_idx);
+
+	// Configure each sprite...
+	for(size_t i = 0; i < NET_SPRITE_BUF_LEN; ++i)
+	{
+		this->sprites[i].move(10, 10);
+	}*/
+}
+
+ui::Results ui::NetIndicator::draw(ui::Keys&, ui::Scr)
+{
+#ifdef USE_CONFIG_H
+	if(get_settings()->showNet)
+#endif
+	{
+//		this->sprite[osGetWifiStrength()].draw();
+	}
+
+	return ui::Results::go_on;
+}
+
 #endif

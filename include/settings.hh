@@ -38,6 +38,7 @@ typedef struct Settings
 	lang::type language = lang::english;
 	LumaLocaleMode lumalocalemode = LumaLocaleMode::automatic;
 	bool askForExtraContent = true;
+	bool warnNoBase = true;
 } Settings;
 
 

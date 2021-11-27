@@ -59,6 +59,12 @@ namespace plog
             }
         }
 
+				template <typename Appender>
+				Appender *getAppender(size_t i)
+				{
+					return (Appender *) m_appenders[i];
+				}
+
     private:
         Severity m_maxSeverity;
 #ifdef _MSC_VER

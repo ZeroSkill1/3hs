@@ -59,8 +59,30 @@ static void finalize_install(u64 tid, bool interactive)
 	if(interactive) luma::maybe_set_gamepatching();
 }
 
+/* returns if the user wants to continue */
+static bool maybe_warn_already_installed(u64 tid, bool interactive)
+{
+	if(!interactive || !get_settings()->warnNoBase || ctr::is_base_tid(tid) || ctr::title_exists(ctr::get_base_tid(tid)))
+		return true;
+
+	/* we need to warn the user and ask if he wants to continue now */
+
+	bool ret = false;
+
+	ui::RenderQueue queue;
+	ui::builder<ui::Confirm>(ui::Screen::bottom, STRING(install_no_base), ret)
+		.y(ui::layout::center_y)
+		.add_to(queue);
+	queue.render_finite();
+
+	return ret;
+}
+
 Result install::gui::net_cia(const std::string& url, u64 tid, bool interactive)
 {
+	if(!maybe_warn_already_installed(tid, interactive))
+		return 0;
+
 	bool focus = set_focus(true);
 	ui::ProgressBar *bar;
 	ui::RenderQueue queue;
@@ -98,6 +120,9 @@ start_install:
 
 Result install::gui::hs_cia(const hsapi::FullTitle& meta, bool interactive)
 {
+	if(!maybe_warn_already_installed(meta.tid, interactive))
+		return 0;
+
 	bool focus = set_focus(true);
 	ui::ProgressBar *bar;
 	ui::RenderQueue queue;

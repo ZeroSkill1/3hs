@@ -3,6 +3,8 @@
 #include <3rd/log.hh>
 #include <panic.hh>
 
+#include "i18n.hh"
+
 /* internal constants */
 #define SPRITESHEET_PATH "romfs:/gfx/next.t3x"
 
@@ -25,9 +27,9 @@ float ui::transform(ui::BaseWidget *wid, float v)
 	switch((int) v)
 	{
 	case (int) ui::layout::bottom:
-		return ui::dimensions::height - wid->height() - 3.0f; /* padding of 3.0f */
+		return ui::dimensions::height - wid->height() - 10.0f; /* padding of 10.0f */
 	case (int) ui::layout::right:
-		return ui::screen_width(wid->renders_on()) - wid->width() - 3.0f; /* padding of 3.0f */
+		return ui::screen_width(wid->renders_on()) - wid->width() - 10.0f; /* padding of 10.0f */
 	case (int) ui::layout::center_x:
 		return (ui::screen_width(wid->renders_on()) / 2) - (wid->width() / 2.0f);
 	case (int) ui::layout::center_y:
@@ -64,6 +66,24 @@ void ui::exit()
 	C2D_Fini();
 	C3D_Fini();
 	gfxExit();
+}
+
+void ui::notice(const std::string& msg)
+{
+	ui::RenderQueue queue;
+
+	ui::builder<ui::Text>(ui::Screen::top, STRING(press_a_exit))
+		.x(ui::layout::center_x)
+		.y(ui::layout::bottom)
+		.add_to(queue);
+
+	ui::builder<ui::Text>(ui::Screen::top, msg)
+		.x(ui::layout::center_x)
+		.y(70.0f)
+		.wrap()
+		.add_to(queue);
+
+	queue.render_finite_button(KEY_A | KEY_START);
 }
 
 void ui::init(C3D_RenderTarget *top, C3D_RenderTarget *bot)
@@ -291,6 +311,9 @@ C2D_Sprite ui::SpriteStore::get_by_id(ui::sprite id)
 
 void ui::Text::setup(const std::string& label)
 { this->set_text(label); }
+
+void ui::Text::setup()
+{ this->set_text(""); }
 
 void ui::Text::prepare_arrays()
 {

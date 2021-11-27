@@ -30,7 +30,6 @@ static hsapi::Index g_index;
 hsapi::Index *hsapi::get_index()
 { return &g_index; }
 
-
 static Result basereq(const std::string& url, std::string& data, HTTPC_RequestMethod reqmeth = HTTPC_METHOD_GET)
 {
 	httpcContext ctx;
@@ -96,6 +95,9 @@ static Result basereq(const std::string& url, std::string& data, HTTPC_RequestMe
 		// Other type of fail
 		if(R_FAILED(res) && res != (Result) HTTPC_RESULTCODE_DOWNLOADPENDING)
 		{
+			/* httpcCloseContext() seems to hang if you don't cancel before
+			 * calling it */
+			httpcCancelConnection(&ctx);
 			httpcCloseContext(&ctx);
 			return res;
 		}
