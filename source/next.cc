@@ -6,9 +6,6 @@
 #include <ui/base.hh>
 
 #include "hsapi.hh"
-
-#include "hsapi.hh"
-
 #include "queue.hh"
 #include "panic.hh"
 #include "i18n.hh"

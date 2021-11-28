@@ -47,6 +47,7 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 	CHECKRET(httpcSetSSLOpt(&ctx, SSLCOPT_DisableVerify));
 	CHECKRET(httpcSetKeepAlive(&ctx, HTTPC_KEEPALIVE_ENABLED));
 	CHECKRET(httpcAddRequestHeaderField(&ctx, "Connection", "Keep-Alive"));
+	CHECKRET(httpcAddRequestHeaderField(&ctx, "User-Agent", USER_AGENT));
 	CHECKRET(proxy::apply(&ctx));
 
 	if(from != 0)

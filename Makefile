@@ -202,8 +202,8 @@ _build_all:
 
 cia: $(INT_ALL)
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
-	$(SILENTCMD) 3dstool -ctf romfs $(BUILD)/romfs.bin --romfs-dir romfs
-	$(SILENTCMD) makerom -f cia -o $(TARGET).cia -target t -elf $(TARGET).elf -icon $(CIA_PREFIX)/icon.smdh -banner $(CIA_PREFIX)/banner.bnr -rsf $(CIA_PREFIX)/$(TARGET).rsf -romfs $(BUILD)/romfs.bin -ver $(VERSION)
+	$(SILENTCMD) 3dstool -ctf romfs $(CIA_PREFIX)/romfs.bin --romfs-dir romfs
+	$(SILENTCMD) makerom -f cia -o $(TARGET).cia -target t -elf $(TARGET).elf -icon $(CIA_PREFIX)/icon.smdh -banner $(CIA_PREFIX)/banner.bnr -rsf $(CIA_PREFIX)/$(TARGET).rsf -romfs $(CIA_PREFIX)/romfs.bin -ver $(VERSION)
 	$(SILENTMSG) built ... $(TARGET).cia
 
 
@@ -223,7 +223,7 @@ endif
 #---------------------------------------------------------------------------------
 clean:
 	@echo clean ...
-	@rm -fr $(BUILD) $(TARGET).3dsx $(OUTPUT).smdh $(TARGET).elf $(GFXBUILD) $(OUTPUT).cxi $(OUTPUT).cia $(BUILD)/romfs.bin
+	@rm -fr $(BUILD) $(TARGET).3dsx $(OUTPUT).smdh $(TARGET).elf $(GFXBUILD) $(OUTPUT).cxi $(OUTPUT).cia cia_stuff/romfs.bin
 
 #---------------------------------------------------------------------------------
 $(GFXBUILD)/%.t3x	$(BUILD)/%.h	:	%.t3s
