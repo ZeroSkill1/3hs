@@ -24,7 +24,6 @@ bool tid_can_have_missing(hsapi::htid tid)
 void show_find_missing(hsapi::htid tid)
 {
 	ui::loading([tid]() -> void {
-
 		std::vector<hsapi::htid> installed;
 		panic_if_err_3ds(ctr::list_titles_on(MEDIATYPE_SD, installed));
 		ctr::list_titles_on(MEDIATYPE_GAME_CARD, installed); // it might error if there is no cart inserted so we don't want to panic if it fails
@@ -51,14 +50,14 @@ void show_find_missing(hsapi::htid tid)
 		std::vector<hsapi::Title> newInstalls;
 		std::copy_if(potentialInstalls.begin(), potentialInstalls.end(), std::back_inserter(newInstalls), [installed](const hsapi::Title& title) -> bool {
 			// TODO: also check the version int, wait for backend update to return version int for that
-			// Is the title already installed?
-			return std::find(installed.begin(), installed.end(), title.tid) == installed.end()
+			return
+				// Is the title already installed?
+				std::find(installed.begin(), installed.end(), title.tid) == installed.end()
 				// Is the title already in the queue?
 				&& std::find(queue_get().begin(), queue_get().end(), title) == queue_get().end();
 		});
 
 		for(const hsapi::Title& title : newInstalls)
 			queue_add(title.id, false);
-
 	});
 }

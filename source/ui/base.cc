@@ -506,6 +506,14 @@ void ui::Sprite::setup(C2D_Sprite sprite)
 	this->sprite = sprite;
 }
 
+void ui::Sprite::set_sprite(C2D_Sprite sprite)
+{
+	C2D_DrawParams params = this->sprite.params;
+	this->sprite = sprite;
+	/* copy config */
+	this->sprite.params = params;
+}
+
 float ui::Sprite::height()
 {
 	return this->sprite.image.subtex->height;

@@ -206,6 +206,7 @@ static u8 lvl2batlvl(u8 lvl)
 
 bool ui::BatteryIndicator::render(const ui::Keys& keys)
 {
+#ifdef RELEASE
 	if(get_settings()->showBattery)
 	{
 		this->update();
@@ -216,40 +217,62 @@ bool ui::BatteryIndicator::render(const ui::Keys& keys)
 			: C2D_Color32f(0x00, 0xA2, 0x00, 0xFF));
 		this->queue.render_top(keys);
 	}
+#else
+	/* mcuhwc is not supported in citra */
+	((void) lvl2batlvl);
+	((void) keys);
+#endif
 
 	return true;
 }
 
-#if 0
-// NET
-
-ui::NetIndicator::NetIndicator()
-	: Widget("net_indicator")
+void ui::NetIndicator::setup()
 {
-	this->sheet = c2d::SpriteSheet::from_file(SHEET("net_icons"));
+	this->sprite.setup(ui::Screen::top, ui::SpriteStore::get_by_id(ui::sprite::net_discon));
+	this->sprite->set_x(ui::screen_width(ui::Screen::top) - 17.0f);
+	this->sprite->set_y(ui::screen_height() - 11.0f);
 
-/*	this->sprites[0] = c2d::Sprite::from_sheet(&this->sheet, net_icons_net0_idx);
-	this->sprites[1] = c2d::Sprite::from_sheet(&this->sheet, net_icons_net1_idx);
-	this->sprites[2] = c2d::Sprite::from_sheet(&this->sheet, net_icons_net2_idx);
-	this->sprites[3] = c2d::Sprite::from_sheet(&this->sheet, net_icons_net3_idx);
-
-	// Configure each sprite...
-	for(size_t i = 0; i < NET_SPRITE_BUF_LEN; ++i)
-	{
-		this->sprites[i].move(10, 10);
-	}*/
+	this->status = -1;
+	this->update();
 }
 
-ui::Results ui::NetIndicator::draw(ui::Keys&, ui::Scr)
+bool ui::NetIndicator::render(const ui::Keys& keys)
 {
-#ifdef USE_CONFIG_H
-	if(get_settings()->showNet)
-#endif
+	this->update();
+	return this->sprite->render(keys);
+}
+
+void ui::NetIndicator::update()
+{
+	u32 acuStat = 0;
+	s8 rstat;
+
+	if(R_SUCCEEDED(ACU_GetWifiStatus(&acuStat)) && acuStat > 0)
+		rstat = osGetWifiStrength();
+	else rstat = -1;
+
+	if(rstat == this->status) return;
+	this->status = rstat;
+
+	switch(this->status)
 	{
-//		this->sprite[osGetWifiStrength()].draw();
+	case -1: /* disconnected */
+		this->sprite->set_sprite(ui::SpriteStore::get_by_id(ui::sprite::net_discon));
+		break;
+	case 0: /* terrible */
+		this->sprite->set_sprite(ui::SpriteStore::get_by_id(ui::sprite::net_0));
+		break;
+	case 1: /* bad */
+		this->sprite->set_sprite(ui::SpriteStore::get_by_id(ui::sprite::net_1));
+		break;
+	case 2: /* decent */
+		this->sprite->set_sprite(ui::SpriteStore::get_by_id(ui::sprite::net_2));
+		break;
+	case 3: /* good */
+		this->sprite->set_sprite(ui::SpriteStore::get_by_id(ui::sprite::net_3));
+		break;
+	default:
+		panic("EINVAL");
 	}
-
-	return ui::Results::go_on;
 }
 
-#endif

@@ -13,10 +13,6 @@
 #include <3rd/plog/Appenders/ColorConsoleAppender.h>
 #include <3rd/log.hh>
 
-#include "build/settings_icon.h"
-#include "build/search_icon.h"
-#include "build/more_icon.h"
-
 #include "lumalocale.hh"
 #include "installgui.hh"
 #include "settings.hh"
@@ -74,7 +70,6 @@ int main(int argc, char* argv[])
 	// Check if luma is installed
 	// 1. Citra is used; not compatible
 	// 2. Other cfw used; not supported
-	Handle lumaCheck;
 	if(!isLuma)
 	{
 		lfatal << "Luma3DS is not installed, user is using an unsupported CFW or running in Citra";
@@ -92,7 +87,6 @@ int main(int argc, char* argv[])
 		ui::exit();
 		return 3;
 	}
-	svcCloseHandle(lumaCheck);
 #endif
 
 	init_seeddb();
@@ -171,18 +165,9 @@ int main(int argc, char* argv[])
 	ui::builder<ui::BatteryIndicator>(ui::Screen::top)
 		.add_to(ui::RenderQueue::global());
 
-	/* ui::wid()->push_back("version", new ui::Text(ui::mk_right_WText(VERSION, 3.0f, 5.0f, 0.4f, 0.4f, ui::Scr::bottom)), ui::Scr::bottom); */
-	/* ui::wid()->push_back("header_desc", new ui::Text(ui::mk_center_WText(STRING(banner), 30.0f)), ui::Scr::top); */
-	/* ui::wid()->push_back("header", new ui::Text(ui::mk_center_WText("hShop", 0.0f, 1.0f, 1.0f)), ui::Scr::top); */
-	/* ui::wid()->push_back("curr_action_desc", new ui::Text(ui::mk_center_WText("", 45.0f)), ui::Scr::top); // the first message is caused by ui::loading() */
-	/* ui::wid()->push_back("size_indicator", new ui::FreeSpaceIndicator()); */
-	/* ui::wid()->push_back("time_indicator", new ui::TimeIndicator()); */
-	/* ui::wid()->push_back("konami", new ui::Konami(), ui::Scr::top); */
-	/* ui::wid()->push_back("net_indicator", new ui::NetIndicator()); */
+	ui::builder<ui::NetIndicator>(ui::Screen::top)
+		.add_to(ui::RenderQueue::global());
 
-/* #ifdef RELEASE */
-	/* ui::wid()->push_back("batt_indicator", new ui::BatteryIndicator()); */
-/* #endif */
 
 	// DRM Check
 #ifdef DEVICE_ID

@@ -3,9 +3,6 @@
 
 #include <ui/base.hh>
 
-#define NET_SPRITE_BUF_LEN 4
-#define BAT_SPRITE_BUF_LEN 4
-
 
 namespace ui
 {
@@ -61,45 +58,22 @@ namespace ui
 
 	};
 
-#if 0
-	class NetIndicator : public Widget
-	{
+	class NetIndicator : public ui::BaseWidget
+	{ UI_WIDGET("NetIndicator")
 	public:
-		NetIndicator();
-
-		ui::Results draw(Keys&, Scr) override;
-
-
-	private:
-		c2d::Sprite sprite[NET_SPRITE_BUF_LEN];
-		c2d::SpriteSheet sheet;
-
-
-	};
-
-	class BatteryIndicator : public Widget
-	{
-	public:
-		BatteryIndicator();
-		~BatteryIndicator();
-
-		ui::Results draw(Keys&, Scr) override;
+		void setup();
+		bool render(const ui::Keys& keys) override;
+		float height() override { return 0.0f; }
+		float width() override { return 0.0f; }
 		void update();
 
 
 	private:
-		void draw_lvl(u8 lvl);
-
-		c2d::SpriteSheet sheet;
-		c2d::Sprite light;
-		c2d::Sprite dark;
-
-		ui::Text percentage;
-		u8 level = 0;
+		ui::ScopedWidget<ui::Sprite> sprite;
+		s8 status;
 
 
 	};
-#endif
 }
 
 #endif

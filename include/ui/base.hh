@@ -158,15 +158,23 @@ namespace ui
 #undef next_settings_light_idx
 		spinner = next_spinner_idx,
 #undef next_spinner_idx
+		net_discon = next_net_discon_idx,
+#undef next_net_discon_idx
+		net_0 = next_net_0_idx,
+#undef next_net_0_idx
+		net_1 = next_net_1_idx,
+#undef next_net_1_idx
+		net_2 = next_net_2_idx,
+#undef next_net_2_idx
+		net_3 = next_net_3_idx,
+#undef next_net_3_idx
 	};
 
-#ifndef inc_ui_core_hh
 	struct Keys
 	{
 		u32 kDown, kHeld, kUp;
 		touchPosition touch;
 	};
-#endif
 
 	/* gets the width of a screen */
 	constexpr inline float screen_width(ui::Screen scr)
@@ -471,8 +479,6 @@ namespace ui
 			this->wid->finalize();
 		}
 
-		// Shortcut
-		bool render(const ui::Keys& keys) { return this->wid->render(keys); }
 		TWidget *ptr() { return this->wid; }
 
 		TWidget *operator -> () { return this->wid; }
@@ -546,6 +552,7 @@ namespace ui
 		void set_y(float y) override;
 		void set_z(float z) override;
 
+		void set_sprite(C2D_Sprite sprite);
 		void set_center(float x, float y);
 		void rotate(float degs);
 

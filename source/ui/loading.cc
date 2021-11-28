@@ -1,5 +1,4 @@
 
-#include "build/spinner.h"
 #include "ui/loading.hh"
 #include "thread.hh"
 #include "util.hh"
@@ -44,7 +43,7 @@ void ui::Spinner::setup()
 bool ui::Spinner::render(const ui::Keys& keys)
 {
 	this->sprite.ptr()->rotate(1.0f);
-	return this->sprite.render(keys);
+	return this->sprite->render(keys);
 }
 
 float ui::Spinner::width()
@@ -138,7 +137,7 @@ bool ui::detail::TimeoutScreenHelper::render(const ui::Keys& keys)
 	if(now - this->startTime >= this->nsecs)
 		return false;
 
-	return this->text.render(keys);
+	return this->text->render(keys);
 }
 
 // timeoutscreen()

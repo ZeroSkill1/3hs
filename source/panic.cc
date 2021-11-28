@@ -16,7 +16,7 @@ Result init_services(bool& isLuma)
 
 	Handle lumaCheck;
 	isLuma = R_SUCCEEDED(svcConnectToPort(&lumaCheck, "hb:ldr"));
-	svcCloseHandle(lumaCheck);
+	if(isLuma) svcCloseHandle(lumaCheck);
 
 	// Doesn't work in citra
 	if(isLuma) if(R_FAILED(res = mcuHwcInit())) return res;
@@ -28,6 +28,7 @@ Result init_services(bool& isLuma)
 	if(R_FAILED(res = fsInit())) return res;
 	if(R_FAILED(res = amInit())) return res;
 	if(R_FAILED(res = psInit())) return res;
+	if(R_FAILED(res = acInit())) return res;
 
 	return res;
 }
