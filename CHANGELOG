@@ -16,6 +16,7 @@ v0.2.0:
  - 3hs will now warn if you're trying to install a dlc/update for a game which you
    don't have installed
  - add logs menu for clearing logs
+ - add network status indicator
  - fix issue where 3hs would crash if WiFi was not available
  - fix issue where 3hs wouldn't work if time & date was wrong
  - fix issue where extended meta wasn't showing in search
