@@ -2,29 +2,37 @@
 #ifndef inc_ui_progress_bar_hh
 #define inc_ui_progress_bar_hh
 
-#include <ui/bindings.hh>
-#include <ui/core.hh>
+#include <ui/base.hh>
 
 #include <functional>
 #include <string>
 
-#ifdef USE_SETTINGS_H
-# include "settings.hh"
-# define PROGBAR_LOCATION(def) (get_settings()->progloc == ProgressBarLocation::bottom ? ui::Scr::bottom : ui::Scr::top)
-#else
-# define PROGBAR_LOCATION(def) (def)
-#endif
+#include "settings.hh"
+
 
 namespace ui
 {
-	class ProgressBar : public ui::Widget
+	static inline ui::Screen progloc()
 	{
-	public:
-		ProgressBar(u64 part, u64 total);
-		ProgressBar(u64 total);
-		ProgressBar();
+		return get_settings()->progloc == ProgressBarLocation::bottom
+			? ui::Screen::bottom : ui::Screen::top;
+	}
 
-		ui::Results draw(ui::Keys&, ui::Scr) override;
+	std::string up_to_mib_serialize(u64, u64);
+	std::string up_to_mib_postfix(u64);
+
+	class ProgressBar : public ui::BaseWidget
+	{ UI_WIDGET("ProgressBar")
+	public:
+		void setup(u64 part, u64 total);
+		void setup(u64 total);
+		void setup();
+
+		void destroy();
+
+		bool render(const ui::Keys& keys) override;
+		float height() override;
+		float width() override;
 
 		void update(u64 part, u64 total);
 		void update(u64 part);
@@ -32,24 +40,24 @@ namespace ui
 		void set_serialize(std::function<std::string(u64, u64)> cb);
 		void set_postfix(std::function<std::string(u64)> cb);
 
-		void activate_text();
-		void set_mib_type();
+		void activate();
 
 
 	private:
-		c2d::TextBuf buf = c2d::TextBuf(100);
-		u64 part = 0, total = 0;
-		bool activated = false;
+		void update_state();
 
-		std::function<std::string(u64, u64)> serialize = [](u64 n, u64) { return std::to_string(n); };
-		std::function<std::string(u64)> postfix = [](u64) { return ""; };
+		bool activated = false;
+		float bcx, w, outerw;
+		u64 part, total;
+
+		C2D_TextBuf buf;
+		C2D_Text bc, a;
+
+		std::function<std::string(u64, u64)> serialize = up_to_mib_serialize;
+		std::function<std::string(u64)> postfix = up_to_mib_postfix;
 
 
 	};
-
-	std::string up_to_mib_serialize(u64, u64);
-	std::string up_to_mib_postfix(u64);
-	void up_to_mib(ProgressBar& bar);
 }
 
 #endif

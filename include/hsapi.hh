@@ -1,4 +1,3 @@
-
 #ifndef inc_hsapi_hh
 #define inc_hsapi_hh
 
@@ -10,10 +9,11 @@
 
 #include <ui/confirm.hh>
 #include <ui/loading.hh>
-#include <ui/core.hh>
+#include <ui/base.hh>
 
 #include "panic.hh"
 #include "error.hh"
+#include "util.hh"
 #include "i18n.hh"
 
 
@@ -69,6 +69,9 @@ namespace hsapi
 		hsize size; /* filesize */
 		htid tid; /* title id of the title */
 		hid id; /* hShop id */
+
+		friend bool operator == (const Title& lhs, const Title& rhs)
+		{ return lhs.id == rhs.id; }
 	} Title;
 
 	typedef struct FullTitle : public Title
@@ -103,10 +106,26 @@ namespace hsapi
 	std::string parse_vstring(hiver ver);
 	Index *get_index();
 
+	// Silent call. ui::loading() is not called and it will stop after 3 tries
+	template <typename ... Ts>
+	Result scall(Result (*func)(Ts...), Ts&& ... args)
+	{
+		Result res = 0;
+		int tries = 0;
+
+		do {
+			res = (*func)(args...);
+			++tries;
+		} while(R_FAILED(res) && tries < 3);
+		return res;
+	}
+
 	// NOTE: You have to std::move() primitives (hid, hiver, htid, ...)
 	template <typename ... Ts>
 	Result call(Result (*func)(Ts...), Ts&& ... args)
 	{
+		std::string desc = set_desc(STRING(loading));
+		bool focus = set_focus(false);
 		Result res = 0;
 		do {
 			ui::loading([&res, func, &args...]() -> void {
@@ -118,13 +137,17 @@ namespace hsapi
 				error_container err = get_error(res);
 				handle_error(err);
 
-				ui::Widgets wids; bool cont = true;
-				wids.push_back(new ui::Confirm(STRING(retry_req), cont), ui::Scr::bottom);
-				generic_main_breaking_loop(wids);
+				ui::RenderQueue queue; bool cont = true;
+				ui::builder<ui::Confirm>(ui::Screen::bottom, STRING(retry_req), cont)
+					.y(ui::layout::center_y)
+					.add_to(queue);
+				queue.render_finite();
 
 				if(!cont) break;
 			}
 		} while(R_FAILED(res));
+		set_focus(focus);
+		set_desc(desc);
 		return res;
 	}
 }

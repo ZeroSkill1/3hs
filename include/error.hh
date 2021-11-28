@@ -3,6 +3,7 @@
 #define inc_error_hh
 
 #include <string>
+#include <3ds.h>
 
 #define APPERR_NOSUPPORT MAKERESULT(RL_PERMANENT, RS_NOTSUPPORTED, RM_APPLICATION, 0)
 #define APPERR_CANCELLED MAKERESULT(RL_TEMPORARY, RS_CANCELED, RM_APPLICATION, 1)
@@ -11,11 +12,13 @@
 #define APPERR_TITLE_MISMATCH MAKERESULT(RL_TEMPORARY, RS_OUTOFRESOURCE, RM_APPLICATION, 4)
 #define APPERR_NORANGE MAKERESULT(RL_PERMANENT, RS_NOTSUPPORTED, RM_APPLICATION, 5)
 #define APPERR_NOSIZE MAKERESULT(RL_PERMANENT, RS_NOTSUPPORTED, RM_APPLICATION, 6)
-#define APPERR_JSON_FAIL MAKERESULT(RL_TEMPORARY, RS_INVALIDSTATE, RM_APPLICATION, 7)
+#define APPERR_JSON_FAIL MAKERESULT(RL_PERMANENT, RS_INVALIDSTATE, RM_APPLICATION, 7)
+#define APPERR_NON200 MAKERESULT(RL_PERMANENT, RS_INVALIDSTATE, RM_APPLICATION, 8)
 
 
 typedef struct error_container
 {
+
 	std::string sDesc;
 	Result      iDesc;
 
@@ -33,7 +36,7 @@ typedef struct error_container
 
 
 void report_error(error_container& container, std::string note = "");
-std::string format_err(std::string msg, Result code);
+std::string format_err(const std::string& msg, Result code);
 error_container get_error(Result res);
 std::string pad8code(Result code);
 

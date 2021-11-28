@@ -3,37 +3,35 @@
 
 #include <widgets/indicators.hh>
 
-#include <ui/progress_bar.hh>
 #include <ui/confirm.hh>
-#include <ui/button.hh>
 #include <ui/list.hh>
-#include <ui/util.hh>
-#include <ui/text.hh>
-#include <ui/core.hh>
 
 #include <widgets/meta.hh>
 
 #include <vector>
 
 #include "lumalocale.hh"
+#include "installgui.hh"
 #include "install.hh"
 #include "panic.hh"
 #include "error.hh"
 #include "i18n.hh"
 #include "util.hh"
+#include "ctr.hh"
 
 static std::vector<hsapi::FullTitle> g_queue;
-
+std::vector<hsapi::FullTitle>& queue_get() { return g_queue; }
 
 void queue_add(const hsapi::FullTitle& meta)
 {
 	g_queue.push_back(meta);
 }
 
-void queue_add(hsapi::hid id)
+void queue_add(hsapi::hid id, bool disp)
 {
 	hsapi::FullTitle meta;
-	Result res = hsapi::call(hsapi::title_meta, meta, std::move(id));
+	Result res = disp ? hsapi::call(hsapi::title_meta, meta, std::move(id))
+		: hsapi::scall(hsapi::title_meta, meta, std::move(id));
 	if(R_FAILED(res)) return;
 	queue_add(meta);
 }
@@ -50,191 +48,116 @@ void queue_clear()
 
 void queue_process(size_t index)
 {
-	if(g_queue.size() < index) return;
-	toggle_focus();
-	process_hs(g_queue[index]);
-	toggle_focus();
-	queue_remove(index);
+	if(R_SUCCEEDED(install::gui::hs_cia(g_queue[index])))
+		queue_remove(index);
 }
 
 void queue_process_all()
 {
-	toggle_focus();
+	std::vector<Result> errs;
 	for(hsapi::FullTitle& meta : g_queue)
 	{
-		if(R_FAILED(process_hs(meta)))
-			break;
+		Result res = install::gui::hs_cia(meta, false);
+		if(R_FAILED(res)) errs.push_back(res);
 	}
-	luma::set_gamepatching();
-	toggle_focus();
+
+	/* only enable gamepatching if one or more
+	 * titles succeeded to install */
+	if(errs.size() != g_queue.size())
+		luma::maybe_set_gamepatching();
+
+	if(errs.size() != 0)
+	{
+		ui::notice(STRING(replaying_errors));
+		for(Result res : errs)
+		{
+			error_container err = get_error(res);
+			handle_error(err);
+		}
+	}
+
 	queue_clear();
 }
 
-Result process_uri(const std::string& uri, bool reinstallable, const std::string& tid, FS_MediaType media)
+static void queue_is_empty()
 {
-	ui::Widgets wids;
-	ui::ProgressBar *bar = new ui::ProgressBar(0, 1); // = 0%
-	wids.push_back("prog_bar", bar, PROGBAR_LOCATION(ui::Scr::bottom));
-	bar->set_mib_type();
-	single_draw(wids);
+	ui::RenderQueue queue;
 
-	Result res = install_net_cia(makeurlwrap(uri), [&wids, bar](u64 now, u64 total) -> void {
-		bar->update(now, total);
-		bar->activate_text();
-		single_draw(wids);
-	}, reinstallable, tid, media);
+	ui::builder<ui::Text>(ui::Screen::top, STRING(queue_empty))
+		.x(ui::layout::center_x)
+		.y(ui::layout::center_y)
+		.add_to(queue);
 
-	if(res == APPERR_NOREINSTALL)
-	{
-		bool userWantsReinstall = false;
-
-		ui::Widgets rei;
-		rei.push_back(new ui::Confirm(STRING(already_installed_reinstall),
-			userWantsReinstall), ui::Scr::bottom);
-		generic_main_breaking_loop(rei);
-
-		if(userWantsReinstall)
-			return process_uri(uri, true, tid, media);
-	}
-
-	if(R_FAILED(res))
-	{
-		error_container err = get_error(res);
-		report_error(err, "User was installing from " + uri);
-		handle_error(err);
-	}
-
-	ui::wid()->get<ui::FreeSpaceIndicator>("size_indicator")->update();
-	return res;
-}
-
-Result process_hs(hsapi::hid id)
-{
-	hsapi::FullTitle meta;
-	Result res = hsapi::call(hsapi::title_meta, meta, std::move(id));
-	if(R_FAILED(res)) return 0; // user was already warned
-	return process_hs(meta);
-}
-
-Result process_hs(hsapi::FullTitle& meta, bool reinstall)
-{
-	ui::Widgets wids;
-	ui::ProgressBar *bar = new ui::ProgressBar(0, 1); // = 0%
-	wids.push_back("prog_bar", bar, PROGBAR_LOCATION(ui::Scr::bottom));
-	bar->set_mib_type();
-	single_draw(wids);
-
-	Result res = install_hs_cia(&meta, [&wids, bar](u64 now, u64 total) -> void {
-		bar->update(now, total);
-		bar->activate_text();
-		single_draw(wids);
-	}, reinstall);
-
-	if(res == APPERR_NOREINSTALL)
-	{
-		bool userWantsReinstall = false;
-
-		ui::Widgets rei;
-		rei.push_back(new ui::Confirm(STRING(already_installed_reinstall),
-			userWantsReinstall), ui::Scr::bottom);
-		generic_main_breaking_loop(rei);
-
-		if(userWantsReinstall)
-			return process_hs(meta, true);
-	}
-
-	// Error!
-	if(R_FAILED(res))
-	{
-		error_container err = get_error(res);
-		report_error(err, "User was installing (" + tid_to_str(meta.tid) + ") (" + std::to_string(meta.id) + ")");
-		handle_error(err);
-	}
-
-	ui::wid()->get<ui::FreeSpaceIndicator>("size_indicator")->update();
-	return res;
-}
-
-static void queue_is_empty(bool toggle = true)
-{
-	ui::Widgets wids;
-
-	ui::WrapText *msg = new ui::WrapText(STRING(queue_empty));
-	msg->center(); msg->set_basey((SCREEN_HEIGHT() / 2) - 30);
-	wids.push_back(msg);
-
-	wids.push_back(new ui::PressToContinue(KEY_A));
-	generic_main_breaking_loop(wids);
-
-	if(toggle) toggle_focus();
+	queue.render_finite_button(KEY_A | KEY_B);
 }
 
 void show_queue()
 {
-	toggle_focus();
+	using list_t = ui::List<hsapi::FullTitle>;
+	bool focus = set_focus(true);
 
 	// Queue is empty :craig:
 	if(g_queue.size() == 0)
-		return queue_is_empty();
+	{
+		queue_is_empty();
+		set_focus(focus);
+		return;
+	}
 
-	ui::Widgets wids;
-	ui::List<hsapi::FullTitle> *list = new ui::List<hsapi::FullTitle>(
-		[](hsapi::FullTitle& meta) -> std::string { return meta.name; },
-		[](ui::List<hsapi::FullTitle> *self, size_t index, u32 keys) -> ui::Results {
-			if(keys & KEY_X)
-			{
-				if(self->out_of_bounds(index)) return ui::Results::go_on;
-				queue_remove(index);
-				self->update_text_reg();
-				if(g_queue.size() != 0 && self->get_pointer() >= g_queue.size())
-					self->set_pointer(g_queue.size() - 1);
-			}
-			return ui::Results::go_on;
-		}, g_queue
-	); wids.push_back("list", list);
-	list->add_button(KEY_X);
+	ui::RenderQueue queue;
 
-	ui::TitleMeta *meta = new ui::TitleMeta();
-	if(g_queue.size() > 0) meta->update_title(g_queue[0]);
+	ui::TitleMeta *meta;
 
-	wids.push_back("meta", meta, ui::Scr::bottom);
-	list->set_on_change([&](ui::List<hsapi::FullTitle> *self, size_t index) {
-		if(self->out_of_bounds(index)) return;
-		meta->update_title(self->at(index));
-	});
+	ui::builder<ui::TitleMeta>(ui::Screen::bottom, g_queue[0])
+		.add_to(&meta, queue);
 
+	ui::builder<list_t>(ui::Screen::top, &g_queue)
+		.connect(list_t::to_string, [](const hsapi::FullTitle& meta) -> std::string { return meta.name; })
+		.connect(list_t::select, [meta](list_t *self, size_t i, u32 kDown) -> bool {
+			/* why is the cast necessairy? */
+			((void) i);
+			ui::RenderQueue::global()->render_and_then((std::function<bool()>) [self, meta, kDown]() -> bool {
+				size_t i = self->get_pos(); /* for some reason the i param corrupted (?) */
+				if(kDown & KEY_X)
+					queue_remove(i);
+				else if(kDown & KEY_A)
+					queue_process(i);
 
-	wids.push_back("back", new ui::Button(STRING(back), 240, 210, 310, 230), ui::Scr::bottom);
-	wids.get<ui::Button>("back")->set_on_click([](bool) -> ui::Results {
-		return ui::Results::quit_loop;
-	});
+				if(g_queue.size() == 0)
+					return false; /* we're done */
+				/* if we removed the last item */
+				if(i == g_queue.size())
+					--i;
 
-	wids.push_back("install_all", new ui::Button("Install All", 10, 180, 100, 200), ui::Scr::bottom);
-	wids.get<ui::Button>("install_all")->set_on_click([list](bool) -> ui::Results {
-		queue_process_all(); list->update_text_reg();
-		queue_is_empty(false);
-		return ui::Results::quit_loop;
-	});
+				i = i > 0 ? i - 1 : 0;
+				meta->set_title(self->at(i));
+				self->set_pos(i);
+				self->update();
 
-	ui::Button *installSel = new ui::Button("Install Selected", 10, 210, 150, 230);
-	wids.push_back("install_sel", installSel, ui::Scr::bottom);
+				return true;
+			});
 
-	installSel->set_on_click([list](bool) -> ui::Results {
-		if(list->out_of_bounds(list->get_pointer())) return ui::Results::go_on;
-		queue_process(list->get_pointer()); list->update_text_reg();
-		if(g_queue.size() == 0)
-		{
-			queue_is_empty(false);
-			return ui::Results::quit_loop;
-		}
-		return ui::Results::go_on;
-	}); installSel->toggle_click();
-	wids.push_back(new ui::DoAfterFrames(20, [installSel]() -> ui::Results {
-		installSel->toggle_click(); return ui::Results::go_on;
-	}));
+			return true;
+		})
+		.connect(list_t::change, [meta](list_t *self, size_t i) -> void {
+			meta->set_title(self->at(i));
+		})
+		.connect(list_t::buttons, KEY_X)
+		.x(5.0f).y(25.0f)
+		.add_to(queue);
 
+	ui::builder<ui::Button>(ui::Screen::bottom, STRING(install_all))
+		.connect(ui::Button::click, []() -> bool {
+			ui::RenderQueue::global()->render_and_then(queue_process_all);
+			/* the queue will always be empty after this */
+			return false;
+		})
+		.wrap()
+		.x(ui::layout::right)
+		.y(210.0f)
+		.add_to(queue);
 
-	generic_main_breaking_loop(wids);
-	toggle_focus();
+	queue.render_finite_button(KEY_B);
+	set_focus(focus);
 }
 

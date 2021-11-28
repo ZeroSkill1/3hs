@@ -1,219 +1,120 @@
 
 #include "widgets/indicators.hh"
-#include "build/net_icons.h"
-#include "build/battery.h"
 
 #include <time.h>
 #include <3ds.h>
 
-#ifdef USE_SETTINGS_H
-# include "settings.hh"
-# define BG_CLR (get_settings()->isLightMode ? ui::constants::COLOR_TOP_LI : ui::constants::COLOR_TOP)
-#else
-# define BG_CLR ui::constants::COLOR_TOP
-#endif
+#include "settings.hh"
+#include "ctr.hh"
 
-#define BG_HEIGHT 10
+#define TAG_TWL 1
+#define TAG_CTR 2
+#define TAG_SD  3
 
-// FREE SPACE
+#define TAG_PERC 4
+#define TAG_FG   5
 
-Result get_free_space(Destination media, u64 *size)
+#define DIM_X 0.35f
+#define DIM_Y 0.35f
+
+void ui::FreeSpaceIndicator::setup()
 {
-	FS_ArchiveResource resource = { 0, 0, 0, 0 };
-	Result res = 0;
+	this->z = 1.0f; /* force on foreground */
 
-	switch(media)
-	{
-	case DEST_TWLNand: res = FSUSER_GetArchiveResource(&resource, SYSTEM_MEDIATYPE_TWL_NAND); break;
-	case DEST_CTRNand: res = FSUSER_GetArchiveResource(&resource, SYSTEM_MEDIATYPE_CTR_NAND); break;
-	case DEST_Sdmc: res = FSUSER_GetArchiveResource(&resource, SYSTEM_MEDIATYPE_SD); break;
-	}
+	ui::builder<ui::Text>(this->screen)
+		.size(DIM_X, DIM_Y)
+		.y(ui::screen_height() - 10.0f)
+		.tag(TAG_SD)
+		.add_to(this->queue);
 
-	if(!R_FAILED(res)) *size = (u64) resource.clusterSize * (u64) resource.freeClusters;
-	return res;
-}
+	ui::builder<ui::Text>(this->screen)
+		.size(DIM_X, DIM_Y)
+		.y(ui::screen_height() - 10.0f)
+		.tag(TAG_TWL)
+		.add_to(this->queue);
 
+	ui::builder<ui::Text>(this->screen)
+		.size(DIM_X, DIM_Y)
+		.y(ui::screen_height() - 10.0f)
+		.tag(TAG_CTR)
+		.add_to(this->queue);
 
-ui::FreeSpaceIndicator::FreeSpaceIndicator()
-	: Widget("free_space_indicator"), sdmc(ui::mk_left_WText(
-		"", SCREEN_HEIGHT() - 10, 4.0f, 0.4f, 0.35f
-	)), nandt(ui::mk_center_WText(
-		"", SCREEN_HEIGHT() - 10, 0.4f, 0.35f
-	)), nandc(ui::mk_right_WText(
-		"", SCREEN_HEIGHT() - 10, 4.0f, 0.4f, 0.35f
-	))
-{
-	this->force_foreground();
 	this->update();
 }
 
 void ui::FreeSpaceIndicator::update()
 {
-#ifdef USE_SETTINGS_H
 	if(get_settings()->loadFreeSpace)
-#endif
 	{
 		u64 nandt = 0, nandc = 0, sdmc = 0;
 
-		get_free_space(DEST_TWLNand, &nandt);
-		get_free_space(DEST_CTRNand, &nandc);
-		get_free_space(DEST_Sdmc, &sdmc);
+		ctr::get_free_space(DEST_TWLNand, &nandt);
+		ctr::get_free_space(DEST_CTRNand, &nandc);
+		ctr::get_free_space(DEST_Sdmc, &sdmc);
 
-		this->nandt.replace_text("TWLNand: " + human_readable_size<u64>(nandt));
-		this->nandc.replace_text("CTRNand: " + human_readable_size<u64>(nandc));
-		this->sdmc.replace_text("SD: " + human_readable_size<u64>(sdmc));
+		ui::Text *sd = this->queue.find_tag<ui::Text>(TAG_SD);
+		ui::Text *twl = this->queue.find_tag<ui::Text>(TAG_TWL);
+		ui::Text *ctr = this->queue.find_tag<ui::Text>(TAG_CTR);
+
+		sd->set_text("SD: " + human_readable_size<u64>(sdmc) + " | ");
+		sd->set_x(ui::layout::left);
+
+		twl->set_text("TWLNand: " + human_readable_size<u64>(nandt) + " | ");
+		twl->set_x(ui::right(sd, twl));
+
+		ctr->set_text("CTRNand: " + human_readable_size<u64>(nandc));
+		ctr->set_x(ui::right(twl, ctr));
 	}
 }
 
-ui::Results ui::FreeSpaceIndicator::draw(Keys& keys, Scr screen)
+bool ui::FreeSpaceIndicator::render(const ui::Keys& keys)
 {
-#ifdef USE_SETTINGS_H
-	if(get_settings()->loadFreeSpace)
-#endif
-	{
-		C2D_DrawRectSolid(0, SCREEN_HEIGHT() - BG_HEIGHT, Z_OFF, SCREEN_WIDTH(screen), BG_HEIGHT, BG_CLR);
-		this->nandt.draw(keys, screen);
-		this->nandc.draw(keys, screen);
-		this->sdmc.draw(keys, screen);
-	}
-
-	return ui::Results::go_on;
+	return get_settings()->loadFreeSpace
+		? this->queue.render_screen(keys, this->screen)
+		: true;
 }
 
-// NET
+/* TimeIndicator */
 
-ui::NetIndicator::NetIndicator()
-	: Widget("net_indicator")
+void ui::TimeIndicator::setup()
 {
-	this->sheet = c2d::SpriteSheet::from_file(SHEET("net_icons"));
+	this->text.setup(this->screen);
+	this->text->resize(0.4f, 0.4f);
+	this->text->set_y(3.0f);
+	this->text->set_x(5.0f);
 
-/*	this->sprites[0] = c2d::Sprite::from_sheet(&this->sheet, net_icons_net0_idx);
-	this->sprites[1] = c2d::Sprite::from_sheet(&this->sheet, net_icons_net1_idx);
-	this->sprites[2] = c2d::Sprite::from_sheet(&this->sheet, net_icons_net2_idx);
-	this->sprites[3] = c2d::Sprite::from_sheet(&this->sheet, net_icons_net3_idx);
-
-	// Configure each sprite...
-	for(size_t i = 0; i < NET_SPRITE_BUF_LEN; ++i)
-	{
-		this->sprites[i].move(10, 10);
-	}*/
+	this->lastCheck = 0;
+	this->update();
 }
 
-ui::Results ui::NetIndicator::draw(ui::Keys&, ui::Scr)
-{
-#ifdef USE_CONFIG_H
-	if(get_settings()->showNet)
-#endif
-	{
-//		this->sprite[osGetWifiStrength()].draw();
-	}
-
-	return ui::Results::go_on;
-}
-
-// BATTERY
-
-ui::BatteryIndicator::BatteryIndicator()
-	: Widget("battery_indicator"), sheet(c2d::SpriteSheet::from_file(SHEET("battery"))),
-		percentage(ui::mk_right_WText("0%", 5.0f, 40.0f, 0.5f, 0.5f))
+bool ui::TimeIndicator::render(const ui::Keys& keys)
 {
 	this->update();
-
-	this->light = c2d::Sprite::from_sheet(&this->sheet, battery_battery_light_idx);
-	this->dark = c2d::Sprite::from_sheet(&this->sheet, battery_battery_dark_idx);
-
-	this->light.move(SCREEN_WIDTH(ui::Scr::top) - 33.0f, 5.0f);
-	this->dark.move(SCREEN_WIDTH(ui::Scr::top) - 33.0f, 5.0f);
+	this->text->render(keys);
+	return true;
 }
 
-ui::BatteryIndicator::~BatteryIndicator()
-{
-	this->sheet.free();
-}
-
-void ui::BatteryIndicator::update()
-{
-	u8 nlvl = 0;
-
-	if(R_FAILED(MCUHWC_GetBatteryLevel(&nlvl)) || this->level == nlvl)
-		return;
-
-	this->level = nlvl;
-	this->percentage.replace_text(std::to_string(level) + "%");
-}
-
-static u8 lvl2batlvl(u8 lvl)
-{
-	u8 ret = lvl / 25 + 1;
-	return ret > 4 ? 4 : ret;
-}
-
-ui::Results ui::BatteryIndicator::draw(ui::Keys& keys, ui::Scr target)
-{
-#ifdef USE_SETTINGS_H
-	if(get_settings()->showBattery)
-#endif
-	{
-		this->update();
-		this->percentage.draw(keys, target);
-
-		this->draw_lvl(lvl2batlvl(this->level));
-	}
-
-	return ui::Results::go_on;
-}
-
-void ui::BatteryIndicator::draw_lvl(u8 lvl)
-{
-#ifdef USE_SETTINGS_H
-# define container (get_settings()->isLightMode ? this->light : this->dark)
-# define color_green (get_settings()->isLightMode ? C2D_Color32f(0x00, 0xFF, 0x00, 0xFF) \
-                                                  : C2D_Color32f(0x00, 0xA2, 0x00, 0xFF))
-# define color_red (get_settings()->isLightMode ? C2D_Color32f(0xFF, 0x00, 0x00, 0xFF) \
-                                                : C2D_Color32f(0xDA, 0x00, 0x00, 0xFF))
-#else
-# define container this->dark
-# define color_green C2D_Color32f(0x00, 0xFF, 0x00, 0xFF)
-# define color_red C2D_Color32f(0xFF, 0x00, 0x00, 0xFF)
-#endif
-
-	float width = lvl * 5.0f;
-	C2D_DrawRectSolid(SCREEN_WIDTH(ui::Scr::top) - 9.0f - width, 7.0f, 0.0f, width, 12.0f,
-		lvl == 1 ? color_red : color_green);
-
-	container.draw();
-
-#undef color_green
-#undef color_red
-#undef container
-}
-
-// TIME
-
-ui::TimeIndicator::TimeIndicator()
-	: Widget("time_indicator"), txt(ui::mk_left_WText("00:00:00", 3.0f, 5.0f, 0.4f, 0.4f))
-{
-
-}
-
-ui::Results ui::TimeIndicator::draw(ui::Keys& keys, ui::Scr target)
-{
-	this->txt.replace_text(ui::TimeIndicator::time());
-	this->txt.draw(keys, target);
-	return ui::Results::go_on;
-}
-
-std::string ui::TimeIndicator::time()
+void ui::TimeIndicator::update()
 {
 	time_t now = ::time(nullptr);
+	/* accuracy of time() is 1 sec, and our
+	 * clock is as well; if now != lastCheck
+	 * the diff is 1 sec */
+	if(now > this->lastCheck)
+	{
+		this->text->set_text(ui::TimeIndicator::time(now));
+		this->lastCheck = now;
+	}
+}
+
+std::string ui::TimeIndicator::time(time_t now)
+{
 	struct tm *tm;
 	if((tm = localtime(&now)) == nullptr)
 		return "00:00:00";
 
-#ifdef USE_SETTINGS_H
 	// 24h aka good
 	if(get_settings()->timeFormat == Timefmt::good)
-#endif
 	{
 		constexpr int size = 3 /* hh: */ + 3 /* mm: */ + 2 /* ss */ + 1 /* NULL term */;
 		char str[size];
@@ -222,7 +123,6 @@ std::string ui::TimeIndicator::time()
 		return std::string(str, size);
 	}
 
-#ifdef USE_SETTINGS_H
 	// 12h aka american aka bad
 	else
 	{
@@ -265,7 +165,114 @@ std::string ui::TimeIndicator::time()
 
 		return std::string(str, size);
 	}
+}
+
+/* BatteryIndicator */
+
+void ui::BatteryIndicator::setup()
+{
+	ui::builder<ui::Text>(this->screen)
+		.size(0.5f)
+		.y(5.0f)
+		.tag(TAG_PERC)
+		.add_to(this->queue);
+	ui::builder<ui::Sprite>(this->screen, ui::SpriteStore::get_by_id(ui::sprite::battery_dark))
+		.x(ui::screen_width(ui::Screen::top) - 37.0f)
+		.y(5.0f)
+		.tag(TAG_FG)
+		.add_to(this->queue);
+}
+
+void ui::BatteryIndicator::update()
+{
+	u8 nlvl = 0;
+
+	if(R_FAILED(MCUHWC_GetBatteryLevel(&nlvl)) || this->level == nlvl)
+		return;
+
+	this->level = nlvl;
+	ui::Text *perc = this->queue.find_tag<ui::Text>(TAG_PERC);
+	ui::Sprite *fg = this->queue.find_tag<ui::Sprite>(TAG_FG);
+
+	perc->set_text(std::to_string(this->level) + "%");
+	perc->set_x(ui::left(fg, perc));
+}
+
+static u8 lvl2batlvl(u8 lvl)
+{
+	u8 ret = lvl / 25 + 1;
+	return ret > 4 ? 4 : ret;
+}
+
+bool ui::BatteryIndicator::render(const ui::Keys& keys)
+{
+#ifdef RELEASE
+	if(get_settings()->showBattery)
+	{
+		this->update();
+
+		float width = lvl2batlvl(this->level) * 5.0f;
+		C2D_DrawRectSolid(ui::screen_width(ui::Screen::top) - 13.0f - width, 7.0f, 0.0f,
+			width, 12.0f, this->level == 1 ? C2D_Color32f(0xDA, 0x00, 0x00, 0xFF)
+			: C2D_Color32f(0x00, 0xA2, 0x00, 0xFF));
+		this->queue.render_top(keys);
+	}
+#else
+	/* mcuhwc is not supported in citra */
+	((void) lvl2batlvl);
+	((void) keys);
 #endif
 
+	return true;
+}
+
+void ui::NetIndicator::setup()
+{
+	this->sprite.setup(ui::Screen::top, ui::SpriteStore::get_by_id(ui::sprite::net_discon));
+	this->sprite->set_x(ui::screen_width(ui::Screen::top) - 17.0f);
+	this->sprite->set_y(ui::screen_height() - 11.0f);
+
+	this->status = -1;
+	this->update();
+}
+
+bool ui::NetIndicator::render(const ui::Keys& keys)
+{
+	this->update();
+	return this->sprite->render(keys);
+}
+
+void ui::NetIndicator::update()
+{
+	u32 acuStat = 0;
+	s8 rstat;
+
+	if(R_SUCCEEDED(ACU_GetWifiStatus(&acuStat)) && acuStat > 0)
+		rstat = osGetWifiStrength();
+	else rstat = -1;
+
+	if(rstat == this->status) return;
+	this->status = rstat;
+
+	switch(this->status)
+	{
+	case -1: /* disconnected */
+		this->sprite->set_sprite(ui::SpriteStore::get_by_id(ui::sprite::net_discon));
+		break;
+	case 0: /* terrible */
+		this->sprite->set_sprite(ui::SpriteStore::get_by_id(ui::sprite::net_0));
+		break;
+	case 1: /* bad */
+		this->sprite->set_sprite(ui::SpriteStore::get_by_id(ui::sprite::net_1));
+		break;
+	case 2: /* decent */
+		this->sprite->set_sprite(ui::SpriteStore::get_by_id(ui::sprite::net_2));
+		break;
+	case 3: /* good */
+		this->sprite->set_sprite(ui::SpriteStore::get_by_id(ui::sprite::net_3));
+		break;
+	default:
+		panic("EINVAL");
+	}
 }
 

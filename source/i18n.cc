@@ -1,6 +1,7 @@
 
+#include <ui/base.hh> /* for UI_GLYPH_* */
+
 #include "settings.hh"
-#include "ui/core.hh"
 #include "panic.hh"
 #include "i18n.hh"
 
@@ -10,6 +11,7 @@
 #define STUB(id) [str::id] = ENGLISH(id)
 #define RAW(lid, sid) strtab[lid][sid]
 
+// [str::xxx] is a GCC extension
 #pragma GCC diagnostic ignored "-Wpedantic"
 static const char *strtab[lang::_i_max][str::_i_max] =
 {
@@ -35,8 +37,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 				"Laswell: Design, Translations\n"
 				"CremeChocolate: Art",
 			[str::press_to_install] =
-				"Press " GLYPH_A " if you want to install this title.\n"
-				"Press " GLYPH_B " if you don't want to.",
+				"Press " UI_GLYPH_A " if you want to install this title.\n"
+				"Press " UI_GLYPH_B " if you don't want to.",
 			[str::version] = "Version",
 			[str::prodcode] = "Product code",
 			[str::size] = "Size",
@@ -76,7 +78,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::about_app] = "About",
 			[str::help_manual] = "Help/Manual",
 			[str::find_missing_content] = "Find missing content",
-			[str::press_a_exit] = "Press " GLYPH_A " to exit",
+			[str::press_a_exit] = "Press " UI_GLYPH_A " to exit",
 			[str::fatal_panic] = "Fatal Panic Occurred",
 			[str::failed_open_seeddb] = "Failed to open seeddb.bin",
 			[str::update_to] = "Do you want to update to %1?",
@@ -91,8 +93,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::already_installed_reinstall] = "Title already installed. Reinstall?",
 			[str::queue_empty] =
 				"Queue is empty\n"
-				"Press " GLYPH_A " to go back\n"
-				"Tip: press " GLYPH_Y " to add a title to the queue",
+				"Press " UI_GLYPH_A " to go back\n"
+				"Tip: press " UI_GLYPH_Y " to add a title to the queue",
 			[str::cancel] = "Cancel",
 			[str::confirm] = "Confirm",
 			[str::invalid_proxy] = "Invalid proxy settings",
@@ -105,9 +107,41 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 				"Luma3DS Game Patching was enabled.\n"
 				"For the change to take effect, you have to\nrestart your 3DS.",
 			[str::reboot_now] = "Restart now?",
+			[str::this_version] = "This is 3hs version %1",
 			[str::retry_req] = "Request failed. Do you want to retry?",
-			[str::search_zero_results] = "Search gave 0 results\nPress " GLYPH_A " to go back",
+			[str::search_zero_results] = "Search gave 0 results\nPress " UI_GLYPH_A " to go back",
 			[str::credits] = "Credits",
+			[str::extra_content] = "Add extra content to queue?",
+			[str::ask_extra] = "Ask for extra content",
+			[str::no_req] = "no requests made yet",
+			[str::invalid_query] = "Invalid query\nPress " UI_GLYPH_A " to go back",
+			[str::min_constraint] = "Current 3hs version %1 is lower than the required version %2",
+			[str::proxy] = "Proxy",
+			[str::none] = "(none)",
+			[str::press_a_to_view] = "Click " UI_GLYPH_A " to view",
+			[str::host] = "Host",
+			[str::port] = "Port",
+			[str::username] = "Username",
+			[str::password] = "Password",
+			[str::clear] = "Clear",
+			[str::progbar_screen_desc] = "The screen to draw progress bars on",
+			[str::light_mode_desc] = "Turn on light mode. This will change the way most ui elements look",
+			[str::resume_dl_desc] = "Should we start where we left off downloading the first time if we failed the first try?",
+			[str::load_space_desc] = "Load the free space indicator",
+			[str::show_battery_desc] = "Toggle visibility of battery in top right corner",
+			[str::time_format_desc] = "Your preferred time format. Either 24h or 12h",
+			[str::language_desc] = "The language 3hs is in. Note that to update all text you might need to restart 3hs",
+			[str::lumalocalemode_desc] = "The mode LumaLocale autosetter uses. Automatic selects a language automatically. If you choose manual 3hs will prompt for a region after the installation of a content",
+			[str::ask_extra_desc] = "Ask for extra content after an installation.",
+			[str::proxy_desc] = "Configure a proxy. If you don't know what you're doing don't touch this",
+			[str::install_all] = "Install all",
+			[str::install_no_base] = "DLC/Update doesn't have the base game installed. Install regardless?",
+			[str::warn_no_base] = "Warn if a base game is not installed",
+			[str::warn_no_base_desc] = "Give a warning if you're trying to install a DLC/update and the base game is not installed.",
+			[str::replaying_errors] = "Replaying errors occurred while processing the queue.",
+			[str::log] = "Logs",
+			[str::upload_logs] = "Upload logs",
+			[str::clear_logs] = "Clear logs",
 		},
 
 	[lang::dutch] =
@@ -133,8 +167,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 				"Laswell: Design, Vertalingen\n"
 				"CremeChocolate: Kunst",
 			[str::press_to_install] =
-				"Klik op " GLYPH_A " als je deze titel wilt installeren.\n"
-				"Klik op " GLYPH_B " als je dat niet wilt.",
+				"Klik op " UI_GLYPH_A " als je deze titel wilt installeren.\n"
+				"Klik op " UI_GLYPH_B " als je dat niet wilt.",
 			[str::version] = "Versie",
 			[str::prodcode] = "Productie code",
 			[str::size] = "Grootte",
@@ -174,7 +208,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::about_app] = "Informatie over applicatie",
 			[str::help_manual] = "Hulp/Gebruikshandleiding",
 			[str::find_missing_content] = "Vind missende titels",
-			[str::press_a_exit] = "Klik op " GLYPH_A " om af te sluiten",
+			[str::press_a_exit] = "Klik op " UI_GLYPH_A " om af te sluiten",
 			[str::fatal_panic] = "Fatale fout",
 			[str::failed_open_seeddb] = "Kon seeddb.bin niet openen",
 			[str::update_to] = "Wil je updaten naar versie %1?",
@@ -189,8 +223,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::already_installed_reinstall] = "Titel is al geïnstalleerd. Herinstalleeren?",
 			[str::queue_empty] =
 				"De wachtrij is leeg\n"
-				"Klik op " GLYPH_A " om terug te gaan\n"
-				"Tip: klik op " GLYPH_Y " om een titel toe te voegen\n"
+				"Klik op " UI_GLYPH_A " om terug te gaan\n"
+				"Tip: klik op " UI_GLYPH_Y " om een titel toe te voegen\n"
 				"aan de wachtrij",
 			[str::cancel] = "Weiger",
 			[str::confirm] = "Accepteer",
@@ -204,9 +238,41 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 				"Luma3DS Game Patching is ingeschakeld\n"
 				"Om de verandering te zien, moet je je\n3DS herstarten",
 			[str::reboot_now] = "Nu herstarten?",
+			[str::this_version] = "Dit is 3hs versie %1",
 			[str::retry_req] ="Opnieuw proberen gegevens te halen?",
-			[str::search_zero_results] =  "Zoekopdracht gaf 0 resultaten\nKlik op " GLYPH_A " om terug te gaan",
+			[str::search_zero_results] =  "Zoekopdracht gaf 0 resultaten\nKlik op " UI_GLYPH_A " om terug te gaan",
 			[str::credits] = "Met dank aan",
+			STUB(extra_content),
+			STUB(ask_extra),
+			STUB(no_req),
+			[str::invalid_query] = "Ongeldige zoekopdracht\nKlik op " UI_GLYPH_A " om terug te gaan",
+			STUB(min_constraint),
+			[str::proxy] = "Proxy",
+			[str::none] = "(geen)",
+			[str::press_a_to_view] = "Klik op " UI_GLYPH_A " om de waarde te bekijken",
+			STUB(host),
+			STUB(port),
+			STUB(username),
+			STUB(password),
+			STUB(clear),
+			STUB(progbar_screen_desc),
+			STUB(light_mode_desc),
+			STUB(resume_dl_desc),
+			STUB(load_space_desc),
+			STUB(show_battery_desc),
+			STUB(time_format_desc),
+			STUB(language_desc),
+			STUB(lumalocalemode_desc),
+			STUB(ask_extra_desc),
+			STUB(proxy_desc),
+			STUB(install_all),
+			STUB(install_no_base),
+			STUB(warn_no_base),
+			STUB(warn_no_base_desc),
+			STUB(replaying_errors),
+			STUB(log),
+			STUB(upload_logs),
+			STUB(clear_logs),
 		},
 
 	[lang::german] =
@@ -230,8 +296,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 				"Laswell: Design, Übersetzungen\n"
 				"CremeChocolate: Kunstwerke",
 			[str::press_to_install] =
-				"Drücke " GLYPH_A " falls du diesen Inhalt zu installieren\nmöchtest.\n"
-				"Drücke " GLYPH_B " falls nicht.",
+				"Drücke " UI_GLYPH_A " falls du diesen Inhalt zu installieren\nmöchtest.\n"
+				"Drücke " UI_GLYPH_B " falls nicht.",
 			[str::version] = "Version",
 			[str::prodcode] = "Produkt-Code",
 			[str::size] = "Größe",
@@ -271,7 +337,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::about_app] = "Über",
 			[str::help_manual] = "Hilfe/Anleitung",
 			[str::find_missing_content] = "Suche nach fehlenden Inhalten",
-			[str::press_a_exit] = "Drücke " GLYPH_A " um die App zu schließen",
+			[str::press_a_exit] = "Drücke " UI_GLYPH_A " um die App zu schließen",
 			[str::fatal_panic] = "Schwerwiegender Fehler aufgetreten",
 			[str::failed_open_seeddb] = "Konnte seeddb.bin nicht öffnen",
 			[str::update_to] = "Möchtest du auf Version %1 updaten?",
@@ -286,8 +352,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::already_installed_reinstall] = "Inhalt ist bereits installiert. Neuinstallieren?",
 			[str::queue_empty] =
 				"Warteschlange ist leer\n"
-				"Drücke " GLYPH_A " um zurückzukehren\n"
-				"Tipp: Drücke " GLYPH_Y " um einen Inhalt zur Warteschlange\nhinzuzufügen",
+				"Drücke " UI_GLYPH_A " um zurückzukehren\n"
+				"Tipp: Drücke " UI_GLYPH_Y " um einen Inhalt zur Warteschlange\nhinzuzufügen",
 			[str::cancel] = "Abbrechen",
 			[str::confirm] = "Bestätigen",
 			[str::invalid_proxy] = "Ungültige Proxy-Einstellungen",
@@ -300,15 +366,47 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 					"Luma3DS-Game-Patching wurde aktiviert.\n"
 					"Damit die Änderungen übernommen werden\nkönnen, musst du deinen 3DS neustarten.",
 			[str::reboot_now] = "Jetzt neustarten?",
+			[str::this_version] = "Dies ist 3hs Version %1",
 			[str::retry_req] = "Erneut versuchen?",
-			[str::search_zero_results] = "Suche ergab keine Ergebnisse\nDrücke " GLYPH_A " um zurückzukehren",
+			[str::search_zero_results] = "Suche ergab keine Ergebnisse\nDrücke " UI_GLYPH_A " um zurückzukehren",
 			[str::credits] = "Mitwirkende",
+			STUB(extra_content),
+			STUB(ask_extra),
+			STUB(no_req),
+			STUB(invalid_query),
+			STUB(min_constraint),
+			[str::proxy] = "Proxy",
+			STUB(none),
+			STUB(press_a_to_view),
+			STUB(host),
+			STUB(port),
+			STUB(username),
+			STUB(password),
+			STUB(clear),
+			STUB(progbar_screen_desc),
+			STUB(light_mode_desc),
+			STUB(resume_dl_desc),
+			STUB(load_space_desc),
+			STUB(show_battery_desc),
+			STUB(time_format_desc),
+			STUB(language_desc),
+			STUB(lumalocalemode_desc),
+			STUB(ask_extra_desc),
+			STUB(proxy_desc),
+			STUB(install_all),
+			STUB(install_no_base),
+			STUB(warn_no_base),
+			STUB(warn_no_base_desc),
+			STUB(replaying_errors),
+			STUB(log),
+			STUB(upload_logs),
+			STUB(clear_logs),
 		},
 
 	[lang::spanish] =
 		{
 			[str::banner]  = "El servicio de preservación de 3DS definitivo.",
-			[str::loading] = "Loading ...",
+			[str::loading] = "Cargando ...",
 			[str::luma_not_installed] = "Luma3DS no está instalado en este sistema",
 			[str::install_luma] = "Por favor installe Luma3DS en una 3DS real",
 			[str::queue] = "Cola",
@@ -327,8 +425,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 				"Laswell: Diseño, Traducción\n"
 				"CremeChocolate: Arte",
 			[str::press_to_install] =
-				"Presiona " GLYPH_A " si quieres instalar este título.\n"
-				"Presiona " GLYPH_B " si no quieres.",
+				"Presiona " UI_GLYPH_A " si quieres instalar este título.\n"
+				"Presiona " UI_GLYPH_B " si no quieres.",
 			[str::version] = "Versión",
 			[str::prodcode] = "Código de producto",
 			[str::size] = "Tamaño",
@@ -368,7 +466,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::about_app] = "Acerca de",
 			[str::help_manual] = "Ayuda/Manual",
 			[str::find_missing_content] = "Buscar contenido ausente",
-			[str::press_a_exit] = "Presiona " GLYPH_A " para salir",
+			[str::press_a_exit] = "Presiona " UI_GLYPH_A " para salir",
 			[str::fatal_panic] = "Ocurrió un error fatal de pánico",
 			[str::failed_open_seeddb] = "No se pudo abrir seeddb.bin",
 			[str::update_to] = "¿Quieres actualizar a %1?",
@@ -383,8 +481,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::already_installed_reinstall] = "Título ya instalado. ¿Reinstalar?",
 			[str::queue_empty] =
 				"La cola está vacia\n"
-				"Presiona " GLYPH_A " para volver\n"
-				"Consejo: presiona " GLYPH_Y " para añadir un título\na la cola",
+				"Presiona " UI_GLYPH_A " para volver\n"
+				"Consejo: presiona " UI_GLYPH_Y " para añadir un título\na la cola",
 			[str::cancel] = "Cancelar",
 			[str::confirm] = "Confirmar",
 			[str::invalid_proxy] = "Configuración de proxy inválida",
@@ -395,12 +493,44 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::disabled] = "desactivado",
 			[str::patching_reboot] =
 					"El Parcheo de Juegos de Luma3DS ha sido activado.\n"
-					"Para que el cambio tenga efecto, tienes que\nreinicia tu 3DS.",
+					"Para que el cambio tenga efecto, tienes que \nreinicia tu 3DS.",
 			[str::reboot_now] = "¿Reiniciar ahora?",
+			[str::this_version] = "Esto es 3hs, versión %1",
 			[str::retry_req] = "¿Quieres reintentar?",
-			[str::search_zero_results] = "La búsqueda no dió resultados\nPresiona " GLYPH_A " para regresar",
+			[str::search_zero_results] = "La búsqueda no dió resultados\nPresiona " UI_GLYPH_A " para regresar",
 			[str::credits] = "Créditos",
-		},
+			STUB(extra_content),
+			STUB(ask_extra),
+			STUB(no_req),
+			STUB(invalid_query),
+			STUB(min_constraint),
+			[str::proxy] = "Proxy",
+			STUB(none),
+			STUB(press_a_to_view),
+			STUB(host),
+			STUB(port),
+			STUB(username),
+			STUB(password),
+			STUB(clear),
+			STUB(progbar_screen_desc),
+			STUB(light_mode_desc),
+			STUB(resume_dl_desc),
+			STUB(load_space_desc),
+			STUB(show_battery_desc),
+			STUB(time_format_desc),
+			STUB(language_desc),
+			STUB(lumalocalemode_desc),
+			STUB(ask_extra_desc),
+			STUB(proxy_desc),
+			STUB(install_all),
+			STUB(install_no_base),
+			STUB(warn_no_base),
+			STUB(warn_no_base_desc),
+			STUB(replaying_errors),
+			STUB(log),
+			STUB(upload_logs),
+			STUB(clear_logs),
+		}
 };
 #pragma GCC diagnostic pop
 

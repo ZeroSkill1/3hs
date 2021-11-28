@@ -1,18 +1,15 @@
 
-#include "lumalocale.hh"
 #include "settings.hh"
 #include "install.hh"
 #include "thread.hh"
+#include "update.hh" /* includes net constants */
 #include "error.hh"
 #include "proxy.hh"
 #include "panic.hh"
 #include "seed.hh"
+#include "ctr.hh"
 
-#include <widgets/indicators.hh>
-#include <net_common.hh>
-#include <curl/curl.h>
 #include <3rd/log.hh>
-#include <ui/util.hh>
 #include <malloc.h>
 #include <3ds.h>
 
@@ -96,6 +93,7 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 			|| R_FAILED(res = httpcGetDownloadSizeState(&ctx, &dled, nullptr)))
 		{
 			// Error
+			httpcCancelConnection(&ctx);
 			httpcCloseContext(&ctx);
 			return res;
 		}
@@ -103,7 +101,8 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 		if(data->itc == ITC::exit)
 			break;
 
-		CHECKRET(FSFILE_Write(data->cia, &written, data->index, data->buffer, BUFSIZE, FS_WRITE_FLUSH));
+		lverbose << "Writing to cia handle, size=" << dlnext << ",index=" << data->index << ",totalSize=" << data->totalSize;
+		CHECKRET(FSFILE_Write(data->cia, &written, data->index, data->buffer, dlnext, FS_WRITE_FLUSH));
 
 		remaining = data->totalSize - dled - from;
 		data->index += dlnext;
@@ -114,10 +113,9 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 	return 0;
 }
 
-static void i_install_loop_thread_cb(Result& res, std::function<std::string()> get_url, cia_net_data& data)
+static void i_install_loop_thread_cb(Result& res, get_url_func get_url, cia_net_data& data)
 {
-	std::string url = get_url();
-	linfo << "Installing cia from <" << url << ">.";
+	std::string url = get_url(res);
 
 	if(!get_settings()->resumeDownloads)
 	{
@@ -129,7 +127,7 @@ static void i_install_loop_thread_cb(Result& res, std::function<std::string()> g
 	while(true)
 	{
 		if(url != "") // url == "" means we failed to fetch the url
-			res = i_install_net_cia(get_url(), &data, data.index);
+			res = i_install_net_cia(get_url(res), &data, data.index);
 
 		// User pressed start
 		if(data.itc == ITC::exit)
@@ -154,15 +152,16 @@ static void i_install_loop_thread_cb(Result& res, std::function<std::string()> g
 			}
 
 			data.itc = ITC::normal;
-			url = get_url();
+			url = get_url(res);
 			continue;
 		}
 
+		// Installation was a fail, so we stop
 		break;
 	}
 }
 
-static Result i_install_resume_loop(std::function<std::string()> get_url, Handle ciaHandle, prog_func prog)
+static Result i_install_resume_loop(get_url_func get_url, Handle ciaHandle, prog_func prog)
 {
 	cia_net_data data;
 	data.buffer = new u8[BUFSIZE];
@@ -171,7 +170,7 @@ static Result i_install_resume_loop(std::function<std::string()> get_url, Handle
 	Result res = 0;
 
 	// Install thread
-	thread<Result&, std::function<std::string()>, cia_net_data&> th
+	ctr::thread<Result&, get_url_func, cia_net_data&> th
 		(i_install_loop_thread_cb, res, get_url, data);
 
 	// UI Loop
@@ -202,13 +201,8 @@ static Result i_install_resume_loop(std::function<std::string()> get_url, Handle
 }
 
 
-static Destination detect_dest(hsapi::Title *meta)
-{ return detect_dest(meta->tid); }
-
-Destination detect_dest(const std::string& tid)
-{
-	return detect_dest(str_to_tid(tid));
-}
+static Destination detect_dest(const hsapi::Title& meta)
+{ return detect_dest(meta.tid); }
 
 // https://www.3dbrew.org/wiki/Titles#Title_IDs
 Destination detect_dest(u64 tid)
@@ -225,16 +219,16 @@ FS_MediaType to_mediatype(Destination dest)
 	return dest == DEST_Sdmc ? MEDIATYPE_SD : MEDIATYPE_NAND;
 }
 
-static Result i_install_hs_cia(hsapi::FullTitle *meta, prog_func prog, bool reinstallable)
+static Result i_install_hs_cia(const hsapi::FullTitle& meta, prog_func prog, bool reinstallable)
 {
 	Destination media = detect_dest(meta);
 	u64 freeSpace = 0;
 	Result res;
 
-	if(R_FAILED(res = get_free_space(media, &freeSpace)))
+	if(R_FAILED(res = ctr::get_free_space(media, &freeSpace)))
 		return res;
 
-	if(meta->size > freeSpace)
+	if(meta.size > freeSpace)
 		return APPERR_NOSPACE;
 
 	// Check if we are NOT on a n3ds and the game is n3ds exclusive
@@ -242,121 +236,50 @@ static Result i_install_hs_cia(hsapi::FullTitle *meta, prog_func prog, bool rein
 	if(R_FAILED(res = APT_CheckNew3DS(&isNew)))
 		return res;
 
-	if(!isNew && meta->prod.rfind("KTR-", 0) == 0)
+	if(!isNew && meta.prod.rfind("KTR-", 0) == 0)
 		return APPERR_NOSUPPORT;
 
-	return install_net_cia([meta]() -> std::string {
+	return install::net_cia([meta](Result& res) -> std::string {
 		std::string ret;
-		if(R_FAILED(hsapi::get_download_link(ret, *meta)))
+		if(R_FAILED(res = hsapi::get_download_link(ret, meta)))
 			return "";
 		return ret;
-	}, prog, reinstallable, meta->tid, to_mediatype(media));
+	}, meta.tid, prog, reinstallable);
 }
 
 
 // public api
 
-// This func returns true
-// on failure because there are probably
-// worse problems if it fails to query titles
-bool title_exists(u64 tid, FS_MediaType media)
+Result install::net_cia(get_url_func get_url, hsapi::htid tid, prog_func prog, bool reinstallable)
 {
-	u32 tcount = 0;
-
-	if(R_FAILED(AM_GetTitleCount(media, &tcount)))
-		return true;
-
-	u64 *tids = new u64[tcount];
-	if(R_FAILED(AM_GetTitleList(&tcount, media, tcount, tids)))
-		goto fail;
-
-	for(size_t i = 0; i < tcount; ++i)
+	if(reinstallable)
 	{
-		if(tids[i] == tid)
-			goto fail;
-	}
-
-
-	delete [] tids;
-	return false;
-fail:
-	delete [] tids;
-	return true;
-}
-
-Result delete_title(u64 tid, FS_MediaType media)
-{
-	Result ret = 0;
-
-	if(R_FAILED(ret = AM_DeleteTitle(media, tid))) return ret;
-	if(R_FAILED(ret = AM_DeleteTicket(tid))) return ret;
-
-	// Reloads the databases
-	if(media == MEDIATYPE_SD) ret = AM_QueryAvailableExternalTitleDatabase(NULL);
-	return ret;
-}
-
-Result delete_if_exist(u64 tid, FS_MediaType media)
-{
-	if(title_exists(tid, media))
-		return delete_title(tid, media);
-	return 0;
-}
-
-std::string tid_to_str(u64 tid)
-{
-	if(tid == 0) return "";
-	char buf[17]; snprintf(buf, 17, "%016llX", tid);
-	return buf;
-}
-
-u64 str_to_tid(std::string tid)
-{
-	return strtoull(tid.c_str(), nullptr, 16);
-}
-
-Result install_net_cia(get_url_func get_url, prog_func prog, bool reinstallable, u64 tid, FS_MediaType dest)
-{
-	return install_net_cia(get_url, prog, reinstallable, tid_to_str(tid), dest);
-}
-
-Result install_net_cia(get_url_func get_url, prog_func prog, bool reinstallable, std::string tid, FS_MediaType dest)
-{
-	if(reinstallable && tid != "")
-	{
-		u64 itid = str_to_tid(tid);
 		// Ask ninty why this stupid restriction is in place
 		// Basically reinstalling the CURRENT cia requires you
 		// To NOT delete the cia but instead have a higher version
 		// and just install like normal
 		u64 selftid = 0;
-		if(!(R_FAILED(APT_GetProgramID(&selftid)) || selftid == itid))
+		if(!(R_FAILED(APT_GetProgramID(&selftid)) || selftid == tid))
 		{
 			Result res = 0;
-			if(R_FAILED(res = delete_if_exist(itid)))
+			if(R_FAILED(res = ctr::delete_if_exist(tid)))
 				return res;
 		}
 	}
 
-	else if(tid != "")
+	else
 	{
-		u64 itid = str_to_tid(tid);
-		if(title_exists(itid))
+		if(ctr::title_exists(tid))
 			return APPERR_NOREINSTALL;
 	}
 
 	Handle cia; Result ret;
-	ret = AM_StartCiaInstall(dest, &cia); linfo << "AM_StartCiaInstall(...): " << ret;
+	ret = AM_StartCiaInstall(detect_media(tid), &cia);
+	linfo << "AM_StartCiaInstall(...): " << ret;
 	if(R_FAILED(ret)) return ret;
 
 	ret = i_install_resume_loop(get_url, cia, prog);
-	if(ret == APPERR_CANCELLED)
-	{
-		AM_CancelCIAInstall(cia);
-		return APPERR_CANCELLED;
-	}
-
-	if(R_FAILED(ret)) // If everything went ok in i_install_resume_loop, we return a 0
+	if(R_FAILED(ret))
 	{
 		AM_CancelCIAInstall(cia);
 		return ret;
@@ -365,13 +288,10 @@ Result install_net_cia(get_url_func get_url, prog_func prog, bool reinstallable,
 	ret = AM_FinishCiaInstall(cia);
 	linfo << "AM_FinishCiaInstall(...): " << ret;
 
-	// Install luma locale.txt file now, if we know the tid
-	if(tid != "") luma::set_locale(str_to_tid(tid));
-
 	return ret;
 }
 
-Result install_hs_cia(hsapi::FullTitle *meta, prog_func prog, bool reinstallable)
+Result install::hs_cia(const hsapi::FullTitle& meta, prog_func prog, bool reinstallable)
 {
 	return i_install_hs_cia(meta, prog, reinstallable);
 }

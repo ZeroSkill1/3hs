@@ -57,7 +57,7 @@
 #       include <pthread.h>
 #   endif
 /* @change */
-#   if defined(_3DS)
+#   if defined(__3DS__)
 #       include <3ds/synchronization.h>
 #   endif
 /* @endchange */
@@ -452,7 +452,7 @@ namespace plog
                 ::pthread_mutex_init(&m_sync, 0);
 
 /* @change */
-#elif defined(_3DS)
+#elif defined(__3DS__)
                 LightLock_Init(&m_sync);
 /* @endchange */
 
@@ -468,7 +468,7 @@ namespace plog
 #elif defined(_POSIX_THREADS)
                 ::pthread_mutex_destroy(&m_sync);
 /* @change */
-#elif defined(_3DS)
+#elif defined(__3DS__)
 								close(m_sync);
 /* @endchange */
 #endif
@@ -486,7 +486,7 @@ namespace plog
 #elif defined(_POSIX_THREADS)
                 ::pthread_mutex_lock(&m_sync);
 /* @change */
-#elif defined(_3DS)
+#elif defined(__3DS__)
                 LightLock_Lock(&m_sync);
 /* @endchange */
 
@@ -502,7 +502,7 @@ namespace plog
 #elif defined(_POSIX_THREADS)
                 ::pthread_mutex_unlock(&m_sync);
 /* @change */
-#elif defined(_3DS)
+#elif defined(__3DS__)
                 LightLock_Unlock(&m_sync);
 /* @endchange */
 #endif
@@ -516,7 +516,7 @@ namespace plog
 #elif defined(_POSIX_THREADS)
             pthread_mutex_t m_sync;
 /* @change */
-#elif defined(_3DS)
+#elif defined(__3DS__)
             LightLock m_sync;
 /* @endchange */
 #endif

@@ -4,108 +4,94 @@
 #include <widgets/meta.hh>
 
 #include <ui/loading.hh>
-#include <ui/button.hh>
 #include <ui/swkbd.hh>
-#include <ui/util.hh>
-#include <ui/text.hh>
-#include <ui/list.hh>
+#include <ui/base.hh>
 
 #include "lumalocale.hh"
+#include "installgui.hh"
 #include "extmeta.hh"
 #include "queue.hh"
 #include "hsapi.hh"
+#include "next.hh"
 #include "util.hh"
 #include "i18n.hh"
 
 
-static void search_is_empty(std::string prev)
+static void error(const std::string& msg)
 {
-	ui::Widgets wids;
+	ui::RenderQueue queue;
 
-	ui::WrapText *msg = new ui::WrapText(STRING(search_zero_results));
-	msg->center(); msg->set_basey((SCREEN_HEIGHT() / 2) - 30);
-	wids.push_back(msg);
+	ui::builder<ui::Text>(ui::Screen::top, msg)
+		.x(ui::layout::center_x)
+		.y(ui::layout::center_y)
+		.add_to(queue);
 
-	wids.push_back(new ui::PressToContinue(KEY_A));
-	generic_main_breaking_loop(wids);
-
-	swap_desc(prev);
+	queue.render_finite_button(KEY_A);
 }
-
 
 static void show_searchbar_search()
 {
-	std::string prev = toggle_focus(STRING(search_content));
-	quick_global_draw();
+	std::string desc = set_desc(STRING(search_content));
+	bool focus = set_focus(true);
 
-	SwkbdResult res; SwkbdButton btn;
-	std::string query = ui::AppletSwkbd::read([](ui::AppletSwkbd *keyboard) -> void {
-		keyboard->validinput(SWKBD_NOTEMPTY_NOTBLANK);
-		keyboard->hint(STRING(search_content_action));
-	}, &res, &btn);
+	ui::RenderQueue::global()->render_frame();
 
-	toggle_focus();
+	SwkbdResult res;
+	SwkbdButton btn;
 
-	if(btn != SWKBD_BUTTON_CONFIRM || query.size() < 2 || (
-			res == SWKBD_INVALID_INPUT || res ==  SWKBD_OUTOFMEM ||
-			res == SWKBD_BANNED_INPUT
-		)) return search_is_empty(prev);
+	std::string query = ui::keyboard([](ui::AppletSwkbd *swkbd) -> void {
+		swkbd->hint(STRING(search_content_action));
+		swkbd->valid(SWKBD_NOTEMPTY_NOTBLANK);
+	}, &btn, &res);
 
-	ui::Widgets wids;
+	if(btn != SWKBD_BUTTON_CONFIRM)
+	{
+		set_focus(focus);
+		set_desc(desc);
+		return;
+	}
 
-	ui::wid()->get<ui::Text>("curr_action_desc")->toggle();
+	if(query.size() < 2 || res == SWKBD_INVALID_INPUT || res == SWKBD_OUTOFMEM || res == SWKBD_BANNED_INPUT)
+	{
+		error(STRING(invalid_query));
+		set_focus(focus);
+		set_desc(desc);
+		return;
+	}
+
+	set_desc(PSTRING(results_query, query));
+	set_focus(true);
 
 	std::vector<hsapi::Title> titles;
 	Result rres = hsapi::call<std::vector<hsapi::Title>&, const std::string&>(hsapi::search, titles, query);
 	if(R_FAILED(rres))
+	{
+		set_focus(focus);
+		set_desc(desc);
 		return;
+	}
 
-	ui::wid()->get<ui::Text>("curr_action_desc")->replace_text(
-		PSTRING(results_query, query));
+	if(titles.size() == 0)
+	{
+		error(STRING(search_zero_results));
+		set_focus(focus);
+		set_desc(desc);
+		return;
+	}
 
-	if(titles.size() == 0) return search_is_empty(prev);
+	size_t cur = 0;
+	do {
+		hsapi::hid id = next::sel_gam(titles, &cur);
+		if(id == next_gam_exit || id == next_gam_back)
+			break;
 
-	ui::List<hsapi::Title> *list = new ui::List<hsapi::Title>(
-		[](hsapi::Title& title) -> std::string { return title.name; },
-		[&](ui::List<hsapi::Title> *self, size_t index, u32 keys) -> ui::Results {
-			if(keys & KEY_B) return ui::Results::quit_loop;
-			if(keys & KEY_A)
-			{
-				ui::end_frame();
+		hsapi::FullTitle meta;
+		if(show_extmeta_lazy(titles, id, &meta))
+			install::gui::hs_cia(meta);
+	} while(true);
 
-				hsapi::FullTitle meta;
-				if(R_FAILED(hsapi::call(hsapi::title_meta, meta, std::move((hsapi::hid) self->at(index).id))))
-					return ui::Results::go_on;
-
-				if(show_extmeta(meta))
-				{
-					toggle_focus();
-					process_hs(meta);
-					luma::set_gamepatching();
-					toggle_focus();
-				}
-
-				return ui::Results::end_early;
-			}
-			else if(keys & KEY_Y)
-				queue_add(self->at(index).id);
-
-			return ui::Results::go_on;
-		}, titles
-	); wids.push_back("list", list);
-	list->add_button(KEY_Y | KEY_B);
-
-	ui::TitleMeta *meta = new ui::TitleMeta();
-	if(titles.size() > 0) meta->update_title(titles[0]);
-
-	wids.push_back("meta", meta, ui::Scr::bottom);
-	list->set_on_change([&](ui::List<hsapi::Title> *self, size_t index) {
-		meta->update_title(self->at(index));
-	});
-
-
-	generic_main_breaking_loop(wids);
-	swap_desc(prev);
+	set_focus(focus);
+	set_desc(desc);
 }
 
 void show_search()

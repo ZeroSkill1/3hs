@@ -1,91 +1,13 @@
 
-#include "ui/progress_bar.hh"
-#include "ui/text.hh"
+#include <ui/progress_bar.hh>
 
+#define FG_COLOR C2D_Color32(0x00, 0xD2, 0x03, 0xFF)
+#define BG_COLOR C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF)
+#define TEXT_DIM 0.65f
 #define X_OFFSET 10
 #define Y_OFFSET 30
 #define Y_LEN 30
 
-#ifdef USE_SETTINGS_H
-# include "settings.hh"
-# define BG_COLOR (get_settings()->isLightMode ? ui::constants::COLOR_BAR_BG_LI : ui::constants::COLOR_BAR_BG)
-# define FG_COLOR (get_settings()->isLightMode ? ui::constants::COLOR_BAR_FG_LI : ui::constants::COLOR_BAR_FG)
-#else
-# define BG_COLOR ui::constants::COLOR_BAR_BG
-# define FG_COLOR ui::constants::COLOR_BAR_FG
-#endif
-
-
-ui::ProgressBar::ProgressBar(u64 part_, u64 total_)
-	: Widget("progress_bar"), part(part_), total(total_)
-{ }
-
-ui::ProgressBar::ProgressBar(u64 total_)
-	: Widget("progress_bar"), total(total_)
-{ }
-
-ui::ProgressBar::ProgressBar()
-	: Widget("progress_bar")
-{ }
-
-void ui::ProgressBar::update(u64 part, u64 total)
-{ this->part = part; this->total = total; }
-
-void ui::ProgressBar::update(u64 part)
-{ this->part = part; }
-
-
-ui::Results ui::ProgressBar::draw(ui::Keys&, ui::Scr target)
-{
-	C2D_DrawRectSolid(X_OFFSET, (SCREEN_HEIGHT() / 2) - Y_LEN + Y_OFFSET, Z_OFF, SCREEN_WIDTH(target) - (X_OFFSET * 2), Y_LEN, BG_COLOR);
-
-	if(this->total != 0)
-	{
-		// Overlay actual process
-		float perc = ((float) this->part / this->total);
-		int width = (SCREEN_WIDTH(target) - (X_OFFSET * 2) - 4) * perc;
-		C2D_DrawRectSolid(X_OFFSET + 2, ((SCREEN_HEIGHT() / 2) - Y_LEN + Y_OFFSET) + 2, Z_OFF, width, Y_LEN - 4, FG_COLOR);
-
-		if(this->activated)
-		{
-			// (z)   (x/y)
-			// 90%    9/10
-			// [=========]
-
-			// Parse into actual string
-			this->buf.clear();
-			c2d::Text xy(this->buf, this->serialize(this->part, this->total) + "/" + this->serialize(this->total, this->total) + this->postfix(this->total));
-			c2d::Text z(this->buf, floating_prec<float>(perc * 100, 1) + "%");
-
-			// Pad to right
-			float xyx = SCREEN_WIDTH(target) - X_OFFSET - ui::text_width(xy.handle());
-
-			ui::draw_at_absolute(X_OFFSET, (SCREEN_HEIGHT() / 2) - Y_OFFSET + 6, z);
-			ui::draw_at_absolute(xyx, (SCREEN_HEIGHT() / 2) - Y_OFFSET + 6, xy);
-		}
-	}
-
-	return ui::Results::go_on;
-}
-
-void ui::ProgressBar::set_postfix(std::function<std::string(u64)> cb)
-{ this->postfix = cb; }
-
-void ui::ProgressBar::set_serialize(std::function<std::string(u64, u64)> cb)
-{ this->serialize = cb; }
-
-void ui::ProgressBar::set_mib_type()
-{ ui::up_to_mib(*this); }
-
-void ui::ProgressBar::activate_text()
-{ this->activated = true; }
-
-
-void ui::up_to_mib(ProgressBar& bar)
-{
-	bar.set_serialize(ui::up_to_mib_serialize);
-	bar.set_postfix(ui::up_to_mib_postfix);
-}
 
 std::string ui::up_to_mib_serialize(u64 n, u64 largest)
 {
@@ -100,4 +22,93 @@ std::string ui::up_to_mib_postfix(u64 n)
 		if(n < 1024 * 1024) return " KiB"; /* < 1 MiB */
 		else return " MiB";
 }
+
+/* class ProgressBar */
+
+void ui::ProgressBar::setup(u64 part, u64 total)
+{
+	this->outerw = ui::screen_width(this->screen) - (X_OFFSET * 2);
+	this->buf = C2D_TextBufNew(100); /* probably big enough */
+	this->update(part, total);
+	this->x = X_OFFSET; /* set a good default */
+}
+
+void ui::ProgressBar::setup(u64 total)
+{ this->setup(0, total); }
+
+void ui::ProgressBar::setup()
+{ this->setup(0, 0); }
+
+void ui::ProgressBar::destroy()
+{
+	C2D_TextBufDelete(this->buf);
+}
+
+bool ui::ProgressBar::render(const ui::Keys& keys)
+{
+	((void) keys);
+	C2D_DrawRectSolid(this->x, this->y, this->z, this->outerw, Y_LEN, BG_COLOR);
+
+	// Overlay actual process
+	if(this->w != 0)
+		C2D_DrawRectSolid(X_OFFSET + 2, this->y + 2, this->z, this->w, Y_LEN - 4, FG_COLOR);
+
+	if(this->activated)
+	{
+		C2D_DrawText(&this->a, C2D_WithColor, X_OFFSET, this->y - Y_LEN + 2,
+			this->z, TEXT_DIM, TEXT_DIM, C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF));
+		C2D_DrawText(&this->bc, C2D_WithColor, this->bcx, this->y - Y_LEN + 2,
+			this->z, TEXT_DIM, TEXT_DIM, C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF));
+	}
+
+	return true;
+}
+
+void ui::ProgressBar::update_state()
+{
+	float perc = this->total == 0 ? 0.0f : ((float) this->part / this->total);
+	this->w = (ui::screen_width(this->screen) - (X_OFFSET * 2) - 4) * perc;
+
+	// (a)   (b/c)
+	// 90%    9/10
+	// [=========]
+
+	// Parse strings
+	std::string bc = this->serialize(this->part, this->total) + "/" + this->serialize(this->total, this->total) + this->postfix(this->total);
+	std::string a = floating_prec<float>(perc * 100, 1) + "%";
+
+	C2D_TextBufClear(this->buf);
+
+	C2D_TextParse(&this->bc, this->buf, bc.c_str());
+	C2D_TextParse(&this->a, this->buf, a.c_str());
+
+	C2D_TextOptimize(&this->bc);
+	C2D_TextOptimize(&this->a);
+
+	// Pad to right
+	C2D_TextGetDimensions(&this->bc, TEXT_DIM, TEXT_DIM, &this->bcx, nullptr);
+	this->bcx = ui::screen_width(this->screen) - X_OFFSET - this->bcx;
+}
+
+
+void ui::ProgressBar::set_postfix(std::function<std::string(u64)> cb)
+{ this->postfix = cb; }
+
+void ui::ProgressBar::set_serialize(std::function<std::string(u64, u64)> cb)
+{ this->serialize = cb; }
+
+void ui::ProgressBar::activate()
+{ this->activated = true; }
+
+void ui::ProgressBar::update(u64 part, u64 total)
+{ this->part = part; this->total = total; this->update_state(); }
+
+void ui::ProgressBar::update(u64 part)
+{ this->part = part; this->update_state(); }
+
+float ui::ProgressBar::height()
+{ return Y_LEN; }
+
+float ui::ProgressBar::width()
+{ return this->outerw; }
 

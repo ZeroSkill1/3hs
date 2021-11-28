@@ -8,6 +8,7 @@
 
 #include "hsapi.hh"
 
+
 enum Destination
 {
 	DEST_CTRNand, DEST_TWLNand,
@@ -15,13 +16,14 @@ enum Destination
 };
 
 typedef std::function<void(u64 /* done */, u64 /* total */)> prog_func;
-typedef std::function<std::string()> get_url_func;
+typedef std::function<std::string(Result&)> get_url_func;
 static void default_prog_func(u64, u64)
 { }
 
 static inline get_url_func makeurlwrap(const std::string& url)
 {
-	return [url]() -> std::string {
+	return [url](Result& r) -> std::string {
+		r = 0;
 		return url;
 	};
 }
@@ -41,21 +43,19 @@ static inline Result httpcSetProxy(httpcContext *context, u16 port,
 	);
 }
 
-Destination detect_dest(const std::string& tid);
+FS_MediaType to_mediatype(Destination dest);
 Destination detect_dest(u64 tid);
 
-FS_MediaType to_mediatype(Destination dest);
+static inline FS_MediaType detect_media(u64 tid)
+{ return to_mediatype(detect_dest(tid)); }
 
-Result delete_if_exist(u64 tid, FS_MediaType media = MEDIATYPE_SD);
-Result delete_title(u64 tid, FS_MediaType media = MEDIATYPE_SD);
-bool title_exists(u64 tid, FS_MediaType media = MEDIATYPE_SD);
-
-std::string tid_to_str(u64 tid);
-u64 str_to_tid(std::string tid);
-
-Result install_net_cia(get_url_func get_url, prog_func prog = default_prog_func, bool reinstallable = false, std::string tid = "", FS_MediaType dest = MEDIATYPE_SD);
-Result install_net_cia(get_url_func get_url, prog_func prog = default_prog_func, bool reinstallable = false, u64 tid = 0x0, FS_MediaType dest = MEDIATYPE_SD);
-Result install_hs_cia(hsapi::FullTitle *meta, prog_func prog = default_prog_func, bool reinstallable = false);
+namespace install
+{
+	Result net_cia(get_url_func get_url, u64 tid, prog_func prog = default_prog_func,
+		bool reinstallable = false);
+	Result hs_cia(const hsapi::FullTitle& meta, prog_func prog = default_prog_func,
+		bool reinstallable = false);
+}
 
 #endif
 

@@ -2,31 +2,33 @@
 #ifndef inc_ui_smdhicon_hh
 #define inc_ui_smdhicon_hh
 
-#include <ui/core.hh>
+#include <ui/base.hh>
 
 #include "image_ldr.hh"
-#include "titles.hh"
 
 
 namespace ui
 {
-	class SMDHIcon : public Widget
-	{
+	class SMDHIcon : public ui::BaseWidget
+	{ UI_WIDGET("SMDHIcon")
 	public:
-		SMDHIcon(TitleSMDH *smdh, SMDHIconType type = SMDHIconType::large);
-		SMDHIcon(u64 tid, SMDHIconType type = SMDHIconType::large);
-		~SMDHIcon();
+		void setup(ctr::TitleSMDH *smdh, SMDHIconType type = SMDHIconType::large);
+		void setup(u64 tid, SMDHIconType type = SMDHIconType::large);
+		void destroy() override;
 
-		void resize(float w, float h);
-		void resize(float dim);
+		bool render(const ui::Keys& keys) override;
+		float height() override;
+		float width() override;
 
-		void center(float x, float y);
-		void move(float x, float y);
+		void set_x(float x) override;
+		void set_y(float y) override;
+		void set_z(float z) override;
 
-		ui::Results draw(ui::Keys&, ui::Scr) override;
+		void set_border(bool b);
 
 
 	private:
+		bool drawBorder = false;
 		C2D_DrawParams params;
 		C2D_Image img;
 

@@ -1,49 +1,41 @@
 
 #include "about.hh"
 
-#include "ui/button.hh"
-#include "ui/sprite.hh"
-#include "ui/core.hh"
-#include "ui/text.hh"
+#include <ui/base.hh>
 
-#include "build/logo.h"
-
+#include "update.hh" // VERSION
 #include "i18n.hh"
 #include "util.hh"
-
-// $ file gfx/img/logo.png
-// gfx/img/logo.png: PNG image data, 48 x 48, 8-bit/color RGBA, non-interlaced
-#define LOGO_X (48)
-#define LOGO_Y (48)
-
-#define add_cred(t,n) wids.push_back("cred" #n, new ui::Text(ui::mk_left_WText(t, GRID_AL_Y(n+2), GRID_AL_X(1))), ui::Scr::bottom);
-#define fsize ui::constants::FSIZE
 
 
 void show_about()
 {
-	toggle_focus();
+	ui::RenderQueue queue;
 
-	ui::Widgets wids;
-	wids.push_back("back", new ui::Button(STRING(back), 240, 210, 310, 230), ui::Scr::bottom);
-	wids.get<ui::Button>("back")->set_on_click([](bool) -> ui::Results {
-		return ui::Results::quit_loop;
-	});
+	ui::builder<ui::Text>(ui::Screen::top, STRING(credits_thanks))
+		.x(ui::layout::center_x)
+		.y(ui::layout::base)
+		.add_to(queue);
+	ui::builder<ui::Sprite>(ui::Screen::top, ui::SpriteStore::get_by_id(ui::sprite::logo))
+		.x(ui::layout::center_x)
+		.under(queue.back())
+		.add_to(queue);
+	ui::builder<ui::Text>(ui::Screen::top, PSTRING(this_version, VERSION))
+		.x(ui::layout::center_x)
+		.under(queue.back())
+		.add_to(queue);
+	ui::builder<ui::Text>(ui::Screen::bottom, STRING(credits))
+		.size(0.75f)
+		.x(10.0f)
+		.y(15.0f)
+		.add_to(queue);
+	ui::builder<ui::Text>(ui::Screen::bottom, STRING(credits_names))
+		.x(15.0f)
+		.under(queue.back())
+		.add_to(queue);
 
-	wids.push_back("banner", new ui::WrapText(STRING(credits_thanks)));
-	wids.get<ui::WrapText>("banner")->set_basey(70.0f);
-	wids.get<ui::WrapText>("banner")->center();
-
-	ui::StandaloneSprite *logo = new ui::StandaloneSprite(SHEET("logo"), logo_logo_idx);
-	logo->get_sprite()->set_pos(
-		SCREEN_WIDTH(ui::Scr::top) / 2 - LOGO_X / 2, SCREEN_HEIGHT() - LOGO_Y - 40); wids.push_back("logo", logo);
-
-	wids.push_back("credits", new ui::Text(ui::mk_center_WText(STRING(credits), GRID_AL_Y(1), fsize, fsize, ui::Scr::bottom)), ui::Scr::bottom);
-	wids.push_back("credits_long", new ui::WrapText(STRING(credits_names)), ui::Scr::bottom);
-	wids.get<ui::WrapText>("credits_long")->set_basey(GRID_AL_Y(2));
-	wids.get<ui::WrapText>("credits_long")->set_pad(GRID_AL_X(1));
-
-	generic_main_breaking_loop(wids);
-	toggle_focus();
+	bool focus = set_focus(true);
+	queue.render_finite_button(KEY_B | KEY_A | KEY_START);
+	set_focus(focus);
 }
 

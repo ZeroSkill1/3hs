@@ -1,9 +1,9 @@
 
-#include "net_common.hh"
-#include "install.hh" // TODO: Move str_to_tid() somewhere else
+#include "update.hh" /* includes net constants */
 #include "hsapi.hh"
 #include "error.hh"
 #include "proxy.hh"
+#include "ctr.hh"
 
 #include <3rd/json.hh>
 #include <3rd/log.hh>
@@ -12,11 +12,9 @@
 #define SOC_ALIGN       0x100000
 #define SOC_BUFFERSIZE  0x20000
 
-#define HS_CDN_BASE_API "https://download4.erista.me" // This one has https :/
 #define HS_UPDATE_BASE  "http://download2.erista.me/3hs"
 #define HS_CDN_BASE     "http://download4.erista.me"
 #define HS_BASE_LOC     "https://hshop.erista.me/api"
-#define HS_CERT         "romfs:/hscert.der"
 
 #define OK 0
 
@@ -32,31 +30,32 @@ static hsapi::Index g_index;
 hsapi::Index *hsapi::get_index()
 { return &g_index; }
 
-
 static Result basereq(const std::string& url, std::string& data, HTTPC_RequestMethod reqmeth = HTTPC_METHOD_GET)
 {
 	httpcContext ctx;
 	Result res = OK;
 
-#define TRY(expr) do { res = (expr); if(R_FAILED(res)) return res; } while(0)
+#define TRY(expr) do { res = (expr); if(R_FAILED(res)) { httpcCloseContext(&ctx); return res; } } while(0)
 	TRY(httpcOpenContext(&ctx, reqmeth, url.c_str(), 0));
 	TRY(httpcSetSSLOpt(&ctx, SSLCOPT_DisableVerify));
 	TRY(httpcSetKeepAlive(&ctx, HTTPC_KEEPALIVE_ENABLED));
 	TRY(httpcAddRequestHeaderField(&ctx, "Connection", "Keep-Alive"));
-	TRY(httpcAddTrustedRootCA(&ctx, hscert_der, hscert_der_len));
+	TRY(httpcAddRequestHeaderField(&ctx, "User-Agent", USER_AGENT));
+	if(url.find("https") == 0) // only use certs on https
+		TRY(httpcAddTrustedRootCA(&ctx, hscert_der, hscert_der_len));
 	TRY(proxy::apply(&ctx));
 
 	TRY(httpcBeginRequest(&ctx));
 
 	u32 status = 0;
 	TRY(httpcGetResponseStatusCode(&ctx, &status));
-	lverbose << "API status code: " << status;
+	lverbose << "API status code on " << url << ": " << status;
 
 	// Do we want to redirect?
 	if(status / 100 == 3)
 	{
 		char newurl[2048];
-		httpcGetResponseHeader(&ctx, "location", newurl, 2048);
+		TRY(httpcGetResponseHeader(&ctx, "location", newurl, 2048));
 		std::string redir(newurl);
 
 		lverbose << "Redirected to " << redir;
@@ -64,10 +63,29 @@ static Result basereq(const std::string& url, std::string& data, HTTPC_RequestMe
 		return basereq(redir, data, reqmeth);
 	}
 
+	if(status != 200)
+	{
+#ifdef RELEASE
+		// We _may_ require a different 3hs version
+		if(status == 400)
+		{
+			char minver[2048] = {0};
+			/* we can assume it doesn't have the header if this fails */
+			if(R_SUCCEEDED(httpcGetResponseHeader(&ctx, "x-minimum", minver, 2048)))
+			{
+				httpcCloseContext(&ctx);
+				panic(PSTRING(min_constraint, VVERSION, minver));
+			}
+		}
+#endif
+
+		httpcCloseContext(&ctx);
+		return APPERR_NON200;
+	}
+
 	u32 totalSize = 0;
 	TRY(httpcGetDownloadSizeState(&ctx, nullptr, &totalSize));
-	if(totalSize == 0) return APPERR_NOSIZE;
-	data.reserve(totalSize);
+	if(totalSize != 0) data.reserve(totalSize);
 
 	char buffer[4096];
 	u32 dled = 0;
@@ -77,6 +95,9 @@ static Result basereq(const std::string& url, std::string& data, HTTPC_RequestMe
 		// Other type of fail
 		if(R_FAILED(res) && res != (Result) HTTPC_RESULTCODE_DOWNLOADPENDING)
 		{
+			/* httpcCloseContext() seems to hang if you don't cancel before
+			 * calling it */
+			httpcCancelConnection(&ctx);
 			httpcCloseContext(&ctx);
 			return res;
 		}
@@ -145,7 +166,7 @@ static void serialize_title(hsapi::Title& t, json& jt)
 {
 	t.size = jt["size"].get<hsapi::hsize>();
 	t.id = jt["id"].get<hsapi::hid>();
-	t.tid = str_to_tid(jt["title_id"].get<std::string>());
+	t.tid = ctr::str_to_tid(jt["title_id"].get<std::string>());
 	t.cat = jt["category"].get<std::string>();
 	t.subcat = jt["subcategory"].get<std::string>();
 	t.name = jt["name"].get<std::string>();
@@ -161,10 +182,11 @@ static void serialize_titles(std::vector<hsapi::Title>& rtitles, json& j)
 }
 
 // https://en.wikipedia.org/wiki/Percent-encoding
-static std::string url_escape(const std::string& str)
+static std::string url_encode(const std::string& str)
 {
 	std::string ret;
-	ret.reserve(str.size());
+	ret.reserve(str.size() * 3);
+	char hex[4];
 
 	for(size_t i = 0; i < str.size(); ++i)
 	{
@@ -175,7 +197,6 @@ static std::string url_escape(const std::string& str)
 		{
 			// C++ can be retarded at times
 			// Why is there no std::hex(uchar) function?
-			char hex[4];
 			snprintf(hex, 4, "%%%02X", str[i]);
 			ret += hex;
 			break;
@@ -280,7 +301,7 @@ Result hsapi::get_download_link(std::string& ret, const hsapi::Title& meta)
 {
 	json j;
 	Result res = OK;
-	if(R_FAILED(res = basereq<json>(HS_CDN_BASE_API "/content/request?id=" + std::to_string(meta.id), j)))
+	if(R_FAILED(res = basereq<json>(HS_CDN_BASE "/content/request?id=" + std::to_string(meta.id), j)))
 		return res;
 
 	ret = HS_CDN_BASE "/content/" + std::to_string(meta.id) + "?token=" + j["token"].get<std::string>();
@@ -291,7 +312,7 @@ Result hsapi::search(std::vector<hsapi::Title>& ret, const std::string& query)
 {
 	json j;
 	Result res = OK;
-	if(R_FAILED(res = basereq<json>(HS_BASE_LOC "/title/search?query=" + url_escape(query), j)))
+	if(R_FAILED(res = basereq<json>(HS_BASE_LOC "/title/search?query=" + url_encode(query), j)))
 		return res;
 
 	serialize_titles(ret, j);
@@ -302,8 +323,8 @@ Result hsapi::batch_related(hsapi::BatchRelated& ret, const std::vector<hsapi::h
 {
 	if(tids.size() == 0) return OK;
 
-	std::string url = HS_BASE_LOC "/title/related/batch?title_ids=" + tid_to_str(tids[0]);
-	for(size_t i = 1; i < tids.size(); ++i) url += "&title_ids=" + tid_to_str(tids[i]);
+	std::string url = HS_BASE_LOC "/title/related/batch?title_ids=" + ctr::tid_to_str(tids[0]);
+	for(size_t i = 1; i < tids.size(); ++i) url += "&title_ids=" + ctr::tid_to_str(tids[i]);
 
 	json j;
 	Result res = OK;
@@ -312,7 +333,7 @@ Result hsapi::batch_related(hsapi::BatchRelated& ret, const std::vector<hsapi::h
 
 	for(json::iterator it = j.begin(); it != j.end(); ++it)
 	{
-		htid tid = str_to_tid(it.key());
+		htid tid = ctr::str_to_tid(it.key());
 		serialize_titles(ret[tid].updates, it.value()["updates"]);
 		serialize_titles(ret[tid].dlc, it.value()["dlc"]);
 	}

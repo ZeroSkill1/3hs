@@ -2,117 +2,114 @@
 #include "more.hh"
 
 #include "find_missing.hh"
+#include "hlink_view.hh"
+#include "log_view.hh"
 #include "about.hh"
 #include "i18n.hh"
-#include "help.hh"
 #include "util.hh"
 
-#include <ui/image_button.hh>
-#include <ui/button.hh>
+#include <ui/base.hh>
 
-#define ABOUT_I 0
-#define FIND_MISSING_I 1
-#define HELP_I 2
+enum MoreInds {
+	IND_ABOUT = 0,
+	IND_FIND_MISSING,
+	IND_LOG,
+#ifndef RELEASE
+	IND_HLINK,
+#endif
+	IND_MAX
+};
 
-#define Y1 (10)
-#define Y2 (SCREEN_WIDTH(ui::Scr::bottom) - 10)
-#define X1(i) (30 + (i * 30))
-#define X2(i) (50 + (i * 30))
-
-
-static void enter_exit()
-{
-	ui::wid()->get<ui::ImageButton>("more")->toggle_click();
-}
-
-void set_hi(size_t *index, ui::Button *buttons[], int ni)
-{
-	buttons[*index]->highlight(false);
-	buttons[ni]->highlight();
-	*index = ni;
-}
 
 void show_more()
 {
-	enter_exit();
+	bool focus = set_focus(true);
+	MoreInds index = IND_ABOUT;
+	ui::Button *buttons[IND_MAX];
 
-	constexpr size_t maxIndex = 4;
-	size_t index = 0;
+	constexpr float w = ui::screen_width(ui::Screen::bottom) - 10.0f;
+	constexpr float h = 20;
 
-	ui::Button *buttons[maxIndex];
+	buttons[IND_ABOUT] = ui::builder<ui::Button>(ui::Screen::bottom, STRING(about_app))
+		.connect(ui::Button::click, []() -> bool {
+			ui::RenderQueue::global()->render_and_then(show_about);
+			return true;
+		})
+		.size(w, h)
+		.x(ui::layout::center_x)
+		.y(20.0f)
+		.border()
+		.finalize();
+	buttons[IND_FIND_MISSING] = ui::builder<ui::Button>(ui::Screen::bottom, STRING(find_missing_content))
+		.connect(ui::Button::click, []() -> bool {
+			ui::RenderQueue::global()->render_and_then([]() -> void { show_find_missing(); });
+			return true;
+		})
+		.size(w, h)
+		.x(ui::layout::center_x)
+		.under(buttons[IND_ABOUT], 5.0f)
+		.finalize();
+	buttons[IND_LOG] = ui::builder<ui::Button>(ui::Screen::bottom, STRING(log))
+		.connect(ui::Button::click, []() -> bool {
+			ui::RenderQueue::global()->render_and_then(show_logs_menu);
+			return true;
+		})
+		.size(w, h)
+		.x(ui::layout::center_x)
+		.under(buttons[IND_FIND_MISSING], 5.0f)
+		.finalize();
+#ifndef RELEASE
+	buttons[IND_HLINK] = ui::builder<ui::Button>(ui::Screen::bottom, "hLink")
+		.connect(ui::Button::click, []() -> bool {
+			ui::RenderQueue::global()->render_and_then(show_hlink);
+			return true;
+		})
+		.size(w, h)
+		.x(ui::layout::center_x)
+		.under(buttons[IND_LOG], 5.0f)
+		.finalize();
+#endif
 
-	// Create buttons
-	ui::Button *about = new ui::Button(STRING(about_app), Y1, X1(ABOUT_I), Y2, X2(ABOUT_I));
-	ui::Button *find_missing = new ui::Button(STRING(find_missing_content), Y1, X1(FIND_MISSING_I),
-		Y2, X2(FIND_MISSING_I));
-	ui::Button *help = new ui::Button(STRING(help_manual), Y1, X1(HELP_I), Y2, X2(HELP_I));
+	ui::RenderQueue queue;
+	for(size_t i = 0; i < IND_MAX; ++i)
+		queue.push(buttons[i]);
 
-	// Setup buttons
-	about->highlight();
-
-	about->set_on_click([&index, &buttons](bool inFrame) -> ui::Results {
-		if(inFrame) ui::end_frame();
-		set_hi(&index, buttons, ABOUT_I); show_about();
-		return ui::Results::end_early;
-	});
-
-	find_missing->set_on_click([&index, &buttons](bool inFrame) -> ui::Results {
-		if(inFrame) ui::end_frame();
-		set_hi(&index, buttons, FIND_MISSING_I);
-		return ui::Results::end_early;
-	});
-
-	help->set_on_click([&index, &buttons](bool inFrame) -> ui::Results {
-		if(inFrame) ui::end_frame();
-		set_hi(&index, buttons, HELP_I); show_help();
-		return ui::Results::end_early;
-	});
-
-	find_missing->set_on_click([&index, &buttons](bool inFrame) -> ui::Results {
-		if(inFrame) ui::end_frame();
-		set_hi(&index, buttons, HELP_I); show_find_missing();
-		return ui::Results::end_early;
-	});
-
-	// Setup indices
-	buttons[ABOUT_I]        = about;
-	buttons[FIND_MISSING_I] = find_missing;
-	buttons[HELP_I]         = help;
-
-	ui::Widgets wids;
-	wids.push_back(about, ui::Scr::bottom);
-	wids.push_back(find_missing, ui::Scr::bottom);
-	wids.push_back(help, ui::Scr::bottom);
-
-	ui::Keys keys;
-	while(ui::framenext(keys))
-	{
-		if(!ui::framedraw(wids, keys)) break;
-		if(keys.kDown & KEY_DOWN && index < maxIndex - 1)
-		{
-			buttons[index]->highlight(false);
-			buttons[index + 1]->highlight();
-			++index;
+	auto call = [&index]() -> void {
+		switch(index) {
+			case IND_ABOUT:
+				show_about();
+				break;
+			case IND_FIND_MISSING:
+				show_find_missing();
+				break;
+			case IND_LOG:
+				show_logs_menu();
+				break;
+#ifndef RELEASE
+			case IND_HLINK:
+				show_hlink();
+				break;
+#endif
+			case IND_MAX:
+				break;
 		}
+	};
 
-		else if(keys.kDown & KEY_UP && index > 0)
-		{
-			buttons[index]->highlight(false);
-			buttons[index - 1]->highlight();
-			--index;
-		}
+	ui::builder<ui::ButtonCallback>(ui::Screen::top, KEY_DOWN | KEY_UP | KEY_A)
+		.connect(ui::ButtonCallback::kdown, [&index, &buttons, call](u32 k) -> bool {
+			buttons[index]->set_border(false);
+			if((k & KEY_DOWN) && index < IND_MAX-1)
+				++(*(int*)&index); // hacky workaround
+			else if((k & KEY_UP) && index > 0)
+				--(*(int*)&index);
+			else if (k & KEY_A)
+				ui::RenderQueue::global()->render_and_then(call);
+			buttons[index]->set_border(true);
+			return true;
+		})
+		.add_to(queue);
 
-		else if(keys.kDown & KEY_A)
-		{
-			buttons[index]->click(false);
-		}
-
-		else if(keys.kDown & KEY_B)
-		{
-			break;
-		}
-	}
-
-	enter_exit();
+	queue.render_finite_button(KEY_B);
+	set_focus(focus);
 }
 

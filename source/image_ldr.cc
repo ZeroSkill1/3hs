@@ -2,13 +2,14 @@
 // To load C2D_Image's
 
 #include "image_ldr.hh"
+#include "panic.hh"
+#include "i18n.hh"
 
 #include <citro3d.h>
 #include <citro2d.h>
 #include <3ds.h>
 
-#include "panic.hh"
-#include "i18n.hh"
+#define SMDH_ICON_FORMAT GPU_RGB565
 
 
 static u32 next_pow2(u32 i)
@@ -24,7 +25,7 @@ static u32 next_pow2(u32 i)
 	return i;
 }
 
-void load_smdh_icon(C2D_Image *ret, const TitleSMDH& smdh, SMDHIconType type,
+void load_smdh_icon(C2D_Image *ret, const ctr::TitleSMDH& smdh, SMDHIconType type,
 	unsigned int *chosenDimensions)
 {
 	unsigned int dim; // x = y

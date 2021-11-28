@@ -56,10 +56,10 @@ APP_AUTHOR			:=	TimmSkiller & MyPasswordIsWeak
 #---------------------------------------------------------------------------------
 ARCH	:=	-march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft
 
-CFLAGS	:= -pedantic -Wall -Wextra -mword-relocations -DUSE_SETTINGS_H \
+CFLAGS	:= -pedantic -Wall -Wextra -mword-relocations \
 			-fcompare-debug-second -ffunction-sections $(ARCH) \
 
-CFLAGS	+=	$(INCLUDE) -DARM11 -D_3DS -D__3DS__
+CFLAGS	+=	$(INCLUDE) -DARM11 -D__3DS__ -D_3DS
 
 ASFLAGS	:=	$(ARCH)
 LDFLAGS	=	-specs=3dsx.specs $(ARCH) -Wl,-Map,$(notdir $*.map)
@@ -78,7 +78,7 @@ ifeq ($(VERSION),)
 	VERSION	=	0
 endif
 
-CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++11
+CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++14
 
 LIBS	:= -lcitro2d -lcitro3d -lctru -lm
 

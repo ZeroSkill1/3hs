@@ -2,229 +2,149 @@
 #include "widgets/meta.hh"
 #include "i18n.hh"
 
-#include "install.hh" // TODO: Move tid_to_str() somewhere else
+#include "ctr.hh"
 
-// Sorry for this macro mess, even i find it hard to read now.
-// D = Description, T = Title, C = Category, S = Subcategory
-
-#define D_TTL_TITLE STRING(total_titles)
-#define D_DESC      STRING(description)
-#define D_LID       STRING(landing_id)
-#define D_CAT       STRING(category)
-#define D_TID       STRING(tid)
-#define D_NAME      STRING(name)
-#define D_SIZE      STRING(size)
-
-#define BUF_LEN 1000
-
-#define twidth(n) (n.dimensions(tlen,tlen).width+moff)
-#define tlen ui::constants::FSIZE
-#define moff 9
-
-#define sdraw(n,o) \
-	ui::draw_at_absolute(moff, GRID_AL_Y(o), this->c##n, 0, 0.45f, 0.45f); \
-	this->s##n.draw(keys,target)
-
-#define scroll_if_large(n) \
-	this->s##n.scroll_if_overflow(ui::Scr::bottom)
-
-#define cnr(n) \
-	this->s##n.stop_scroll(); \
-	scroll_if_large(n)
+#define PAIR(val, title) do { \
+	ui::builder<ui::Text>(this->screen, val) \
+		.x(this->get_x()) \
+		.under(this->queue.back(), 1.0f) \
+		.scroll() \
+		.add_to(this->queue); \
+	ui::builder<ui::Text>(this->screen, title) \
+		.size(0.45f) \
+		.x(this->get_x()) \
+		.under(this->queue.back(), -1.0f) \
+		.add_to(this->queue); \
+	} while(0)
 
 
-ui::TitleMeta::TitleMeta(const hsapi::Title& title)
-	: Widget("tmd")
+/* CatMeta */
+
+void ui::CatMeta::setup(const hsapi::Category& cat)
+{ this->set_cat(cat); }
+
+void ui::CatMeta::set_cat(const hsapi::Category& cat)
 {
-	this->update_title(title);
-	this->init_other();
+	this->queue.clear();
+
+	ui::builder<ui::Text>(this->screen, cat.disp)
+		.x(this->get_x())
+		.y(this->get_y())
+		.scroll()
+		.add_to(this->queue);
+	ui::builder<ui::Text>(this->screen, STRING(name))
+		.size(0.45f)
+		.x(this->get_x())
+		.under(this->queue.back(), -1.0f)
+		.add_to(this->queue);
+
+	PAIR(ui::human_readable_size_block(cat.size), STRING(size));
+	PAIR(std::to_string(cat.titles), STRING(total_titles));
+	PAIR(cat.desc, STRING(description));
 }
 
-ui::TitleMeta::TitleMeta()
-	: Widget("tmd")
+bool ui::CatMeta::render(const ui::Keys& keys)
 {
-	this->init_other();
+	return this->queue.render_screen(keys, this->screen);
 }
 
-ui::TitleMeta::~TitleMeta()
+float ui::CatMeta::width()
+{ return 0.0f; } /* fullscreen */
+
+float ui::CatMeta::height()
+{ return 0.0f; } /* fullscreen */
+
+float ui::CatMeta::get_y()
+{ return 10.0f; }
+
+float ui::CatMeta::get_x()
+{ return 10.0f; }
+
+/* SubMeta */
+
+void ui::SubMeta::setup(const hsapi::Subcategory& sub)
+{ this->set_sub(sub); }
+
+void ui::SubMeta::set_sub(const hsapi::Subcategory& sub)
 {
-	this->cbuf.free();
+	this->queue.clear();
+
+	ui::builder<ui::Text>(this->screen, sub.disp)
+		.x(this->get_x())
+		.y(this->get_y())
+		.scroll()
+		.add_to(this->queue);
+	ui::builder<ui::Text>(this->screen, STRING(name))
+		.size(0.45f)
+		.x(this->get_x())
+		.under(this->queue.back(), -1.0f)
+		.add_to(this->queue);
+
+	PAIR(ui::human_readable_size_block(sub.size), STRING(size));
+	PAIR(sub.cat, STRING(category));
+	PAIR(std::to_string(sub.titles), STRING(total_titles));
+	PAIR(sub.desc, STRING(description));
 }
 
-ui::Results ui::TitleMeta::draw(ui::Keys& keys, ui::Scr target)
+bool ui::SubMeta::render(const ui::Keys& keys)
 {
-	/* Name: x */ sdraw(name, 2);
-	/* Category: x -> y */ sdraw(cat, 4);
-	/* Title id: x */ sdraw(tid, 6);
-	/* Landing id: x */ sdraw(id, 8);
-	/* Size: x */ sdraw(size, 10);
-
-	return ui::Results::go_on;
+	return this->queue.render_screen(keys, this->screen);
 }
 
-void ui::TitleMeta::update_title(const hsapi::Title& title)
-{
-	this->scat.replace_text(hsapi::get_index()->find(title.cat)->disp + " -> " + hsapi::get_index()->find(title.cat)->find(title.subcat)->disp);
-	this->ssize.replace_text(ui::human_readable_size_block(title.size));
-	this->sid.replace_text(std::to_string(title.id));
-	this->stid.replace_text(tid_to_str(title.tid));
-	this->sname.replace_text(title.name);
+float ui::SubMeta::width()
+{ return 0.0f; } /* fullscreen */
 
-	cnr(name);
-	cnr(cat);
+float ui::SubMeta::height()
+{ return 0.0f; } /* fullscreen */
+
+float ui::SubMeta::get_y()
+{ return 10.0f; }
+
+float ui::SubMeta::get_x()
+{ return 10.0f; }
+
+/* TitleMeta */
+
+void ui::TitleMeta::setup(const hsapi::Title& meta)
+{ this->set_title(meta); }
+
+void ui::TitleMeta::set_title(const hsapi::Title& meta)
+{
+	this->queue.clear();
+
+	ui::builder<ui::Text>(this->screen, meta.name)
+		.x(this->get_x())
+		.y(this->get_y())
+		.scroll()
+		.add_to(this->queue);
+	ui::builder<ui::Text>(this->screen, STRING(name))
+		.size(0.45f)
+		.x(this->get_x())
+		.under(this->queue.back(), -1.0f)
+		.add_to(this->queue);
+
+	PAIR(hsapi::get_index()->find(meta.cat)->disp+ " -> " +
+			hsapi::get_index()->find(meta.cat)->find(meta.subcat)->disp,
+		STRING(category));
+	PAIR(ctr::tid_to_str(meta.tid), STRING(tid));
+	PAIR(std::to_string(meta.id), STRING(landing_id));
+	PAIR(ui::human_readable_size_block(meta.size), STRING(size));
 }
 
-void ui::TitleMeta::init_other()
+bool ui::TitleMeta::render(const ui::Keys& keys)
 {
-	this->cbuf.realloc(BUF_LEN);
-
-	this->cname.parse(this->cbuf, D_NAME);
-	this->cname.optimize();
-
-	this->ccat.parse(this->cbuf, D_CAT);
-	this->ccat.optimize();
-
-	this->ctid.parse(this->cbuf, D_TID);
-	this->ctid.optimize();
-
-	this->cid.parse(this->cbuf, D_LID);
-	this->cid.optimize();
-
-	this->csize.parse(this->cbuf, D_SIZE);
-	this->csize.optimize();
-
-	this->sname.move(moff, GRID_AL_Y(1));
-	this->scat.move(moff, GRID_AL_Y(3));
-	this->stid.move(moff, GRID_AL_Y(5));
-	this->sid.move(moff, GRID_AL_Y(7));
-	this->ssize.move(moff, GRID_AL_Y(9));
+	return this->queue.render_screen(keys, this->screen);
 }
 
+float ui::TitleMeta::width()
+{ return 0.0f; } /* fullscreen */
 
-ui::SubMeta::SubMeta(const hsapi::Subcategory& sub)
-	: Widget("smd")
-{
-	this->update_sub(sub);
-	this->init_other();
-}
+float ui::TitleMeta::height()
+{ return 0.0f; } /* fullscreen */
 
-ui::SubMeta::SubMeta()
-	: Widget("smd")
-{
-	this->init_other();
-}
+float ui::TitleMeta::get_y()
+{ return 10.0f; }
 
-ui::SubMeta::~SubMeta()
-{
-	this->cbuf.free();
-}
+float ui::TitleMeta::get_x()
+{ return 10.0f; }
 
-ui::Results ui::SubMeta::draw(ui::Keys& keys, ui::Scr target)
-{
-	/* Name: x */ sdraw(name, 2);
-	/* Category: x */ sdraw(cat, 4);
-	/* Size: x */ sdraw(size, 6);
-	/* Total titles: x */ sdraw(title, 8);
-	/* Description: x */ sdraw(desc, 10);
-
-	return ui::Results::go_on;
-}
-
-void ui::SubMeta::update_sub(const hsapi::Subcategory& sub)
-{
-	this->ssize.replace_text(ui::human_readable_size(sub.size));
-	this->stitle.replace_text(std::to_string(sub.titles));
-	this->scat.replace_text(hsapi::get_index()->find(sub.cat)->disp);
-	this->sname.replace_text(sub.disp);
-	this->sdesc.replace_text(sub.desc);
-
-	cnr(desc);
-	cnr(cat);
-}
-
-void ui::SubMeta::init_other()
-{
-	this->cbuf.realloc(BUF_LEN);
-
-	this->cname.parse(this->cbuf, D_NAME);
-	this->cname.optimize();
-
-	this->ccat.parse(this->cbuf, D_CAT);
-	this->ccat.optimize();
-
-	this->csize.parse(this->cbuf, D_SIZE);
-	this->csize.optimize();
-
-	this->ctitle.parse(this->cbuf, D_TTL_TITLE);
-	this->ctitle.optimize();
-
-	this->cdesc.parse(this->cbuf, D_DESC);
-	this->cdesc.optimize();
-
-	this->sname.move(moff, GRID_AL_Y(1));
-	this->scat.move(moff, GRID_AL_Y(3));
-	this->ssize.move(moff, GRID_AL_Y(5));
-	this->stitle.move(moff, GRID_AL_Y(7));
-	this->sdesc.move(moff, GRID_AL_Y(9));
-}
-
-
-ui::CatMeta::CatMeta(const hsapi::Category& cat)
-	: Widget("cmd")
-{
-	this->update_cat(cat);
-	this->init_other();
-}
-
-ui::CatMeta::CatMeta()
-	: Widget("cmd")
-{
-	this->init_other();
-}
-
-ui::CatMeta::~CatMeta()
-{
-	this->cbuf.free();
-}
-
-ui::Results ui::CatMeta::draw(ui::Keys& keys, ui::Scr target)
-{
-	/* Name: x */ sdraw(name, 2);
-	/* Size: x */ sdraw(size, 4);
-	/* Total titles: x */ sdraw(title, 6);
-	/* Description: x */ sdraw(desc, 8);
-
-	return ui::Results::go_on;
-}
-
-void ui::CatMeta::update_cat(const hsapi::Category& cat)
-{
-	this->ssize.replace_text(ui::human_readable_size(cat.size));
-	this->stitle.replace_text(std::to_string(cat.titles));
-	this->sname.replace_text(cat.disp);
-	this->sdesc.replace_text(cat.desc);
-
-	cnr(desc);
-}
-
-void ui::CatMeta::init_other()
-{
-	this->cbuf.realloc(BUF_LEN);
-
-	this->cname.parse(this->cbuf, D_NAME);
-	this->cname.optimize();
-
-	this->csize.parse(this->cbuf, D_SIZE);
-	this->csize.optimize();
-
-	this->ctitle.parse(this->cbuf, D_TTL_TITLE);
-	this->ctitle.optimize();
-
-	this->cdesc.parse(this->cbuf, D_DESC);
-	this->cdesc.optimize();
-
-	this->sname.move(moff, GRID_AL_Y(1));
-	this->ssize.move(moff, GRID_AL_Y(3));
-	this->stitle.move(moff, GRID_AL_Y(5));
-	this->sdesc.move(moff, GRID_AL_Y(7));
-}

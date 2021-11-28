@@ -1,6 +1,5 @@
 // vim: foldmethod=syntax
 
-#include <curl/curl.h>
 #include <3rd/log.hh>
 #include <3ds.h>
 
@@ -124,7 +123,8 @@ static const std::map<Result, std::map<Result, const char *>> ERR_LOOKUP({
 			{ 4, "Title count and list mismatch"                 },
 			{ 5, "Server doesn't support Range"                  },
 			{ 6, "Server doesn't support Content-Length"         },
-			{ 7, "Failed to parse JSON"                          },
+			{ 7, "Failed to parse server json"                   },
+			{ 8, "Server didn't return status code 200"          },
 		}
 	},
 });
@@ -261,6 +261,7 @@ static const std::map<Result, const char *> MOD_LOOKUP({
 
 // Getters
 
+
 static void get_lvl(Result& res, error_container& ret)
 {
 	ret.iLvl = R_LEVEL(res);
@@ -314,11 +315,11 @@ error_container get_error(Result res)
 
 std::string pad8code(Result code)
 {
-	char errpad[9]; snprintf(errpad, 9, "%08lX", code);
+	char errpad[9]; snprintf(errpad, 9, "%08lX", (unsigned long) code);
 	return errpad;
 }
 
-std::string format_err(std::string msg, Result code)
+std::string format_err(const std::string& msg, Result code)
 {
 	return msg + " (" + std::to_string(code) + ")";
 }

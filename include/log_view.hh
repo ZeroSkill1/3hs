@@ -4,7 +4,7 @@
 
 #define LOGFILE "/3ds/3hs/3hs.log"
 
-void show_log_view();
+void show_logs_menu();
 
 #endif
 

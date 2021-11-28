@@ -1,89 +1,91 @@
 
 #include "lumalocale.hh"
 #include "settings.hh"
-#include "install.hh"
-#include "titles.hh"
+#include "util.hh"
+#include "ctr.hh"
+
+#include <3rd/log.hh>
 
 #include <ui/smdhicon.hh>
 #include <ui/selector.hh>
 #include <ui/confirm.hh>
-#include <ui/text.hh>
-#include <ui/core.hh>
+#include <ui/base.hh>
 
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 
 
-bool has_region(TitleSMDH *smdh, Region region)
+static bool has_region(ctr::TitleSMDH *smdh, ctr::Region region)
 {
 	// This is a mess
 	return
-		(smdh->region & (u32) RegionLockout::JPN && region == Region::JPN) ||
-		(smdh->region & (u32) RegionLockout::USA && region == Region::USA) ||
-		(smdh->region & (u32) RegionLockout::EUR && region == Region::EUR) ||
-		(smdh->region & (u32) RegionLockout::AUS && region == Region::EUR) ||
-		(smdh->region & (u32) RegionLockout::CHN && region == Region::CHN) ||
-		(smdh->region & (u32) RegionLockout::KOR && region == Region::KOR) ||
-		(smdh->region & (u32) RegionLockout::TWN && region == Region::TWN);
+		(smdh->region & (u32) ctr::RegionLockout::JPN && region == ctr::Region::JPN) ||
+		(smdh->region & (u32) ctr::RegionLockout::USA && region == ctr::Region::USA) ||
+		(smdh->region & (u32) ctr::RegionLockout::EUR && region == ctr::Region::EUR) ||
+		(smdh->region & (u32) ctr::RegionLockout::AUS && region == ctr::Region::EUR) ||
+		(smdh->region & (u32) ctr::RegionLockout::CHN && region == ctr::Region::CHN) ||
+		(smdh->region & (u32) ctr::RegionLockout::KOR && region == ctr::Region::KOR) ||
+		(smdh->region & (u32) ctr::RegionLockout::TWN && region == ctr::Region::TWN);
 }
 
-static const char *get_auto_lang_str(TitleSMDH *smdh)
+static const char *get_auto_lang_str(ctr::TitleSMDH *smdh)
 {
-	if(smdh->region & (u32) RegionLockout::JPN) return "JP";
-	if(smdh->region & (u32) RegionLockout::USA) return "EN";
-	if(smdh->region & (u32) RegionLockout::EUR) return "EN";
-	if(smdh->region & (u32) RegionLockout::AUS) return "EN";
-	if(smdh->region & (u32) RegionLockout::CHN) return "ZH";
-	if(smdh->region & (u32) RegionLockout::KOR) return "KR";
-	if(smdh->region & (u32) RegionLockout::TWN) return "TW";
+	if(smdh->region & (u32) ctr::RegionLockout::JPN) return "JP";
+	if(smdh->region & (u32) ctr::RegionLockout::USA) return "EN";
+	if(smdh->region & (u32) ctr::RegionLockout::EUR) return "EN";
+	if(smdh->region & (u32) ctr::RegionLockout::AUS) return "EN";
+	if(smdh->region & (u32) ctr::RegionLockout::CHN) return "ZH";
+	if(smdh->region & (u32) ctr::RegionLockout::KOR) return "KR";
+	if(smdh->region & (u32) ctr::RegionLockout::TWN) return "TW";
 	// Fail
 	return nullptr;
 }
 
-static const char *get_manual_lang_str(TitleSMDH *smdh)
+#define LANG_INVALID 12
+static const char *get_manual_lang_str(ctr::TitleSMDH *smdh)
 {
-	ui::Widgets wids;
+	ctr::TitleSMDHTitle *title = ctr::smdh::get_native_title(smdh);
+	bool focus = set_focus(true);
+	ui::RenderQueue queue;
 
-	ui::SMDHIcon *icon = new ui::SMDHIcon(smdh, SMDHIconType::large);
-	icon->move(SCREEN_WIDTH(ui::Scr::top) / 2 - 30, SCREEN_HEIGHT() / 2 - 64);
-
-	TitleSMDHTitle *title = smdh_get_native_title(smdh);
-	ui::WrapText *label = new ui::WrapText(
-		smdh_u16conv(title->descShort, 0x40) + "\n" +
-		smdh_u16conv(title->descLong, 0x80)
-	);
-
-	label->set_basey(SCREEN_HEIGHT() / 2 + 10);
-	label->autowrap();
-	label->center();
-
-	u8 lang = 0;
+	u8 lang = LANG_INVALID;
 	// EN, JP, FR, DE, IT, ES, ZH, KO, NL, PT, RU, TW
-	static const char *langlut[] = { "EN", "JP", "FR", "DE", "IT", "ES", "ZH", "KO", "NL", "PT", "RU", "TW" };
-	ui::Selector<u8> *selector = new ui::Selector<u8>(
-		{ langlut[0], langlut[1], langlut[2], langlut[3], langlut[4], langlut[5], langlut[6], langlut[7], langlut[8], langlut[9], langlut[10], langlut[11] },
-		{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 },
-		&lang
-	);
+	static const std::vector<std::string> langlut = { "EN", "JP", "FR", "DE", "IT", "ES", "ZH", "KO", "NL", "PT", "RU", "TW" };
+	static const std::vector<u8> enumVals = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
 
-	wids.push_back(selector, ui::Scr::bottom);
-	wids.push_back(label);
-	wids.push_back(icon);
+	ui::builder<ui::SMDHIcon>(ui::Screen::top, smdh, SMDHIconType::large)
+		.x(ui::dimensions::width_top / 2 - 30)
+		.y(ui::dimensions::height / 2 - 64)
+		.border()
+		.add_to(queue);
+	ui::builder<ui::Text>(ui::Screen::top,
+			ctr::smdh::u16conv(title->descShort, 0x40) + "\n" +
+			ctr::smdh::u16conv(title->descLong, 0x80))
+		.x(ui::layout::center_x)
+		.under(queue.back())
+		.wrap()
+		.add_to(queue);
+	ui::builder<ui::Selector<u8>>(ui::Screen::bottom, langlut, enumVals, &lang)
+		.add_to(queue);
 
-	generic_main_breaking_loop(wids);
-	return langlut[lang];
+	queue.render_finite_button(KEY_B);
+
+	set_focus(focus);
+	return lang == LANG_INVALID
+		? "\0" : langlut[lang].c_str();
 }
+#undef LANG_INVALID
 
-static const char *get_region_str(TitleSMDH *smdh)
+static const char *get_region_str(ctr::TitleSMDH *smdh)
 {
-	if(smdh->region & (u32) RegionLockout::JPN) return "JPN";
-	if(smdh->region & (u32) RegionLockout::USA) return "USA";
-	if(smdh->region & (u32) RegionLockout::EUR) return "EUR";
-	if(smdh->region & (u32) RegionLockout::AUS) return "EUR";
-	if(smdh->region & (u32) RegionLockout::CHN) return "CHN";
-	if(smdh->region & (u32) RegionLockout::KOR) return "KOR";
-	if(smdh->region & (u32) RegionLockout::TWN) return "TWN";
+	if(smdh->region & (u32) ctr::RegionLockout::JPN) return "JPN";
+	if(smdh->region & (u32) ctr::RegionLockout::USA) return "USA";
+	if(smdh->region & (u32) ctr::RegionLockout::EUR) return "EUR";
+	if(smdh->region & (u32) ctr::RegionLockout::AUS) return "EUR";
+	if(smdh->region & (u32) ctr::RegionLockout::CHN) return "CHN";
+	if(smdh->region & (u32) ctr::RegionLockout::KOR) return "KOR";
+	if(smdh->region & (u32) ctr::RegionLockout::TWN) return "TWN";
 	// Fail
 	return nullptr;
 }
@@ -95,7 +97,7 @@ static std::string ensure_path(u64 tid)
 #define ITER(x) do { path += (x); mkdir(path.c_str(), 0777); } while(0)
 	ITER("/luma");
 	ITER("/titles/");
-	ITER(tid_to_str(tid));
+	ITER(ctr::tid_to_str(tid));
 #undef ITER
 	return path + "/locale.txt";
 }
@@ -158,7 +160,7 @@ static bool enable_gamepatching()
 	return false;
 }
 
-void luma::set_gamepatching()
+void luma::maybe_set_gamepatching()
 {
 	if(get_settings()->lumalocalemode == LumaLocaleMode::disabled)
 		return;
@@ -166,21 +168,19 @@ void luma::set_gamepatching()
 	// We should prompt for reboot...
 	if(!enable_gamepatching())
 	{
-		ui::Widgets wids;
+		ui::RenderQueue queue;
+		bool reboot;
 
-		ui::WrapText *rebootprompt = new ui::WrapText(STRING(patching_reboot));
-		rebootprompt->set_basey(70.0f);
-		rebootprompt->center();
+		ui::builder<ui::Text>(ui::Screen::top, STRING(patching_reboot))
+			.x(ui::layout::center_x)
+			.y(ui::layout::base)
+			.add_to(queue);
 
-		bool shouldReboot = true;
-		ui::Confirm *prompt = new ui::Confirm(STRING(reboot_now), shouldReboot);
+		ui::builder<ui::Confirm>(ui::Screen::bottom, STRING(reboot_now), reboot)
+			.y(80.0f).add_to(queue);
 
-		wids.push_back(rebootprompt);
-		wids.push_back(prompt);
-
-		generic_main_breaking_loop(wids);
-
-		if(shouldReboot) NS_RebootSystem();
+		queue.render_finite();
+		if(reboot) NS_RebootSystem();
 	}
 }
 
@@ -190,15 +190,15 @@ void luma::set_locale(u64 tid)
 	if(get_settings()->lumalocalemode == LumaLocaleMode::disabled)
 		return;
 
-	TitleSMDH *smdh = smdh_get(tid);
-	Region region = Region::WORLD;
+	ctr::TitleSMDH *smdh = ctr::smdh::get(tid);
+	ctr::Region region = ctr::Region::WORLD;
 	const char *langstr = nullptr;
 	const char *regstr = nullptr;
 
 	if(smdh == nullptr) return;
 
 	// We don't need to do anything
-	if(smdh->region == (u32) RegionLockout::WORLD)
+	if(smdh->region == (u32) ctr::RegionLockout::WORLD)
 		goto del_smdh;
 
 	u8 sysregion;
@@ -208,12 +208,12 @@ void luma::set_locale(u64 tid)
 	// Convert to Region
 	switch(sysregion)
 	{
-		case CFG_REGION_AUS: case CFG_REGION_EUR: region = Region::EUR; break;
-		case CFG_REGION_CHN: region = Region::CHN; break;
-		case CFG_REGION_JPN: region = Region::JPN; break;
-		case CFG_REGION_KOR: region = Region::KOR; break;
-		case CFG_REGION_TWN: region = Region::TWN; break;
-		case CFG_REGION_USA: region = Region::USA; break;
+		case CFG_REGION_AUS: case CFG_REGION_EUR: region = ctr::Region::EUR; break;
+		case CFG_REGION_CHN: region = ctr::Region::CHN; break;
+		case CFG_REGION_JPN: region = ctr::Region::JPN; break;
+		case CFG_REGION_KOR: region = ctr::Region::KOR; break;
+		case CFG_REGION_TWN: region = ctr::Region::TWN; break;
+		case CFG_REGION_USA: region = ctr::Region::USA; break;
 		default: goto del_smdh; // invalid region
 	}
 
@@ -222,9 +222,17 @@ void luma::set_locale(u64 tid)
 	regstr = get_region_str(smdh);
 
 	if(get_settings()->lumalocalemode == LumaLocaleMode::automatic)
+	{
 		langstr = get_auto_lang_str(smdh);
+		linfo << "(lumalocale) Automatically deduced " << regstr << " " << langstr;
+	}
 	else if(get_settings()->lumalocalemode == LumaLocaleMode::manual)
+	{
 		langstr = get_manual_lang_str(smdh);
+		/* cancelled the selection */
+		if(langstr[0] == '\0') goto del_smdh;
+		linfo << "(lumalocale) Manually selected " << regstr << " " << langstr;
+	}
 
 	write_file(tid, regstr, langstr);
 

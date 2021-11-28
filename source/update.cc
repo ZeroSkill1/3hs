@@ -1,15 +1,12 @@
 
 #include "update.hh"
 
-#define VERSION "v" FULL_VERSION
-
-#include <curl/curl.h>
 #include <3rd/log.hh>
 
 #include <ui/confirm.hh>
-#include <ui/core.hh>
+#include <ui/base.hh>
 
-#include "net_common.hh"
+#include "installgui.hh"
 #include "install.hh"
 #include "hsapi.hh"
 #include "queue.hh"
@@ -29,14 +26,18 @@ bool update_app()
 		return false; // We will then error at index
 
 	linfo << "Fetched new version " << nver << ", current version is " << VERSION;
-	if(nver == FULL_VERSION)
+	if(nver == VERSION)
 		return false;
 
-	ui::Widgets wids; bool shouldUpdate = false;
-	wids.push_back("confirmation", new ui::Confirm(PSTRING(update_to, nver), shouldUpdate), ui::Scr::bottom);
-	generic_main_breaking_loop(wids);
+	bool update;
+	ui::RenderQueue queue;
 
-	if(!shouldUpdate)
+	ui::builder<ui::Confirm>(ui::Screen::bottom, PSTRING(update_to, nver), update)
+		.y(80.0f).add_to(queue);
+
+	queue.render_finite();
+
+	if(!update)
 	{
 		linfo << "User declined update";
 		return false;
@@ -49,7 +50,7 @@ bool update_app()
 		return false;
 	}
 
-	process_uri(hsapi::update_location(nver), true, tid_to_str(tid));
+	install::gui::net_cia(hsapi::update_location(nver), tid, false);
 	return true;
 }
 
