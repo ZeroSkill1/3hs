@@ -78,7 +78,7 @@ static bool maybe_warn_already_installed(u64 tid, bool interactive)
 	return ret;
 }
 
-Result install::gui::net_cia(const std::string& url, u64 tid, bool interactive)
+Result install::gui::net_cia(const std::string& url, u64 tid, bool interactive, bool defaultReinstallable)
 {
 	if(!maybe_warn_already_installed(tid, interactive))
 		return 0;
@@ -89,7 +89,7 @@ Result install::gui::net_cia(const std::string& url, u64 tid, bool interactive)
 
 	make_queue(queue, &bar);
 
-	bool shouldReinstall = false;
+	bool shouldReinstall = defaultReinstallable;
 	Result res = 0;
 
 start_install:
@@ -118,7 +118,7 @@ start_install:
 	return res;
 }
 
-Result install::gui::hs_cia(const hsapi::FullTitle& meta, bool interactive)
+Result install::gui::hs_cia(const hsapi::FullTitle& meta, bool interactive, bool defaultReinstallable)
 {
 	if(!maybe_warn_already_installed(meta.tid, interactive))
 		return 0;
@@ -129,7 +129,7 @@ Result install::gui::hs_cia(const hsapi::FullTitle& meta, bool interactive)
 
 	make_queue(queue, &bar);
 
-	bool shouldReinstall = false;
+	bool shouldReinstall = defaultReinstallable;
 	Result res = 0;
 
 start_install:

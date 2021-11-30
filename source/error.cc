@@ -95,6 +95,7 @@ static const std::map<Result, std::map<Result, const char *>> ERR_LOOKUP({
 			{ 60 , "Failed to verify TLS certificate" },
 			{ 70 , "Network unavailable"              },
 			{ 72 , "Timed out"                        },
+			{ 73 , "WiFi not connected"               },
 			{ 102, "Wrong context handle"             },
 			{ 105, "Request timed out"                },
 		}
