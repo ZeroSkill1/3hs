@@ -18,7 +18,7 @@
 
 #define VERSION_MAJOR 0
 #define VERSION_MINOR 2
-#define VERSION_PATCH 0
+#define VERSION_PATCH 1
 
 #define INT_TO_STR(i) INT_TO_STR_(i)
 #define INT_TO_STR_(i) #i

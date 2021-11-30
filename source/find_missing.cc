@@ -21,9 +21,10 @@ bool tid_can_have_missing(hsapi::htid tid)
 	return category == 0x0000 /* normal */ || category == 0x8000 /* DSiWare/TWL */;
 }
 
-void show_find_missing(hsapi::htid tid)
+ssize_t show_find_missing(hsapi::htid tid)
 {
-	ui::loading([tid]() -> void {
+	ssize_t ret = -1;
+	ui::loading([tid, &ret]() -> void {
 		std::vector<hsapi::htid> installed;
 		panic_if_err_3ds(ctr::list_titles_on(MEDIATYPE_SD, installed));
 		ctr::list_titles_on(MEDIATYPE_GAME_CARD, installed); // it might error if there is no cart inserted so we don't want to panic if it fails
@@ -59,5 +60,15 @@ void show_find_missing(hsapi::htid tid)
 
 		for(const hsapi::Title& title : newInstalls)
 			queue_add(title.id, false);
+		ret = newInstalls.size();
 	});
+	return ret;
 }
+
+void show_find_missing_all()
+{
+	ssize_t done = show_find_missing(0x0);
+	if(done == -1) return;
+	ui::notice(PSTRING(found_missing, done));
+}
+

@@ -229,7 +229,7 @@ bool ui::BatteryIndicator::render(const ui::Keys& keys)
 void ui::NetIndicator::setup()
 {
 	this->sprite.setup(ui::Screen::top, ui::SpriteStore::get_by_id(ui::sprite::net_discon));
-	this->sprite->set_x(ui::screen_width(ui::Screen::top) - 17.0f);
+	this->sprite->set_x(ui::screen_width(ui::Screen::top) - 27.0f);
 	this->sprite->set_y(ui::screen_height() - 11.0f);
 
 	this->status = -1;

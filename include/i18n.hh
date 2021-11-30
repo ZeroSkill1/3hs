@@ -131,6 +131,7 @@ namespace str
 		log = 106,
 		upload_logs = 107,
 		clear_logs = 108,
+		found_missing = 109,
 
 		_i_max,
 	};
@@ -177,8 +178,11 @@ namespace i18n
 		std::string stringify(const T& arg)
 		{ return std::to_string(arg); }
 
-		// fallback for for example `const char *` and `std::string`
-		template <typename T>
+		// fallback for `const char *` (technically all arrays) and `std::string`
+		template <typename T,
+			typename std::enable_if<std::is_array<T>::value
+				|| std::is_same<T, std::string>::value, bool>::type * = nullptr
+			>
 		std::string stringify(const T& arg)
 		{ return std::string(arg); }
 

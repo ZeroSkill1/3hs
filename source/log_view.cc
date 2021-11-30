@@ -73,14 +73,14 @@ void show_logs_menu()
 
 	ui::builder<ui::ButtonCallback>(ui::Screen::top, KEY_DOWN | KEY_UP | KEY_A)
 		.connect(ui::ButtonCallback::kdown, [&index, &buttons, call](u32 k) -> bool {
-			buttons[index]->set_border(false);
+//			buttons[index]->set_border(false);
 //			if((k & KEY_DOWN) && index < 1)
 //				++(*(int*)&index); // hacky workaround
 //			else if((k & KEY_UP) && index > 0)
 //				--(*(int*)&index);
 			/*else*/ if (k & KEY_A)
 				ui::RenderQueue::global()->render_and_then(call);
-			buttons[index]->set_border(true);
+//			buttons[index]->set_border(true);
 			return true;
 		})
 		.add_to(queue);

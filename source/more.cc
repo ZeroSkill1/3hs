@@ -42,7 +42,7 @@ void show_more()
 		.finalize();
 	buttons[IND_FIND_MISSING] = ui::builder<ui::Button>(ui::Screen::bottom, STRING(find_missing_content))
 		.connect(ui::Button::click, []() -> bool {
-			ui::RenderQueue::global()->render_and_then([]() -> void { show_find_missing(); });
+			ui::RenderQueue::global()->render_and_then(show_find_missing_all);
 			return true;
 		})
 		.size(w, h)
@@ -80,7 +80,7 @@ void show_more()
 				show_about();
 				break;
 			case IND_FIND_MISSING:
-				show_find_missing();
+				show_find_missing_all();
 				break;
 			case IND_LOG:
 				show_logs_menu();

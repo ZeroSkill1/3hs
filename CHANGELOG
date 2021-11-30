@@ -1,4 +1,10 @@
 
+v0.2.1:
+ - fixed net indicator going partly hidden when in a long list
+ - add clarification after clicking on find missing
+ - fix bug where clearing logs would crash 3hs
+ - fix bug where selecting games will prompt to install the base game
+
 v0.2.0:
  - implemented resuming downloads
  - fix konami code easter egg not working
