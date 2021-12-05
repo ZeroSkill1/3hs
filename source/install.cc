@@ -100,7 +100,11 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 		}
 
 		if(data->itc == ITC::exit)
+		{
+			httpcCancelConnection(&ctx);
+			httpcCloseContext(&ctx);
 			break;
+		}
 
 		lverbose << "Writing to cia handle, size=" << dlnext << ",index=" << data->index << ",totalSize=" << data->totalSize;
 		CHECKRET(FSFILE_Write(data->cia, &written, data->index, data->buffer, dlnext, FS_WRITE_FLUSH));
