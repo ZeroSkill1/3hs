@@ -1,6 +1,7 @@
 
-#include "hlink_view.hh"
-#include "hlink.hh"
+#include "hlink/hlink_view.hh"
+#include "hlink/hlink.hh"
+
 #include "panic.hh"
 #include "util.hh"
 #include "i18n.hh"
@@ -67,7 +68,10 @@ void show_hlink()
 			ui::RenderQueue queue;
 			addreq(queue, reqstr);
 
-			ui::builder<ui::Text>(ui::Screen::top, "Created the hLink server\nConnect to " + ip)
+			ui::builder<ui::Text>(ui::Screen::top,
+					"Created the hLink server\n"
+					"Connect to " + ip + ":8000 for http;\n"
+					"Connect to " + ip + ":" + std::to_string(hlink::port) + " for hLink")
 				.x(ui::layout::center_x)
 				.y(ui::layout::base)
 				.add_to(queue);

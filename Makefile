@@ -38,7 +38,7 @@ include $(DEVKITARM)/3ds_rules
 #---------------------------------------------------------------------------------
 TARGET		:=	3hs
 BUILD			:=	build
-SOURCES		:= 	source source/ui source/widgets
+SOURCES		:= 	source source/ui source/widgets source/hlink
 DATA			:=	data
 INCLUDES	:=	include 3rd 3rd/3rd .
 GRAPHICS	:=	gfx gfx/bun

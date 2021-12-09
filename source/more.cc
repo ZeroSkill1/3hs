@@ -1,8 +1,9 @@
 
 #include "more.hh"
 
+#include "hlink/hlink_view.hh"
+
 #include "find_missing.hh"
-#include "hlink_view.hh"
 #include "log_view.hh"
 #include "about.hh"
 #include "i18n.hh"

@@ -14,9 +14,9 @@
 #define panic_if_err_3ds(result) do { Result res = (result); if(R_FAILED(res)) panic(res); } while(0)
 
 #ifndef NDEBUG
-# define panic_assert(cond,msg) if(!(cond)) panic("Assertion failed\n" #cond "\n" msg)
+# define panic_assert(cond, msg) if(!(cond)) panic("Assertion failed\n" #cond "\n" msg)
 #else
-# define panic_assert(_) (void)
+# define panic_assert(...) (void)
 #endif
 
 void handle_error(const error_container& err);
