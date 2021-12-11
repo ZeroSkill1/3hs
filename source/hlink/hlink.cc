@@ -178,7 +178,7 @@ static bool handle_launch(int clientfd, int server, hlink::HTTPServer& serv, iTr
 	return true; // reachable only if APT_DoApplicationJump fails
 }
 
-static bool handle_request(int clientfd, int serverfd, hlink::HTTPServer& serv, const char *clientaddr,
+static bool handle_request(int clientfd, int serverfd, hlink::HTTPServer serv, const char *clientaddr,
 	std::function<void(const std::string&)> disp_req,
 	std::function<void(const std::string&)> disp_error)
 {
@@ -227,18 +227,29 @@ cleanup:
 	return false;
 }
 
-static bool handle_http_request(hlink::HTTPRequestContext& ctx, hlink::HTTPServer& serv, int serverfd, char *clientaddr, std::function<void(const std::string&)> disp_req,
+static bool handle_http_request(hlink::HTTPRequestContext ctx, int serverfd, char *clientaddr, std::function<void(const std::string&)> disp_req,
 	std::function<void(const std::string&)> disp_error)
 {
-	disp_req(std::string(clientaddr) + ": http " + ctx.path);
-	/* TODO: Fix concurrency issue:
-	 *       hlink+http gives fd=-1 on respond() */
-	if(ctx.try_serve())
+	disp_req(std::string(clientaddr) + ": " + ctx.path);
+	((void) disp_error);
+	((void) serverfd);
+
+	/* TODO: Fix concurrency issue: hlink+http blocks? after that segv? */
+	hlink::HTTPRequestContext::serve_type type = ctx.type();
+	switch(type)
 	{
-		/* TODO: API */
-		((void) disp_error);
-		((void) serv);
-		((void) serverfd);
+	case hlink::HTTPRequestContext::notfound:
+		/* 404 not found */
+		ctx.serve_404();
+		break;
+	case hlink::HTTPRequestContext::plain:
+		/* plain serve */
+		ctx.serve_plain();
+		break;
+	case hlink::HTTPRequestContext::templ:
+		/* template (stubbed for now) */
+		ctx.serve_500();
+		break;
 	}
 
 	g_lock = false;
@@ -267,11 +278,12 @@ static void handle_http(hlink::HTTPServer& serv, trust_store_t& truststore, int 
 	std::function<bool(const std::string&)> on_requester, std::function<void(const std::string&)> disp_req, std::function<void(const std::string&)> disp_error)
 {
 	hlink::HTTPRequestContext ctx;
-	serv.make_reqctx(ctx);
+	if(serv.make_reqctx(ctx) != 0)
+		return;
 
 	if(g_lock)
 	{
-		ctx.serve_path(429, "/busy.html", { });
+		ctx.serve_file(429, "romfs:/public/busy.html", { });
 		ctx.close();
 		return;
 	}
@@ -286,8 +298,9 @@ static void handle_http(hlink::HTTPServer& serv, trust_store_t& truststore, int 
 	g_lock = true;
 
 	g_lock = true;
-	handleThread.run([&ctx, &serv, serverfd, disp_req, disp_error, &keepOpenSignal]() -> void {
-		if(handle_http_request(ctx, serv, serverfd, inet_ntoa(ctx.clientaddr.sin_addr), disp_req, disp_error))
+	handleThread.run([&ctx, serverfd, disp_req, disp_error, &keepOpenSignal]() -> void {
+		/* we need to make a copy of ctx because else stack corruption */
+		if(handle_http_request(ctx, serverfd, inet_ntoa(ctx.clientaddr.sin_addr), disp_req, disp_error))
 			keepOpenSignal = false;
 	});
 }

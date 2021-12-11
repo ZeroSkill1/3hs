@@ -25,20 +25,28 @@ namespace hlink
 		bool iseof;
 		int fd;
 
+		enum serve_type
+		{
+			plain, templ, notfound
+		};
+
 		inline bool is_get() { return this->method == "get"; }
-		void serve_path(int status, const std::string& name, HTTPHeaders headers);
+		void serve_file(int status, const std::string& fname, HTTPHeaders headers);
 		void respond(int status, const std::string& data, HTTPHeaders headers);
 		void respond_chunked(int status, HTTPHeaders headers);
 		void respond(int status, const HTTPHeaders& headers);
 		void redirect(const std::string& location);
 		void send_chunk(const std::string& data);
 		void send(const std::string& data);
-		bool try_serve(); /* returns if you need to handle this request yourself */
+		void serve_plain();
+		serve_type type(); /* NOTE: Sets this->path on success */
 		void close();
 
-		inline void serve_403() { this->serve_path(403, "/403.html", { }); }
-		inline void serve_404() { this->serve_path(404, "/404.html", { }); }
-		inline void serve_500() { this->serve_path(500, "/500.html", { }); }
+		void serve_400();
+		void serve_403();
+		void serve_404(const std::string& fname);
+		void serve_404();
+		void serve_500();
 	};
 
 	class HTTPServer

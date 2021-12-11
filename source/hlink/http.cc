@@ -1,3 +1,4 @@
+// vim: foldmethod=marker
 
 #include "panic.hh"
 
@@ -13,6 +14,91 @@
 #include <fcntl.h>
 #include <poll.h>
 
+/* {{{1 Default status pages */
+void hlink::HTTPRequestContext::serve_400()
+{
+	this->respond(400,
+		"<!DOCTYPE html>"
+		"<html>"
+			"<head>"
+				"<meta charset=\"utf-8\"/>"
+				"<title>hLink - Bad Request</title>"
+			"</head>"
+			"<body>"
+				"<center>"
+					"<h1>400 - Bad Request</h1>"
+					"<hr/>"
+					"<p>Your browser (?) sent a request the server couldn't understand</p>"
+				"</center>"
+			"</body>"
+		"</html>"
+		"</html>"
+	, { });
+}
+
+void hlink::HTTPRequestContext::serve_403()
+{
+	this->respond(403,
+		"<!DOCTYPE html>"
+		"<html>"
+			"<head>"
+				"<meta charset=\"utf-8\"/>"
+				"<title>hLink - Forbidden</title>"
+			"</head>"
+			"<body>"
+				"<center>"
+					"<h1>403 - Forbidden</h1>"
+					"<hr/>"
+					"<p>The requested resource is forbidden</p>"
+				"</center>"
+			"</body>"
+		"</html>"
+	, { });
+}
+
+void hlink::HTTPRequestContext::serve_404() { this->serve_404(this->path); }
+void hlink::HTTPRequestContext::serve_404(const std::string& fname)
+{
+	this->respond(404,
+		"<!DOCTYPE html>"
+		"<html>"
+			"<head>"
+				"<meta charset=\"utf-8\"/>"
+				"<title>hLink - Not Found</title>"
+			"</head>"
+			"<body>"
+				"<center>"
+					"<h1>404 - Not Found</h1>"
+					"<hr/>"
+					"<p>The requested resource "+fname+" could not be found</p>"
+				"</center>"
+			"</body>"
+		"</html>"
+		"</html>"
+	, { });
+}
+
+void hlink::HTTPRequestContext::serve_500()
+{
+	this->respond(500,
+		"<!DOCTYPE html>"
+		"<html>"
+			"<head>"
+				"<meta charset=\"utf-8\"/>"
+				"<title>hLink - Internal Server Error</title>"
+			"</head>"
+			"<body>"
+				"<center>"
+					"<h1>500 - Internal Server Error</h1>"
+					"<hr/>"
+					"<p>The server did something wrong. (maybe the 3hs logs tell anything?)</p>"
+				"</center>"
+			"</body>"
+		"</html>"
+		"</html>"
+	, { });
+}
+/* 1}}} */
 
 int hlink::HTTPServer::make_fd()
 {
@@ -166,6 +252,7 @@ void hlink::HTTPRequestContext::respond(int status, const HTTPHeaders& headers)
 
 void hlink::HTTPRequestContext::send_chunk(const std::string& data)
 {
+	panic_assert(this->fd != -1, "tried to send chunk to unbound context");
 	char hexbuf[17]; /* max is FFFFFFFFFFFFFFFF which is 16 chars */
 	snprintf(hexbuf, sizeof(hexbuf), "%16X", data.size());
 	std::string rdata = std::string(hexbuf) + "\r\n" + data;
@@ -174,25 +261,22 @@ void hlink::HTTPRequestContext::send_chunk(const std::string& data)
 
 void hlink::HTTPRequestContext::send(const std::string& data)
 {
+	panic_assert(this->fd != -1, "tried to send to unbound context");
 	::send(this->fd, data.c_str(), data.size(), 0);
 }
 
-void hlink::HTTPRequestContext::serve_path(int status, const std::string& name, HTTPHeaders headers)
+void hlink::HTTPRequestContext::serve_file(int status, const std::string& fname, HTTPHeaders headers)
 {
-	/* TODO: Normalize path */
-	FILE *f = fopen(
-		(this->server->root + (name == "/" ? std::string("/index.html") : name)).c_str(), "r");
+	FILE *f = fopen(fname.c_str(), "r");
 	if(f == nullptr)
 	{
 		switch(errno)
 		{
 		case ENOENT: /* 404 not found */
-			this->serve_404();
-			return;
-		case EISDIR: /* 403 forbidden */
-			this->serve_403();
+			this->serve_404(fname);
 			return;
 		default: /* 500 internal server error */
+			lerror << "Failed to open file " << fname << ", errno=" << errno << " aka " << strerror(errno);
 			this->serve_500();
 			return;
 		}
@@ -217,11 +301,45 @@ void hlink::HTTPRequestContext::serve_path(int status, const std::string& name, 
 	fclose(f);
 }
 
-bool hlink::HTTPRequestContext::try_serve()
+void hlink::HTTPRequestContext::serve_plain()
 {
-	if(!this->is_get()) return true;
-	this->serve_path(200, this->path, { });
-	return false;
+	this->serve_file(200, this->server->root + this->path, { });
+}
+
+static bool isdir(const std::string& str)
+{
+	struct stat st;
+	if(stat(str.c_str(), &st) != 0)
+		return false;
+	return S_ISDIR(st.st_mode);
+}
+
+HTTPRequestContext::serve_type hlink::HTTPRequestContext::type()
+{
+#define ROOT this->server->root
+	bool ok = false;
+	if(isdir(ROOT+this->path))
+	{
+		if(this->path.back() != '/') this->path.push_back('/');
+		else if(access((ROOT+this->path + "index.tpl").c_str(), R_OK) == 0)
+		{ this->path += "index.tpl"; ok = true; }
+		else if(access((ROOT+this->path + "index.html").c_str(), R_OK) == 0)
+		{ this->path += "index.html"; ok = true; }
+	}
+	else if(access((ROOT+this->path).c_str(), R_OK) == 0)
+		ok = true;
+	else if(access((ROOT+this->path + ".tpl").c_str(), R_OK) == 0)
+	{ this->path += ".tpl"; ok = true; }
+	else if(access((ROOT+this->path + ".html").c_str(), R_OK) == 0)
+	{ this->path += ".html"; ok = true; }
+
+	if(ok)
+	{
+		return this->path.rfind(".tpl") == std::string::npos
+			? HTTPRequestContext::plain : HTTPRequestContext::templ;
+	}
+	return HTTPRequestContext::notfound;
+#undef ROOT
 }
 
 static void realize_offset(HTTPRequestContext& ctx, size_t offset)
@@ -233,7 +351,7 @@ static void realize_offset(HTTPRequestContext& ctx, size_t offset)
 static char *bufstrstr(char *buf, size_t len, const char *str)
 {
 	size_t lstr = strlen(str);
-	if(len > lstr) len -= lstr;
+	if(len >= lstr) len -= lstr - 1;
 	else return nullptr;
 
 	for(size_t i = 0; i < len; ++i)
@@ -295,6 +413,13 @@ static void lower(std::string& s)
 		s[i] = tolower(s[i]);
 }
 
+static void normalize_path(std::string& path)
+{
+	std::string::size_type pos;
+	while((pos = path.find("//")) != std::string::npos)
+		path.erase(path.begin() + pos);
+}
+
 /* returns 0 on finish, 1 if we need more data, 2 = parse success, -1 on error */
 static int parse_header(HTTPRequestContext& ctx)
 {
@@ -320,7 +445,7 @@ static int parse_header(HTTPRequestContext& ctx)
 	lower(name);
 	ctx.headers[name] = value;
 
-	lverbose << "(HTTP) Parsed header |" << name << "|: |" << value << "|\n";
+	lverbose << "(HTTP) Parsed header |" << name << "|: |" << value << "|";
 
 	ctx.buf[of + 1] = nlchr;
 	realize_offset(ctx, of + bufnllen(ctx.buf + of, ctx.buflen - of));
@@ -341,25 +466,26 @@ int hlink::HTTPServer::make_reqctx(HTTPRequestContext& ctx)
 		return errno;
 
 	if((len = recv(ctx.fd, ctx.buf, sizeof(ctx.buf), 0)) < 0)
-		return errno;
+	{ ctx.serve_400(); ctx.close(); return errno; }
 	ctx.buflen = len;
 
 	ssize_t of;
 	if((of = bufstrchrof(ctx.buf, ctx.buflen, ' ')) < 1)
-	{ ctx.fd = -1; return -1; }
+	{ ctx.serve_400(); ctx.close(); return -1; }
 
 	ctx.method = std::string(ctx.buf, of);
 	realize_offset(ctx, of + 1);
 	lower(ctx.method);
 
 	if((of = bufstrchrof(ctx.buf, ctx.buflen, ' ')) < 1)
-	{ ctx.close(); return -1; }
-	
+	{ ctx.serve_400(); ctx.close(); return -1; }
+
 	ctx.path = std::string(ctx.buf, of);
 	realize_offset(ctx, of + 1);
+	normalize_path(ctx.path);
 
 	if((of = bufstrnlof(ctx.buf, ctx.buflen)) < 1)
-	{ ctx.close(); return -1; }
+	{ ctx.serve_400(); ctx.close(); return -1; }
 	/* we don't care about the version */
 	realize_offset(ctx, of + bufnllen(ctx.buf + of, ctx.buflen - of));
 
@@ -370,16 +496,21 @@ int hlink::HTTPServer::make_reqctx(HTTPRequestContext& ctx)
 	while(true)
 	{
 		while((res = parse_header(ctx)) == 2) continue; /* while parse_success */
-		if(res != 1) return res;                        /* if not need_more_data */ 
-		if(ctx.iseof) break;
+		if(ctx.iseof) res = -1;
+		if(res != 1) break; /* if not need_more_data */ 
 
 		/* refill buffer */
 		if((len = recv(ctx.fd, ctx.buf + ctx.buflen, sizeof(ctx.buf) - ctx.buflen, 0)) < 0)
-		{ ctx.close(); return errno; }
+		{ ctx.serve_400(); ctx.close(); return errno; }
 		ctx.iseof = len == 0;
 		ctx.buflen += len;
 	}
 
-	return -1; /* eof before parse_header() = bad */
+	if(res != 0)
+	{
+		ctx.serve_400();
+		ctx.close();
+	}
+	return res; /* eof before parse_header() = bad */
 }
 
