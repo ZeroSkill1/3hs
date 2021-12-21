@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+	<head>
+		<title>The 3hs Template Language documentation</title>
+		<meta charset="utf-8"/>
+	</head>
+
+	<body>
+		<p>
+			The 3hs template language&trade; is a simple templating language designed
+			to work with the hlink http server. As such, it includes only a few essential
+			features. The features it implements are:
+			<ul>
+				<li>conditionals (<em>if</em>/<em>else-if</em>/<em>else</em>)</li>
+				<li>loops (<em>foreach</em>)</li>
+				<li>variables ([<em>variable-name</em>])</li>
+			</ul>
+		</p>
+		<p>
+			To use variables you just place the name of the variable between square brackets
+			([ and ]) like this: [<em>variable-name</em>]. These variables may also be
+			functions. You know whether a symbol is a function or variable by the name.
+			Functions have names ending with <em>()</em> (i.e. <em>some-cool-function()</em>)
+		</p>
+		<p>
+			Functions may also be conditional functions. They are marked with a question mark
+			(<em>?</em>) at the end of the function name (i.e. <em>some-cool-cond-func?()</em>)
+			You can use these functions in conditional expressions. You can execute conditional
+			expressions with <em>if</em>, <em>else-if</em> (which is sugar syntax for a normal
+			<em>if</em>) or <em>else</em>. An example:
+			<hr/>
+			<pre>&lt;html&gt;
+	&lt;body&gt;
+		[[if eq?() a a]]
+			a == a
+		[[else]]
+			a != a
+		[[end]]
+
+		[[if not?() eq?() a a]]
+			a != a
+		[[else]]
+			a == a
+		[[end]]
+	&lt;/body&gt;
+&lt;/html&gt;</pre>
+			<hr/>
+			The 3hs template language&trade; currently has these built-in conditional functions:
+			<ul>
+				<li><em>eq?()</em> &mdash; checks for the equality of 2 given arguments</li>
+				<li><em>not?()</em> &mdash; negates the conditional expression that follows</li>
+			</ul>
+		</p>
+		<p>
+			Loops are executed via a <em>foreach</em>. You can trigger one with
+			<em>[[foreach &lt;iterator-variable-name&gt; in &lt;array-variable-name&gt;]]</em>
+			and end one with an <em>[[end]]</em>.
+		</p>
+	</body>
+</html>
