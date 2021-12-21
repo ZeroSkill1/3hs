@@ -1,6 +1,9 @@
 
 #include "hlink/hlink.hh"
+#include "hlink/templ.hh"
 #include "hlink/http.hh"
+
+#include "3rd/log.hh"
 
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -247,9 +250,25 @@ static bool handle_http_request(hlink::HTTPRequestContext ctx, int serverfd, cha
 		ctx.serve_plain();
 		break;
 	case hlink::HTTPRequestContext::templ:
-		/* template (stubbed for now) */
-		ctx.serve_500();
+	{
+		/* template serve */
+		const std::string src = "<!DOCTYPE html><html><body>TODO</body></html>";
+
+		hlink::TemplRen ren;
+		ren.use_default();
+
+		std::string res;
+		hlink::TemplRen::result code;
+		if((code = ren.finish(src, res)) != hlink::TemplRen::result::ok)
+		{
+			ctx.respond(500,
+				"<!DOCTYPE html><html><body>ERROR CODE = " + std::to_string((int) code) + "</body></html>", { });
+			break;
+		}
+
+		ctx.respond(200, res, { });
 		break;
+	}
 	}
 
 	g_lock = false;
