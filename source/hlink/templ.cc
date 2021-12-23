@@ -9,7 +9,7 @@ using hlink::TemplBoolFunc;
 using hlink::TemplCtx;
 
 static bool b_not_impl(TemplCtx& ctx, TemplArgs& args);
-static bool b_eq_impl(TemplCtx& ctx, TemplArgs& args)
+static bool b_eq_impl(TemplCtx& ctx, const TemplArgs& args)
 {
 	if(args.size() < 2)
 	{
@@ -20,9 +20,34 @@ static bool b_eq_impl(TemplCtx& ctx, TemplArgs& args)
 	return args[0] == args[1];
 }
 
-static std::string abort_impl(hlink::TemplCtx& ctx, const hlink::TemplArgs&)
+static std::string abort_impl(hlink::TemplCtx& ctx, const TemplArgs&)
 {
 	ctx.abort();
+	return "";
+}
+
+static std::string xref_impl(hlink::TemplCtx& ctx, const TemplArgs& args)
+{
+	if(args.size() != 3)
+		return ctx.abort(), "";
+
+	if(ctx.ren->syms.count(args[1]) == 0 || ctx.ren->syms.count(args[2]))
+		return ctx.abort(), "";
+
+	hlink::TemplRen::templ_sym& dst = ctx.ren->syms[args[1]];
+	hlink::TemplRen::templ_sym& haystack = ctx.ren->syms[args[1]];
+	if((dst.type != haystack.type) || dst.type != hlink::TemplRen::templ_sym_type::vs)
+		return ctx.abort(), "";
+
+	const std::string& needle = args[0];
+	size_t smallest = dst.vs->size() > haystack.vs->size()
+		? haystack.vs->size() : dst.vs->size();
+	for(size_t i = 0; i < smallest; ++i)
+	{
+		if((*haystack.vs)[i] == needle)
+			return (*dst.vs)[i];
+	}
+
 	return "";
 }
 
@@ -63,10 +88,14 @@ hlink::TemplRen::~TemplRen()
 	}
 }
 
-void hlink::TemplRen::use_user_agent() { this->use("user-agent", get_user_agent(this)); }
-void hlink::TemplRen::use_abort() { this->use("abort()", abort_impl); }
-void hlink::TemplRen::use_b_not() { this->use("not?()", b_not_impl); }
-void hlink::TemplRen::use_b_eq() { this->use("eq?()", b_eq_impl); }
+void hlink::TemplRen::use_default()
+{
+	this->use("user-agent", get_user_agent(this));
+	this->use("abort()", abort_impl);
+	this->use("not?()", b_not_impl);
+	this->use("xref()", xref_impl);
+	this->use("eq?()", b_eq_impl);
+}
 
 void hlink::TemplRen::use(const std::string& sym, const std::vector<std::string>& val)
 {
@@ -296,8 +325,20 @@ hlink::TemplRen::result hlink::TemplRen::finish_until_keyword(const std::string&
 				{
 					if(eval_boolean(ctx, args))
 					{
-						if((code = this->finish_until_end_kw(src, res, ctx, i)) != hlink::TemplRen::result::ok)
+						const char *keywords[] = { "else", "else-if", "end" };
+						if((code = this->finish_until_keyword(src, res, ctx, i, keywords, 3))
+							!= hlink::TemplRen::result::ok)
 							return code;
+						const char end[] = "[[end]]";
+						/* if the ending keyword was [[else]] or [[else-if]] skip to the next [[end]]
+						 * kinda hacky but it works well enough for now.
+						 * FIXME: Consider other [[if]]'s and associated [[end]]'s in
+						 *        the discarded [[else]] (or [[else-if]]) block */
+						if(strcmp(src.c_str() + i - sizeof(end) + 1, end) != 0)
+						{
+							const char *keywords[] = { "end" };
+							skip_to_keywords(src, i, keywords, 1);
+						}
 					}
 					else
 					{

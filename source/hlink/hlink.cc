@@ -252,21 +252,66 @@ static bool handle_http_request(hlink::HTTPRequestContext ctx, int serverfd, cha
 	case hlink::HTTPRequestContext::templ:
 	{
 		/* template serve */
-		const std::string src = "<!DOCTYPE html><html><body>TODO</body></html>";
-
 		hlink::TemplRen ren;
+		std::string src;
+		size_t status = 500;
+
+		ren.use("is-success?()", [&status](hlink::TemplCtx&, hlink::TemplArgs&) -> bool { return status == 200; });
 		ren.use_default();
 
-		std::string res;
-		hlink::TemplRen::result code;
-		if((code = ren.finish(src, res)) != hlink::TemplRen::result::ok)
+		if(ctx.path == "/add-queue.tpl")
 		{
-			ctx.respond(500,
-				"<!DOCTYPE html><html><body>ERROR CODE = " + std::to_string((int) code) + "</body></html>", { });
+			if(ctx.params.count("id") == 0)
+			{
+				status = 400;
+				ren.use("error-message", "failed to find an \"id\" parameter");
+				goto begin_render;
+			}
+			char *end;
+			const char *str = ctx.params["id"].c_str();
+			hsapi::hid id = strtoull(str, &end, 10);
+			if(str == end) /* failed to parse int */
+			{
+				status = 400;
+				ren.use("error-message", "failed to parse int");
+				goto begin_render;
+			}
+
+			hsapi::FullTitle meta;
+			if(R_FAILED(hsapi::title_meta(meta, id)))
+			{
+				ren.use("error-message", "failed to add title to queue");
+			}
+			else
+			{
+				status = 200;
+				queue_add(meta);
+				ren.use("title-name", meta.name);
+				ren.use("title-hshop-id", std::to_string(meta.id));
+			}
+		}
+
+		else
+		{
+			ctx.respond(500, "<!DOCTYPE html><html><body>this shouldn't happen (path=" + ctx.path + ")</body></html>", { });
 			break;
 		}
 
-		ctx.respond(200, res, { });
+begin_render:
+		hlink::TemplRen::result code;
+		std::string res;
+
+		ctx.read_path_content(src);
+		if((code = ren.finish(src, res)) != hlink::TemplRen::result::ok)
+		{
+			ctx.respond(500, "<!DOCTYPE html><html><body>Failed to render due to a template error. Code = " + std::to_string((int) code)
+				+ ". If you do not know what this code means <a href=\"/doc/3hs-template-language.html\">try reading the documentation</a>"
+				"<p><a href=\"/index.html\">Back to home</a></p></body></html>",
+				{ { "Content-Type", "text/html" } });
+			break;
+		}
+		ctx.respond(status, res, { { "Content-Type", "text/html" } });
+
 		break;
 	}
 	}

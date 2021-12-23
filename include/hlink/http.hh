@@ -10,7 +10,8 @@
 
 namespace hlink
 {
-	using HTTPHeaders = std::map<std::string, std::string>;
+	using HTTPParameters = std::map<std::string, std::string>;
+	using HTTPHeaders    = std::map<std::string, std::string>;
 
 	class HTTPServer; /* forward decl */
 	struct HTTPRequestContext
@@ -19,6 +20,7 @@ namespace hlink
 		HTTPHeaders headers; /* headers are always lowercased */
 		std::string method; /* method is always lowercased */
 		struct sockaddr_in clientaddr;
+		HTTPParameters params;
 		std::string path;
 		char buf[4096];
 		size_t buflen;
@@ -41,6 +43,8 @@ namespace hlink
 		void serve_plain();
 		serve_type type(); /* NOTE: Sets this->path on success */
 		void close();
+
+		void read_path_content(std::string& buf);
 
 		void serve_400();
 		void serve_403();

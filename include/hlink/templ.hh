@@ -35,12 +35,7 @@ namespace hlink
 		void use(const std::string& sym, TemplBoolFunc func);                  /* boolean function */
 		void use(const std::string& sym, TemplStrFunc  func);                  /* string function */
 
-		void use_user_agent();
-		void use_abort();
-		void use_b_not();
-		void use_b_eq();
-
-		inline void use_default() { this->use_user_agent(); this->use_abort(); this->use_b_not(); this->use_b_eq(); }
+		void use_default();
 
 		enum class result
 		{

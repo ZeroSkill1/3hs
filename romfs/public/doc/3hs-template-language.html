@@ -20,7 +20,17 @@
 			To use variables you just place the name of the variable between square brackets
 			([ and ]) like this: [<em>variable-name</em>]. These variables may also be
 			functions. You know whether a symbol is a function or variable by the name.
-			Functions have names ending with <em>()</em> (i.e. <em>some-cool-function()</em>)
+			Functions have names ending with <em>()</em> (i.e. <em>some-cool-function()</em>).
+			The 3hs template language&trade; has the following built-in variables
+			<ul>
+				<li><em>user-agent</em> &mdash; the value of the <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent"><em>User-Agent</em></a> header</li>
+				<li><em>error-message</em> &mdash; (only available if <em>not?() is-success?()</em>) an english error message</li>
+			</ul>
+			The 3hs template language&trade; has the following built-in functions
+			<ul>
+				<li><em>xref()</em> &mdash; finds an element from one array and gives you value of that index in another, <em>xref() search-value source-array target-array</em></li>
+				<li><em>abort()</em> &mdash; aborts the current render and makes it fail with code=1</li>
+			</ul>
 		</p>
 		<p>
 			Functions may also be conditional functions. They are marked with a question mark
@@ -49,12 +59,60 @@
 			<ul>
 				<li><em>eq?()</em> &mdash; checks for the equality of 2 given arguments</li>
 				<li><em>not?()</em> &mdash; negates the conditional expression that follows</li>
+				<li><em>is-success?()</em> &mdash; is the current request a success?</li>
 			</ul>
 		</p>
 		<p>
 			Loops are executed via a <em>foreach</em>. You can trigger one with
 			<em>[[foreach &lt;iterator-variable-name&gt; in &lt;array-variable-name&gt;]]</em>
 			and end one with an <em>[[end]]</em>.
+		</p>
+		<p>
+			Specific files also have specific functions and variables. Here they are:
+			<ul>
+				<li>
+					/add-queue.tpl
+					<ul>
+						<li><em>title-name</em> &mdash; the name of the title added to the queue</li>
+						<li><em>title-hshop-id</em> &mdash; the hshop id of the title added to the queue</li>
+					</ul>
+				</li>
+			</ul>
+		</p>
+		<p>
+			The render may return one of the following codes:
+			<table border="1">
+				<tr>
+					<th>Code</th>
+					<th>Name</th>
+					<th>Description</th>
+				</tr>
+				<tr>
+					<td>0</td>
+					<td>ok</td>
+					<td>Everything went OK</td>
+				</tr>
+				<tr>
+					<td>1</td>
+					<td>aborted</td>
+					<td>[abort()] was called. This usually means you passed improper parameters to a function</td>
+				</tr>
+				<tr>
+					<td>2</td>
+					<td>unterminated</td>
+					<td>unterminated quotes/if/else-if/else/foreach</td>
+				</tr>
+				<tr>
+					<td>3</td>
+					<td>not_found</td>
+					<td>couldn't find variable</td>
+				</tr>
+				<tr>
+					<td>4</td>
+					<td>invalid</td>
+					<td>invalid variable type, invalid foreach construction</td>
+				</tr>
+			</table>
 		</p>
 	</body>
 </html>

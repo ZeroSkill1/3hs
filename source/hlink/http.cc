@@ -301,6 +301,27 @@ void hlink::HTTPRequestContext::serve_file(int status, const std::string& fname,
 	fclose(f);
 }
 
+void hlink::HTTPRequestContext::read_path_content(std::string& buf)
+{
+	FILE *f = fopen((this->server->root + this->path).c_str(), "r");
+	if(f == nullptr) return;
+
+	size_t total, i = 0;
+	fseek(f, 0, SEEK_END);
+	total = ftell(f);
+	fseek(f, 0, SEEK_SET);
+
+	char cbuf[4098];
+	while(i != total)
+	{
+		size_t r = fread(cbuf, 1, sizeof(buf), f);
+		buf += std::string(cbuf, r);
+		i += r;
+	}
+
+	fclose(f);
+}
+
 void hlink::HTTPRequestContext::serve_plain()
 {
 	this->serve_file(200, this->server->root + this->path, { });
@@ -452,6 +473,37 @@ static int parse_header(HTTPRequestContext& ctx)
 	return 2; /* success! */
 }
 
+static inline void between(std::string& dst, const std::string& src,
+	size_t begin, size_t end)
+{
+	dst = src.substr(begin, end - begin);
+}
+
+/* removes ?.*$ from `path' and puts the parsed params in `params' */
+static void parse_url_params(std::string& path, hlink::HTTPParameters& params)
+{
+	std::string::size_type question = path.find("?");
+	if(question == std::string::npos) return; /* no params to parse */
+
+	std::string::size_type begin = question + 1; /* ?|a|b=cd&ef=gh */
+	do {
+		std::string::size_type eq = path.find("=", begin); /* ?ab|=|cd&ef=gh */
+		std::string::size_type and_s = path.find("&", begin); /* ?ab=cd|&|ef=gh */
+		std::string name;
+		between(name, path, begin, eq == std::string::npos ? and_s : eq);
+		std::string val = "";
+		if(eq != std::string::npos)
+			between(val, path, eq + 1, and_s);
+		lverbose << "(HTTP) Parsed parameter |" << name << "|: |" << val << "|";
+		params[name] = val;
+		if(and_s == std::string::npos)
+			break; /* no more left */
+		begin = and_s + 1;
+	} while(true);
+
+	path.erase(question, std::string::npos);
+}
+
 int hlink::HTTPServer::make_reqctx(HTTPRequestContext& ctx)
 {
 	panic_assert(this->fd != -1, "Tried to make a request on an unbound context");
@@ -483,6 +535,7 @@ int hlink::HTTPServer::make_reqctx(HTTPRequestContext& ctx)
 	ctx.path = std::string(ctx.buf, of);
 	realize_offset(ctx, of + 1);
 	normalize_path(ctx.path);
+	parse_url_params(ctx.path, ctx.params);
 
 	if((of = bufstrnlof(ctx.buf, ctx.buflen)) < 1)
 	{ ctx.serve_400(); ctx.close(); return -1; }
