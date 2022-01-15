@@ -26,6 +26,10 @@
 #include "i18n.hh"
 #include "ctr.hh"
 
+#define SLEEP_AMOUNT 5
+#define SLEEP_AMOUNT_S "5"
+#define SLEEP_AMOUNT_S_PLUS_ONE "6"
+
 // All network byte order (BE)
 
 typedef struct iTransactionHeader
@@ -105,7 +109,7 @@ static int read_whole_body(int clientfd, std::string& ret, iTransactionHeader he
 	do
 	{
 		if(seqbad > hlink::max_timeouts) break;
-		if(poll(&clientpoll, 1, hlink::poll_timeout) == 0)
+		if(poll(&clientpoll, 1, hlink::poll_timeout_body) == 0)
 		{
 			++seqbad;
 			continue;
@@ -217,7 +221,7 @@ static bool handle_request(int clientfd, int serverfd, hlink::HTTPServer serv, c
 			return true;
 		break;
 	case hlink::action::sleep:
-		sleep(5);
+		sleep(SLEEP_AMOUNT);
 		break;
 	default:
 		send_response(clientfd, hlink::response::error, "invalid action");
@@ -228,6 +232,24 @@ cleanup:
 	close(clientfd);
 	g_lock = false;
 	return false;
+}
+
+static void finish_ctx(hlink::HTTPRequestContext& ctx, hlink::TemplRen& ren, size_t status)
+{
+	hlink::TemplRen::result code;
+	std::string res;
+
+	std::string src;
+	ctx.read_path_content(src);
+	if((code = ren.finish(src, res)) != hlink::TemplRen::result::ok)
+	{
+		ctx.respond(500, "<!DOCTYPE html><html><body>Failed to render due to a template error. Code = " + std::to_string((int) code)
+			+ ". If you do not know what this code means <a href=\"/doc/3hs-template-language.html\">try reading the documentation</a>"
+			"<p><a href=\"/index.html\">Back to home</a></p></body></html>",
+			{ { "Content-Type", "text/html" } });
+	}
+	else ctx.respond(status, res, { { "Content-Type", "text/html" } });
+	ctx.close();
 }
 
 static bool handle_http_request(hlink::HTTPRequestContext ctx, int serverfd, char *clientaddr, std::function<void(const std::string&)> disp_req,
@@ -253,7 +275,6 @@ static bool handle_http_request(hlink::HTTPRequestContext ctx, int serverfd, cha
 	{
 		/* template serve */
 		hlink::TemplRen ren;
-		std::string src;
 		size_t status = 500;
 
 		ren.use("is-success?()", [&status](hlink::TemplCtx&, hlink::TemplArgs&) -> bool { return status == 200; });
@@ -291,6 +312,65 @@ static bool handle_http_request(hlink::HTTPRequestContext ctx, int serverfd, cha
 			}
 		}
 
+		else if(ctx.path == "/launch.tpl")
+		{
+			if(ctx.params.count("tid") == 0)
+			{
+				status = 400;
+				ren.use("error-message", "failed to find an \"tid\" parameter");
+				goto begin_render;
+			}
+			char *end;
+			const char *str = ctx.params["tid"].c_str();
+			hsapi::htid tid = strtoull(str, &end, 16);
+			if(str == end)
+			{
+				status = 400;
+				ren.use("error-message", "invalid title id");
+				goto begin_render;
+			}
+
+			FS_MediaType media = detect_media(tid);
+			if(!ctr::title_exists(tid, media))
+			{
+				status = 400;
+				ren.use("error-message", "title doesn't exist");
+				goto begin_render;
+			}
+
+			ctr::TitleSMDH *smdh = ctr::smdh::get(tid);
+			ren.use("title-name", ctr::smdh::u16conv(
+				ctr::smdh::get_native_title(smdh)->descShort, 0x40));
+			delete smdh;
+
+			status = 200;
+			finish_ctx(ctx, ren, status);
+
+			close(serverfd);
+			ctx.server->close();
+			g_lock = false;
+
+			APT_PrepareToDoApplicationJump(0, tid, media);
+
+			u8 parambuf[0x300];
+			u8 hmacbuf[0x20];
+			APT_DoApplicationJump(parambuf, 0x300, hmacbuf);
+
+			// TODO: Fix SEGV
+
+			return true;
+		}
+
+		else if(ctx.path == "/sleep.tpl")
+		{
+			status = 200;
+			ren.use("sleep-amount-2", SLEEP_AMOUNT_S_PLUS_ONE);
+			ren.use("sleep-amount", SLEEP_AMOUNT_S);
+			finish_ctx(ctx, ren, status);
+			sleep(SLEEP_AMOUNT);
+			goto end_render_no_close;
+		}
+
 		else
 		{
 			ctx.respond(500, "<!DOCTYPE html><html><body>this shouldn't happen (path=" + ctx.path + ")</body></html>", { });
@@ -298,26 +378,14 @@ static bool handle_http_request(hlink::HTTPRequestContext ctx, int serverfd, cha
 		}
 
 begin_render:
-		hlink::TemplRen::result code;
-		std::string res;
-
-		ctx.read_path_content(src);
-		if((code = ren.finish(src, res)) != hlink::TemplRen::result::ok)
-		{
-			ctx.respond(500, "<!DOCTYPE html><html><body>Failed to render due to a template error. Code = " + std::to_string((int) code)
-				+ ". If you do not know what this code means <a href=\"/doc/3hs-template-language.html\">try reading the documentation</a>"
-				"<p><a href=\"/index.html\">Back to home</a></p></body></html>",
-				{ { "Content-Type", "text/html" } });
-			break;
-		}
-		ctx.respond(status, res, { { "Content-Type", "text/html" } });
-
-		break;
+		finish_ctx(ctx, ren, status);
+		goto end_render_no_close;
 	}
 	}
 
-	g_lock = false;
 	ctx.close();
+end_render_no_close:
+	g_lock = false;
 	return false;
 }
 
@@ -469,7 +537,7 @@ begin_loop:
 
 	while(keepOpenSignal && on_poll_exit())
 	{
-		if(poll(serverpolls, polls_len, hlink::poll_timeout) == 0)
+		if(poll(serverpolls, polls_len, -1) == 0)
 			continue; // no events; we do nothing
 		for(size_t i = 0; i < polls_len; ++i)
 		{

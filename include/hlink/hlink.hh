@@ -13,7 +13,7 @@ namespace hlink
 {
 	constexpr char transaction_magic[] = "HLT";
 	constexpr size_t transaction_magic_len = 3;
-	constexpr int poll_timeout = 1000;
+	constexpr int poll_timeout_body = 1000;
 	constexpr int max_timeouts = 3;
 	constexpr int port = 37283;
 	constexpr int backlog = 2;

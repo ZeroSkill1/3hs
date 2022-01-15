@@ -7,9 +7,9 @@
 	<body>
 		[[if is-success?()]]
 			<p>Added title [title-name] (with hShop ID [title-hshop-id]) to the queue.</p>
-			<a href="/index.html">Back to home</a>
 		[[else]]
 			<p>An error occured: [error-message].</p>
 		[[end]]
+		<a href="/index.html">Back to home</a>
 	</body>
 </html>
