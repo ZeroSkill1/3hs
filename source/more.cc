@@ -25,7 +25,7 @@ enum MoreInds {
 void show_more()
 {
 	bool focus = set_focus(true);
-	MoreInds index = IND_ABOUT;
+	int index = IND_ABOUT;
 	ui::Button *buttons[IND_MAX];
 
 	constexpr float w = ui::screen_width(ui::Screen::bottom) - 10.0f;
@@ -91,7 +91,7 @@ void show_more()
 				show_hlink();
 				break;
 #endif
-			case IND_MAX:
+			case IND_MAX: /* shouldn't occur; here to silence warning */
 				break;
 		}
 	};
@@ -100,9 +100,9 @@ void show_more()
 		.connect(ui::ButtonCallback::kdown, [&index, &buttons, call](u32 k) -> bool {
 			buttons[index]->set_border(false);
 			if((k & KEY_DOWN) && index < IND_MAX-1)
-				++(*(int*)&index); // hacky workaround
+				++index;
 			else if((k & KEY_UP) && index > 0)
-				--(*(int*)&index);
+				--index;
 			else if (k & KEY_A)
 				ui::RenderQueue::global()->render_and_then(call);
 			buttons[index]->set_border(true);
