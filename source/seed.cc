@@ -2,6 +2,7 @@
 #include "seed.hh"
 
 #include <string.h>
+#include <stdio.h>
 #include <3ds.h>
 #include <map>
 
@@ -32,19 +33,19 @@ Result FSUSER_AddSeed(u64 titleId, const void* seed)
 
 void init_seeddb()
 {
-	std::FILE *f = std::fopen("romfs:/seeddb.bin", "r");
+	FILE *f = std::fopen("romfs:/seeddb.bin", "r");
 	if(f == nullptr) panic(STRING(failed_open_seeddb));
 	SeedDBHeader head;
 
-	std::fread(&head, sizeof(SeedDBHeader), 1, f);
+	fread(&head, sizeof(SeedDBHeader), 1, f);
 	SeedDBEntry *entries = new SeedDBEntry[head.size];
-	std::fread(entries, sizeof(SeedDBEntry), head.size, f);
+	fread(entries, sizeof(SeedDBEntry), head.size, f);
 
 	for(size_t i = 0x0; i < head.size; ++i)
 		g_seeddb[entries[i].tid] = entries[i].seed;
 
 	delete [] entries;
-	std::fclose(f);
+	fclose(f);
 }
 
 Result add_seed(u64 tid)

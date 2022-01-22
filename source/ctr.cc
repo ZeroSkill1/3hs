@@ -32,13 +32,15 @@ ctr::TitleSMDH *ctr::smdh::get(u64 tid)
 	memset(ret, 0x0, sizeof(TitleSMDH));
 
 	if(R_FAILED(FSFILE_Read(smdhFile, &bread, 0, ret, sizeof(TitleSMDH))))
-	{ delete ret; return nullptr; }
+	{ delete ret; ret = nullptr; goto finish; }
 
 	// Invalid smdh
 	if(memcmp(ret, SMDH_MAGIC, SMDH_MAGIC_LEN) != 0)
-	{ delete ret; return nullptr; }
+	{ delete ret; ret = nullptr; goto finish; }
 
+finish:
 	FSFILE_Close(smdhFile);
+	svcCloseHandle(smdhFile);
 	return ret;
 }
 

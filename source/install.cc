@@ -287,10 +287,12 @@ Result install::net_cia(get_url_func get_url, hsapi::htid tid, prog_func prog, b
 	if(R_FAILED(ret))
 	{
 		AM_CancelCIAInstall(cia);
+		svcCloseHandle(cia);
 		return ret;
 	}
 
 	ret = AM_FinishCiaInstall(cia);
+	svcCloseHandle(cia);
 	linfo << "AM_FinishCiaInstall(...): " << ret;
 
 	return ret;
