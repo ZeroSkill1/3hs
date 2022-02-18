@@ -48,7 +48,7 @@ Result FSUSER_AddSeed(u64 titleId, const void* seed)
 
 void init_seeddb()
 {
-	FILE *f = std::fopen("romfs:/seeddb.bin", "r");
+	FILE *f = fopen("romfs:/seeddb.bin", "r");
 	if(f == nullptr) panic(STRING(failed_open_seeddb));
 	SeedDBHeader head;
 
