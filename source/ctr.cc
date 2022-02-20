@@ -36,7 +36,7 @@ static FS_Path makebin_(const void *path, u32 size)
 ctr::TitleSMDH *ctr::smdh::get(u64 tid)
 {
 	static const u32 smdhPath[5] = AEXEFS_SMDH_PATH;
-	u32 exefsArchivePath[4] = MAKE_EXEFS_APATH(tid, to_mediatype(detect_dest(tid)));
+	u32 exefsArchivePath[4] = MAKE_EXEFS_APATH(tid, ctr::mediatype_of(tid));
 
 	Handle smdhFile;
 	if(R_FAILED(FSUSER_OpenFileDirectly(&smdhFile, ARCHIVE_SAVEDATA_AND_CONTENT,
@@ -154,6 +154,11 @@ Result ctr::get_free_space(Destination media, u64 *size)
 
 	if(!R_FAILED(res)) *size = (u64) resource.clusterSize * (u64) resource.freeClusters;
 	return res;
+}
+
+Result ctr::get_title_entry(u64 tid, AM_TitleEntry& entry)
+{
+	return AM_GetTitleInfo(ctr::mediatype_of(tid), 1, &tid, &entry);
 }
 
 u64 ctr::str_to_tid(const std::string& str)

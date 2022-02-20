@@ -20,6 +20,7 @@
 #include <3ds.h>
 
 #include "settings.hh"
+#include "panic.hh"
 #include "ctr.hh"
 
 #define TAG_TWL 1
@@ -61,11 +62,11 @@ void ui::FreeSpaceIndicator::update()
 {
 	if(get_settings()->loadFreeSpace)
 	{
-		u64 nandt = 0, nandc = 0, sdmc = 0;
+		u64 nandt, nandc, sdmc;
 
-		ctr::get_free_space(DEST_TWLNand, &nandt);
-		ctr::get_free_space(DEST_CTRNand, &nandc);
-		ctr::get_free_space(DEST_Sdmc, &sdmc);
+		ctr::get_free_space(ctr::DEST_TWLNand, &nandt);
+		ctr::get_free_space(ctr::DEST_CTRNand, &nandc);
+		ctr::get_free_space(ctr::DEST_Sdmc, &sdmc);
 
 		ui::Text *sd = this->queue.find_tag<ui::Text>(TAG_SD);
 		ui::Text *twl = this->queue.find_tag<ui::Text>(TAG_TWL);

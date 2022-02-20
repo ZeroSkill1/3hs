@@ -220,28 +220,9 @@ static Result i_install_resume_loop(get_url_func get_url, Handle ciaHandle, prog
 	return res;
 }
 
-
-static Destination detect_dest(const hsapi::Title& meta)
-{ return detect_dest(meta.tid); }
-
-// https://www.3dbrew.org/wiki/Titles#Title_IDs
-Destination detect_dest(u64 tid)
-{
-	u16 cat = (tid >> 32) & 0xFFFF;
-	// Install on nand on (DlpChild, System, TWL), else install on SD
-	return (cat & (0x1 | 0x10 | 0x8000))
-		? (cat & 0x8000 ? DEST_TWLNand : DEST_CTRNand)
-		: DEST_Sdmc;
-}
-
-FS_MediaType to_mediatype(Destination dest)
-{
-	return dest == DEST_Sdmc ? MEDIATYPE_SD : MEDIATYPE_NAND;
-}
-
 static Result i_install_hs_cia(const hsapi::FullTitle& meta, prog_func prog, bool reinstallable)
 {
-	Destination media = detect_dest(meta);
+	ctr::Destination media = ctr::detect_dest(meta.tid);
 	u64 freeSpace = 0;
 	Result res;
 
@@ -294,7 +275,7 @@ Result install::net_cia(get_url_func get_url, hsapi::htid tid, prog_func prog, b
 	}
 
 	Handle cia; Result ret;
-	ret = AM_StartCiaInstall(detect_media(tid), &cia);
+	ret = AM_StartCiaInstall(ctr::mediatype_of(tid), &cia);
 	linfo << "AM_StartCiaInstall(...): " << ret;
 	if(R_FAILED(ret)) return ret;
 

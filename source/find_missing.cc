@@ -55,7 +55,7 @@ ssize_t show_find_missing(hsapi::htid tid)
 		if(R_FAILED(hsapi::batch_related(related, installedGames)))
 			return;
 
-		std::vector<hsapi::Title> potentialInstalls;
+		std::vector<hsapi::FullTitle> potentialInstalls;
 
 		for(size_t i = 0; i < installedGames.size(); ++i)
 		{
@@ -63,14 +63,16 @@ ssize_t show_find_missing(hsapi::htid tid)
 			vecappend(potentialInstalls, related[installedGames[i]].dlc);
 		}
 
-		std::vector<hsapi::Title> newInstalls;
-		std::copy_if(potentialInstalls.begin(), potentialInstalls.end(), std::back_inserter(newInstalls), [installed](const hsapi::Title& title) -> bool {
-			// TODO: also check the version int, wait for backend update to return version int for that
-			return
-				// Is the title already installed?
-				std::find(installed.begin(), installed.end(), title.tid) == installed.end()
-				// Is the title already in the queue?
-				&& std::find(queue_get().begin(), queue_get().end(), title) == queue_get().end();
+		std::vector<hsapi::FullTitle> newInstalls;
+		std::copy_if(potentialInstalls.begin(), potentialInstalls.end(), std::back_inserter(newInstalls), [installed](const hsapi::FullTitle& title) -> bool {
+			if(std::find(queue_get().begin(), queue_get().end(), title) == queue_get().end())
+				return false;
+			/* not installed */
+			if(std::find(installed.begin(), installed.end(), title.tid) != installed.end()) return true;
+			AM_TitleEntry te;
+			if(R_FAILED(ctr::get_title_entry(*inst, te)))
+				return false;
+			return title.version > te.version;
 		});
 
 		for(const hsapi::Title& title : newInstalls)

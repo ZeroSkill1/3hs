@@ -162,7 +162,7 @@ static void serialize_subcategories(std::vector<hsapi::Subcategory>& rscats, con
 		s.name = scat.key();
 		s.cat = cat;
 
-		s.titles = jscat["content_count"].get<hsapi::hsize>();
+		s.titles = jscat["total_content_count"].get<hsapi::hsize>();
 		s.size = jscat["size"].get<hsapi::hsize>();
 	}
 }
@@ -176,7 +176,7 @@ static void serialize_categories(std::vector<hsapi::Category>& rcats, ojson& cat
 		rcats.emplace_back();
 		hsapi::Category& c = rcats.back();
 
-		c.titles = jcat["content_count"].get<hsapi::hsize>();
+		c.titles = jcat["total_content_count"].get<hsapi::hsize>();
 		c.disp = jcat["display_name"].get<std::string>();
 		c.desc = jcat["description"].get<std::string>();
 		c.size = jcat["size"].get<hsapi::hsize>();
@@ -202,6 +202,16 @@ static void serialize_titles(std::vector<hsapi::Title>& rtitles, json& j)
 	{
 		rtitles.emplace_back();
 		serialize_title(rtitles.back(), it.value());
+	}
+}
+
+static void serialize_titles_ver(std::vector<hsapi::FullTitle>& rtitles, json& j)
+{
+	for(json::iterator it = j.begin(); it != j.end(); ++it)
+	{
+		rtitles.emplace_back();
+		serialize_title(rtitles.back(), it.value());
+		rtitles.back().version = j["version"].get<hsapi::hiver>();
 	}
 }
 
@@ -266,12 +276,12 @@ Result hsapi::fetch_index()
 {
 	ojson j;
 	Result res = OK;
-	if(R_FAILED(res = basereq<ojson>(HS_BASE_LOC "/index", j)))
+	if(R_FAILED(res = basereq<ojson>(HS_BASE_LOC "/title-index", j)))
 		return res;
+	j = j["value"];
 
-	g_index.titles = j["total_title_count"].get<hsapi::hsize>();
-	g_index.updated = j["updated_date"].get<std::string>();
-	g_index.size = j["total_size"].get<hsapi::hsize>();
+	g_index.titles = j["total_content_count"].get<hsapi::hsize>();
+	g_index.size = j["size"].get<hsapi::hsize>();
 
 	serialize_categories(g_index.categories, j["entries"]);
 
@@ -282,8 +292,9 @@ Result hsapi::titles_in(std::vector<hsapi::Title>& ret, const std::string& cat, 
 {
 	json j;
 	Result res = OK;
-	if(R_FAILED(res = basereq<json>(HS_BASE_LOC "/category/" + cat + "/" + scat, j)))
+	if(R_FAILED(res = basereq<json>(HS_BASE_LOC "/title/category/" + cat + "/" + scat, j)))
 		return res;
+	j = j["value"];
 
 	serialize_titles(ret, j);
 	return OK;
@@ -311,6 +322,7 @@ Result hsapi::title_meta(hsapi::FullTitle& ret, hsapi::hid id)
 	Result res = OK;
 	if(R_FAILED(res = basereq<json>(HS_BASE_LOC "/title/" + std::to_string(id), j)))
 		return res;
+	j = j["value"];
 
 	serialize_title(ret, j);
 
@@ -327,6 +339,7 @@ Result hsapi::get_download_link(std::string& ret, const hsapi::Title& meta)
 	Result res = OK;
 	if(R_FAILED(res = basereq<json>(HS_CDN_BASE "/content/request?id=" + std::to_string(meta.id), j)))
 		return res;
+	j = j["value"];
 
 	ret = HS_CDN_BASE "/content/" + std::to_string(meta.id) + "?token=" + j["token"].get<std::string>();
 	return OK;
@@ -336,8 +349,9 @@ Result hsapi::search(std::vector<hsapi::Title>& ret, const std::string& query)
 {
 	json j;
 	Result res = OK;
-	if(R_FAILED(res = basereq<json>(HS_BASE_LOC "/title/search?query=" + url_encode(query), j)))
+	if(R_FAILED(res = basereq<json>(HS_BASE_LOC "/title/search?q=" + url_encode(query), j)))
 		return res;
+	j = j["value"];
 
 	serialize_titles(ret, j);
 	return OK;
@@ -354,12 +368,13 @@ Result hsapi::batch_related(hsapi::BatchRelated& ret, const std::vector<hsapi::h
 	Result res = OK;
 	if(R_FAILED(res = basereq<json>(url, j)))
 		return res;
+	j = j["value"];
 
 	for(json::iterator it = j.begin(); it != j.end(); ++it)
 	{
 		htid tid = ctr::str_to_tid(it.key());
-		serialize_titles(ret[tid].updates, it.value()["updates"]);
-		serialize_titles(ret[tid].dlc, it.value()["dlc"]);
+		serialize_titles_ver(ret[tid].updates, it.value()["updates"]);
+		serialize_titles_ver(ret[tid].dlc, it.value()["dlc"]);
 	}
 
 	return OK;

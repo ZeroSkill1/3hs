@@ -69,7 +69,6 @@ namespace hsapi
 	typedef struct Index
 	{
 		std::vector<Category> categories; /* categories on hShop */
-		std::string updated; /* last updated date */
 		hsize titles; /* total titles on hShop */
 		hsize size; /* total size of hShop */
 
@@ -101,9 +100,10 @@ namespace hsapi
 
 	typedef struct Related
 	{
-		std::vector<Title> updates;
-		std::vector<Title> dlc;
+		std::vector<FullTitle> updates;
+		std::vector<FullTitle> dlc;
 	} Related;
+	/* NOTE: updates/dlc are missing the prod and desc properties */
 	using BatchRelated = std::unordered_map<htid, Related>;
 
 

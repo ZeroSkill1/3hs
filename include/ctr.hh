@@ -20,10 +20,14 @@
 #include <vector>
 #include <string>
 
-#include "install.hh"
-
 
 namespace ctr {
+	enum Destination
+	{
+		DEST_CTRNand, DEST_TWLNand,
+		DEST_Sdmc,
+	};
+
 	enum class RegionLockout : u32
 	{
 		JPN = 0x01, USA = 0x02, EUR = 0x04,
@@ -102,6 +106,8 @@ namespace ctr {
 	Result list_titles_on(FS_MediaType media, std::vector<u64>& ret);
 	Result get_free_space(Destination media, u64 *size);
 
+	Result get_title_entry(u64 tid, AM_TitleEntry& entry);
+
 	Result delete_if_exist(u64 tid, FS_MediaType media = MEDIATYPE_SD);
 	Result delete_title(u64 tid, FS_MediaType media = MEDIATYPE_SD);
 	bool title_exists(u64 tid, FS_MediaType media = MEDIATYPE_SD);
@@ -109,7 +115,17 @@ namespace ctr {
 	bool is_base_tid(u64 tid);
 	u64 get_base_tid(u64 tid);
 
-	u16& tid_cat(u64& tid);
+	// https://www.3dbrew.org/wiki/Titles#Title_IDs
+	static inline Destination detect_dest(u64 tid)
+	{
+		u16 cat = (tid >> 32) & 0xFFFF;
+		// Install on nand on (DlpChild, System, TWL), else install on SD
+		return (cat & (0x1 | 0x10 | 0x8000))
+			? (cat & 0x8000 ? DEST_TWLNand : DEST_CTRNand)
+			: DEST_Sdmc;
+	}
+	static inline FS_MediaType to_mediatype(Destination dest) { return dest == DEST_Sdmc ? MEDIATYPE_SD : MEDIATYPE_NAND; }
+	static inline FS_MediaType mediatype_of(u64 tid) { return to_mediatype(detect_dest(tid)); }
 
 	namespace smdh
 	{

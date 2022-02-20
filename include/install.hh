@@ -24,12 +24,6 @@
 #include "hsapi.hh"
 
 
-enum Destination
-{
-	DEST_CTRNand, DEST_TWLNand,
-	DEST_Sdmc,
-};
-
 typedef std::function<void(u64 /* done */, u64 /* total */)> prog_func;
 typedef std::function<std::string(Result&)> get_url_func;
 static void default_prog_func(u64, u64)
@@ -57,12 +51,6 @@ static inline Result httpcSetProxy(httpcContext *context, u16 port,
 		password.size(), password.size() == 0 ? nullptr : password.c_str()
 	);
 }
-
-FS_MediaType to_mediatype(Destination dest);
-Destination detect_dest(u64 tid);
-
-static inline FS_MediaType detect_media(u64 tid)
-{ return to_mediatype(detect_dest(tid)); }
 
 namespace install
 {

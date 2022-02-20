@@ -175,7 +175,7 @@ static bool handle_launch(int clientfd, int server, hlink::HTTPServer& serv, iTr
 		return false;
 
 	uint64_t tid = ntohll(* (uint64_t *) body.data());
-	FS_MediaType media = detect_media(tid);
+	FS_MediaType media = ctr::mediatype_of(tid);
 
 	if(!ctr::title_exists(tid, media))
 	{
@@ -345,7 +345,7 @@ static bool handle_http_request(hlink::HTTPRequestContext ctx, int serverfd, cha
 				goto begin_render;
 			}
 
-			FS_MediaType media = detect_media(tid);
+			FS_MediaType media = ctr::mediatype_of(tid);
 			if(!ctr::title_exists(tid, media))
 			{
 				status = 400;
