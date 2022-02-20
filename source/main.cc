@@ -217,14 +217,12 @@ int main(int argc, char* argv[])
 	}
 #endif
 
-	Result res = hsapi::call(hsapi::fetch_index);
-	if(R_FAILED(res))
-	{
-		error_container errcont = get_error(res);
-		report_error(errcont, "Failed to fetch index, dns fucked? Server down?");
-		panic(PSTRING(fail_fetch_index, errcont.sDesc));
-		return 3;
-	}
+	do {
+		Result res = hsapi::call(hsapi::fetch_index);
+		if(R_FAILED(res))
+			show_more();
+		else break;
+	} while(true);
 
 	lverbose << "Done fetching index.";
 
