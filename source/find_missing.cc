@@ -86,6 +86,7 @@ void show_find_missing_all()
 {
 	ssize_t done = show_find_missing(0x0);
 	if(done == -1) return;
-	ui::notice(PSTRING(found_missing, done));
+	if(done == 0) ui::notice(STRING(found_0_missing));
+	else ui::notice(PSTRING(found_missing, done));
 }
 

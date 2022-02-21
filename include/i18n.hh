@@ -147,6 +147,7 @@ namespace str
 		upload_logs = 107,
 		clear_logs = 108,
 		found_missing = 109,
+		found_0_missing = 110,
 
 		_i_max,
 	};

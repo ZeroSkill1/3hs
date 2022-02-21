@@ -158,6 +158,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::upload_logs] = "Upload logs",
 			[str::clear_logs] = "Clear logs", /* context: delete logs */
 			[str::found_missing] = "Found %1 missing title(s)\nCheck the queue to install them", // %1 = amount of titles found
+			[str::found_0_missing] = "Didn't find any missing titles",
 		},
 
 	[lang::dutch] =
@@ -290,6 +291,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::upload_logs] = "Logs uploaden",
 			[str::clear_logs] = "Logs verwijderen",
 			[str::found_missing] = "%1 missende titel(s) gevonden\nGa naar de wachtrij om ze te installeren",
+			[str::found_0_missing] = "Geen missende titles gevonden",
 		},
 
 	[lang::german] =
@@ -419,6 +421,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			STUB(upload_logs),
 			STUB(clear_logs),
 			STUB(found_missing),
+			STUB(found_0_missing),
 		},
 
 	[lang::spanish] =
@@ -549,6 +552,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			STUB(upload_logs),
 			STUB(clear_logs),
 			STUB(found_missing),
+			STUB(found_0_missing),
 		}
 };
 #pragma GCC diagnostic pop
