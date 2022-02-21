@@ -68,9 +68,10 @@ ssize_t show_find_missing(hsapi::htid tid)
 			if(std::find(queue_get().begin(), queue_get().end(), title) == queue_get().end())
 				return false;
 			/* not installed */
-			if(std::find(installed.begin(), installed.end(), title.tid) != installed.end()) return true;
+			if(std::find(installed.begin(), installed.end(), title.tid) != installed.end())
+				return true;
 			AM_TitleEntry te;
-			if(R_FAILED(ctr::get_title_entry(*inst, te)))
+			if(R_FAILED(ctr::get_title_entry(title.tid, te)))
 				return false;
 			return title.version > te.version;
 		});
