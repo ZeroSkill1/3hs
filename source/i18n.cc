@@ -27,6 +27,7 @@
 #define RAW(lid, sid) strtab[lid][sid]
 
 // [str::xxx] is a GCC extension
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
 static const char *strtab[lang::_i_max][str::_i_max] =
 {
@@ -156,7 +157,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::replaying_errors] = "Replaying errors occurred while processing the queue.",
 			[str::log] = "Logs",
 			[str::upload_logs] = "Upload logs",
-			[str::clear_logs] = "Clear logs", /* context: delete logs */
+			[str::clear_logs] = "Clear logs",
 			[str::found_missing] = "Found %1 missing title(s)\nCheck the queue to install them", // %1 = amount of titles found
 			[str::found_0_missing] = "Didn't find any missing titles",
 		},
@@ -520,39 +521,39 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::retry_req] = "¿Quieres reintentar?",
 			[str::search_zero_results] = "La búsqueda no dió resultados\nPresiona " UI_GLYPH_A " para regresar",
 			[str::credits] = "Créditos",
-			STUB(extra_content),
-			STUB(ask_extra),
-			STUB(no_req),
-			STUB(invalid_query),
-			STUB(min_constraint),
+			[str::extra_content] = "¿Añadir contenido extra a la cola?",
+			[str::ask_extra] = "Pedir contenido extra",
+			[str::no_req] = "No hay solicitudes hechas todavía", /* context: hlink requests */
+			[str::invalid_query] = "Consulta invalida\nPresiona " UI_GLYPH_A " para volver",
+			[str::min_constraint] = "La versión de 3hs %1 es inferior a la versión requerida %2",
 			[str::proxy] = "Proxy",
-			STUB(none),
-			STUB(press_a_to_view),
-			STUB(host),
-			STUB(port),
-			STUB(username),
-			STUB(password),
-			STUB(clear),
-			STUB(progbar_screen_desc),
-			STUB(light_mode_desc),
-			STUB(resume_dl_desc),
-			STUB(load_space_desc),
-			STUB(show_battery_desc),
-			STUB(time_format_desc),
-			STUB(language_desc),
-			STUB(lumalocalemode_desc),
-			STUB(ask_extra_desc),
-			STUB(proxy_desc),
-			STUB(install_all),
-			STUB(install_no_base),
-			STUB(warn_no_base),
-			STUB(warn_no_base_desc),
-			STUB(replaying_errors),
-			STUB(log),
-			STUB(upload_logs),
-			STUB(clear_logs),
-			STUB(found_missing),
-			STUB(found_0_missing),
+			[str::none] = "(ninguno)",
+			[str::press_a_to_view] = "Pulsa " UI_GLYPH_A " para ver",
+			[str::host] = "Host",
+			[str::port] = "Puerto",
+			[str::username] = "Usuario",
+			[str::password] = "Contraseña",
+			[str::clear] = "Despejar", /* context: clear the contents of a field */
+			[str::progbar_screen_desc] = "La pantalla para dibujar barras de progreso",
+			[str::light_mode_desc] = "Activar modo luz. Esto cambiará cómo se verán la mayoría de la interfaz",
+			[str::resume_dl_desc] = "¿Debería resumir donde dejamos la descarga por primera vez si fallamos la anterior?",
+			[str::load_space_desc] = "Cargar el indicador de espacio libre",
+			[str::show_battery_desc] = "Alternar visibilidad de la batería en la esquina superior derecha",
+			[str::time_format_desc] = "Formato de tiempo preferido. Entre 24 o 12 horas",
+			[str::language_desc] = "El lenguaje que 3hs usa. Nótese que para actualizar todo el texto, tienes que reiniciar 3hs",
+			[str::lumalocalemode_desc] = "El modo en la que el auto selector de LumaLocale funciona. Automático selecciona un lenjuage automáticamente. Si eliges manual, 3hs pedirá por una región después de la instalación de contenido",
+			[str::ask_extra_desc] = "Pide por contenido extra después de la instalación.",
+			[str::proxy_desc] = "Configurar un proxy. Si no sabes lo que estás haciendo, no toques esto",
+			[str::install_all] = "Instalar todo", /* context: install all items in queue */
+			[str::install_no_base] = "La actualización/DLC no tiene el juego base installado. ¿Instalar de todas maneras?",
+			[str::warn_no_base] = "Advertir si el juego base no está instalado",
+			[str::warn_no_base_desc] = "Dar un aviso si estás intentanto instalar una actualización/DLC y el juego base no está instalado.",
+			[str::replaying_errors] = "Reproduciendo errores ocurridos mientras se procesa la cola.",
+			[str::log] = "Regustros",
+			[str::upload_logs] = "Subir registros",
+			[str::clear_logs] = "Despejar registros",
+			[str::found_missing] = "Se encontró %1 Título faltante(s)\nRevisa la cola para instalarlos", // %1 = amount of titles found
+			[str::found_0_missing] = "No se encontraron títulos faltantes",
 		}
 };
 #pragma GCC diagnostic pop
