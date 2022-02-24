@@ -43,7 +43,8 @@ typedef struct iTransactionResponse
 } __attribute__((__packed__)) iTransactionResponse;
 
 #define ERROR_MAXLEN 100
-static char g_lasterror[ERROR_MAXLEN + 1 + 5 /* "3ds: " */];
+#define ERROR_OFFSET (sizeof("3ds: ")-1)
+static char g_lasterror[ERROR_MAXLEN + 1 + 5 /* "3ds: " */] = "3ds: ";
 
 static int makesock(hLink *link)
 {
@@ -83,11 +84,8 @@ static int readcheckresp(iTransactionResponse *resp, int sock)
 			return HE_exterror;
 		}
 
-		char buf[ERROR_MAXLEN + 1];
-		recv(sock, buf, ERROR_MAXLEN, 0);
-		buf[ERROR_MAXLEN] = '\0';
-
-		sprintf(g_lasterror, "3ds: %s", buf);
+		int amount = recv(sock, g_lasterror + ERROR_OFFSET, ERROR_MAXLEN, 0);
+		g_lasterror[amount + ERROR_OFFSET] = '\0';
 
 		return HE_exterror;
 	}
@@ -106,7 +104,7 @@ static int readdiscard(int sock)
 static iTransactionHeader makeheader(uint8_t action, uint64_t size)
 {
 	iTransactionHeader header;
-	strncpy(header.magic, MAGIC, MAGIC_LEN + 1);
+	memcpy(header.magic, MAGIC, MAGIC_LEN);
 	header.size = htonll(size);
 	header.action = action;
 	return header;

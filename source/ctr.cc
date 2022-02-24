@@ -55,7 +55,6 @@ ctr::TitleSMDH *ctr::smdh::get(u64 tid)
 
 finish:
 	FSFILE_Close(smdhFile);
-	svcCloseHandle(smdhFile);
 	return ret;
 }
 
