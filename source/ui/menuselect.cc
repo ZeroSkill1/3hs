@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2021-2022 MyPasswordIsWeak
+ *
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program. If not, see <https://www.gnu.org/licenses/>.
+ */
 
 #include <ui/menuselect.hh>
 #include "panic.hh"
@@ -9,10 +24,8 @@ void ui::MenuSelect::setup()
 	this->h = 20.0f;
 }
 
-void ui::MenuSelect::connect(ui::MenuSelect::connect_type t, const std::string& s,
-	callback_t c)
+void ui::MenuSelect::add_row(const std::string& s, callback_t c)
 {
-	if(t != ui::MenuSelect::add) panic("EINVAL");
 	u32 myi = this->funcs.size();
 	this->funcs.push_back(c);
 	ui::Button *b = ui::builder<ui::Button>(this->screen, s)
@@ -32,6 +45,12 @@ void ui::MenuSelect::connect(ui::MenuSelect::connect_type t, const std::string& 
 		b->set_y(ui::under(this->q.back(), b, 5.0f));
 	this->btns.push_back(b);
 	this->q.push(b);
+}
+
+void ui::MenuSelect::connect(connect_type t, const std::string& s, callback_t c)
+{
+	if(t != ui::MenuSelect::add) panic("EINVAL");
+	this->add_row(s, c);
 }
 
 float ui::MenuSelect::height()

@@ -31,8 +31,7 @@ static void upload_logs()
 	ui::notice("TODO");
 }
 
-/* always returns true */
-static bool clear_logs()
+static void clear_logs()
 {
 	ui::loading([]() -> void {
 		remove(LOGFILE);
@@ -40,7 +39,6 @@ static bool clear_logs()
 		plog::get()->getAppender<plog::RollingFileAppender<plog::TxtFormatter>>(0)
 			->setFileName(LOGFILE); /* reload logfile */
 	});
-	return true;
 }
 
 void show_logs_menu()

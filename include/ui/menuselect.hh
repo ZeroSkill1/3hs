@@ -38,6 +38,8 @@ namespace ui
 		enum connect_type { add };
 		void connect(connect_type, const std::string&, callback_t);
 
+		void add_row(const std::string& label, callback_t callback);
+
 
 	private:
 		void call_current();
