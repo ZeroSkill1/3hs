@@ -183,6 +183,8 @@ namespace ui
 #undef next_net_2_idx
 		net_3 = next_net_3_idx,
 #undef next_net_3_idx
+		gplv3 = next_gplv3_idx,
+#undef next_gplv3_idx
 	};
 
 	struct Keys
@@ -211,6 +213,11 @@ namespace ui
 	float under(BaseWidget *from, BaseWidget *newel, float pad = 3.0f);
 	/* get the y position above `from' for `newel' */
 	float above(BaseWidget *from, BaseWidget *newel, float pad = 3.0f);
+
+	/* centers both `first' and `second' */
+	void set_double_center(BaseWidget *first, BaseWidget *second, float pad = 3.0f);
+	/* returns the center y position of `newel' from `from'. calling with newel > from is UB */
+	float center_align_y(BaseWidget *from, BaseWidget *newel);
 
 	/* global initializiation */
 	bool init();
@@ -422,12 +429,16 @@ namespace ui
 		ui::builder<TWidget>& above(ui::BaseWidget *w, float pad = 3.0f) { this->el->set_y(ui::above(w, this->el, pad)); return *this; }
 		/* positions the widget right from another widget */
 		ui::builder<TWidget>& right(ui::BaseWidget *w, float pad = 3.0f) { this->el->set_x(ui::right(w, this->el, pad)); return *this; }
+		/* positions the widget in the center next to another widget */
+		ui::builder<TWidget>& next_center(ui::BaseWidget *w, float pad = 3.0f) { ui::set_double_center(w, this->el, pad); return *this; }
 		/* positions the widget left from another widget */
 		ui::builder<TWidget>& left(ui::BaseWidget *w, float pad = 3.0f) { this->el->set_x(ui::left(w, this->el, pad)); return *this; }
 		/* sets the y of the building widget to that of another one */
 		ui::builder<TWidget>& align_y(ui::BaseWidget *w) { this->el->set_y(w->get_y()); return *this; }
 		/* sets the x of the building widget to that of another one */
 		ui::builder<TWidget>& align_x(ui::BaseWidget *w) { this->el->set_x(w->get_x()); return *this; }
+		/* sets the y of the building widget to the center of another one */
+		ui::builder<TWidget>& align_y_center(ui::BaseWidget *w) { this->el->set_y(ui::center_align_y(w, this->el)); return *this; }
 
 		/* Add the built widget to a RenderQueue */
 		void add_to(ui::RenderQueue& queue) { queue.push((ui::BaseWidget *) this->finalize()); }

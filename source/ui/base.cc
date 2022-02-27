@@ -36,6 +36,11 @@ static bool g_inRender = false;
 
 /* helpers */
 
+static inline float center_pos(float max, float width)
+{
+	return max / 2.0f - width / 2.0f;
+}
+
 float ui::transform(ui::BaseWidget *wid, float v)
 {
 	if(v >= 0.0f) return v;
@@ -46,9 +51,9 @@ float ui::transform(ui::BaseWidget *wid, float v)
 	case (int) ui::layout::right:
 		return ui::screen_width(wid->renders_on()) - wid->width() - 10.0f; /* padding of 10.0f */
 	case (int) ui::layout::center_x:
-		return (ui::screen_width(wid->renders_on()) / 2) - (wid->width() / 2.0f);
+		return center_pos(ui::screen_width(wid->renders_on()), wid->width());
 	case (int) ui::layout::center_y:
-		return (ui::dimensions::height / 2) - (wid->height() / 2.0f);
+		return center_pos(ui::dimensions::height, wid->height());
 	}
 
 	return 0.0f;
@@ -74,6 +79,22 @@ float ui::right(ui::BaseWidget *from, ui::BaseWidget *newel, float pad)
 float ui::left(ui::BaseWidget *from, ui::BaseWidget *newel, float pad)
 {
 	return from->get_x() - newel->width() - pad;
+}
+
+void ui::set_double_center(BaseWidget *first, BaseWidget *second, float pad)
+{
+	float w1 = first->width();
+	float w2 = second->width();
+	float total = w1 + w2 + pad;
+
+	float start = center_pos(ui::screen_width(first->renders_on()), total);
+	first->set_x(start);
+	second->set_x(start + w1 + pad);
+}
+
+float ui::center_align_y(BaseWidget *from, BaseWidget *newel)
+{
+	return center_pos(from->height(), newel->height()) + from->get_y();
 }
 
 void ui::exit()

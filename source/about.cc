@@ -31,13 +31,17 @@ void show_about()
 		.x(ui::layout::center_x)
 		.y(ui::layout::base)
 		.add_to(queue);
+	ui::Sprite *sprite;
 	ui::builder<ui::Sprite>(ui::Screen::top, ui::SpriteStore::get_by_id(ui::sprite::logo))
-		.x(ui::layout::center_x)
 		.under(queue.back())
+		.add_to(&sprite, queue);
+	ui::builder<ui::Sprite>(ui::Screen::top, ui::SpriteStore::get_by_id(ui::sprite::gplv3))
+		.align_y_center(queue.back())
+		.next_center(queue.back(), 15.0f)
 		.add_to(queue);
 	ui::builder<ui::Text>(ui::Screen::top, PSTRING(this_version, VERSION))
 		.x(ui::layout::center_x)
-		.under(queue.back())
+		.under(sprite)
 		.add_to(queue);
 	ui::builder<ui::Text>(ui::Screen::bottom, STRING(credits))
 		.size(0.75f)
