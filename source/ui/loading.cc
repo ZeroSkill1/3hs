@@ -19,6 +19,8 @@
 #include "util.hh"
 #include "i18n.hh"
 
+#include <3ds.h>
+
 
 void ui::loading(ui::RenderQueue& queue, std::function<void()> callback)
 {
@@ -27,9 +29,11 @@ void ui::loading(ui::RenderQueue& queue, std::function<void()> callback)
 
 	ctr::thread<> th(callback);
 
+	aptSetHomeAllowed(false);
 	ui::Keys keys = ui::RenderQueue::get_keys();
 	while(!th.finished() && queue.render_frame(keys))
 		keys = ui::RenderQueue::get_keys();
+	aptSetHomeAllowed(true);
 
 	::set_focus(focus);
 	::set_desc(desc);

@@ -20,12 +20,17 @@
 
 #include "find_missing.hh"
 #include "log_view.hh"
+#include "hsapi.hh"
 #include "about.hh"
+#include "panic.hh"
 #include "i18n.hh"
 #include "util.hh"
 
 #include <ui/menuselect.hh>
 #include <ui/base.hh>
+
+#include <stdlib.h>
+
 
 enum MoreInds {
 	IND_ABOUT = 0,

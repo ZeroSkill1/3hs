@@ -135,13 +135,7 @@ void handle_error(const error_container& err)
 
 	queue.render_finite_button(KEY_A);
 
-	// Deinit
-	exit_services();
-	hsapi::global_deinit();
-	ui::exit();
-
-	// Exit
-	exit(1);
+	exit(0);
 }
 
 [[noreturn]] void panic_impl(const std::string& caller, const std::string& msg)

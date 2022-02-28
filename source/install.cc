@@ -279,7 +279,9 @@ Result install::net_cia(get_url_func get_url, hsapi::htid tid, prog_func prog, b
 	linfo << "AM_StartCiaInstall(...): " << ret;
 	if(R_FAILED(ret)) return ret;
 
+	aptSetHomeAllowed(false);
 	ret = i_install_resume_loop(get_url, cia, prog);
+	aptSetHomeAllowed(true);
 	if(R_FAILED(ret))
 	{
 		AM_CancelCIAInstall(cia);

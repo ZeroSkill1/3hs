@@ -182,7 +182,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 				"      Vertalingen\n"
 				"TimmSkiller: Programmeren,\n"
 				"      Vertalingen\n"
-				"Laswell: Design, Vertalingen\n"
+				"Laswell: Ontwerp, Vertalingen\n"
 				"CremeChocolate: Kunst",
 			[str::press_to_install] =
 				"Klik op " UI_GLYPH_A " als je deze titel wilt installeren.\n"

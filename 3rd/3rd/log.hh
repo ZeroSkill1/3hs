@@ -18,6 +18,8 @@
 
 */
 
+#include <iostream>
+
 #define lnone PLOG(plog::none)
 #define lfatal PLOG(plog::fatal)
 #define lerror PLOG(plog::error)

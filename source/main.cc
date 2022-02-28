@@ -54,6 +54,16 @@
 
 #include <ui/base.hh>
 
+#ifndef RELEASE
+static plog::ColorConsoleAppender<plog::TxtFormatter> colorAppender(plog::streamStdErr);
+#endif
+
+static void deinit_all()
+{
+	hsapi::global_deinit();
+	ui::exit();
+	exit_services();
+}
 
 int main(int argc, char* argv[])
 {
@@ -66,8 +76,6 @@ int main(int argc, char* argv[])
 #ifndef RELEASE
 	// Colored logs appender for gdb
 	consoleDebugInit(debugDevice_SVC);
-
-	static plog::ColorConsoleAppender<plog::TxtFormatter> colorAppender(plog::streamStdErr);
 	plog::get()->addAppender(&colorAppender);
 #endif
 
@@ -77,8 +85,8 @@ int main(int argc, char* argv[])
 	if(!ui::init())
 	{
 		lfatal << "ui::init() failed, this should **never** happen";
-		ui::exit();
-		return 1;
+		exit_services();
+		exit(0);
 	}
 
 #ifdef RELEASE
@@ -98,9 +106,9 @@ int main(int argc, char* argv[])
 			.add_to(queue);
 
 		queue.render_finite_button(KEY_START | KEY_B);
-		exit_services();
 		ui::exit();
-		return 3;
+		exit_services();
+		exit(0);
 	}
 #endif
 
@@ -201,8 +209,10 @@ int main(int argc, char* argv[])
 	{
 		lfatal << "hsapi::global_init() failed";
 		panic(STRING(fail_init_networking));
-		return 2;
+		exit(0);
 	}
+
+	atexit(deinit_all);
 
 #ifdef RELEASE
 	// If we updated ...
@@ -210,19 +220,12 @@ int main(int argc, char* argv[])
 	if(update_app())
 	{
 		llog << "Updated from " VERSION;
-		exit_services();
-		hsapi::global_deinit();
-		ui::exit();
-		return 0;
+		exit(0);
 	}
 #endif
 
-	do {
-		Result res = hsapi::call(hsapi::fetch_index);
-		if(R_FAILED(res))
-			show_more();
-		else break;
-	} while(true);
+	while(R_FAILED(hsapi::call(hsapi::fetch_index)))
+		show_more();
 
 	lverbose << "Done fetching index.";
 
@@ -273,11 +276,7 @@ gam:
 		goto gam;
 	}
 
-
 	llog << "Goodbye, app deinit";
-	exit_services();
-	hsapi::global_deinit();
-	ui::exit();
-	return 0;
+	exit(0);
 }
 

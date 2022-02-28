@@ -193,7 +193,8 @@ bool ui::RenderQueue::render_frame(const ui::Keys& keys)
 	if(this->signalBit & ui::RenderQueue::signal_cancel)
 		return false;
 
-	if(!aptMainLoop()) return false;
+	if(!aptMainLoop())
+		::exit(0); /* finish */
 	if(g_inRender)
 	{
 		C3D_FrameEnd(0); /* we first need to finish because panic() will render */
