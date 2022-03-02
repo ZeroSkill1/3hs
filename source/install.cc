@@ -280,7 +280,9 @@ Result install::net_cia(get_url_func get_url, hsapi::htid tid, prog_func prog, b
 	if(R_FAILED(ret)) return ret;
 
 	aptSetHomeAllowed(false);
+	float oldrate = C3D_FrameRate(2.0f);
 	ret = i_install_resume_loop(get_url, cia, prog);
+	C3D_FrameRate(oldrate);
 	aptSetHomeAllowed(true);
 	if(R_FAILED(ret))
 	{

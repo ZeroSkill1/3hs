@@ -1,4 +1,8 @@
 
+v1.0.0:
+ - update for new hsite v3 api
+ - fix issue where closing the app from home would freeze system
+
 v0.2.1:
  - fixed net indicator going partly hidden when in a long list
  - add clarification after clicking on find missing

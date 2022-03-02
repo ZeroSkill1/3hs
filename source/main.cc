@@ -16,8 +16,6 @@
 
 #include <3ds.h>
 
-#include <algorithm>
-
 #include <ui/list.hh>
 #include <ui/base.hh>
 
@@ -56,6 +54,65 @@
 
 #ifndef RELEASE
 static plog::ColorConsoleAppender<plog::TxtFormatter> colorAppender(plog::streamStdErr);
+#endif
+
+#ifndef RELEASE
+class FrameCounter : public ui::BaseWidget
+{ UI_WIDGET("FrameCounter")
+public:
+	float width() override { return this->t->width(); }
+	float height() override { return this->t->height(); }
+	void set_x(float x) override { this->x = x; this->t->set_x(x); }
+	void set_y(float y) override { this->y = y; this->t->set_y(y); }
+	void resize(float x, float y) { this->t->resize(x, y); }
+
+	void setup()
+	{
+		this->t.setup(this->screen, "0 fps");
+	}
+
+	bool render(const ui::Keys& k) override
+	{
+		time_t now = time(NULL);
+		if(now != this->frames[this->i].time)
+			this->switch_frame(now);
+		++this->frames[this->i].frames;
+		this->t->render(k);
+		return true;
+	}
+
+	int fps()
+	{
+		return this->frames[this->i == 0 ? 1 : 0].frames;
+	}
+
+private:
+	struct {
+		time_t time;
+		int frames;
+	} frames[2] = {
+		{ 0, 60 },
+		{ 0, 60 },
+	};
+
+	ui::ScopedWidget<ui::Text> t;
+	size_t i = 0;
+
+	void set_label(int fps)
+	{
+		this->t->set_text(std::to_string(fps) + " fps");
+		this->t->set_x(this->x);
+	}
+
+	void switch_frame(time_t d)
+	{
+		this->set_label(this->frames[this->i].frames);
+		this->i = this->i == 0 ? 1 : 0;
+		this->frames[this->i].time = d;
+		this->frames[this->i].frames = 0;
+	}
+
+};
 #endif
 
 static void deinit_all()
@@ -187,6 +244,14 @@ int main(int argc, char* argv[])
 
 	ui::builder<ui::BatteryIndicator>(ui::Screen::top)
 		.add_to(ui::RenderQueue::global());
+
+#ifndef RELEASE
+	ui::builder<FrameCounter>(ui::Screen::top)
+		.size(0.4f)
+		.x(ui::layout::right)
+		.y(25.0f)
+		.add_to(ui::RenderQueue::global());
+#endif
 
 	ui::builder<ui::NetIndicator>(ui::Screen::top)
 		.add_to(ui::RenderQueue::global());
