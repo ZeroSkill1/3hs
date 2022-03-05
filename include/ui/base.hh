@@ -56,57 +56,6 @@ namespace ui
 {
 	class BaseWidget; /* forward declaration */
 
-	namespace detail
-	{
-		// From: https://stackoverflow.com/questions/87372/check-if-a-class-has-a-member-function-of-a-given-signature
-#define make_has_struct(method) \
-			template<typename, typename T> \
-			struct has_##method { \
-				static_assert( \
-					std::integral_constant<T, false>::value, \
-					"Second template parameter needs to be of function type."); \
-			}; \
-			template<typename C, typename Ret, typename... Args> \
-			struct has_##method<C, Ret(Args...)> { \
-			private: \
-					template<typename T> \
-					static constexpr auto check(T*) \
-					-> typename \
-							std::is_same< \
-									decltype( std::declval<T>().method( std::declval<Args>()... ) ), \
-									Ret \
-							>::type; \
-					template<typename> \
-					static constexpr std::false_type check(...); \
-					typedef decltype(check<C>(0)) type; \
-			public: \
-					static constexpr bool value = type::value; \
-			}
-
-		make_has_struct(resize_children);
-		make_has_struct(set_border);
-		make_has_struct(autowrap);
-		make_has_struct(finalize);
-		make_has_struct(connect);
-		make_has_struct(resize);
-		make_has_struct(scroll);
-#undef make_has_struct
-
-		// This works somehow, unused (for now?)
-		template <typename C>
-		struct has_connect_enum {
-		private:
-			template <typename T>
-			static constexpr auto check(T*) -> typename
-				std::is_enum<typename T::connect_type>::type;
-			template <typename T>
-			static constexpr std::false_type check(...);
-			typedef decltype(check<C>(0)) type;
-		public:
-			static constexpr bool value = type::value;
-		};
-	}
-
 	enum class Screen
 	{
 		top, bottom
@@ -267,8 +216,6 @@ namespace ui
 
 		virtual void finalize() { }
 
-		enum connect_type { };
-
 		void set_hidden(bool b) { this->hidden = b; }
 		bool is_hidden() { return this->hidden; }
 
@@ -385,31 +332,24 @@ namespace ui
 		}
 
 		/* Sets the size of a widget. Not supported by all widgets */
-		UI_REQUIRES_METHOD(TWidget, resize, void(float, float))
-			ui::builder<TWidget>& size(float x, float y) { this->el->resize(x, y); return *this; }
+		ui::builder<TWidget>& size(float x, float y) { this->el->resize(x, y); return *this; }
 		/* Sets the size of a widget. Not supported by all widgets */
-		UI_REQUIRES_METHOD(TWidget, resize, void(float, float))
-			ui::builder<TWidget>& size(float xy) { this->el->resize(xy, xy); return *this; }
+		ui::builder<TWidget>& size(float xy) { this->el->resize(xy, xy); return *this; }
 		/* Sets the size of any potential widget children. Not supported by all widgets */
-		UI_REQUIRES_METHOD(TWidget, resize_children, void())
-			ui::builder<TWidget>& size_children(float x, float y) { this->el->resize_children(x, y); return *this; }
+		ui::builder<TWidget>& size_children(float x, float y) { this->el->resize_children(x, y); return *this; }
 		/* Sets the size of any potential widget children. Not supported by all widgets */
-		UI_REQUIRES_METHOD(TWidget, resize_children, void())
-			ui::builder<TWidget>& size_children(float xy) { this->el->resize_children(xy, xy); return *this; }
+		ui::builder<TWidget>& size_children(float xy) { this->el->resize_children(xy, xy); return *this; }
 		/* Autowraps the widget. Not supported by all widgets */
-		UI_REQUIRES_METHOD(TWidget, autowrap, void())
-			ui::builder<TWidget>& wrap() { this->el->autowrap(); return *this; }
+		ui::builder<TWidget>& wrap() { this->el->autowrap(); return *this; }
 		/* Sets a border around the widget. Not supported by all widgets */
-		UI_REQUIRES_METHOD(TWidget, set_border, void(bool))
-			ui::builder<TWidget>& border() { this->el->set_border(true); return *this; }
+		ui::builder<TWidget>& border() { this->el->set_border(true); return *this; }
 		/* Makes the widget scroll. Not supported by all widgets */
-		UI_REQUIRES_METHOD(TWidget, scroll, void())
-			ui::builder<TWidget>& scroll() { this->el->scroll(); return *this; }
+		ui::builder<TWidget>& scroll() { this->el->scroll(); return *this; }
 		/* Connects a type and argument, effect depends on the widget.
 		 * Not supported by all widgets */
-		UI_REQUIRES_METHOD_VARIADIC(TWidget, Ts, connect, void(typename TWidget::connect_type, Ts...))
-			ui::builder<TWidget>& connect(typename TWidget::connect_type type,
-				Ts&& ... args) { this->el->connect(type, args...); return *this; }
+		template <typename T = TWidget /* weird template is so that builder works on types without T::connect_type */,
+			typename ... Ts> ui::builder<T>& connect(typename T::connect_type type, Ts&& ... args)
+				{ this->el->connect(type, args...); return *this; }
 
 		/* Do a manual configuration with a callback */
 		ui::builder<TWidget>& configure(std::function<void(TWidget*)> conf) { conf(this->el); return *this; }

@@ -20,7 +20,7 @@
 #include <3rd/log.hh>
 
 #define KONCODE_SIZE (sizeof(konKeys) / sizeof(size_t))
-static size_t konKeys[] = {
+static const u32 konKeys[] = {
 	KEY_UP, KEY_UP, KEY_DOWN, KEY_DOWN,
 	KEY_LEFT, KEY_RIGHT, KEY_LEFT, KEY_RIGHT,
 	KEY_B, KEY_A,
