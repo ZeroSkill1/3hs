@@ -35,7 +35,7 @@ dumps/
 
 # Executables
 hlink-client/hlink
-3hs.smdh
+*.smdh
 *.exe
 *.out
 *.app
@@ -43,6 +43,7 @@ hlink-client/hlink
 *.elf
 *.cxi
 *.cia
+*.bnr
 
 # Ctags
 tags

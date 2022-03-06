@@ -112,6 +112,7 @@ SHLISTFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.shlist)))
 FONTFILES	:=	$(foreach dir,$(GRAPHICS),$(notdir $(wildcard $(dir)/*.ttf)))
 GFXFILES	:=	$(foreach dir,$(GRAPHICS),$(notdir $(wildcard $(dir)/*.t3s)))
 BINFILES	:=	$(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.*)))
+ROMFS_FILES := $(shell find $(ROMFS))
 
 #---------------------------------------------------------------------------------
 # use CXX for linking C++ projects, CC for standard C
@@ -200,9 +201,20 @@ all: $(REAL_ALL)
 _build_all:
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
 
-cia: $(INT_ALL)
-	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
+$(CIA_PREFIX)/romfs.bin: $(ROMFS_FILES)
 	$(SILENTCMD) 3dstool -ctf romfs $(CIA_PREFIX)/romfs.bin --romfs-dir romfs
+	$(SILENTMSG) built ... romfs.bin
+
+$(CIA_PREFIX)/icon.smdh: $(CIA_PREFIX)/icon.png
+	$(SILENTCMD) bannertool makesmdh -f visible,nosavebackups -i $(CIA_PREFIX)/icon.png -s "3hs" -l "3hs" -p "hShop" -o $(CIA_PREFIX)/icon.smdh >/dev/null
+	$(SILENTMSG) built ... icon.smdh
+
+$(CIA_PREFIX)/banner.bnr: $(CIA_PREFIX)/banner.png $(CIA_PREFIX)/audio.cwav
+	$(SILENTCMD) bannertool makebanner -ca $(CIA_PREFIX)/audio.cwav -i $(CIA_PREFIX)/banner.png -o $(CIA_PREFIX)/banner.bnr >/dev/null
+	$(SILENTMSG) built ... banner.bnr
+
+cia: $(INT_ALL) $(CIA_PREFIX)/banner.bnr $(CIA_PREFIX)/icon.smdh $(CIA_PREFIX)/romfs.bin
+	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
 	$(SILENTCMD) makerom -f cia -o $(TARGET).cia -target t -elf $(TARGET).elf -icon $(CIA_PREFIX)/icon.smdh -banner $(CIA_PREFIX)/banner.bnr -rsf $(CIA_PREFIX)/$(TARGET).rsf -romfs $(CIA_PREFIX)/romfs.bin -ver $(VERSION)
 	$(SILENTMSG) built ... $(TARGET).cia
 
@@ -223,7 +235,7 @@ endif
 #---------------------------------------------------------------------------------
 clean:
 	@echo clean ...
-	@rm -fr $(BUILD) $(TARGET).3dsx $(OUTPUT).smdh $(TARGET).elf $(GFXBUILD) $(OUTPUT).cia cia_stuff/romfs.bin
+	@rm -fr $(BUILD) $(TARGET).3dsx $(OUTPUT).smdh $(TARGET).elf $(GFXBUILD) $(OUTPUT).cia $(CIA_PREFIX)/romfs.bin $(CIA_PREFIX)/banner.bnr $(CIA_PREFIX)/icon.smdh
 
 #---------------------------------------------------------------------------------
 $(GFXBUILD)/%.t3x	$(BUILD)/%.h	:	%.t3s
