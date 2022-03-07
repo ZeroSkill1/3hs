@@ -23,9 +23,8 @@
 #include "panic.hh"
 #include "seed.hh"
 #include "ctr.hh"
+#include "log.hh"
 
-#include <3rd/log.hh>
-#include <malloc.h>
 #include <3ds.h>
 
 #define CHECKRET(expr) if(R_FAILED( res = ( expr ) )) return res
@@ -74,7 +73,7 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 
 	u32 status = 0, dled = from;
 	CHECKRET(httpcGetResponseStatusCode(&ctx, &status));
-	lverbose << "Download status code: " << status;
+	vlog("Download status code: %lu", status);
 
 	// Do we want to redirect?
 	if(status / 100 == 3)
@@ -83,7 +82,7 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 		httpcGetResponseHeader(&ctx, "location", newurl, 2048);
 		std::string redir(newurl);
 
-		lverbose << "Redirected to " << redir;
+		vlog("Redirected to %s", redir.c_str());
 		httpcCloseContext(&ctx);
 		return i_install_net_cia(redir, data, from);
 	}
@@ -121,7 +120,7 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 			break;
 		}
 
-		lverbose << "Writing to cia handle, size=" << dlnext << ",index=" << data->index << ",totalSize=" << data->totalSize;
+		dlog("Writing to cia handle, size=%lu,index=%lu,totalSize=%lu", dlnext, data->index, data->totalSize);
 		CHECKRET(FSFILE_Write(data->cia, &written, data->index, data->buffer, dlnext, FS_WRITE_FLUSH));
 
 		remaining = data->totalSize - dled - from;
@@ -156,10 +155,10 @@ static void i_install_loop_thread_cb(Result& res, get_url_func get_url, cia_net_
 			break;
 		}
 
-		if(R_FAILED(res)) { lerror << "Failed in install loop. ErrCode=0x" << std::hex << res; }
+		if(R_FAILED(res)) { elog("Failed in install loop. ErrCode=0x%08lX", res); }
 		if(R_MODULE(res) == RM_HTTP)
 		{
-			llog << "timeout. ui::timeoutscreen() is up.";
+			ilog("timeout. ui::timeoutscreen() is up.");
 			// Does the user want to stop?
 
 			data.itc = ITC::timeoutscr;
@@ -276,7 +275,7 @@ Result install::net_cia(get_url_func get_url, hsapi::htid tid, prog_func prog, b
 
 	Handle cia; Result ret;
 	ret = AM_StartCiaInstall(ctr::mediatype_of(tid), &cia);
-	linfo << "AM_StartCiaInstall(...): " << ret;
+	ilog("AM_StartCiaInstall(...): 0x%08lX", ret);
 	if(R_FAILED(ret)) return ret;
 
 	aptSetHomeAllowed(false);
@@ -293,7 +292,7 @@ Result install::net_cia(get_url_func get_url, hsapi::htid tid, prog_func prog, b
 
 	ret = AM_FinishCiaInstall(cia);
 	svcCloseHandle(cia);
-	linfo << "AM_FinishCiaInstall(...): " << ret;
+	ilog("AM_FinishCiaInstall(...): 0x%08lX", ret);
 
 	return ret;
 }

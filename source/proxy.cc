@@ -16,30 +16,19 @@
 
 #include "proxy.hh"
 
-#include <3rd/log.hh>
 #include <stdio.h>
-
-#include <string>
 
 #include "install.hh"
 #include "panic.hh"
 #include "i18n.hh"
+#include "log.hh"
+
+#define PROXYFILE "/3ds/3hs/proxy"
 
 static proxy::Params g_proxy;
 
 
-static std::string proxystr()
-{
-	if(g_proxy.port != 0)
-	{
-		return "http://" + g_proxy.username + ":" + g_proxy.password + "@"
-			+ g_proxy.host + ":" + std::to_string(g_proxy.port);
-	}
-
-	return "http://" + g_proxy.host + ":" + std::to_string(g_proxy.port);
-}
-
-static bool validate() { return proxy::validate(g_proxy); }
+static inline bool validate() { return proxy::validate(g_proxy); }
 bool proxy::validate(const proxy::Params& p)
 {
 	/* no proxy set is always valid */
@@ -58,7 +47,13 @@ proxy::Params& proxy::proxy()
 
 void proxy::write()
 {
-	FILE *proxyfile = fopen("/3ds/3hs/proxy", "w");
+	if(!proxy::is_set())
+	{
+		/* remove in case it existed */
+		remove(PROXYFILE);
+		return;
+	}
+	FILE *proxyfile = fopen(PROXYFILE, "w");
 	if(proxyfile == nullptr) return;
 
 	std::string data =
@@ -106,7 +101,7 @@ static void put_semisep(const std::string& buf, std::string& p1, std::string& p2
 
 void proxy::init()
 {
-	FILE *proxyfile = fopen("/3ds/3hs/proxy", "r");
+	FILE *proxyfile = fopen(PROXYFILE, "r");
 	if(proxyfile == NULL) return;
 
 	fseek(proxyfile, 0, SEEK_END);
@@ -153,7 +148,8 @@ void proxy::init()
 	g_proxy.port = strtoul(port.c_str(), nullptr, 10);
 	if(!::validate()) panic(STRING(invalid_proxy));
 
-	llog << "Using proxy: |" << proxystr() << "|";
+	ilog("Using proxy: |http(s)://%s:%s@%s:%i/|", g_proxy.username.c_str(), g_proxy.password.c_str(),
+		g_proxy.host.c_str(), g_proxy.port);
 }
 
 bool proxy::is_set()

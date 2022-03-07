@@ -18,8 +18,6 @@
 #include "hlink/templ.hh"
 #include "hlink/http.hh"
 
-#include "3rd/log.hh"
-
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <arpa/inet.h>

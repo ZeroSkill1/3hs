@@ -22,7 +22,6 @@
 #include "i18n.hh"
 
 #include <ui/base.hh>
-#include <3rd/log.hh>
 
 
 static void addreq(ui::RenderQueue& queue, const std::string& reqstr)

@@ -19,9 +19,9 @@
 #include "error.hh"
 #include "proxy.hh"
 #include "ctr.hh"
+#include "log.hh"
 
 #include <3rd/json.hh>
-#include <3rd/log.hh>
 #include <malloc.h>
 
 #define SOC_ALIGN       0x100000
@@ -73,7 +73,7 @@ static Result basereq(const std::string& url, std::string& data, HTTPC_RequestMe
 
 	u32 status = 0;
 	TRY(httpcGetResponseStatusCode(&ctx, &status));
-	lverbose << "API status code on " << url << ": " << status;
+	vlog("API status code on %s: %lu", url.c_str(), status);
 
 	// Do we want to redirect?
 	if(status / 100 == 3)
@@ -82,7 +82,7 @@ static Result basereq(const std::string& url, std::string& data, HTTPC_RequestMe
 		TRY(httpcGetResponseHeader(&ctx, "location", newurl, 2048));
 		std::string redir(newurl);
 
-		lverbose << "Redirected to " << redir;
+		vlog("Redirected to %s", redir.c_str());
 		httpcCloseContext(&ctx);
 		return basereq(redir, data, reqmeth);
 	}
@@ -125,8 +125,7 @@ static Result basereq(const std::string& url, std::string& data, HTTPC_RequestMe
 			httpcCloseContext(&ctx);
 			return res;
 		}
-		lverbose << dled;
-		lverbose << std::string(buffer, dled);
+		vlog("|%lu|: %*.s", dled, (int) dled, buffer);
 		data += std::string(buffer, dled);
 	} while(res == (Result) HTTPC_RESULTCODE_DOWNLOADPENDING);
 

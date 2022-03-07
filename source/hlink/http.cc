@@ -16,9 +16,9 @@
  */
 
 #include "panic.hh"
+#include "log.hh"
 
 #include "hlink/http.hh"
-#include "3rd/log.hh"
 
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -291,7 +291,7 @@ void hlink::HTTPRequestContext::serve_file(int status, const std::string& fname,
 			this->serve_404(fname);
 			return;
 		default: /* 500 internal server error */
-			lerror << "Failed to open file " << fname << ", errno=" << errno << " aka " << strerror(errno);
+			elog("Failed to open file %s, errno=%i: %s", fname.c_str(), errno, strerror(errno));
 			this->serve_500();
 			return;
 		}
@@ -481,7 +481,7 @@ static int parse_header(HTTPRequestContext& ctx)
 	lower(name);
 	ctx.headers[name] = value;
 
-	lverbose << "(HTTP) Parsed header |" << name << "|: |" << value << "|";
+	vlog("(HTTP) Parsed header |%s|: |%s|", name.c_str(), value.c_str());
 
 	ctx.buf[of + 1] = nlchr;
 	realize_offset(ctx, of + bufnllen(ctx.buf + of, ctx.buflen - of));
@@ -509,7 +509,7 @@ static void parse_url_params(std::string& path, hlink::HTTPParameters& params)
 		std::string val = "";
 		if(eq != std::string::npos)
 			between(val, path, eq + 1, and_s);
-		lverbose << "(HTTP) Parsed parameter |" << name << "|: |" << val << "|";
+		vlog("(HTTP) Parsed parameter |%s|: |%s|", name.c_str(), val.c_str());
 		params[name] = val;
 		if(and_s == std::string::npos)
 			break; /* no more left */
@@ -557,7 +557,7 @@ int hlink::HTTPServer::make_reqctx(HTTPRequestContext& ctx)
 	/* we don't care about the version */
 	realize_offset(ctx, of + bufnllen(ctx.buf + of, ctx.buflen - of));
 
-	lverbose << "(HTTP) Parsed request line; method=" << ctx.method << ",path=" << ctx.path;
+	vlog("(HTTP) Parsed request line; method=%s,path=%s", ctx.method.c_str(), ctx.path.c_str());
 
 	/* parse headers */
 	int res;

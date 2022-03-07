@@ -56,6 +56,9 @@ void show_more()
 		.connect(ui::MenuSelect::add, "hLink", show_hlink)
 #endif
 		.add_to(queue);
+	ui::builder<ui::ButtonCallback>(ui::Screen::top, KEY_START)
+		.connect(ui::ButtonCallback::kdown, [](u32) -> bool { exit(0); return false; })
+		.add_to(queue);
 
 	queue.render_finite_button(KEY_B);
 	set_focus(focus);

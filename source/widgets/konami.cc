@@ -17,9 +17,8 @@
 #include "widgets/konami.hh"
 #include "i18n.hh"
 
-#include <3rd/log.hh>
 
-#define KONCODE_SIZE (sizeof(konKeys) / sizeof(size_t))
+#define KONCODE_SIZE (sizeof(konKeys) / sizeof(u32))
 static const u32 konKeys[] = {
 	KEY_UP, KEY_UP, KEY_DOWN, KEY_DOWN,
 	KEY_LEFT, KEY_RIGHT, KEY_LEFT, KEY_RIGHT,
@@ -46,7 +45,6 @@ bool ui::KonamiListner::render(const ui::Keys& keys)
 
 void ui::KonamiListner::show_bunny()
 {
-	linfo << "User found easter egg :blobaww:";
 	ui::RenderQueue queue;
 
 	ui::builder<ui::Sprite>(ui::Screen::top, ui::SpriteStore::get_by_id(ui::sprite::bun))

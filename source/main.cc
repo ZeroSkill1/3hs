@@ -23,9 +23,6 @@
 #include <widgets/konami.hh>
 #include <widgets/meta.hh>
 
-#include <3rd/plog/Appenders/ColorConsoleAppender.h>
-#include <3rd/log.hh>
-
 #include "lumalocale.hh"
 #include "installgui.hh"
 #include "settings.hh"
@@ -43,18 +40,8 @@
 #include "i18n.hh"
 #include "seed.hh"
 #include "util.hh"
+#include "log.hh"
 
-#ifdef RELEASE
-# define LOG_LEVEL plog::info
-#else
-# define LOG_LEVEL plog::verbose
-#endif
-
-#include <ui/base.hh>
-
-#ifndef RELEASE
-static plog::ColorConsoleAppender<plog::TxtFormatter> colorAppender(plog::streamStdErr);
-#endif
 
 #ifndef RELEASE
 class FrameCounter : public ui::BaseWidget
@@ -117,6 +104,7 @@ private:
 
 static void deinit_all()
 {
+	log_exit();
 	hsapi::global_deinit();
 	ui::exit();
 	exit_services();
@@ -127,21 +115,14 @@ int main(int argc, char* argv[])
 	((void) argc);
 	((void) argv);
 
-	plog::init(LOG_LEVEL, LOGFILE);
-	linfo << "version=" VVERSION;
-
-#ifndef RELEASE
-	// Colored logs appender for gdb
-	consoleDebugInit(debugDevice_SVC);
-	plog::get()->addAppender(&colorAppender);
-#endif
-
+	log_init();
+	ilog("version=" VVERSION);
 
 	bool isLuma = false;
 	panic_if_err_3ds(init_services(isLuma));
 	if(!ui::init())
 	{
-		lfatal << "ui::init() failed, this should **never** happen";
+		flog("ui::init() failed, this should **never** happen");
 		exit_services();
 		exit(0);
 	}
@@ -152,7 +133,7 @@ int main(int argc, char* argv[])
 	// 2. Other cfw used; not supported
 	if(!isLuma)
 	{
-		lfatal << "Luma3DS is not installed, user is using an unsupported CFW or running in Citra";
+		flog("Luma3DS is not installed, user is using an unsupported CFW or running in Citra");
 		ui::RenderQueue queue;
 
 		ui::builder<ui::Text>(ui::Screen::top, STRING(luma_not_installed))
@@ -264,7 +245,7 @@ int main(int argc, char* argv[])
 	// DRM Check failed
 	if(devid != DEVICE_ID)
 	{
-		lerror << "Piracyception";
+		flog("Piracyception");
 		(* (int *) nullptr) = 0xdeadbeef;
 	}
 #endif
@@ -272,7 +253,7 @@ int main(int argc, char* argv[])
 
 	if(!hsapi::global_init())
 	{
-		lfatal << "hsapi::global_init() failed";
+		flog("hsapi::global_init() failed");
 		panic(STRING(fail_init_networking));
 		exit(0);
 	}
@@ -281,10 +262,10 @@ int main(int argc, char* argv[])
 
 #ifdef RELEASE
 	// If we updated ...
-	llog << "Checking for updates";
+	ilog("Checking for updates");
 	if(update_app())
 	{
-		llog << "Updated from " VERSION;
+		ilog("Updated from " VERSION);
 		exit(0);
 	}
 #endif
@@ -292,7 +273,7 @@ int main(int argc, char* argv[])
 	while(R_FAILED(hsapi::call(hsapi::fetch_index)))
 		show_more();
 
-	lverbose << "Done fetching index.";
+	vlog("Done fetching index.");
 
 	size_t catptr = 0, subptr = 0, gamptr = 0;
 	const std::string *associatedcat = nullptr;
@@ -306,7 +287,7 @@ cat:
 		const std::string *cat = next::sel_cat(&catptr);
 		// User wants to exit app
 		if(cat == next_cat_exit) break;
-		llog << "NEXT(c): " << *cat;
+		ilog("NEXT(c): %s", cat->c_str());
 
 sub:
 		if(associatedcat != cat) subptr = 0;
@@ -315,7 +296,7 @@ sub:
 		const std::string *sub = next::sel_sub(*cat, &subptr);
 		if(sub == next_sub_back) goto cat;
 		if(sub == next_sub_exit) break;
-		llog << "NEXT(s): " << *sub;
+		ilog("NEXT(s): %s", sub->c_str());
 
 		if(associatedsub != sub)
 		{
@@ -332,7 +313,7 @@ gam:
 		if(id == next_gam_back) goto sub;
 		if(id == next_gam_exit) break;
 
-		llog << "NEXT(g): " << id;
+		ilog("NEXT(g): %lli", id);
 
 		hsapi::FullTitle meta;
 		if(show_extmeta_lazy(titles, id, &meta))
@@ -341,7 +322,7 @@ gam:
 		goto gam;
 	}
 
-	llog << "Goodbye, app deinit";
+	ilog("Goodbye, app deinit");
 	exit(0);
 }
 

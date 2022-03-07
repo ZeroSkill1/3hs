@@ -17,27 +17,26 @@
 #include "log_view.hh"
 #include "util.hh"
 #include "i18n.hh"
+#include "log.hh"
 
 #include <ui/menuselect.hh>
 #include <ui/loading.hh>
 #include <ui/base.hh>
-#include <3rd/log.hh>
 #include <string>
 
 
 // Gonna have to wait until hsite v3 releases
+#ifndef RELEASE
 static void upload_logs()
 {
 	ui::notice("TODO");
 }
+#endif
 
 static void clear_logs()
 {
 	ui::loading([]() -> void {
-		remove(LOGFILE);
-		/* appender 0 is our file appender */
-		plog::get()->getAppender<plog::RollingFileAppender<plog::TxtFormatter>>(0)
-			->setFileName(LOGFILE); /* reload logfile */
+		log_del();
 	});
 }
 

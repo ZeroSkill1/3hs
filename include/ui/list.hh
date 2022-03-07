@@ -18,7 +18,6 @@
 #define inc_ui_list_hh
 
 #include <functional>
-#include <3rd/log.hh>
 
 #include <ui/base.hh>
 #include <panic.hh>

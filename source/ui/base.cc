@@ -15,7 +15,6 @@
  */
 
 #include <ui/base.hh>
-#include <3rd/log.hh>
 #include <panic.hh>
 
 #include "i18n.hh"

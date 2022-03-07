@@ -25,9 +25,8 @@
 #include "i18n.hh"
 #include "util.hh"
 #include "ctr.hh"
+#include "log.hh"
 
-/* for some reason it complains about svcGetThreadPriority() if i put this at the top??? */
-#include <3rd/log.hh>
 
 enum class extmeta_return { yes, no, none };
 
@@ -185,7 +184,7 @@ bool show_extmeta_lazy(const hsapi::Title& base, hsapi::FullTitle *full)
 	/* second thread returned more data */
 	if(res == extmeta_return::none)
 	{
-		linfo << "Lazy load finished before choice was made.";
+		dlog("Lazy load finished before choice was made.");
 		queue.clear();
 		res = extmeta(queue, base, version, prodcode);
 	}

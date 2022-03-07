@@ -16,8 +16,6 @@
 
 #include "update.hh"
 
-#include <3rd/log.hh>
-
 #include <ui/confirm.hh>
 #include <ui/base.hh>
 
@@ -26,13 +24,14 @@
 #include "hsapi.hh"
 #include "queue.hh"
 #include "i18n.hh"
+#include "log.hh"
 
 
 bool update_app()
 {
 	if(envIsHomebrew())
 	{
-		linfo << "Used 3dsx version. Not checking for updates";
+		ilog("Used 3dsx version. Not checking for updates");
 		return false;
 	}
 
@@ -40,7 +39,7 @@ bool update_app()
 	if(R_FAILED(hsapi::get_latest_version_string(nver)))
 		return false; // We will then error at index
 
-	linfo << "Fetched new version " << nver << ", current version is " << VERSION;
+	dlog("Fetched new version %s", nver.c_str());
 	if(nver == VERSION)
 		return false;
 
@@ -54,14 +53,14 @@ bool update_app()
 
 	if(!update)
 	{
-		linfo << "User declined update";
+		ilog("User declined update");
 		return false;
 	}
 
 	u64 tid = 0x0; Result res = 0;
 	if(R_FAILED(res = APT_GetProgramID(&tid)))
 	{
-		lerror << "APT_GetProgramID(...): " << std::hex << res;
+		elog("APT_GetProgramID(...): %08lX", res);
 		return false;
 	}
 

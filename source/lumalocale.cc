@@ -18,8 +18,7 @@
 #include "settings.hh"
 #include "util.hh"
 #include "ctr.hh"
-
-#include <3rd/log.hh>
+#include "log.hh"
 
 #include <ui/smdhicon.hh>
 #include <ui/selector.hh>
@@ -239,14 +238,14 @@ void luma::set_locale(u64 tid)
 	if(get_settings()->lumalocalemode == LumaLocaleMode::automatic)
 	{
 		langstr = get_auto_lang_str(smdh);
-		linfo << "(lumalocale) Automatically deduced " << regstr << " " << langstr;
+		ilog("(lumalocale) Automatically deduced %s %s", regstr, langstr);
 	}
 	else if(get_settings()->lumalocalemode == LumaLocaleMode::manual)
 	{
 		langstr = get_manual_lang_str(smdh);
 		/* cancelled the selection */
 		if(langstr[0] == '\0') goto del_smdh;
-		linfo << "(lumalocale) Manually selected " << regstr << " " << langstr;
+		ilog("(lumalocale) Manually selected %s %s", regstr, langstr);
 	}
 
 	write_file(tid, regstr, langstr);

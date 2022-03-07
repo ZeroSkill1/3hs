@@ -15,12 +15,12 @@
  * this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <3rd/log.hh>
 #include <3ds.h>
 
 #include <map>
 
 #include "error.hh"
+#include "log.hh"
 
 // Lookup maps
 
@@ -342,15 +342,16 @@ std::string format_err(const std::string& msg, Result code)
 
 void report_error(error_container& container, std::string note)
 {
-	lerror << "===========================";
-	lerror << "| ERROR REPORT            |";
-	lerror << "===========================";
-	if(note != "") { lerror << "Note        : " << note; }
-	lerror << "Result Code : 0x" << pad8code(container.full);
-	lerror << "Description : " << format_err(container.sDesc, container.iDesc);
-	lerror << "Module      : " << format_err(container.sMod, container.iMod);
-	lerror << "Level       : " << format_err(container.sLvl, container.iLvl);
-	lerror << "Summary     : " << format_err(container.sSum, container.iSum);
-	lerror << "===========================";
+	elog("===========================");
+	elog("| ERROR REPORT            |");
+	elog("===========================");
+if(note != "") {
+	elog("Note        : %s",            note.c_str()); }
+	elog("Result Code : 0x%08lX",       container.full);
+	elog("Description : %s (0x%08lX)",  container.sDesc.c_str(), container.iDesc);
+	elog("Module      : %s (0x%08lX)",  container.sMod.c_str(), container.iMod);
+	elog("Level       : %s (0x%08lX)",  container.sLvl.c_str(), container.iLvl);
+	elog("Summary     : %s (0x%08lX)",  container.sSum.c_str(), container.iSum);
+	elog("===========================");
 }
 
