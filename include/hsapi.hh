@@ -151,6 +151,7 @@ namespace hsapi
 			if(R_FAILED(res)) // Ask if we want to retry
 			{
 				error_container err = get_error(res);
+				report_error(err);
 				handle_error(err);
 
 				ui::RenderQueue queue; bool cont = true;

@@ -8,5 +8,3 @@ Credits to ihaveamac for the seeddb
 
 nlohmann::json is licensed under MIT (see: LICENSE.nlohann-json.TXT)
 
-plog is licensed under MPLv2 (see: LICENSE.plog.TXT). plog was modified to add 3ds support
-
