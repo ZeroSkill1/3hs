@@ -205,7 +205,7 @@ static Result i_install_resume_loop(get_url_func get_url, Handle ciaHandle, prog
 			}
 
 			hidScanInput();
-			if(hidKeysDown() & (KEY_B | KEY_START))
+			if(!aptMainLoop() || (hidKeysDown() & (KEY_B | KEY_START)))
 			{
 				data.itc = ITC::exit;
 				break;
@@ -287,12 +287,16 @@ Result install::net_cia(get_url_func get_url, hsapi::htid tid, prog_func prog, b
 	{
 		AM_CancelCIAInstall(cia);
 		svcCloseHandle(cia);
+		if(!aptMainLoop())
+			exit(0);
 		return ret;
 	}
 
 	ret = AM_FinishCiaInstall(cia);
 	svcCloseHandle(cia);
 	ilog("AM_FinishCiaInstall(...): 0x%08lX", ret);
+	if(!aptMainLoop())
+		exit(0);
 
 	return ret;
 }

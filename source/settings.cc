@@ -17,6 +17,7 @@
 #include "settings.hh"
 
 #include <widgets/indicators.hh>
+#include <ui/theme.hh>
 
 #include <ui/selector.hh>
 #include <ui/swkbd.hh>
@@ -296,6 +297,7 @@ static void update_settings_ID(SettingsId ID)
 	// Boolean
 	case ID_LightMode:
 		g_settings.isLightMode = !g_settings.isLightMode;
+		ui::ThemeManager::global()->reget();
 		break;
 	case ID_Resumable:
 		g_settings.resumeDownloads = !g_settings.resumeDownloads;
@@ -346,18 +348,15 @@ static void update_settings_ID(SettingsId ID)
 		break;
 	case ID_Proxy:
 		show_update_proxy();
-		proxy::write();
 		break;
 	}
-
-	save_settings();
 }
 
 void show_settings()
 {
 	std::vector<SettingInfo> settingsInfo =
 	{
-//		{ STRING(light_mode)     , STRING(light_mode_desc)     , ID_LightMode  }, // TODO
+		{ STRING(light_mode)     , STRING(light_mode_desc)     , ID_LightMode  },
 		{ STRING(resume_dl)      , STRING(resume_dl_desc)      , ID_Resumable  },
 		{ STRING(load_space)     , STRING(load_space_desc)     , ID_FreeSpace  },
 		{ STRING(show_battery)   , STRING(show_battery_desc)   , ID_Battery    },
@@ -411,5 +410,8 @@ void show_settings()
 
 	queue.render_finite_button(KEY_B);
 	set_focus(focus);
+
+	save_settings();
+	proxy::write();
 }
 

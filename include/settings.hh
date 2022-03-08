@@ -20,6 +20,7 @@
 #include "i18n.hh"
 
 #define SETTINGS_LOCATION "/3ds/3hs/settings"
+#define DICOLOR(light, dark) (get_settings()->isLightMode ? light : dark)
 
 // 24h is superior but we'll allow 12h
 // because we care about customizability
@@ -42,7 +43,7 @@ enum class LumaLocaleMode
 typedef struct Settings
 {
 	char magic[4] = { '3', 'H', 'S', 'S' };
-	bool isLightMode = false;
+	bool isLightMode = true;
 	bool resumeDownloads = true;
 	bool loadFreeSpace = true;
 	bool showBattery = true;

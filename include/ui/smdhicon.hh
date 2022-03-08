@@ -24,6 +24,7 @@
 
 namespace ui
 {
+	UI_SLOTS_PROTO_EXTERN(SMDHIcon_color)
 	class SMDHIcon : public ui::BaseWidget
 	{ UI_WIDGET("SMDHIcon")
 	public:
@@ -43,6 +44,7 @@ namespace ui
 
 
 	private:
+		UI_SLOTS_PROTO(SMDHIcon_color, 1)
 		bool drawBorder = false;
 		C2D_DrawParams params;
 		C2D_Image img;

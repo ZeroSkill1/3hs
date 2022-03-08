@@ -36,6 +36,7 @@ namespace ui
 	std::string up_to_mib_serialize(u64, u64);
 	std::string up_to_mib_postfix(u64);
 
+	UI_SLOTS_PROTO_EXTERN(ProgressBar_color)
 	class ProgressBar : public ui::BaseWidget
 	{ UI_WIDGET("ProgressBar")
 	public:
@@ -59,6 +60,8 @@ namespace ui
 
 
 	private:
+		UI_SLOTS_PROTO(ProgressBar_color, 3)
+
 		void update_state();
 
 		bool activated = false;

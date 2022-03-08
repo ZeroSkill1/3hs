@@ -21,6 +21,8 @@
 // our enum later
 #include "build/next.h"
 
+#include <ui/theme.hh>
+
 #include <citro3d.h>
 #include <citro2d.h>
 #include <3ds.h>
@@ -34,13 +36,17 @@
 #define UI_WIDGET(name) \
 	public: \
 		using ui::BaseWidget::BaseWidget; \
-		const char *className = name; \
+		static constexpr const char *id = name; \
+		const char *get_id() override { return name; } \
 	private:
 
 #define UI_REQUIRES_METHOD_VARIADIC(T, VarTs, method, Signature) \
 	template<typename ... VarTs, typename = std::enable_if<detail::has_##method<T, Signature>::value>>
 #define UI_REQUIRES_METHOD(T, method, Signature) \
 	template<typename = std::enable_if<detail::has_##method<T, Signature>::value>>
+
+#define UI_COLOR(r,g,b,a) \
+	0x##a##b##g##r
 
 // Button glyphs
 #define UI_GLYPH_A "\uE000"
@@ -120,8 +126,6 @@ namespace ui
 #undef next_settings_dark_idx
 		settings_light = next_settings_light_idx,
 #undef next_settings_light_idx
-		spinner = next_spinner_idx,
-#undef next_spinner_idx
 		net_discon = next_net_discon_idx,
 #undef next_net_discon_idx
 		net_0 = next_net_0_idx,
@@ -134,6 +138,10 @@ namespace ui
 #undef next_net_3_idx
 		gplv3 = next_gplv3_idx,
 #undef next_gplv3_idx
+		spinner_dark = next_spinner_dark_idx,
+#undef next_spinner_dark_idx
+		spinner_light = next_spinner_light_idx,
+#undef next_spinner_light_idx
 	};
 
 	struct Keys
@@ -178,6 +186,10 @@ namespace ui
 	/* [msg]\nPress [A] to continue */
 	void notice(const std::string& msg);
 
+	u32 color_button();
+	u32 color_text();
+	u32 color_bg();
+
 	/* base widget class */
 	class BaseWidget
 	{
@@ -210,6 +222,8 @@ namespace ui
 		virtual float height() = 0;
 		virtual float width() = 0;
 
+		virtual const char *get_id() = 0;
+
 		virtual float get_x() { return this->x; }
 		virtual float get_y() { return this->y; }
 		virtual float get_z() { return this->z; }
@@ -221,6 +235,9 @@ namespace ui
 
 		bool matches_tag(int t) { return this->tag == t; }
 		void set_tag(int t) { this->tag = t; }
+
+		virtual void update_theme_hook() { }
+		virtual bool supports_theme_hook() { return false; }
 
 
 	protected:
@@ -457,6 +474,7 @@ namespace ui
 
 	};
 
+	UI_SLOTS_PROTO_EXTERN(Text_color)
 	class Text : public ui::BaseWidget
 	{ UI_WIDGET("Text")
 	public:
@@ -481,6 +499,8 @@ namespace ui
 
 
 	private:
+		UI_SLOTS_PROTO(Text_color, 2)
+
 		void push_str(const std::string& str);
 		void prepare_arrays();
 		void reset_scroll();
@@ -508,7 +528,9 @@ namespace ui
 	class Sprite : public ui::BaseWidget
 	{ UI_WIDGET("Sprite")
 	public:
-		void setup(C2D_Sprite sprite);
+		void setup(const C2D_Sprite& light, const C2D_Sprite& dark);
+		void setup(const C2D_Sprite& sprite);
+		void destroy() override;
 
 		bool render(const ui::Keys&) override;
 		float height() override;
@@ -518,22 +540,35 @@ namespace ui
 		void set_y(float y) override;
 		void set_z(float z) override;
 
-		void set_sprite(C2D_Sprite sprite);
+		void set_sprite(const C2D_Sprite& sprite);
 		void set_center(float x, float y);
 		void rotate(float degs);
 
+		void update_theme_hook() override;
+		bool supports_theme_hook() override;
+
+		inline C2D_Sprite& get_sprite() { return this->sprite; }
+
 
 	private:
+		enum flags {
+			flag_darklight = 1
+		};
+
 		C2D_Sprite sprite;
+		C2D_Sprite second;
+		u8 flags = 0;
 
 
 	};
 
+	UI_SLOTS_PROTO_EXTERN(Button_colors)
 	class Button : public ui::BaseWidget
 	{ UI_WIDGET("Button")
 	public:
 		using click_cb_t = std::function<bool()>;
 
+		void setup(const C2D_Sprite& light, const C2D_Sprite& dark);
 		void setup(const std::string& label);
 		void setup(const C2D_Sprite& sprite);
 		void destroy() override;
@@ -566,6 +601,8 @@ namespace ui
 
 
 	private:
+		UI_SLOTS_PROTO(Button_colors, 2)
+
 		click_cb_t on_click = []() -> bool { return true; };
 		bool showBg = true, showBorder = false;
 		ui::BaseWidget *widget = nullptr;

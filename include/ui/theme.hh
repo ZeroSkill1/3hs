@@ -1,0 +1,71 @@
+
+#ifndef inc_ui_theme_hh
+#define inc_ui_theme_hh
+
+#include <unordered_map>
+#include <3ds/types.h>
+#include <stddef.h>
+#include <string>
+#include <vector>
+
+#define UI_SLOTS_PROTO_EXTERN(name) \
+	extern ui::slot_color_getter *name##__do_not_touch;
+#define UI_SLOTS_PROTO(name, count) \
+	ui::SlotManager slots = ui::ThemeManager::global()->get_slots(this, id, count, name##__do_not_touch);
+#define UI_SLOTS__3(line, name, ...) \
+	static ui::slot_color_getter _slot_data__do_not_touch##line[] = { __VA_ARGS__ }; \
+	ui::slot_color_getter *name##__do_not_touch = _slot_data__do_not_touch##line;
+#define UI_SLOTS__2(line, name, ...) \
+	UI_SLOTS__3(line, name, __VA_ARGS__)
+#define UI_SLOTS(name, ...) \
+	UI_SLOTS__2(__LINE__, name, __VA_ARGS__)
+
+
+namespace ui
+{
+	typedef u32 (*slot_color_getter)();
+	class BaseWidget;
+
+	class SlotManager
+	{
+	public:
+		SlotManager(const u32 *colors)
+			: colors(colors) { }
+		/* no bounds checking! */
+		inline u32 get(size_t i) { return this->colors[i]; }
+	private:
+		const u32 *colors;
+	};
+
+
+	class ThemeManager
+	{
+	public:
+		ui::SlotManager get_slots(BaseWidget *that, const char *id, size_t count, const slot_color_getter *getters);
+		void reget(const char *id);
+		void reget();
+
+		/* XXX: Is there really not better way to go around this than a pointer vector?
+		 *      I feel there must be, but i just don't know how. For now, this will do. */
+		void unregister(ui::BaseWidget *w);
+
+		static ui::ThemeManager *global();
+
+		~ThemeManager();
+
+
+	public:
+		struct slot_data {
+			const slot_color_getter *getters;
+			std::vector<BaseWidget *> slaves;
+			u32 *colors; /* of size len */
+			size_t len;
+		};
+		std::unordered_map<std::string, slot_data> slots;
+
+
+	};
+}
+
+#endif
+

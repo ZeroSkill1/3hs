@@ -145,8 +145,8 @@ std::string ui::TimeIndicator::time(time_t now)
 		constexpr int size = 3 /* hh: */ + 3 /* mm: */ + 2 /* ss */ + 3 /* " PM"/" AM" */ + 1 /* NULL term */;
 		char str[size];
 
-		// Why do i have to write branching code
-		// for this shit hour format
+		// Why do i have to write extra code
+		// for this shitty hour format
 		// 24h is so neat but NO we americans:tm: must
 		// use an anoying version because ???
 		// i get its easier to read for humans
@@ -185,6 +185,10 @@ std::string ui::TimeIndicator::time(time_t now)
 
 /* BatteryIndicator */
 
+static u32 color_green() { return DICOLOR(UI_COLOR(00,FF,00,FF), UI_COLOR(00,A2,00,FF)); }
+static u32 color_red() { return DICOLOR(UI_COLOR(FF,00,00,FF), UI_COLOR(DA,00,00,FF)); }
+UI_SLOTS(ui::BatteryIndicator_color, color_green, color_red)
+
 void ui::BatteryIndicator::setup()
 {
 	ui::builder<ui::Text>(this->screen)
@@ -192,7 +196,7 @@ void ui::BatteryIndicator::setup()
 		.y(5.0f)
 		.tag(TAG_PERC)
 		.add_to(this->queue);
-	ui::builder<ui::Sprite>(this->screen, ui::SpriteStore::get_by_id(ui::sprite::battery_dark))
+	ui::builder<ui::Sprite>(this->screen, ui::SpriteStore::get_by_id(ui::sprite::battery_light), ui::SpriteStore::get_by_id(ui::sprite::battery_dark))
 		.x(ui::screen_width(ui::Screen::top) - 37.0f)
 		.y(5.0f)
 		.tag(TAG_FG)
@@ -229,8 +233,7 @@ bool ui::BatteryIndicator::render(const ui::Keys& keys)
 
 		float width = lvl2batlvl(this->level) * 5.0f;
 		C2D_DrawRectSolid(ui::screen_width(ui::Screen::top) - 13.0f - width, 7.0f, 0.0f,
-			width, 12.0f, this->level == 1 ? C2D_Color32f(0xDA, 0x00, 0x00, 0xFF)
-			: C2D_Color32f(0x00, 0xA2, 0x00, 0xFF));
+			width, 12.0f, this->level == 1 ? this->slots.get(1) : this->slots.get(0));
 		this->queue.render_top(keys);
 	}
 #else

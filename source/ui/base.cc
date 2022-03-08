@@ -17,6 +17,7 @@
 #include <ui/base.hh>
 #include <panic.hh>
 
+#include "settings.hh"
 #include "i18n.hh"
 
 /* internal constants */
@@ -121,6 +122,10 @@ void ui::notice(const std::string& msg)
 	queue.render_finite_button(KEY_A | KEY_START);
 }
 
+u32 ui::color_button() { return DICOLOR(UI_COLOR(DE,DE,DE,FF), UI_COLOR(32,35,36,FF)); }
+u32 ui::color_text() { return DICOLOR(UI_COLOR(00,00,00,FF), UI_COLOR(FF,FF,FF,FF)); }
+u32 ui::color_bg() { return DICOLOR(UI_COLOR(FF,FF,FF,FF), UI_COLOR(1C,20,21,FF)); }
+
 void ui::init(C3D_RenderTarget *top, C3D_RenderTarget *bot)
 {
 	g_spritestore.open(SPRITESHEET_PATH);
@@ -204,8 +209,10 @@ bool ui::RenderQueue::render_frame(const ui::Keys& keys)
 	C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
 	g_inRender = true;
 
-	C2D_TargetClear(g_top, C2D_Color32(0x1C, 0x20, 0x21, 0xFF)); /* TODO: Theme intergration */
-	C2D_TargetClear(g_bot, C2D_Color32(0x1C, 0x20, 0x21, 0xFF));
+	/* TODO: Put this in some kind of slot manager */
+	u32 bgc = ui::color_bg();
+	C2D_TargetClear(g_top, bgc);
+	C2D_TargetClear(g_bot, bgc);
 	bool ret = true;
 
 	C2D_SceneBegin(g_top);
@@ -345,6 +352,8 @@ C2D_Sprite ui::SpriteStore::get_by_id(ui::sprite id)
 
 /* core widget class Text */
 
+UI_SLOTS(ui::Text_color, ui::color_bg, ui::color_text)
+
 void ui::Text::setup(const std::string& label)
 { this->set_text(label); }
 
@@ -420,8 +429,6 @@ bool ui::Text::render(const ui::Keys& keys)
 {
 	((void) keys);
 
-	/* TODO: Respect theme colors */
-
 	if(this->doScroll)
 	{
 		if(this->sctx.offset > this->sctx.width)
@@ -440,8 +447,7 @@ bool ui::Text::render(const ui::Keys& keys)
 		}
 		else ++this->sctx.timing;
 
-		C2D_DrawRectSolid(0, this->y, 0.1f, this->x, this->sctx.height,
-			C2D_Color32(0x1C, 0x20, 0x21, 0xFF));
+		C2D_DrawRectSolid(0, this->y, 0.1f, this->x, this->sctx.height, this->slots.get(0));
 	}
 
 	for(size_t i = 0; i < this->lines.size(); ++i)
@@ -452,18 +458,18 @@ bool ui::Text::render(const ui::Keys& keys)
 				this->screen);
 
 			C2D_DrawText(&this->lines[i], C2D_WithColor, center,
-				this->y + (this->lineHeigth * i), this->z, this->xsiz, this->ysiz, C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF));
+				this->y + (this->lineHeigth * i), this->z, this->xsiz, this->ysiz, this->slots.get(1));
 		}
 		else if(this->doScroll)
 		{
 
 			C2D_DrawText(&this->lines[i], C2D_WithColor, this->sctx.rx,
-				this->y + (this->lineHeigth * i), this->z, this->xsiz, this->ysiz, C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF));
+				this->y + (this->lineHeigth * i), this->z, this->xsiz, this->ysiz, this->slots.get(1));
 		}
 		else
 		{
 			C2D_DrawText(&this->lines[i], C2D_WithColor, this->x,
-				this->y + (this->lineHeigth * i), this->z, this->xsiz, this->ysiz, C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF));
+				this->y + (this->lineHeigth * i), this->z, this->xsiz, this->ysiz, this->slots.get(1));
 		}
 	}
 
@@ -535,14 +541,43 @@ void ui::Text::set_text(const std::string& label)
 
 /* core widget class Sprite */
 
-void ui::Sprite::setup(C2D_Sprite sprite)
+static u32 sprite_stub() { return 0; }
+static ui::slot_color_getter sprite_stub_a[] = { sprite_stub };
+void ui::Sprite::setup(const C2D_Sprite& light, const C2D_Sprite& dark)
+{
+	const C2D_Sprite *first = &dark, *second = &light;
+	if(get_settings()->isLightMode) { first = &light; second = &dark; }
+	this->sprite = *first;
+	this->second = *second;
+	this->flags |= ui::Sprite::flag_darklight;
+	ui::ThemeManager::global()->get_slots(this, "Sprite", 1, sprite_stub_a);
+}
+
+void ui::Sprite::setup(const C2D_Sprite& sprite)
 {
 	// Compatibility with other methods
 	this->set_center(0.0f, 0.0f);
 	this->sprite = sprite;
 }
 
-void ui::Sprite::set_sprite(C2D_Sprite sprite)
+void ui::Sprite::destroy()
+{
+	if(this->flags & ui::Sprite::flag_darklight)
+	{
+		ui::ThemeManager::global()->unregister(this);
+	}
+}
+
+bool ui::Sprite::supports_theme_hook() { return true; }
+void ui::Sprite::update_theme_hook()
+{ /* only called if this->flags & ui::Sprite::flag_darklight */
+	C2D_Sprite first = this->sprite;
+	this->sprite = this->second;
+	this->second = first;
+	this->sprite.params = first.params;
+}
+
+void ui::Sprite::set_sprite(const C2D_Sprite& sprite)
 {
 	C2D_DrawParams params = this->sprite.params;
 	this->sprite = sprite;
@@ -596,6 +631,20 @@ void ui::Sprite::set_center(float x, float y)
 }
 
 /* core widget class Button */
+
+static u32 button_border_color() { return DICOLOR(UI_COLOR(00,00,00,FF), UI_COLOR(FF,FF,FF,FF)); }
+UI_SLOTS(ui::Button_colors, button_border_color, ui::color_button)
+
+void ui::Button::setup(const C2D_Sprite& light, const C2D_Sprite& dark)
+{
+	ui::Sprite *label = new ui::Sprite(this->screen);
+	label->setup(light, dark);
+	label->set_z(1.0f);
+	label->finalize();
+
+	this->widget = label;
+	this->readjust();
+}
 
 void ui::Button::setup(const std::string& text)
 {
@@ -694,9 +743,8 @@ void ui::Button::readjust()
 
 bool ui::Button::render(const ui::Keys& keys)
 {
-	/* TODO: Listen to theme */
-	if(this->showBorder) C2D_DrawRectSolid(this->x - 1, this->y - 1, 0.0f, this->w + 2, this->h + 2, C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF));
-	if(this->showBg) C2D_DrawRectSolid(this->x, this->y, 0.1f, this->w, this->h, C2D_Color32(0x32, 0x35, 0x36, 0xFF));
+	if(this->showBorder) C2D_DrawRectSolid(this->x - 1, this->y - 1, 0.0f, this->w + 2, this->h + 2, this->slots.get(0));
+	if(this->showBg) C2D_DrawRectSolid(this->x, this->y, 0.1f, this->w, this->h, this->slots.get(1));
 	this->widget->render(keys);
 
 	if(keys.touch.px >= this->x && keys.touch.px <= this->ox &&

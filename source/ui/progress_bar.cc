@@ -15,14 +15,17 @@
  */
 
 #include <ui/progress_bar.hh>
+#include "settings.hh"
 
-#define FG_COLOR C2D_Color32(0x00, 0xD2, 0x03, 0xFF)
-#define BG_COLOR C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF)
 #define TEXT_DIM 0.65f
 #define X_OFFSET 10
 #define Y_OFFSET 30
 #define Y_LEN 30
 
+
+static u32 color_fg() { return DICOLOR(UI_COLOR(D0,D0,D0,FF), UI_COLOR(00,D2,03,FF)); }
+static u32 color_bg() { return DICOLOR(UI_COLOR(DE,DE,DE,FF), UI_COLOR(FF,FF,FF,FF)); }
+UI_SLOTS(ui::ProgressBar_color, ui::color_text, color_fg, color_bg)
 
 std::string ui::up_to_mib_serialize(u64 n, u64 largest)
 {
@@ -62,18 +65,18 @@ void ui::ProgressBar::destroy()
 bool ui::ProgressBar::render(const ui::Keys& keys)
 {
 	((void) keys);
-	C2D_DrawRectSolid(this->x, this->y, this->z, this->outerw, Y_LEN, BG_COLOR);
+	C2D_DrawRectSolid(this->x, this->y, this->z, this->outerw, Y_LEN, this->slots.get(2));
 
 	// Overlay actual process
 	if(this->w != 0)
-		C2D_DrawRectSolid(X_OFFSET + 2, this->y + 2, this->z, this->w, Y_LEN - 4, FG_COLOR);
+		C2D_DrawRectSolid(X_OFFSET + 2, this->y + 2, this->z, this->w, Y_LEN - 4, this->slots.get(1));
 
 	if(this->activated)
 	{
 		C2D_DrawText(&this->a, C2D_WithColor, X_OFFSET, this->y - Y_LEN + 2,
-			this->z, TEXT_DIM, TEXT_DIM, C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF));
+			this->z, TEXT_DIM, TEXT_DIM, this->slots.get(0));
 		C2D_DrawText(&this->bc, C2D_WithColor, this->bcx, this->y - Y_LEN + 2,
-			this->z, TEXT_DIM, TEXT_DIM, C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF));
+			this->z, TEXT_DIM, TEXT_DIM, this->slots.get(0));
 	}
 
 	return true;

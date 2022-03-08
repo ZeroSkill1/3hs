@@ -20,6 +20,8 @@
 #include "panic.hh"
 #include "i18n.hh"
 
+static u32 color_border() { return UI_COLOR(00,00,00,FF); }
+UI_SLOTS(ui::SMDHIcon_color, color_border)
 
 void ui::SMDHIcon::setup(ctr::TitleSMDH *smdh, SMDHIconType type)
 {
@@ -88,10 +90,9 @@ bool ui::SMDHIcon::render(const ui::Keys& keys)
 	((void) keys);
 	if(this->drawBorder)
 	{
-		/* TODO: Set border color in theme */
 		C2D_DrawRectSolid(this->x - 1.0f, this->y - 1.0f, 0.0f,
 			this->params.pos.w + 2.0f, this->params.pos.h + 2.0f,
-			C2D_Color32(0x00, 0x00, 0x00, 0xFF));
+			this->slots.get(0));
 	}
 	C2D_DrawImage(this->img, &this->params, nullptr);
 	return true;

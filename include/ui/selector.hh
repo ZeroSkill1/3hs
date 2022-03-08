@@ -27,7 +27,6 @@ namespace ui
 {
 	namespace constants
 	{
-		constexpr u32   SEL_CLR = C2D_Color32(0x32, 0x35, 0x36, 0xFF);
 		constexpr float SEL_LABEL_HEIGHT = 30.0f;
 		constexpr float SEL_LABEL_WIDTH = 200.0f;
 		constexpr float SEL_TRI_WIDTH = 30.0f;
@@ -58,6 +57,11 @@ namespace ui
 			this->x = (ui::screen_width(this->screen) - SEL_LABEL_WIDTH) / 2;
 			this->y = (ui::dimensions::height - SEL_LABEL_HEIGHT) / 2;
 			this->assign_txty();
+
+			static ui::slot_color_getter getters[] = {
+				ui::color_button, ui::color_text
+			};
+			this->slots = ui::ThemeManager::global()->get_slots(this, "Selector", 2, getters);
 		}
 
 		void set_x(float) override { } /* stub */
@@ -70,7 +74,6 @@ namespace ui
 
 		bool render(const ui::Keys& keys) override
 		{
-			/* TODO: Theme support */
 			/* TODO: Make triangles clickable */
 			using namespace constants;
 
@@ -78,17 +81,17 @@ namespace ui
 			// So it is recommended to do something else
 
 			// Draw box for label..
-			C2D_DrawRectSolid(this->x, this->y, this->z, SEL_LABEL_WIDTH, SEL_LABEL_HEIGHT, SEL_CLR);
+			C2D_DrawRectSolid(this->x, this->y, this->z, SEL_LABEL_WIDTH, SEL_LABEL_HEIGHT, this->slots.get(0));
 
 			// Draw triangles for next/prev...
-			C2D_DrawTriangle(this->x - SEL_TRI_WIDTH, (SEL_LABEL_HEIGHT / 2) + this->y, SEL_CLR, this->x - SEL_TRI_PAD, this->y, SEL_CLR,
-				this->x - SEL_TRI_PAD, this->y + SEL_LABEL_HEIGHT, SEL_CLR, this->z); // prev
+			C2D_DrawTriangle(this->x - SEL_TRI_WIDTH, (SEL_LABEL_HEIGHT / 2) + this->y, this->slots.get(0), this->x - SEL_TRI_PAD, this->y, this->slots.get(0),
+				this->x - SEL_TRI_PAD, this->y + SEL_LABEL_HEIGHT, this->slots.get(0), this->z); // prev
 
-			C2D_DrawTriangle(this->x + SEL_LABEL_WIDTH + SEL_TRI_WIDTH, (SEL_LABEL_HEIGHT / 2) + this->y, SEL_CLR, this->x + SEL_LABEL_WIDTH + SEL_TRI_PAD, this->y, SEL_CLR,
-				this->x + SEL_LABEL_WIDTH + SEL_TRI_PAD, this->y + SEL_LABEL_HEIGHT, SEL_CLR, this->z); // next
+			C2D_DrawTriangle(this->x + SEL_LABEL_WIDTH + SEL_TRI_WIDTH, (SEL_LABEL_HEIGHT / 2) + this->y, this->slots.get(0), this->x + SEL_LABEL_WIDTH + SEL_TRI_PAD, this->y, this->slots.get(0),
+				this->x + SEL_LABEL_WIDTH + SEL_TRI_PAD, this->y + SEL_LABEL_HEIGHT, this->slots.get(0), this->z); // next
 
 			// Draw label...
-			C2D_DrawText(&this->labels[this->idx], C2D_WithColor, this->tx, this->ty, this->z, SEL_FONTSIZ, SEL_FONTSIZ, C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF));
+			C2D_DrawText(&this->labels[this->idx], C2D_WithColor, this->tx, this->ty, this->z, SEL_FONTSIZ, SEL_FONTSIZ, this->slots.get(1));
 
 			// Take input...
 			if(keys.kDown & KEY_A)
@@ -136,6 +139,8 @@ namespace ui
 
 
 	private:
+		ui::SlotManager slots { nullptr };
+
 		const std::vector<TEnum> *values;
 		std::vector<C2D_Text> labels;
 		TEnum *res = nullptr;
@@ -179,6 +184,5 @@ namespace ui
 	};
 }
 
-#undef SEL_CLR
 #endif
 

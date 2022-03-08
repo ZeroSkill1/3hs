@@ -164,7 +164,7 @@ int main(int argc, char* argv[])
 		.add_to(ui::RenderQueue::global());
 
 	/* buttons */
-	ui::builder<ui::Button>(ui::Screen::bottom, ui::SpriteStore::get_by_id(ui::sprite::settings_dark))
+	ui::builder<ui::Button>(ui::Screen::bottom, ui::SpriteStore::get_by_id(ui::sprite::settings_light), ui::SpriteStore::get_by_id(ui::sprite::settings_dark))
 		.connect(ui::Button::click, []() -> bool {
 			ui::RenderQueue::global()->render_and_then(show_settings);
 			return true;
@@ -176,7 +176,7 @@ int main(int argc, char* argv[])
 		.tag(ui::tag::settings)
 		.add_to(ui::RenderQueue::global());
 
-	ui::builder<ui::Button>(ui::Screen::bottom, ui::SpriteStore::get_by_id(ui::sprite::more_dark))
+	ui::builder<ui::Button>(ui::Screen::bottom, ui::SpriteStore::get_by_id(ui::sprite::more_light), ui::SpriteStore::get_by_id(ui::sprite::more_dark))
 		.connect(ui::Button::click, []() -> bool {
 			ui::RenderQueue::global()->render_and_then(show_more);
 			return true;
@@ -188,7 +188,7 @@ int main(int argc, char* argv[])
 		.tag(ui::tag::more)
 		.add_to(ui::RenderQueue::global());
 
-	ui::builder<ui::Button>(ui::Screen::bottom, ui::SpriteStore::get_by_id(ui::sprite::search_dark))
+	ui::builder<ui::Button>(ui::Screen::bottom, ui::SpriteStore::get_by_id(ui::sprite::search_light), ui::SpriteStore::get_by_id(ui::sprite::search_dark))
 		.connect(ui::Button::click, []() -> bool {
 			ui::RenderQueue::global()->render_and_then(show_search);
 			return true;

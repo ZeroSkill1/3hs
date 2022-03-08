@@ -33,7 +33,9 @@ static FILE *open_f()
 {
 	mkdir("/3ds", 0777);
 	mkdir("/3ds/3hs", 0777);
-	return log_file = fopen("/3ds/3hs/3hs.log", "a");
+	log_file = fopen("/3ds/3hs/3hs.log", "a");
+	if(log_file) fseek(log_file, 0, SEEK_END);
+	return log_file;
 }
 
 static void write_string(const char *s)
@@ -43,7 +45,13 @@ static void write_string(const char *s)
 	fputs(s, stderr);
 #endif
 
-	if(log_file) fputs(s, log_file);
+	if(log_file)
+	{
+		fputs(s, log_file);
+#ifndef RELEASE
+		fflush(log_file);
+#endif
+	}
 	LightLock_Unlock(&file_lock);
 }
 

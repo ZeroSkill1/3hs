@@ -57,6 +57,7 @@ namespace ui
 
 	};
 
+	UI_SLOTS_PROTO_EXTERN(BatteryIndicator_color)
 	class BatteryIndicator : public ui::BaseWidget
 	{ UI_WIDGET("BatteryIndicator")
 	public:
@@ -68,6 +69,7 @@ namespace ui
 
 
 	private:
+		UI_SLOTS_PROTO(BatteryIndicator_color, 2)
 		ui::RenderQueue queue;
 		u8 level = 0;
 

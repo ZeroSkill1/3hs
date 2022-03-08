@@ -22,6 +22,8 @@
 #include <ui/base.hh>
 #include <panic.hh>
 
+#include "settings.hh"
+
 
 namespace ui
 {
@@ -56,6 +58,11 @@ namespace ui
 			this->pos = 0;
 
 			this->sx = ui::screen_width(this->screen) - scrollbar_width - 5.0f;
+
+			static ui::slot_color_getter getters[] = {
+				ui::color_bg, ui::color_text, this->color_scrollbar
+			};
+			this->slots = ui::ThemeManager::global()->get_slots(this, "List", 3, getters);
 		}
 
 		void destroy()
@@ -145,27 +152,26 @@ builtin_controls_done:
 				? this->amountRows - 1 : this->lines.size());
 			for(size_t i = this->view, j = 0; i < end; ++i, ++j)
 			{
-				// TODO: Theme support
+				u32 color = this->slots.get(1);
 				if(i == this->pos)
 				{
-					constexpr u32 white = C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF);
 					C2D_DrawLine(this->x, this->y + text_spacing * j + selector_offset,
-						white, this->x, this->y + text_spacing * j + this->selh - selector_offset,
-						white, 1.5f, this->z);
+						color, this->x, this->y + text_spacing * j + this->selh - selector_offset,
+						color, 1.5f, this->z);
 				}
 
 				C2D_DrawText(&this->lines[i], C2D_WithColor, this->x + text_offset,
 					this->y + text_spacing * j, this->z, text_size, text_size,
-					C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF));
+					color);
 			}
 
 			/* render scrollbar */
 			if(this->lines.size() > this->amountRows)
 			{
 				C2D_DrawRectSolid(this->sx - 1.0f, 0.0f, this->z, ui::screen_width(this->screen) - this->sx + 1.0f,
-					ui::screen_height(), C2D_Color32(0x1C, 0x20, 0x21, 0xFF));
+					ui::screen_height(), this->slots.get(0));
 				C2D_DrawRectSolid(this->sx, this->sy, this->z, 5.0f, this->sh,
-					C2D_Color32(0x3C, 0x3C, 0x3C, 0xFF));
+					this->slots.get(2));
 			}
 
 			if(keys.kDown & this->keys)
@@ -286,6 +292,8 @@ builtin_controls_done:
 		on_change_type on_change_ = [](List<T> *, size_t) -> void { };
 		to_string_type to_string_ = [](const T&) -> std::string { return ""; };
 
+		ui::SlotManager slots { nullptr };
+
 		size_t charsLeft;
 		size_t capacity;
 		C2D_TextBuf buf;
@@ -363,6 +371,8 @@ builtin_controls_done:
 			return this->lines.size() > this->amountRows
 				? this->lines.size() - this->amountRows + 1 : 0;
 		}
+
+		static u32 color_scrollbar() { return DICOLOR(UI_COLOR(2C,2C,2C,FF), UI_COLOR(3C,3C,3C,FF)); }
 
 
 	};
