@@ -104,7 +104,7 @@ namespace ui
 	};
 
 	/* holds sprite ids used for ui::SpriteStore::get_by_id() */
-	enum class sprite
+	enum class sprite : u32
 	{
 		battery_light = next_battery_light_idx,
 #undef next_battery_light_idx

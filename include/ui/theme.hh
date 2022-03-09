@@ -56,7 +56,7 @@ namespace ui
 
 	public:
 		struct slot_data {
-			const slot_color_getter *getters;
+			const slot_color_getter *getters; /* of size len */
 			std::vector<BaseWidget *> slaves;
 			u32 *colors; /* of size len */
 			size_t len;

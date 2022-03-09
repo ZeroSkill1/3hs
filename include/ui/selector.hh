@@ -74,7 +74,6 @@ namespace ui
 
 		bool render(const ui::Keys& keys) override
 		{
-			/* TODO: Make triangles clickable */
 			using namespace constants;
 
 			// The following maths is very long and cursed
@@ -84,11 +83,31 @@ namespace ui
 			C2D_DrawRectSolid(this->x, this->y, this->z, SEL_LABEL_WIDTH, SEL_LABEL_HEIGHT, this->slots.get(0));
 
 			// Draw triangles for next/prev...
-			C2D_DrawTriangle(this->x - SEL_TRI_WIDTH, (SEL_LABEL_HEIGHT / 2) + this->y, this->slots.get(0), this->x - SEL_TRI_PAD, this->y, this->slots.get(0),
-				this->x - SEL_TRI_PAD, this->y + SEL_LABEL_HEIGHT, this->slots.get(0), this->z); // prev
-
-			C2D_DrawTriangle(this->x + SEL_LABEL_WIDTH + SEL_TRI_WIDTH, (SEL_LABEL_HEIGHT / 2) + this->y, this->slots.get(0), this->x + SEL_LABEL_WIDTH + SEL_TRI_PAD, this->y, this->slots.get(0),
-				this->x + SEL_LABEL_WIDTH + SEL_TRI_PAD, this->y + SEL_LABEL_HEIGHT, this->slots.get(0), this->z); // next
+#define TRI() C2D_DrawTriangle(coords[0], coords[1], this->slots.get(0), coords[2], coords[3], this->slots.get(0), \
+			                         coords[4], coords[5], this->slots.get(0), this->z)
+			u32 kdown = keys.kDown;
+			/*     B
+			 *    /|
+			 * A / |
+			 *   \ |
+			 *    \|
+			 *     C
+			 */
+			float coords[6] = {
+				this->x - SEL_TRI_WIDTH, (SEL_LABEL_HEIGHT / 2) + this->y, // A
+				this->x - SEL_TRI_PAD, this->y,                            // B
+				this->x - SEL_TRI_PAD, this->y + SEL_LABEL_HEIGHT          // C
+			};
+			TRI(); // prev
+			if((keys.kDown & KEY_TOUCH) && keys.touch.px < coords[2])
+				kdown |= KEY_LEFT;
+			coords[0] += SEL_LABEL_WIDTH + 2*SEL_TRI_WIDTH;
+			coords[2] += SEL_LABEL_WIDTH + 2*SEL_TRI_PAD;
+			coords[4] += SEL_LABEL_WIDTH + 2*SEL_TRI_PAD;
+			TRI(); // right
+			if((keys.kDown & KEY_TOUCH) && keys.touch.px > coords[2])
+				kdown |= KEY_RIGHT;
+#undef TRI
 
 			// Draw label...
 			C2D_DrawText(&this->labels[this->idx], C2D_WithColor, this->tx, this->ty, this->z, SEL_FONTSIZ, SEL_FONTSIZ, this->slots.get(1));
@@ -101,10 +120,10 @@ namespace ui
 				return false;
 			}
 
-			if(keys.kDown & KEY_LEFT)
+			if(kdown & (KEY_LEFT | KEY_L))
 				this->wrap_minus();
 
-			if(keys.kDown & KEY_RIGHT)
+			if(kdown & (KEY_RIGHT | KEY_R))
 				this->wrap_plus();
 
 			if(keys.kDown & KEY_B)

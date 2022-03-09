@@ -33,6 +33,8 @@ static ui::SpriteStore g_spritestore;
 /* used for debugging purposes */
 static bool g_inRender = false;
 
+static ui::SlotManager slotmgr { nullptr };
+
 
 /* helpers */
 
@@ -126,12 +128,18 @@ u32 ui::color_button() { return DICOLOR(UI_COLOR(DE,DE,DE,FF), UI_COLOR(32,35,36
 u32 ui::color_text() { return DICOLOR(UI_COLOR(00,00,00,FF), UI_COLOR(FF,FF,FF,FF)); }
 u32 ui::color_bg() { return DICOLOR(UI_COLOR(FF,FF,FF,FF), UI_COLOR(1C,20,21,FF)); }
 
+static ui::slot_color_getter slotmgr_getters[] = {
+	ui::color_bg
+};
+
 void ui::init(C3D_RenderTarget *top, C3D_RenderTarget *bot)
 {
 	g_spritestore.open(SPRITESHEET_PATH);
 
 	g_top = top;
 	g_bot = bot;
+
+	slotmgr = ThemeManager::global()->get_slots(nullptr, "__global_slot_manager", 1, slotmgr_getters);
 }
 
 bool ui::init()
@@ -146,6 +154,7 @@ bool ui::init()
 	g_bot = C2D_CreateScreenTarget(GFX_BOTTOM, GFX_LEFT);
 	g_top = C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
 
+	slotmgr = ThemeManager::global()->get_slots(nullptr, "__global_slot_manager", 1, slotmgr_getters);
 	return true;
 }
 
@@ -209,10 +218,8 @@ bool ui::RenderQueue::render_frame(const ui::Keys& keys)
 	C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
 	g_inRender = true;
 
-	/* TODO: Put this in some kind of slot manager */
-	u32 bgc = ui::color_bg();
-	C2D_TargetClear(g_top, bgc);
-	C2D_TargetClear(g_bot, bgc);
+	C2D_TargetClear(g_top, slotmgr.get(0));
+	C2D_TargetClear(g_bot, slotmgr.get(0));
 	bool ret = true;
 
 	C2D_SceneBegin(g_top);

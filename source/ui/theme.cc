@@ -30,7 +30,7 @@ ui::SlotManager ui::ThemeManager::get_slots(ui::BaseWidget *that, const char *id
 	auto it = this->slots.find(id);
 	if(it != this->slots.end())
 	{
-		if(that->supports_theme_hook())
+		if(that && that->supports_theme_hook())
 			it->second.slaves.push_back(that);
 		return ui::SlotManager(it->second.colors);
 	}
@@ -38,7 +38,7 @@ ui::SlotManager ui::ThemeManager::get_slots(ui::BaseWidget *that, const char *id
 	slot_data slot;
 	slot.colors = (u32 *) malloc(sizeof(u32) * count);
 	slot.getters = getters;
-	if(that->supports_theme_hook())
+	if(that && that->supports_theme_hook())
 		slot.slaves = { that };
 	slot.len = count;
 	fill_colors(slot);
@@ -60,7 +60,7 @@ void ui::ThemeManager::reget(const char *id)
 
 void ui::ThemeManager::reget()
 {
-	for(auto it : this->slots)
+	for(auto& it : this->slots)
 	{
 		fill_colors(it.second);
 		for(size_t i = 0; i < it.second.slaves.size(); ++i)
@@ -70,12 +70,15 @@ void ui::ThemeManager::reget()
 
 void ui::ThemeManager::unregister(ui::BaseWidget *w)
 {
-	for(auto it : this->slots)
+	for(auto& it : this->slots)
 	{
 		for(size_t i = 0; i < it.second.slaves.size(); ++i)
 		{
 			if(it.second.slaves[i] == w)
+			{
 				it.second.slaves.erase(it.second.slaves.begin() + i);
+				return;
+			}
 		}
 	}
 }
