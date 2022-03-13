@@ -116,6 +116,9 @@ static Result basereq(const std::string& url, std::string& data, HTTPC_RequestMe
 
 	do {
 		res = httpcDownloadData(&ctx, (unsigned char *) buffer, sizeof(buffer), &dled);
+		ui::Keys k = ui::RenderQueue::get_keys();
+		if(R_SUCCEEDED(res) && ((k.kDown | k.kHeld) & (KEY_B | KEY_START)))
+			res = APPERR_CANCELLED;
 		// Other type of fail
 		if(R_FAILED(res) && res != (Result) HTTPC_RESULTCODE_DOWNLOADPENDING)
 		{
