@@ -31,6 +31,7 @@
 
 #include "proxy.hh"
 #include "util.hh"
+#include "log.hh"
 
 
 static bool g_loaded = false;
@@ -115,6 +116,17 @@ static const char *localemode2str(LumaLocaleMode mode)
 	}
 
 	return STRING(unknown);
+}
+
+static const char *localemode2str_en(LumaLocaleMode mode)
+{
+	switch(mode)
+	{
+	case LumaLocaleMode::manual: return "manual";
+	case LumaLocaleMode::automatic: return "automatic";
+	case LumaLocaleMode::disabled: return "disabled";
+	}
+	return "unknown";
 }
 
 static std::string serialize_id(SettingsId ID)
@@ -350,6 +362,29 @@ static void update_settings_ID(SettingsId ID)
 		show_update_proxy();
 		break;
 	}
+}
+
+void log_settings()
+{
+#define BOOL(n) g_settings.n ? "true" : "false"
+	ilog("settings dump: "
+		"isLightMode: %s, "
+		"resumeDownloads: %s, "
+		"loadFreeSpace: %s, "
+		"showBattery: %s, "
+		"showNet: %s, "
+		"timeFormat: %i, "
+		"progloc: %s, "
+		"language: %s, "
+		"lumalocalemode: %s, "
+		"askForExtraContent: %s, "
+		"warnNoBase: %s",
+			BOOL(isLightMode), BOOL(resumeDownloads), BOOL(loadFreeSpace),
+			BOOL(showBattery), BOOL(showNet), (int) g_settings.timeFormat,
+			g_settings.progloc == ProgressBarLocation::bottom ? "bottom" : "top",
+			i18n::langname(g_settings.language), localemode2str_en(g_settings.lumalocalemode),
+			BOOL(askForExtraContent), BOOL(warnNoBase));
+#undef BOOL
 }
 
 void show_settings()

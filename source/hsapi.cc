@@ -128,10 +128,10 @@ static Result basereq(const std::string& url, std::string& data, HTTPC_RequestMe
 			httpcCloseContext(&ctx);
 			return res;
 		}
-		vlog("|%lu|: %*.s", dled, (int) dled, buffer);
 		data += std::string(buffer, dled);
 	} while(res == (Result) HTTPC_RESULTCODE_DOWNLOADPENDING);
 
+	vlog("API data gotten:\n%s", data.c_str());
 	httpcCloseContext(&ctx);
 	return OK;
 #undef TRY
@@ -339,7 +339,7 @@ Result hsapi::get_download_link(std::string& ret, const hsapi::Title& meta)
 {
 	json j;
 	Result res = OK;
-	if(R_FAILED(res = basereq<json>(HS_CDN_BASE "/content/request?id=" + std::to_string(meta.id), j)))
+	if(R_FAILED(res = basereq<json>(HS_CDN_BASE "/content/" + std::to_string(meta.id) + "/request", j)))
 		return res;
 	j = j["value"];
 

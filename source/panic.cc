@@ -109,6 +109,9 @@ void handle_error(const error_container& err)
 
 [[noreturn]] static void panic_core(const std::string& caller, ui::RenderQueue& queue)
 {
+	aptSetHomeAllowed(true); /* these might be set otherwise in other parts of the code */
+	C3D_FrameRate(60.0f);
+
 	ui::Text *action = ui::RenderQueue::global()->find_tag<ui::Text>(ui::tag::action);
 	/* panic may be called before core ui is set-up so we can't be sure
 	 * ui::tag::action is already active */

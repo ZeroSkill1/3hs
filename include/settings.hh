@@ -63,6 +63,7 @@ Settings *get_settings();
 void ensure_settings();
 void save_settings();
 void show_settings();
+void log_settings();
 
 #endif
 

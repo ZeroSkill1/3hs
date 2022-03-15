@@ -134,10 +134,15 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 
 static void i_install_loop_thread_cb(Result& res, get_url_func get_url, cia_net_data& data)
 {
-	std::string url = get_url(res);
+	std::string url;
 
 	if(!get_settings()->resumeDownloads)
 	{
+		if((url = get_url(res)) == "")
+		{
+			elog("failed to fetch url: %08lX", res);
+			return;
+		}
 		res = i_install_net_cia(url, &data, 0);
 		return;
 	}
@@ -145,8 +150,9 @@ static void i_install_loop_thread_cb(Result& res, get_url_func get_url, cia_net_
 	// install loop
 	while(true)
 	{
-		if(url != "") // url == "" means we failed to fetch the url
-			res = i_install_net_cia(get_url(res), &data, data.index);
+		url = get_url(res);
+		if(R_SUCCEEDED(res))
+			res = i_install_net_cia(url, &data, data.index);
 
 		// User pressed start
 		if(data.itc == ITC::exit)
@@ -171,7 +177,6 @@ static void i_install_loop_thread_cb(Result& res, get_url_func get_url, cia_net_
 			}
 
 			data.itc = ITC::normal;
-			url = get_url(res);
 			continue;
 		}
 

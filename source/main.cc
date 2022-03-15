@@ -117,6 +117,7 @@ int main(int argc, char* argv[])
 
 	log_init();
 	ilog("version=" VVERSION);
+	log_settings();
 
 	bool isLuma = false;
 	panic_if_err_3ds(init_services(isLuma));
@@ -301,14 +302,13 @@ sub:
 		if(associatedsub != sub)
 		{
 			titles.clear();
+			gamptr = 0;
 			if(R_FAILED(hsapi::call(hsapi::titles_in, titles, *cat, *sub)))
 				goto sub;
+			associatedsub = sub;
 		}
 
 gam:
-		if(associatedsub != sub) gamptr = 0;
-		associatedsub = sub;
-
 		hsapi::hid id = next::sel_gam(titles, &gamptr);
 		if(id == next_gam_back) goto sub;
 		if(id == next_gam_exit) break;
