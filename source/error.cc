@@ -161,7 +161,7 @@ static const std::map<Result, const char *> LVL_LOOKUP({
 /* <sum, msg> */
 static const std::map<Result, const char *> SUM_LOOKUP({
 	{ RS_SUCCESS      , "Success"          },
-	{ RS_NOP          , "Nop"              },
+	{ RS_NOP          , "No operation"     },
 	{ RS_WOULDBLOCK   , "Would block"      },
 	{ RS_OUTOFRESOURCE, "Out of resource"  },
 	{ RS_NOTFOUND     , "Not found"        },

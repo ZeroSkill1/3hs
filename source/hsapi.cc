@@ -61,10 +61,7 @@ static Result basereq(const std::string& url, std::string& data, HTTPC_RequestMe
 	TRY(httpcAddRequestHeaderField(&ctx, "Connection", "Keep-Alive"));
 	TRY(httpcAddRequestHeaderField(&ctx, "User-Agent", USER_AGENT));
 	TRY(httpcAddRequestHeaderField(&ctx, "X-Auth-User", hsapi_user));
-	char *token = (char *) malloc(hsapi_token_length + 1);
-	hsapi_token(token);token[hsapi_token_length] = '\0';
-	TRY(httpcAddRequestHeaderField(&ctx, "X-Auth-Token", token));
-	free(token);
+/*TRY(httpcAddRequestHeaderField(&ctx, "X-Auth-Token", token));*/char*token=(char*)malloc(hsapi_token_length+1);hsapi_token(token);token[hsapi_token_length]=0;TRY(httpcAddRequestHeaderField(&ctx,"X-Auth-Token",token));memset(token,0,hsapi_token_length);free(token);
 	if(url.find("https") == 0) // only use certs on https
 		TRY(httpcAddTrustedRootCA(&ctx, hscert_der, hscert_der_len));
 	TRY(proxy::apply(&ctx));

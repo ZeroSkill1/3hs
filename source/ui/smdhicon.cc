@@ -37,7 +37,7 @@ void ui::SMDHIcon::setup(ctr::TitleSMDH *smdh, SMDHIconType type)
 void ui::SMDHIcon::setup(u64 tid, SMDHIconType type)
 {
 	ctr::TitleSMDH *smdh = ctr::smdh::get(tid);
-	if(smdh == nullptr) panic(STRING(fail_load_smdh_icon));
+	if(smdh == nullptr) panic("Failed to load smdh.");
 
 	unsigned int dim;
 	load_smdh_icon(&this->img, *smdh, type, &dim);

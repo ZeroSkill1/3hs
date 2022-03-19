@@ -1,7 +1,9 @@
 
 v1.0.0:
  - update for new hsite v3 api
- - fix issue where closing the app from home would freeze system
+ - re-add light theme & make it the default
+ - fix issue where closing the app from home would freeze the system
+ - fix issue where spamming toggle on a "true"/"false" setting would crash the system
 
 v0.2.1:
  - fixed net indicator going partly hidden when in a long list

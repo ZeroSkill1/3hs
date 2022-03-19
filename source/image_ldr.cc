@@ -58,7 +58,7 @@ void load_smdh_icon(C2D_Image *ret, const ctr::TitleSMDH& smdh, SMDHIconType typ
 		break;
 
 	default:
-		panic(STRING(fail_load_smdh_icon));
+		panic("EINVAL");
 		return;
 	}
 

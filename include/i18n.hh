@@ -82,7 +82,7 @@ namespace str
 		invalid = 42,
 		title_doesnt_exist = 43, // %1 = tid
 		fail_create_tex = 44,
-		fail_load_smdh_icon = 45,
+		fail_load_smdh_icon = 45, // unused
 		netcon_lost = 46, // %t = seconds left
 		about_app = 47,
 		help_manual = 48,
