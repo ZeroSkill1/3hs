@@ -17,7 +17,7 @@
 
 #include <3ds.h>
 
-#include <map>
+#include <unordered_map>
 
 #include "error.hh"
 #include "log.hh"
@@ -27,7 +27,7 @@
 #define DEFAULT_RES "<Unknown>"
 
 /* <module, <desc, msg>> */
-static const std::map<Result, std::map<Result, const char *>> ERR_LOOKUP({
+static const std::unordered_map<Result, std::unordered_map<Result, const char *>> ERR_LOOKUP({
 	{
 		RM_KERNEL, {
 			{ 2, "Invalid DMA buffer memory permissions" },
@@ -146,7 +146,7 @@ static const std::map<Result, std::map<Result, const char *>> ERR_LOOKUP({
 });
 
 /* <lvl, msg> */
-static const std::map<Result, const char *> LVL_LOOKUP({
+static const std::unordered_map<Result, const char *> LVL_LOOKUP({
 	{ RL_SUCCESS     , "Success"      },
 	{ RL_INFO        , "Info"         },
 	{ RL_FATAL       , "Fatal"        },
@@ -159,7 +159,7 @@ static const std::map<Result, const char *> LVL_LOOKUP({
 });
 
 /* <sum, msg> */
-static const std::map<Result, const char *> SUM_LOOKUP({
+static const std::unordered_map<Result, const char *> SUM_LOOKUP({
 	{ RS_SUCCESS      , "Success"          },
 	{ RS_NOP          , "No operation"     },
 	{ RS_WOULDBLOCK   , "Would block"      },
@@ -175,7 +175,7 @@ static const std::map<Result, const char *> SUM_LOOKUP({
 });
 
 /* <module, msg> */
-static const std::map<Result, const char *> MOD_LOOKUP({
+static const std::unordered_map<Result, const char *> MOD_LOOKUP({
 	{ RM_COMMON       , "Common"        },
 	{ RM_KERNEL       , "Kernel"        },
 	{ RM_UTIL         , "Util"          },
