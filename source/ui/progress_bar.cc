@@ -23,7 +23,7 @@
 #define Y_LEN 30
 
 
-static u32 color_fg() { return DICOLOR(UI_COLOR(D0,D0,D0,FF), UI_COLOR(00,D2,03,FF)); }
+static u32 color_fg() { return DICOLOR(UI_COLOR(C0,C0,C0,FF), UI_COLOR(00,D2,03,FF)); }
 static u32 color_bg() { return DICOLOR(UI_COLOR(DE,DE,DE,FF), UI_COLOR(FF,FF,FF,FF)); }
 UI_SLOTS(ui::ProgressBar_color, ui::color_text, color_fg, color_bg)
 

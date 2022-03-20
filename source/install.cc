@@ -121,7 +121,7 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 		}
 
 		dlog("Writing to cia handle, size=%lu,index=%lu,totalSize=%lu", dlnext, data->index, data->totalSize);
-		CHECKRET(FSFILE_Write(data->cia, &written, data->index, data->buffer, dlnext, FS_WRITE_FLUSH));
+		CHECKRET(FSFILE_Write(data->cia, &written, data->index, data->buffer, dlnext, 0));
 
 		remaining = data->totalSize - dled - from;
 		data->index += dlnext;

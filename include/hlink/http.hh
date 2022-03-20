@@ -19,14 +19,14 @@
 
 #include <arpa/inet.h>
 
+#include <unordered_map>
 #include <string>
-#include <map>
 
 
 namespace hlink
 {
-	using HTTPParameters = std::map<std::string, std::string>;
-	using HTTPHeaders    = std::map<std::string, std::string>;
+	using HTTPParameters = std::unordered_map<std::string, std::string>;
+	using HTTPHeaders    = std::unordered_map<std::string, std::string>;
 
 	class HTTPServer; /* forward decl */
 	struct HTTPRequestContext

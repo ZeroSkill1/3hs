@@ -96,7 +96,7 @@ static void del_sym(hlink::TemplRen::templ_sym sym)
 
 hlink::TemplRen::~TemplRen()
 {
-	for(std::map<std::string, hlink::TemplRen::templ_sym>::iterator it = this->syms.begin();
+	for(std::unordered_map<std::string, hlink::TemplRen::templ_sym>::iterator it = this->syms.begin();
 		it != this->syms.end(); ++it)
 	{
 		del_sym(it->second);

@@ -30,7 +30,7 @@
 #include <panic.hh>
 #include <errno.h>
 
-#include <map>
+#include <unordered_map>
 
 #include "install.hh"
 #include "thread.hh"
@@ -61,7 +61,7 @@ typedef struct iTransactionResponse
 
 static bool g_lock = false; // is a hlink transaction going on?
 
-using trust_store_t = std::map<in_addr_t, bool>;
+using trust_store_t = std::unordered_map<in_addr_t, bool>;
 
 // Why do these not exist already?
 static uint64_t htonll(uint64_t n)

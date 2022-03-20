@@ -16,29 +16,47 @@
 
 #include "seed.hh"
 
+#include <unordered_map>
 #include <string.h>
 #include <stdio.h>
 #include <3ds.h>
-#include <map>
 
 #include "panic.hh"
 #include "i18n.hh"
 
-static std::map<u64 /* tid */, Seed /* seed */> g_seeddb;
+/* because you can't copy a u8[0x10] but you can a struct containing a u8[0x10].... */
+typedef struct Seed
+{
+	u8 seed[0x10];
+} Seed;
 
+typedef struct SeedDBHeader
+{
+	u32 size;
+	u8 pad[0xC];
+} SeedDBHeader;
+
+typedef struct SeedDBEntry
+{
+	u64 tid;
+	Seed seed;
+	u8 pad[0x8];
+} SeedDBEntry;
+
+static std::unordered_map<u64 /* tid */, Seed /* seed */> g_seeddb;
 
 // from FBI:
 // https://github.com/Steveice10/FBI/blob/6e3a28e4b674e0d7a6f234b0419c530b358957db/source/core/http.c#L440-L453
-Result FSUSER_AddSeed(u64 titleId, const void* seed)
+static Result FSUSER_AddSeed(u64 tid, const void *seed)
 {
 	u32 *cmdbuf = getThreadCommandBuffer();
 
 	cmdbuf[0] = 0x087A0180;
-	cmdbuf[1] = (u32) (titleId & 0xFFFFFFFF);
-	cmdbuf[2] = (u32) (titleId >> 32);
+	cmdbuf[1] = (u32) (tid & 0xFFFFFFFF);
+	cmdbuf[2] = (u32) (tid >> 32);
 	memcpy(&cmdbuf[3], seed, 16);
 
-	Result ret = 0;
+	Result ret;
 	if(R_FAILED(ret = svcSendSyncRequest(*fsGetSessionHandle())))
 		return ret;
 

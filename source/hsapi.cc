@@ -28,8 +28,13 @@
 #define SOC_BUFFERSIZE  0x20000
 
 #define HS_UPDATE_BASE  "http://download2.erista.me/3hs"
-#define HS_CDN_BASE     "http://download4.erista.me"
-#define HS_BASE_LOC     "https://hshop.erista.me/api"
+#if !RELEASE && defined(HS_DEBUG_SERVER)
+	#define HS_CDN_BASE HS_DEBUG_SERVER ":5001"
+	#define HS_BASE_LOC HS_DEBUG_SERVER ":5000/api"
+#else
+	#define HS_CDN_BASE "http://download4.erista.me"
+	#define HS_BASE_LOC "https://hshop.erista.me/api"
+#endif
 
 #define OK 0
 

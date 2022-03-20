@@ -12,7 +12,7 @@ include $(DEVKITARM)/3ds_rules
 
 %.o: %.cc
 	$(SILENTMSG) $(notdir $<)
-	$(SILENTCMD)$(CXX) -MMD -MP -MF $(DEPSDIR)/$*.d $(CXXFLAGS) -c $< -o $@ $(ERROR_FILTER) 
+	$(SILENTCMD)$(CXX) -MMD -MP -MF $(DEPSDIR)/$*.d $(CXXFLAGS) -c $< -o $@ $(ERROR_FILTER)
 
 #---------------------------------------------------------------------------------
 # TARGET is the name of the output
@@ -68,6 +68,9 @@ ifneq ($(RELEASE),)
 	CFLAGS	+= -DRELEASE -O2
 else
 	CFLAGS  += -ggdb3
+ifneq ($(HS_DEBUG_SERVER),)
+	CFLAGS	+=	-DHS_DEBUG_SERVER=\"$(HS_DEBUG_SERVER)\"
+endif
 endif
 
 ifneq ($(DEVICE_ID),)
@@ -201,21 +204,21 @@ all: $(REAL_ALL)
 _build_all:
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
 
-$(CIA_PREFIX)/romfs.bin: $(ROMFS_FILES)
-	$(SILENTCMD) 3dstool -ctf romfs $(CIA_PREFIX)/romfs.bin --romfs-dir romfs
+$(BUILD)/romfs.bin: $(ROMFS_FILES)
+	$(SILENTCMD) 3dstool -ctf romfs $(BUILD)/romfs.bin --romfs-dir romfs
 	$(SILENTMSG) built ... romfs.bin
 
-$(CIA_PREFIX)/icon.smdh: $(CIA_PREFIX)/icon.png
-	$(SILENTCMD) bannertool makesmdh -f visible,nosavebackups -i $(CIA_PREFIX)/icon.png -s "3hs" -l "3hs" -p "hShop" -o $(CIA_PREFIX)/icon.smdh >/dev/null
+$(BUILD)/icon.smdh: $(CIA_PREFIX)/icon.png
+	$(SILENTCMD) bannertool makesmdh -f visible,nosavebackups -i $(CIA_PREFIX)/icon.png -s "3hs" -l "3hs" -p "hShop" -o $(BUILD)/icon.smdh >/dev/null
 	$(SILENTMSG) built ... icon.smdh
 
-$(CIA_PREFIX)/banner.bnr: $(CIA_PREFIX)/banner.png $(CIA_PREFIX)/audio.cwav
-	$(SILENTCMD) bannertool makebanner -ca $(CIA_PREFIX)/audio.cwav -i $(CIA_PREFIX)/banner.png -o $(CIA_PREFIX)/banner.bnr >/dev/null
+$(BUILD)/banner.bnr: $(CIA_PREFIX)/banner.png $(CIA_PREFIX)/audio.cwav
+	$(SILENTCMD) bannertool makebanner -ca $(CIA_PREFIX)/audio.cwav -i $(CIA_PREFIX)/banner.png -o $(BUILD)/banner.bnr >/dev/null
 	$(SILENTMSG) built ... banner.bnr
 
-cia: $(INT_ALL) $(CIA_PREFIX)/banner.bnr $(CIA_PREFIX)/icon.smdh $(CIA_PREFIX)/romfs.bin
+cia: $(INT_ALL) $(BUILD)/banner.bnr $(BUILD)/icon.smdh $(BUILD)/romfs.bin
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
-	$(SILENTCMD) makerom -f cia -o $(TARGET).cia -target t -elf $(TARGET).elf -icon $(CIA_PREFIX)/icon.smdh -banner $(CIA_PREFIX)/banner.bnr -rsf $(CIA_PREFIX)/$(TARGET).rsf -romfs $(CIA_PREFIX)/romfs.bin -ver $(VERSION)
+	$(SILENTCMD) makerom -f cia -o $(TARGET).cia -target t -elf $(TARGET).elf -icon $(BUILD)/icon.smdh -banner $(BUILD)/banner.bnr -rsf $(CIA_PREFIX)/$(TARGET).rsf -romfs $(BUILD)/romfs.bin -ver $(VERSION)
 	$(SILENTMSG) built ... $(TARGET).cia
 
 
@@ -235,7 +238,7 @@ endif
 #---------------------------------------------------------------------------------
 clean:
 	@echo clean ...
-	@rm -fr $(BUILD) $(TARGET).3dsx $(OUTPUT).smdh $(TARGET).elf $(GFXBUILD) $(OUTPUT).cia $(CIA_PREFIX)/romfs.bin $(CIA_PREFIX)/banner.bnr $(CIA_PREFIX)/icon.smdh
+	@rm -fr $(BUILD) $(TARGET).3dsx $(OUTPUT).smdh $(TARGET).elf $(GFXBUILD) $(OUTPUT).cia $(BUILD)/romfs.bin $(BUILD)/banner.bnr $(BUILD)/icon.smdh
 
 #---------------------------------------------------------------------------------
 $(GFXBUILD)/%.t3x	$(BUILD)/%.h	:	%.t3s

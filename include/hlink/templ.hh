@@ -70,7 +70,7 @@ namespace hlink
 				std::string *ss;
 			};
 		};
-		std::map<std::string, templ_sym> syms;
+		std::unordered_map<std::string, templ_sym> syms;
 		HTTPRequestContext hctx;
 
 
