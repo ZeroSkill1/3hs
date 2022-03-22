@@ -117,6 +117,7 @@ int main(int argc, char* argv[])
 
 	log_init();
 	ilog("version=" VVERSION);
+	ilog("time=%lli", time(NULL));
 	log_settings();
 
 	bool isLuma = false;

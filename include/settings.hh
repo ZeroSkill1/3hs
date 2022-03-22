@@ -17,6 +17,7 @@
 #ifndef inc_settings_hh
 #define inc_settings_hh
 
+#include <3ds/types.h>
 #include "i18n.hh"
 
 #define SETTINGS_LOCATION "/3ds/3hs/settings"
@@ -55,6 +56,7 @@ typedef struct Settings
 	LumaLocaleMode lumalocalemode = LumaLocaleMode::automatic;
 	bool askForExtraContent = true;
 	bool warnNoBase = true;
+	u8 maxLogs = 3;
 } Settings;
 
 

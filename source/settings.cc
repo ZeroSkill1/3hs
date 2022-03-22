@@ -74,7 +74,7 @@ void ensure_settings()
 	if(g_loaded) return;
 
 	// We want the defaults
-	if(!access(SETTINGS_LOCATION, F_OK) == 0)
+	if(access(SETTINGS_LOCATION, F_OK) != 0)
 		write_default_settings();
 	else
 	{
@@ -378,12 +378,13 @@ void log_settings()
 		"language: %s, "
 		"lumalocalemode: %s, "
 		"askForExtraContent: %s, "
-		"warnNoBase: %s",
+		"warnNoBase: %s"
+		"maxLogs: %u",
 			BOOL(isLightMode), BOOL(resumeDownloads), BOOL(loadFreeSpace),
 			BOOL(showBattery), BOOL(showNet), (int) g_settings.timeFormat,
 			g_settings.progloc == ProgressBarLocation::bottom ? "bottom" : "top",
 			i18n::langname(g_settings.language), localemode2str_en(g_settings.lumalocalemode),
-			BOOL(askForExtraContent), BOOL(warnNoBase));
+			BOOL(askForExtraContent), BOOL(warnNoBase), g_settings.maxLogs);
 #undef BOOL
 }
 

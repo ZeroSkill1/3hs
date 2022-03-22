@@ -14,26 +14,64 @@
  * this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include "settings.hh"
 #include "log_view.hh"
 #include "panic.hh"
 #include "log.hh"
 
 #include <sys/stat.h>
+#include <unistd.h>
+#include <dirent.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <3ds.h>
 
+#define F "/3ds/3hs/3hs.log"
 #define GEN_MAX_LEN 100
 
 static FILE *log_file = NULL;
 static LightLock file_lock = -1;
 
 
+static void reserve_main_log()
+{
+	if(access(F, F_OK) != 0)
+		return; /* nothing to do ... */
+
+	static char path1[] = F ".XXX";
+	static char path2[] = F ".XXX";
+	u8 max = get_settings()->maxLogs;
+	u8 val;
+
+	if(max == 0) /* always override; nothing to do */
+		return;
+	--max;
+
+#define SET(p,i) sprintf(p + sizeof("/3ds/3hs/3hs.log.") - 1, "%u", (i)+1);
+	for(val = 0; val != max; ++val)
+	{
+		SET(path1, val);
+		if(access(path1, F_OK) != 0)
+			break;
+	}
+	SET(path1, val);
+	/* upper log number is now in val; shift all up */
+	if(val == max) remove(path1); /* we need to discard one */
+	for(; val != 0; --val)
+	{
+		SET(path1, val - 1);
+		SET(path2, val);
+		rename(path1, path2);
+	}
+	rename(F, F ".1");
+#undef SET
+}
+
 static FILE *open_f()
 {
 	mkdir("/3ds", 0777);
 	mkdir("/3ds/3hs", 0777);
-	log_file = fopen("/3ds/3hs/3hs.log", "a");
+	log_file = fopen(F, "a");
 	if(log_file) fseek(log_file, 0, SEEK_END);
 	return log_file;
 }
@@ -55,6 +93,26 @@ static void write_string(const char *s)
 	LightLock_Unlock(&file_lock);
 }
 
+static void clear_all_logs()
+{
+	DIR *d = opendir("/3ds/3hs");
+	struct dirent *e;
+	while((e = readdir(d)))
+	{
+#define S(a) a, sizeof(a)
+		if(strncmp(e->d_name, S("3hs.log")))
+		{
+#define L (sizeof("/3ds/3hs/"))
+			static char path[256+L] = "/3ds/3hs/";
+			strcpy(path + L, e->d_name);
+			remove(path);
+#undef L
+		}
+#undef S
+	}
+	closedir(d);
+}
+
 void log_init()
 {
 #ifndef RELEASE
@@ -62,12 +120,14 @@ void log_init()
 #endif
 
 	LightLock_Init(&file_lock);
+	reserve_main_log();
 	open_f();
 }
 
 void log_del()
 {
 	if(log_file) fclose(log_file);
+	clear_all_logs();
 	open_f();
 }
 
