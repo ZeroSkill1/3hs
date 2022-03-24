@@ -472,6 +472,7 @@ void show_settings()
 	queue.render_finite_button(KEY_B);
 	set_focus(focus);
 
+	log_delete_invalid();
 	save_settings();
 	proxy::write();
 }

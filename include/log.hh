@@ -34,6 +34,7 @@ __attribute__((format(printf, 5, 6)))
 void _logf(const char *fnname, const char *filen,
 	size_t line, LogLevel lvl, const char *fmt, ...);
 
+void log_delete_invalid();
 void log_init();
 void log_exit();
 void log_del();

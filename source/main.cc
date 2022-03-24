@@ -115,9 +115,9 @@ int main(int argc, char* argv[])
 	((void) argc);
 	((void) argv);
 
+	ensure_settings(); /* log_init() uses settings ... */
 	log_init();
 	ilog("version=" VVERSION);
-	ilog("time=%lli", time(NULL));
 	log_settings();
 
 	bool isLuma = false;
@@ -153,7 +153,6 @@ int main(int argc, char* argv[])
 #endif
 
 	init_seeddb();
-	ensure_settings();
 	proxy::init();
 
 	osSetSpeedupEnable(true); // speedup for n3dses

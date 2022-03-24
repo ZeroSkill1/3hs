@@ -23,6 +23,7 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <stdarg.h>
+#include <errno.h>
 #include <stdio.h>
 #include <3ds.h>
 
@@ -71,8 +72,7 @@ static FILE *open_f()
 {
 	mkdir("/3ds", 0777);
 	mkdir("/3ds/3hs", 0777);
-	log_file = fopen(F, "a");
-	if(log_file) fseek(log_file, 0, SEEK_END);
+	log_file = fopen(F, "w");
 	return log_file;
 }
 
@@ -93,24 +93,39 @@ static void write_string(const char *s)
 	LightLock_Unlock(&file_lock);
 }
 
+#define LOGS_ITER(path, ent, ...) \
+	do { \
+		DIR *d = opendir("/3ds/3hs"); \
+		struct dirent *ent; \
+		while((ent = readdir(d))) \
+		{ \
+			if(strncmp(ent->d_name, "3hs.log", sizeof("3hs.log") - 1) == 0) \
+			{ \
+				static char path[256+sizeof("/3ds/3hs/")] = "/3ds/3hs/"; \
+				strcpy(path + sizeof("/3ds/3hs/") - 1, ent->d_name); \
+				__VA_ARGS__ \
+			} \
+		}  \
+	} while(0)
+
 static void clear_all_logs()
 {
-	DIR *d = opendir("/3ds/3hs");
-	struct dirent *e;
-	while((e = readdir(d)))
-	{
-#define S(a) a, sizeof(a)
-		if(strncmp(e->d_name, S("3hs.log")))
-		{
-#define L (sizeof("/3ds/3hs/"))
-			static char path[256+L] = "/3ds/3hs/";
-			strcpy(path + L, e->d_name);
-			remove(path);
-#undef L
-		}
-#undef S
-	}
-	closedir(d);
+	LOGS_ITER(path, ent,
+		remove(path);
+	);
+}
+
+void log_delete_invalid()
+{
+	u8 max = get_settings()->maxExtraLogs;
+	LOGS_ITER(path, ent,
+		char *start = ent->d_name + sizeof("3hs.log.") - 1;
+		char *end;
+		errno = 0;
+		unsigned long id = strtoul(start, &end, 10);
+		if(end == start || errno == ERANGE) continue;
+		if(id > max) remove(path);
+	);
 }
 
 void log_init()
