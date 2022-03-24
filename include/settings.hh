@@ -56,7 +56,7 @@ typedef struct Settings
 	LumaLocaleMode lumalocalemode = LumaLocaleMode::automatic;
 	bool askForExtraContent = true;
 	bool warnNoBase = true;
-	u8 maxLogs = 3;
+	u8 maxExtraLogs = 3;
 } Settings;
 
 

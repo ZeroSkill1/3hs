@@ -160,6 +160,9 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::clear_logs] = "Clear logs",
 			[str::found_missing] = "Found %1 missing title(s)\nCheck the queue to install them", // %1 = amount of titles found
 			[str::found_0_missing] = "Didn't find any missing titles",
+			[str::max_elogs] = "Maximum old log files",
+			[str::max_elogs_desc] = "Amount of old log files to keep. Between 0-255 inclusive where 0 keeps no additional log files.",
+			[str::elogs_hint] = "Number between 0-255 inclusive",
 		},
 
 	[lang::dutch] =
@@ -293,6 +296,9 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::clear_logs] = "Logs verwijderen",
 			[str::found_missing] = "%1 missende titel(s) gevonden\nGa naar de wachtrij om ze te installeren",
 			[str::found_0_missing] = "Geen missende titles gevonden",
+			[str::max_elogs] = "Maximum aantal extra log bestanden",
+			[str::max_elogs_desc] = "Aantal oude log bestanden om te bewaren. Een getal van 0 tot en met 255.",
+			[str::elogs_hint] = "Getal van 0 tot/met 255",
 		},
 
 	[lang::german] =
@@ -423,6 +429,9 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			STUB(clear_logs),
 			STUB(found_missing),
 			STUB(found_0_missing),
+			STUB(max_elogs),
+			STUB(max_elogs_desc),
+			STUB(elogs_hint),
 		},
 
 	[lang::spanish] =
@@ -554,6 +563,9 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::clear_logs] = "Despejar registros",
 			[str::found_missing] = "Se encontró %1 Título faltante(s)\nRevisa la cola para instalarlos", // %1 = amount of titles found
 			[str::found_0_missing] = "No se encontraron títulos faltantes",
+			STUB(max_elogs),
+			STUB(max_elogs_desc),
+			STUB(elogs_hint),
 		}
 };
 #pragma GCC diagnostic pop

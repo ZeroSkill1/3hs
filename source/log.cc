@@ -40,7 +40,7 @@ static void reserve_main_log()
 
 	static char path1[] = F ".XXX";
 	static char path2[] = F ".XXX";
-	u8 max = get_settings()->maxLogs;
+	u8 max = get_settings()->maxExtraLogs;
 	u8 val;
 
 	if(max == 0) /* always override; nothing to do */

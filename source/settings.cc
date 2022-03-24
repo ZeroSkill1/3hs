@@ -97,6 +97,7 @@ enum SettingsId
 	ID_TimeFmt, ID_ProgLoc,
 	ID_Language, ID_Localemode,
 	ID_Extra, ID_Proxy, ID_WarnNoBase,
+	ID_MaxELogs,
 };
 
 typedef struct SettingInfo
@@ -157,6 +158,8 @@ static std::string serialize_id(SettingsId ID)
 		return g_settings.askForExtraContent ? STRING(btrue) : STRING(bfalse);
 	case ID_Proxy:
 		return proxy::is_set() ? STRING(press_a_to_view) : STRING(none);
+	case ID_MaxELogs:
+		return std::to_string(g_settings.maxExtraLogs);
 	}
 
 	return STRING(unknown);
@@ -242,9 +245,9 @@ static void show_update_proxy()
 		.add_to(queue);
 	ui::builder<ui::Button>(ui::Screen::bottom)
 		.connect(ui::Button::click, [&port]() -> bool {
-			ui::RenderQueue::global()->render_and_then([&port]() -> void { \
+			ui::RenderQueue::global()->render_and_then([&port]() -> void {
 				SwkbdButton btn;
-				uint64_t val = ui::numpad([](ui::AppletSwkbd *swkbd) -> void { \
+				uint64_t val = ui::numpad([](ui::AppletSwkbd *swkbd) -> void {
 					swkbd->hint(STRING(port));
 				}, 5 /* max is 65535: 5 digits */, &btn);
 
@@ -300,6 +303,23 @@ static void show_update_proxy()
 	queue.render_finite_button(KEY_B | KEY_A);
 #undef BASIC_CALLBACK
 #undef UPDATE_LABELS
+}
+
+static void show_elogs()
+{
+	uint64_t val;
+	do {
+		SwkbdButton btn;
+		val = ui::numpad([](ui::AppletSwkbd *swkbd) -> void {
+			swkbd->hint(STRING(elogs_hint));
+		}, 3 /* max is 255: 3 digits */, &btn);
+
+		if(btn != SWKBD_BUTTON_CONFIRM)
+			return;
+		if(val <= 0xFF)
+			break;
+	} while(true);
+	g_settings.maxExtraLogs = val & 0xFF;
 }
 
 static void update_settings_ID(SettingsId ID)
@@ -358,8 +378,12 @@ static void update_settings_ID(SettingsId ID)
 			g_settings.lumalocalemode
 		);
 		break;
+	// Other
 	case ID_Proxy:
 		show_update_proxy();
+		break;
+	case ID_MaxELogs:
+		show_elogs();
 		break;
 	}
 }
@@ -379,12 +403,12 @@ void log_settings()
 		"lumalocalemode: %s, "
 		"askForExtraContent: %s, "
 		"warnNoBase: %s"
-		"maxLogs: %u",
+		"maxExtraLogs: %u",
 			BOOL(isLightMode), BOOL(resumeDownloads), BOOL(loadFreeSpace),
 			BOOL(showBattery), BOOL(showNet), (int) g_settings.timeFormat,
 			g_settings.progloc == ProgressBarLocation::bottom ? "bottom" : "top",
 			i18n::langname(g_settings.language), localemode2str_en(g_settings.lumalocalemode),
-			BOOL(askForExtraContent), BOOL(warnNoBase), g_settings.maxLogs);
+			BOOL(askForExtraContent), BOOL(warnNoBase), g_settings.maxExtraLogs);
 #undef BOOL
 }
 
@@ -403,6 +427,7 @@ void show_settings()
 		{ STRING(ask_extra)      , STRING(ask_extra_desc)      , ID_Extra      },
 		{ STRING(proxy)          , STRING(proxy_desc)          , ID_Proxy      },
 		{ STRING(warn_no_base)   , STRING(warn_no_base_desc)   , ID_WarnNoBase },
+		{ STRING(max_elogs)      , STRING(max_elogs_desc)      , ID_MaxELogs   },
 	};
 
 	panic_assert(settingsInfo.size() > 0, "empty settings meta table");

@@ -148,6 +148,9 @@ namespace str
 		clear_logs = 108,
 		found_missing = 109,
 		found_0_missing = 110,
+		max_elogs = 111,
+		max_elogs_desc = 112,
+		elogs_hint = 113,
 
 		_i_max,
 	};
