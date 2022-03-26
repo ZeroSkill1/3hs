@@ -130,11 +130,10 @@ void ui::ProgressBar::update_state()
 		u64 now = osGetTime();
 		u64 diff = now - this->prevpoll;
 
-		/* in KiB/s */
 		const float bytes_s = (((float) this->part - (float) this->prevpart) / (diff / 1000.0f));
 		float speed_i; const char *format;
-		if(bytes_s >= (1024.0f * 1024.0f)) { speed_i = bytes_s / (1024.0f * 1024.0f); format = "MiB/s"; } /* to MiB/s */
-		else { speed_i = bytes_s / 1024.0f; format = "KiB/s"; }
+		if(bytes_s >= (1024.0f * 1024.0f)) { speed_i = bytes_s / (1024.0f * 1024.0f); format = "MiB/s"; } /* we can use MiB/s */
+		else { speed_i = bytes_s / 1024.0f; format = "KiB/s"; } /* if we have less than 1MiB/s speed we fall back to KiB/s */
 		this->prevpart = this->part;
 		this->prevpoll = now;
 

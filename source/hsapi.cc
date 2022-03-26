@@ -22,6 +22,7 @@
 #include "log.hh"
 
 #include <3rd/json.hh>
+#include <algorithm>
 #include <malloc.h>
 
 #define SOC_ALIGN       0x100000
@@ -183,6 +184,7 @@ static void serialize_categories(std::vector<hsapi::Category>& rcats, ojson& cat
 		c.titles = jcat["total_content_count"].get<hsapi::hsize>();
 		c.disp = jcat["display_name"].get<std::string>();
 		c.desc = jcat["description"].get<std::string>();
+		c.prio = jcat["priority"].get<hsapi::hprio>();
 		c.size = jcat["size"].get<hsapi::hsize>();
 		c.name = cat.key();
 
@@ -288,6 +290,7 @@ Result hsapi::fetch_index()
 	g_index.size = j["size"].get<hsapi::hsize>();
 
 	serialize_categories(g_index.categories, j["entries"]);
+	std::sort(g_index.categories.begin(), g_index.categories.end());
 
 	return OK;
 }

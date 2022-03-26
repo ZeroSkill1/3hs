@@ -40,6 +40,7 @@ namespace hsapi
 	using hiver      = uint16_t; /* integer version type */
 	using htid       = uint64_t; /* title id type */
 	using hid        = int64_t;  /* landing id type */
+	using hprio      = uint32_t; /* priority */
 
 	namespace impl
 	{
@@ -61,6 +62,10 @@ namespace hsapi
 	typedef struct Category : public impl::BaseCategory
 	{
 		std::vector<Subcategory> subcategories; /* subcategories in this category */
+		hprio prio;
+
+		friend bool operator < (const Category& a, const Category& b)
+		{ return a.prio < b.prio; }
 
 		/* find a subcategory by name */
 		Subcategory *find(const std::string& name);
