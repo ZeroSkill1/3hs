@@ -62,17 +62,26 @@ namespace ui
 	private:
 		UI_SLOTS_PROTO(ProgressBar_color, 3)
 
+		enum flag {
+			FLAG_ACTIVE     = 0x1,
+			FLAG_SHOW_SPEED = 0x2,
+		};
+
 		void update_state();
 
-		bool activated = false;
-		float bcx, w, outerw;
+		u32 flags = FLAG_SHOW_SPEED;
+		float bcx, ex, w, outerw;
 		u64 part, total;
 
+		C2D_Text bc, a, d, e;
 		C2D_TextBuf buf;
-		C2D_Text bc, a;
 
 		std::function<std::string(u64, u64)> serialize = up_to_mib_serialize;
 		std::function<std::string(u64)> postfix = up_to_mib_postfix;
+
+		/* data for ETA/speed */
+		u64 prevpoll = osGetTime() - 1; /* -1 to ensure update_state() never divs by 0 */
+		u64 prevpart = 0;
 
 
 	};
