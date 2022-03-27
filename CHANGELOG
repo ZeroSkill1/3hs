@@ -2,6 +2,9 @@
 v1.0.0:
  - update for new hsite v3 api
  - re-add light theme & make it the default
+ - add log spliting: logs get split into multiple files sorted on age
+ - add a download speed and ETA field while installing titles
+ - fix issue where categories weren't sorted as on website
  - fix issue where closing the app from home would freeze the system
  - fix issue where spamming toggle on a "true"/"false" setting would crash the system
 
