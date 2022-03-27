@@ -19,6 +19,7 @@
 
 #include "settings.hh"
 #include "i18n.hh"
+#include "log.hh"
 
 /* internal constants */
 #define SPRITESHEET_PATH "romfs:/gfx/next.t3x"
@@ -369,12 +370,12 @@ void ui::Text::setup()
 
 void ui::Text::prepare_arrays()
 {
-	if(this->buf == nullptr) this->buf = C2D_TextBufNew(this->text.size() + 1);
+	if(this->buf == nullptr) this->buf = C2D_TextBufNew(this->text.size() + 11);
 	else
 	{
 		// Reset
 		C2D_TextBufClear(this->buf);
-		this->buf = C2D_TextBufResize(this->buf, this->text.size() + 1);
+		this->buf = C2D_TextBufResize(this->buf, this->text.size() + 11);
 		this->lines.clear();
 	}
 
@@ -383,6 +384,9 @@ void ui::Text::prepare_arrays()
 	this->lines.reserve(lines);
 
 	int curWidth = this->x;
+	char codepoint[4] = { 0x00, 0x00, 0x00, 0x00 };
+	u8 expect = 0;
+	u8 cpc = 0;
 	std::string cur;
 
 	for(size_t i = 0; i < this->text.size(); ++i)
@@ -390,20 +394,52 @@ void ui::Text::prepare_arrays()
 		if((this->doAutowrap && width - curWidth < 0) || this->text[i] == '\n')
 		{
 			curWidth = this->x;
+			if(!isspace(this->text[i]))
+				cur.push_back('-');
 			this->push_str(cur);
 			cur.clear();
 
-			if(this->text[i] == '\n')
+			/* makes it so that you don't get random indents if
+			 * the next character is a space, or in the case of
+			 * a newline doesn't create a new paragraph */
+			if(isspace(this->text[i]))
 				continue;
 		}
 
-		cur.push_back(this->text[i]);
+		u8 code = this->text[i];
+		if(cpc == 0)
+		{
+			codepoint[cpc++] = code;
+			if(code < 0x80)
+				; /* single-byte; immediately process */
+			/* doesn't check for actual validity but this works well enough */
+			else if(code < 0xE0) { expect = 2; continue; }
+			else if(code < 0xF0) { expect = 3; continue; }
+			else if(code < 0xF5) { expect = 4; continue; }
+		}
+		else if(cpc != expect)
+		{
+			codepoint[cpc++] = code;
+			if(cpc != expect)
+				continue;
+		}
+
+		cur.append(codepoint, cpc);
+
 		if(this->doAutowrap)
 		{
-			charWidthInfo_s *ch = C2D_FontGetCharWidthInfo(NULL, C2D_FontGlyphIndexFromCodePoint(NULL, this->text[i]));
+			charWidthInfo_s *ch = C2D_FontGetCharWidthInfo(NULL, C2D_FontGlyphIndexFromCodePoint(NULL, * (u32 *) codepoint));
 			if(ch != NULL) curWidth += ch->glyphWidth;
+			else dlog("Codepoint not found: %s (0x%08lX)", std::string(codepoint, cpc).c_str(), * (u32 *) codepoint);
 		}
+
+		memset(codepoint, 0x00, 4);
+		expect = 0;
+		cpc = 0;
 	}
+
+	if(expect != cpc)
+		elog("Incomplete utf-8 data passed. Not appending final codepoint.");
 
 	if(cur.size() > 0) this->push_str(cur);
 	if(this->lines.size() > 0)

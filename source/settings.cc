@@ -402,7 +402,7 @@ void log_settings()
 		"language: %s, "
 		"lumalocalemode: %s, "
 		"askForExtraContent: %s, "
-		"warnNoBase: %s"
+		"warnNoBase: %s, "
 		"maxExtraLogs: %u",
 			BOOL(isLightMode), BOOL(resumeDownloads), BOOL(loadFreeSpace),
 			BOOL(showBattery), BOOL(showNet), (int) g_settings.timeFormat,
