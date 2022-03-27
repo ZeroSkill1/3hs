@@ -297,8 +297,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::found_missing] = "%1 missende titel(s) gevonden\nGa naar de wachtrij om ze te installeren",
 			[str::found_0_missing] = "Geen missende titles gevonden",
 			[str::max_elogs] = "Maximum aantal extra log bestanden",
-			[str::max_elogs_desc] = "Aantal oude log bestanden om te bewaren. Een getal van 0 tot en met 255.",
-			[str::elogs_hint] = "Getal van 0 tot/met 255",
+			[str::max_elogs_desc] = "Aantal oude log bestanden om te bewaren. Een nummer van 0 tot en met 255.",
+			[str::elogs_hint] = "Nummer van 0 tot/met 255",
 		},
 
 	[lang::german] =
@@ -563,9 +563,9 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::clear_logs] = "Despejar registros",
 			[str::found_missing] = "Se encontró %1 Título faltante(s)\nRevisa la cola para instalarlos", // %1 = amount of titles found
 			[str::found_0_missing] = "No se encontraron títulos faltantes",
-			STUB(max_elogs),
-			STUB(max_elogs_desc),
-			STUB(elogs_hint),
+			[str::max_elogs] = "Máxima capacidad de archivos de registro viejos",
+			[str::max_elogs_desc] = "Capacidad de archivos de registro que se puede guardar. Debe ser un número que incluya de 0 a 255, al escoger 0, no se guardarán registros adicionales.",
+			[str::elogs_hint] = "Número que incluya 0 a 255",
 		}
 };
 #pragma GCC diagnostic pop
