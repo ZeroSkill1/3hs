@@ -55,6 +55,23 @@ static hsapi::Index g_index;
 hsapi::Index *hsapi::get_index()
 { return &g_index; }
 
+
+void hsapi::global_deinit()
+{
+	socExit();
+	if(g_socbuf != NULL)
+		free(g_socbuf);
+}
+
+bool hsapi::global_init()
+{
+	if((g_socbuf = (u32 *) memalign(SOC_ALIGN, SOC_BUFFERSIZE)) == NULL)
+		return false;
+	if(R_FAILED(socInit(g_socbuf, SOC_BUFFERSIZE)))
+		return false;
+	return true;
+}
+
 static Result basereq(const std::string& url, std::string& data, HTTPC_RequestMethod reqmeth = HTTPC_METHOD_GET)
 {
 	httpcContext ctx;
@@ -221,6 +238,14 @@ static void serialize_titles_ver(std::vector<hsapi::FullTitle>& rtitles, json& j
 	}
 }
 
+static void serialize_full_title(hsapi::FullTitle& ret, json& j)
+{
+	serialize_title(ret, j);
+	// now we serialize for the FullTitle exclusive fields
+	ret.prod = j["product_code"].get<std::string>();
+	ret.version = j["version"].get<hsapi::hiver>();
+}
+
 // https://en.wikipedia.org/wiki/Percent-encoding
 static std::string url_encode(const std::string& str)
 {
@@ -281,7 +306,7 @@ hsapi::Category *hsapi::Index::find(const std::string& name)
 Result hsapi::fetch_index()
 {
 	ojson j;
-	Result res = OK;
+	Result res;
 	if(R_FAILED(res = basereq<ojson>(HS_BASE_LOC "/title-index", j)))
 		return res;
 	j = j["value"];
@@ -298,7 +323,7 @@ Result hsapi::fetch_index()
 Result hsapi::titles_in(std::vector<hsapi::Title>& ret, const std::string& cat, const std::string& scat)
 {
 	json j;
-	Result res = OK;
+	Result res;
 	if(R_FAILED(res = basereq<json>(HS_BASE_LOC "/title/category/" + cat + "/" + scat, j)))
 		return res;
 	j = j["value"];
@@ -307,43 +332,22 @@ Result hsapi::titles_in(std::vector<hsapi::Title>& ret, const std::string& cat, 
 	return OK;
 }
 
-void hsapi::global_deinit()
-{
-	socExit();
-	if(g_socbuf != NULL)
-		free(g_socbuf);
-}
-
-bool hsapi::global_init()
-{
-	if((g_socbuf = (u32 *) memalign(SOC_ALIGN, SOC_BUFFERSIZE)) == NULL)
-		return false;
-	if(R_FAILED(socInit(g_socbuf, SOC_BUFFERSIZE)))
-		return false;
-	return true;
-}
-
 Result hsapi::title_meta(hsapi::FullTitle& ret, hsapi::hid id)
 {
 	json j;
-	Result res = OK;
+	Result res;
 	if(R_FAILED(res = basereq<json>(HS_BASE_LOC "/title/" + std::to_string(id), j)))
 		return res;
 	j = j["value"];
 
-	serialize_title(ret, j);
-
-	// now we serialize for the FullTitle exclusive fields
-	ret.prod = j["product_code"].get<std::string>();
-	ret.version = j["version"].get<hsapi::hiver>();
-
+	serialize_full_title(ret, j);
 	return OK;
 }
 
 Result hsapi::get_download_link(std::string& ret, const hsapi::Title& meta)
 {
 	json j;
-	Result res = OK;
+	Result res;
 	if(R_FAILED(res = basereq<json>(HS_CDN_BASE "/content/" + std::to_string(meta.id) + "/request", j)))
 		return res;
 	j = j["value"];
@@ -355,12 +359,24 @@ Result hsapi::get_download_link(std::string& ret, const hsapi::Title& meta)
 Result hsapi::search(std::vector<hsapi::Title>& ret, const std::string& query)
 {
 	json j;
-	Result res = OK;
+	Result res;
 	if(R_FAILED(res = basereq<json>(HS_BASE_LOC "/title/search?q=" + url_encode(query), j)))
 		return res;
 	j = j["value"];
 
 	serialize_titles(ret, j);
+	return OK;
+}
+
+Result hsapi::random(hsapi::FullTitle& ret)
+{
+	json j;
+	Result res;
+	if(R_FAILED(res = basereq<json>(HS_BASE_LOC "/title/random", j)))
+		return res;
+	j = j["value"];
+
+	serialize_full_title(ret, j);
 	return OK;
 }
 

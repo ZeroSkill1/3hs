@@ -121,6 +121,7 @@ namespace hsapi
 	Result get_download_link(std::string& ret, const Title& title);
 	Result get_latest_version_string(std::string& ret);
 	Result title_meta(FullTitle& ret, hid id);
+	Result random(FullTitle& ret);
 	Result fetch_index();
 
 	std::string update_location(const std::string& ver);

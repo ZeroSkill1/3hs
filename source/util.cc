@@ -29,6 +29,7 @@ bool set_focus(bool focus)
 	ui::RenderQueue::global()->find_tag(ui::tag::search)->set_hidden(focus);
 	ui::RenderQueue::global()->find_tag(ui::tag::konami)->set_hidden(focus);
 	ui::RenderQueue::global()->find_tag(ui::tag::action)->set_hidden(focus);
+	ui::RenderQueue::global()->find_tag(ui::tag::random)->set_hidden(focus);
 	ui::RenderQueue::global()->find_tag(ui::tag::queue)->set_hidden(focus);
 	ui::RenderQueue::global()->find_tag(ui::tag::more)->set_hidden(focus);
 	return ret;

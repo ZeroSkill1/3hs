@@ -101,6 +101,7 @@ namespace ui
 		constexpr int queue          = -5; /* queue button */
 		constexpr int konami         = -6; /* konami listner */
 		constexpr int free_indicator = -7; /* free space indicator */
+		constexpr int random         = -8; /* random button */
 	};
 
 	/* holds sprite ids used for ui::SpriteStore::get_by_id() */
@@ -142,6 +143,10 @@ namespace ui
 #undef next_spinner_dark_idx
 		spinner_light = next_spinner_light_idx,
 #undef next_spinner_light_idx
+		random_dark = next_random_dark_idx,
+#undef next_random_dark_idx
+		random_light = next_random_light_idx,
+#undef next_random_light_idx
 	};
 
 	struct Keys

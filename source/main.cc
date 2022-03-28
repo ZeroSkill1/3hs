@@ -201,6 +201,24 @@ int main(int argc, char* argv[])
 		.tag(ui::tag::search)
 		.add_to(ui::RenderQueue::global());
 
+	ui::builder<ui::Button>(ui::Screen::bottom, ui::SpriteStore::get_by_id(ui::sprite::random_light), ui::SpriteStore::get_by_id(ui::sprite::random_dark))
+		.connect(ui::Button::click, []() -> bool {
+			ui::RenderQueue::global()->render_and_then([]() -> void {
+				hsapi::FullTitle t;
+				if(R_FAILED(hsapi::call(hsapi::random, t)))
+					return;
+				if(show_extmeta(t))
+					install::gui::hs_cia(t);
+			});
+			return true;
+		})
+		.connect(ui::Button::nobg)
+		.wrap()
+		.right(ui::RenderQueue::global()->back())
+		.y(210.0f)
+		.tag(ui::tag::random)
+		.add_to(ui::RenderQueue::global());
+
 	ui::builder<ui::Button>(ui::Screen::bottom, STRING(queue))
 		.connect(ui::Button::click, []() -> bool {
 			ui::RenderQueue::global()->render_and_then(show_queue);
