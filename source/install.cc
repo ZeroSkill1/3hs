@@ -51,40 +51,39 @@ typedef struct cia_net_data
 } cia_net_data;
 
 
-static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from)
+static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from, httpcContext *pctx)
 {
-	httpcContext ctx;
 	Result res = 0;
 
 	/* configure */
-	CHECKRET(httpcOpenContext(&ctx, HTTPC_METHOD_GET, url.c_str(), 0));
-	CHECKRET(httpcSetSSLOpt(&ctx, SSLCOPT_DisableVerify));
-	CHECKRET(httpcSetKeepAlive(&ctx, HTTPC_KEEPALIVE_ENABLED));
-	CHECKRET(httpcAddRequestHeaderField(&ctx, "Connection", "Keep-Alive"));
-	CHECKRET(httpcAddRequestHeaderField(&ctx, "User-Agent", USER_AGENT));
-	CHECKRET(proxy::apply(&ctx));
+	CHECKRET(httpcOpenContext(pctx, HTTPC_METHOD_GET, url.c_str(), 0));
+	CHECKRET(httpcSetSSLOpt(pctx, SSLCOPT_DisableVerify));
+	CHECKRET(httpcSetKeepAlive(pctx, HTTPC_KEEPALIVE_ENABLED));
+	CHECKRET(httpcAddRequestHeaderField(pctx, "Connection", "Keep-Alive"));
+	CHECKRET(httpcAddRequestHeaderField(pctx, "User-Agent", USER_AGENT));
+	CHECKRET(proxy::apply(pctx));
 
 	if(from != 0)
 	{
-		CHECKRET(httpcAddRequestHeaderField(&ctx, "Range", ("bytes=" + std::to_string(from) + "-").c_str()));
+		CHECKRET(httpcAddRequestHeaderField(pctx, "Range", ("bytes=" + std::to_string(from) + "-").c_str()));
 	}
 
-	CHECKRET(httpcBeginRequest(&ctx));
+	CHECKRET(httpcBeginRequest(pctx));
 
 	u32 status = 0, dled = from;
-	CHECKRET(httpcGetResponseStatusCode(&ctx, &status));
+	CHECKRET(httpcGetResponseStatusCode(pctx, &status));
 	vlog("Download status code: %lu", status);
 
 	// Do we want to redirect?
 	if(status / 100 == 3)
 	{
 		char newurl[2048];
-		httpcGetResponseHeader(&ctx, "location", newurl, 2048);
+		httpcGetResponseHeader(pctx, "location", newurl, 2048);
 		std::string redir(newurl);
 
 		vlog("Redirected to %s", redir.c_str());
-		httpcCloseContext(&ctx);
-		return i_install_net_cia(redir, data, from);
+		httpcCloseContext(pctx);
+		return i_install_net_cia(redir, data, from, pctx);
 	}
 
 	// Are we resuming and does the server support range?
@@ -92,7 +91,7 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 		return APPERR_NORANGE;
 
 	if(from == 0)
-		CHECKRET(httpcGetDownloadSizeState(&ctx, nullptr, &data->totalSize));
+		CHECKRET(httpcGetDownloadSizeState(pctx, nullptr, &data->totalSize));
 	if(data->totalSize == 0)
 		return APPERR_NOSIZE;
 
@@ -103,25 +102,27 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 
 	while(data->index != data->totalSize)
 	{
-		if((R_FAILED(res = httpcReceiveDataTimeout(&ctx, data->buffer, dlnext, 30000000000L))
+		if((R_FAILED(res = httpcReceiveDataTimeout(pctx, data->buffer, dlnext, 30000000000L))
 			&& res != (Result) HTTPC_RESULTCODE_DOWNLOADPENDING)
-			|| R_FAILED(res = httpcGetDownloadSizeState(&ctx, &dled, nullptr)))
+			|| R_FAILED(res = httpcGetDownloadSizeState(pctx, &dled, nullptr)))
 		{
-			// Error
-			httpcCancelConnection(&ctx);
-			httpcCloseContext(&ctx);
+			dlog("aborted http connection due to error: %08lX.", res);
+			httpcCancelConnection(pctx);
+			httpcCloseContext(pctx);
 			return res;
 		}
 
 		if(data->itc == ITC::exit)
 		{
-			httpcCancelConnection(&ctx);
-			httpcCloseContext(&ctx);
+			dlog("aborted http connection due to ITC::exit");
+			httpcCancelConnection(pctx);
+			httpcCloseContext(pctx);
 			break;
 		}
 
 		dlog("Writing to cia handle, size=%lu,index=%lu,totalSize=%lu", dlnext, data->index, data->totalSize);
-		CHECKRET(FSFILE_Write(data->cia, &written, data->index, data->buffer, dlnext, 0));
+		/* we don't need to add the FS_WRITE_FLUSH flag because AM just ignores write flags... */
+		res = FSFILE_Write(data->cia, &written, data->index, data->buffer, dlnext, 0);
 
 		remaining = data->totalSize - dled - from;
 		data->index += dlnext;
@@ -132,7 +133,7 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 	return 0;
 }
 
-static void i_install_loop_thread_cb(Result& res, get_url_func get_url, cia_net_data& data)
+static void i_install_loop_thread_cb(Result& res, get_url_func get_url, cia_net_data& data, httpcContext& hctx)
 {
 	std::string url;
 
@@ -143,7 +144,7 @@ static void i_install_loop_thread_cb(Result& res, get_url_func get_url, cia_net_
 			elog("failed to fetch url: %08lX", res);
 			return;
 		}
-		res = i_install_net_cia(url, &data, 0);
+		res = i_install_net_cia(url, &data, 0, &hctx);
 		return;
 	}
 
@@ -152,7 +153,7 @@ static void i_install_loop_thread_cb(Result& res, get_url_func get_url, cia_net_
 	{
 		url = get_url(res);
 		if(R_SUCCEEDED(res))
-			res = i_install_net_cia(url, &data, data.index);
+			res = i_install_net_cia(url, &data, data.index, &hctx);
 
 		// User pressed start
 		if(data.itc == ITC::exit)
@@ -191,14 +192,16 @@ static Result i_install_resume_loop(get_url_func get_url, Handle ciaHandle, prog
 	data.buffer = new u8[BUFSIZE];
 	data.cia = ciaHandle;
 
+	httpcContext hctx;
 	Result res = 0;
 
 	// Install thread
-	ctr::thread<Result&, get_url_func, cia_net_data&> th
-		(i_install_loop_thread_cb, res, get_url, data);
+	ctr::thread<Result&, get_url_func, cia_net_data&, httpcContext&> th
+		(i_install_loop_thread_cb, res, get_url, data, hctx);
 
 	// UI Loop
 	u64 prev = 0;
+	bool didFirstTotal = false;
 	while(!th.finished())
 	{
 		if(data.itc != ITC::timeoutscr)
@@ -208,14 +211,21 @@ static Result i_install_resume_loop(get_url_func get_url, Handle ciaHandle, prog
 				prog(data.index, data.totalSize);
 				prev = data.index;
 			}
+			else if(!didFirstTotal && data.totalSize != 0)
+			{
+				prog(0, data.totalSize);
+				didFirstTotal = true;
+			}
 
 			hidScanInput();
 			if(!aptMainLoop() || (hidKeysDown() & (KEY_B | KEY_START)))
 			{
+				httpcCancelConnection(&hctx); /* aborts if in http  */
 				data.itc = ITC::exit;
 				break;
 			}
 		}
+		gspWaitForVBlank();
 	}
 
 	th.join();

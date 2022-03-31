@@ -168,7 +168,7 @@ bool show_extmeta_lazy(const hsapi::Title& base, hsapi::FullTitle *full)
 
 	std::string version, prodcode;
 
-	ctr::thread<std::string&, std::string&, ui::RenderQueue&, hsapi::FullTitle*> th([&base]
+	ctr::thread<std::string&, std::string&, ui::RenderQueue&, hsapi::FullTitle *> th([&base]
 			(std::string& version, std::string& prodcode, ui::RenderQueue& queue, hsapi::FullTitle *fullptr) -> void {
 		hsapi::FullTitle full;
 		if(R_FAILED(hsapi::title_meta(full, base.id)))

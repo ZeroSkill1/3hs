@@ -117,7 +117,13 @@ int main(int argc, char* argv[])
 
 	ensure_settings(); /* log_init() uses settings ... */
 	log_init();
-	ilog("version=" VVERSION);
+#ifdef RELEASE
+	#define EV
+#else
+	#define EV "-debug"
+#endif
+	ilog("current 3hs version is " VVERSION EV "%s", envIsHomebrew() ? "-3dsx" : "");
+#undef EV
 	log_settings();
 
 	bool isLuma = false;

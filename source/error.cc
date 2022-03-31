@@ -30,7 +30,8 @@
 static const std::unordered_map<Result, std::unordered_map<Result, const char *>> ERR_LOOKUP({
 	{
 		RM_KERNEL, {
-			{ 2, "Invalid DMA buffer memory permissions" },
+			{ 2,    "Invalid DMA buffer memory permissions" },
+			{ 1015, "Invalid handle"                        },
 		}
 	},
 	{
