@@ -77,8 +77,9 @@ static Result basereq(const std::string& url, std::string& data, HTTPC_RequestMe
 	httpcContext ctx;
 	Result res = OK;
 
-#define TRY(expr) do { res = (expr); if(R_FAILED(res)) { httpcCloseContext(&ctx); return res; } } while(0)
-	TRY(httpcOpenContext(&ctx, reqmeth, url.c_str(), 0));
+#define TRY(expr) do { res = (expr); if(R_FAILED(res)) { httpcCancelConnection(&ctx); httpcCloseContext(&ctx); return res; } } while(0)
+	if(R_FAILED(res = httpcOpenContext(&ctx, reqmeth, url.c_str(), 0)))
+		return res;
 	TRY(httpcSetSSLOpt(&ctx, SSLCOPT_DisableVerify));
 	TRY(httpcSetKeepAlive(&ctx, HTTPC_KEEPALIVE_ENABLED));
 	TRY(httpcAddRequestHeaderField(&ctx, "Connection", "Keep-Alive"));
@@ -103,6 +104,7 @@ static Result basereq(const std::string& url, std::string& data, HTTPC_RequestMe
 		std::string redir(newurl);
 
 		vlog("Redirected to %s", redir.c_str());
+		httpcCancelConnection(&ctx);
 		httpcCloseContext(&ctx);
 		return basereq(redir, data, reqmeth);
 	}
@@ -117,12 +119,14 @@ static Result basereq(const std::string& url, std::string& data, HTTPC_RequestMe
 			/* we can assume it doesn't have the header if this fails */
 			if(R_SUCCEEDED(httpcGetResponseHeader(&ctx, "x-minimum", minver, 2048)))
 			{
+				httpcCancelConnection(&ctx);
 				httpcCloseContext(&ctx);
 				panic(PSTRING(min_constraint, VVERSION, minver));
 			}
 		}
 #endif
 
+		httpcCancelConnection(&ctx);
 		httpcCloseContext(&ctx);
 		return APPERR_NON200;
 	}

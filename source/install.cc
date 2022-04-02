@@ -26,7 +26,6 @@
 
 #include <3ds.h>
 
-#define CHECKRET(expr) if(R_FAILED( res = ( expr ) )) return res
 #define BUFSIZE 0x80000
 
 
@@ -47,15 +46,19 @@ typedef struct cia_net_data
 	ITC itc = ITC::normal;
 	// Buffer. allocated on heap for extra storage
 	u8 *buffer = nullptr;
+	// Tells second thread to wake up
+	Handle eventHandle;
 } cia_net_data;
 
 
 static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from, httpcContext *pctx)
 {
 	Result res = 0;
+#define CHECKRET(expr) do { if(R_FAILED(res = ( expr ) )) { httpcCancelConnection(pctx); httpcCloseContext(pctx); return res; } } while(0)
 
 	/* configure */
-	CHECKRET(httpcOpenContext(pctx, HTTPC_METHOD_GET, url.c_str(), 0));
+	if(R_FAILED(res = httpcOpenContext(pctx, HTTPC_METHOD_GET, url.c_str(), 0)))
+		return res;
 	CHECKRET(httpcSetSSLOpt(pctx, SSLCOPT_DisableVerify));
 	CHECKRET(httpcSetKeepAlive(pctx, HTTPC_KEEPALIVE_ENABLED));
 	CHECKRET(httpcAddRequestHeaderField(pctx, "Connection", "Keep-Alive"));
@@ -87,12 +90,21 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 
 	// Are we resuming and does the server support range?
 	if(from != 0 && status != 206)
+	{
+		httpcCancelConnection(pctx);
+		httpcCloseContext(pctx);
 		return APPERR_NORANGE;
+	}
 
 	if(from == 0)
 		CHECKRET(httpcGetDownloadSizeState(pctx, nullptr, &data->totalSize));
 	if(data->totalSize == 0)
+	{
+		httpcCancelConnection(pctx);
+		httpcCloseContext(pctx);
 		return APPERR_NOSIZE;
+	}
+	svcSignalEvent(data->eventHandle);
 
 	// Install.
 	u32 remaining = data->totalSize - from;
@@ -106,30 +118,37 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 			|| R_FAILED(res = httpcGetDownloadSizeState(pctx, &dled, nullptr)))
 		{
 			dlog("aborted http connection due to error: %08lX.", res);
+			svcSignalEvent(data->eventHandle);
 			httpcCancelConnection(pctx);
 			httpcCloseContext(pctx);
 			return res;
 		}
-
-		if(data->itc == ITC::exit)
-		{
-			dlog("aborted http connection due to ITC::exit");
-			httpcCancelConnection(pctx);
-			httpcCloseContext(pctx);
-			break;
-		}
-
+#define CHK_EXIT \
+		if(data->itc == ITC::exit) \
+		{ \
+			dlog("aborted http connection due to ITC::exit"); \
+			svcSignalEvent(data->eventHandle); \
+			httpcCancelConnection(pctx); \
+			httpcCloseContext(pctx); \
+			break; \
+		} 
+		CHK_EXIT
 		dlog("Writing to cia handle, size=%lu,index=%lu,totalSize=%lu", dlnext, data->index, data->totalSize);
 		/* we don't need to add the FS_WRITE_FLUSH flag because AM just ignores write flags... */
 		res = FSFILE_Write(data->cia, &written, data->index, data->buffer, dlnext, 0);
-
+		CHK_EXIT
+#undef CHK_EXIT
 		remaining = data->totalSize - dled - from;
 		data->index += dlnext;
 
 		dlnext = BUFSIZE > remaining ? remaining : BUFSIZE;
+		svcSignalEvent(data->eventHandle);
 	}
 
+	svcSignalEvent(data->eventHandle);
+	httpcCloseContext(pctx);
 	return 0;
+#undef CHECKRET
 }
 
 static void i_install_loop_thread_cb(Result& res, get_url_func get_url, cia_net_data& data, httpcContext& hctx)
@@ -177,6 +196,8 @@ static void i_install_loop_thread_cb(Result& res, get_url_func get_url, cia_net_
 			}
 
 			data.itc = ITC::normal;
+			/* we want to redraw screen */
+			svcSignalEvent(data.eventHandle);
 			continue;
 		}
 
@@ -187,47 +208,49 @@ static void i_install_loop_thread_cb(Result& res, get_url_func get_url, cia_net_
 
 static Result i_install_resume_loop(get_url_func get_url, Handle ciaHandle, prog_func prog)
 {
+	Result res;
 	cia_net_data data;
 	data.buffer = new u8[BUFSIZE];
 	data.cia = ciaHandle;
+	if(R_FAILED(res = svcCreateEvent(&data.eventHandle, RESET_STICKY)))
+		return res;
 
 	httpcContext hctx;
-	Result res = 0;
 
 	// Install thread
 	ctr::thread<Result&, get_url_func, cia_net_data&, httpcContext&> th
 		(i_install_loop_thread_cb, res, get_url, data, hctx);
 
 	// UI Loop
-	u64 prev = 0;
-	bool didFirstTotal = false;
 	while(!th.finished())
 	{
 		if(data.itc != ITC::timeoutscr)
 		{
-			if(data.index != prev)
+			if(svcWaitSynchronization(data.eventHandle, 0) == 0)
 			{
+				/* draw & clear event */
+				svcClearEvent(data.eventHandle);
 				prog(data.index, data.totalSize);
-				prev = data.index;
-			}
-			else if(!didFirstTotal && data.totalSize != 0)
-			{
-				prog(0, data.totalSize);
-				didFirstTotal = true;
 			}
 
 			hidScanInput();
+			/* perhaps make this entire loop event-based?
+			 * extern Handle hidEvents[5];
+			 * svcWaitSynchronizationN() */
 			if(!aptMainLoop() || (hidKeysDown() & (KEY_B | KEY_START)))
 			{
 				httpcCancelConnection(&hctx); /* aborts if in http  */
 				data.itc = ITC::exit;
 				break;
 			}
+			gspWaitForVBlank();
 		}
-		gspWaitForVBlank();
+		else /* wait until timeout is done but don't clear event; we have to draw immediately after */
+			svcWaitSynchronization(data.eventHandle, U64_MAX);
 	}
 
 	th.join();
+	svcCloseHandle(data.eventHandle);
 
 	delete [] data.buffer;
 	return res;
