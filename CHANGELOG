@@ -6,9 +6,14 @@ v1.0.0:
  - add a download speed and ETA field while installing titles
  - add random title button
  - improve utf8 handling
+ - remove find_missing prompt in favor of automatical adding
  - fix issue where categories weren't sorted as on website
  - fix issue where closing the app from home would freeze the system
  - fix issue where spamming toggle on a "true"/"false" setting would crash the system
+ - fix issue where cursor wouldn't appear if second to last title was removed in queue
+ - fix issue where find_missing never did anything
+ - fix issue where seed was never installed
+ - fix issue where free space indicator wasn't being updated after installing a title
 
 v0.2.1:
  - fixed net indicator going partly hidden when in a long list

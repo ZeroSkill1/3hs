@@ -19,11 +19,13 @@
 #include <ui/progress_bar.hh>
 #include <ui/base.hh>
 
+#include "widgets/indicators.hh"
 #include "find_missing.hh"
 #include "lumalocale.hh"
 #include "settings.hh"
 #include "panic.hh"
 #include "util.hh"
+#include "seed.hh"
 #include "ctr.hh"
 
 static void make_queue(ui::RenderQueue& queue, ui::ProgressBar **bar)
@@ -51,19 +53,13 @@ static bool ask_reinstall(bool interactive)
 
 static void finalize_install(u64 tid, bool interactive)
 {
+	ui::RenderQueue::global()->find_tag<ui::FreeSpaceIndicator>(ui::tag::free_indicator)->update();
+
 	// Prompt to ask for extra content
-	if(interactive && tid_can_have_missing(tid) && get_settings()->askForExtraContent)
+	if(interactive && tid_can_have_missing(tid) && get_settings()->checkForExtraContent)
 	{
-		bool findMissing = true;
-
-		ui::RenderQueue queue;
-		ui::builder<ui::Confirm>(ui::Screen::bottom, STRING(extra_content), findMissing)
-			.y(ui::layout::center_y)
-			.add_to(queue);
-		queue.render_finite();
-
-		if(findMissing)
-			show_find_missing(tid);
+		ssize_t added = show_find_missing(tid);
+		if(added > 0) ui::notice(PSTRING(found_missing, added));
 	}
 
 	/* only set locale if we're interactive or if it's set to go automatically */
@@ -109,10 +105,10 @@ Result install::gui::net_cia(const std::string& url, u64 tid, bool interactive, 
 
 start_install:
 	res = install::net_cia(makeurlwrap(url), tid, [&queue, &bar](u64 now, u64 total) -> void {
-			bar->update(now, total);
-			bar->activate();
-			queue.render_frame();
-		}, shouldReinstall);
+		bar->update(now, total);
+		bar->activate();
+		queue.render_frame();
+	}, shouldReinstall);
 
 	if(res == APPERR_NOREINSTALL)
 	{
@@ -120,13 +116,13 @@ start_install:
 			goto start_install;
 	}
 
+	if(R_SUCCEEDED(res)) res = add_seed(tid);
 	if(R_FAILED(res))
 	{
 		error_container err = get_error(res);
 		report_error(err, "User was installing from " + url);
 		if(interactive) handle_error(err);
 	}
-
 	else finalize_install(tid, interactive);
 
 	set_focus(focus);
@@ -149,10 +145,10 @@ Result install::gui::hs_cia(const hsapi::FullTitle& meta, bool interactive, bool
 
 start_install:
 	res = install::hs_cia(meta, [&queue, &bar](u64 now, u64 total) -> void {
-			bar->update(now, total);
-			bar->activate();
-			queue.render_frame();
-		}, shouldReinstall);
+		bar->update(now, total);
+		bar->activate();
+		queue.render_frame();
+	}, shouldReinstall);
 
 	if(res == APPERR_NOREINSTALL)
 	{
@@ -160,13 +156,13 @@ start_install:
 			goto start_install;
 	}
 
+	if(R_SUCCEEDED(res)) res = add_seed(meta.tid);
 	if(R_FAILED(res))
 	{
 		error_container err = get_error(res);
 		report_error(err, "User was installing (" + ctr::tid_to_str(meta.tid) + ") (" + std::to_string(meta.id) + ")");
 		if(interactive) handle_error(err);
 	}
-
 	else finalize_install(meta.tid, interactive);
 
 	set_focus(focus);

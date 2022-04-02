@@ -28,7 +28,7 @@
 
 
 #define makebin(data) makebin_(data, sizeof(data))
-static FS_Path makebin_(const void *path, u32 size)
+static inline FS_Path makebin_(const void *path, u32 size)
 {
 	return { PATH_BINARY, size, path };
 }
@@ -234,5 +234,10 @@ u64 ctr::get_base_tid(u64 tid)
 {
 	/* clear the bits of cat (2nd u16) */
 	return tid & 0xFFFF0000FFFFFFFF;
+}
+
+u16 ctr::get_tid_cat(u64 tid)
+{
+	return (tid >> 32) & 0xFFFF;
 }
 

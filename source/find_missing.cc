@@ -19,6 +19,7 @@
 #include "hsapi.hh"
 #include "queue.hh"
 #include "panic.hh"
+#include "log.hh"
 #include "ctr.hh"
 
 #include <ui/loading.hh>
@@ -32,14 +33,14 @@ static void vecappend(std::vector<T>& a, const std::vector<T>& b)
 
 bool tid_can_have_missing(hsapi::htid tid)
 {
-	u16 category = (tid >> 32) & 0xFFFF;
+	u16 category = ctr::get_tid_cat(tid);
 	return category == 0x0000 /* normal */ || category == 0x8000 /* DSiWare/TWL */;
 }
 
 ssize_t show_find_missing(hsapi::htid tid)
 {
 	ssize_t ret = -1;
-	ui::loading([tid, &ret]() -> void {
+	ui::loading([&tid, &ret]() -> void {
 		std::vector<hsapi::htid> installed;
 		panic_if_err_3ds(ctr::list_titles_on(MEDIATYPE_SD, installed));
 		ctr::list_titles_on(MEDIATYPE_GAME_CARD, installed); // it might error if there is no cart inserted so we don't want to panic if it fails
@@ -65,14 +66,16 @@ ssize_t show_find_missing(hsapi::htid tid)
 
 		std::vector<hsapi::FullTitle> newInstalls;
 		std::copy_if(potentialInstalls.begin(), potentialInstalls.end(), std::back_inserter(newInstalls), [installed](const hsapi::FullTitle& title) -> bool {
-			if(std::find(queue_get().begin(), queue_get().end(), title) == queue_get().end())
+			/* already in queue */
+			if(std::find(queue_get().begin(), queue_get().end(), title) != queue_get().end())
 				return false;
 			/* not installed */
-			if(std::find(installed.begin(), installed.end(), title.tid) != installed.end())
+			if(std::find(installed.begin(), installed.end(), title.tid) == installed.end())
 				return true;
 			AM_TitleEntry te;
 			if(R_FAILED(ctr::get_title_entry(title.tid, te)))
 				return false;
+			/* installed version is lower than version on server*/
 			return title.version > te.version;
 		});
 

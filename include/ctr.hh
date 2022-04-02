@@ -114,6 +114,7 @@ namespace ctr {
 
 	bool is_base_tid(u64 tid);
 	u64 get_base_tid(u64 tid);
+	u16 get_tid_cat(u64 tid);
 
 	// https://www.3dbrew.org/wiki/Titles#Title_IDs
 	static inline Destination detect_dest(u64 tid)

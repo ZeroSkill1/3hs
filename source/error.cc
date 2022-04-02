@@ -142,6 +142,7 @@ static const std::unordered_map<Result, std::unordered_map<Result, const char *>
 			{ 6, "Server doesn't support Content-Length"         },
 			{ 7, "Failed to parse server json"                   },
 			{ 8, "Server didn't return status code 200"          },
+			{ 9, "API failed to process request"                 },
 		}
 	},
 });

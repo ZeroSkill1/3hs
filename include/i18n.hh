@@ -116,7 +116,7 @@ namespace str
 		search_zero_results = 76,
 		credits = 77,
 		extra_content = 78,
-		ask_extra = 79,
+		check_extra = 79,
 		no_req = 80,
 		invalid_query = 81,
 		min_constraint = 82, // %1 = current version, %2 = minimum version
@@ -136,7 +136,7 @@ namespace str
 		time_format_desc = 96,
 		language_desc = 97,
 		lumalocalemode_desc = 98,
-		ask_extra_desc = 99,
+		check_extra_desc = 99,
 		proxy_desc = 100,
 		install_all = 101,
 		install_no_base = 102,

@@ -155,7 +155,7 @@ static std::string serialize_id(SettingsId ID)
 	case ID_Localemode:
 		return localemode2str(g_settings.lumalocalemode);
 	case ID_Extra:
-		return g_settings.askForExtraContent ? STRING(btrue) : STRING(bfalse);
+		return g_settings.checkForExtraContent ? STRING(btrue) : STRING(bfalse);
 	case ID_Proxy:
 		return proxy::is_set() ? STRING(press_a_to_view) : STRING(none);
 	case ID_MaxELogs:
@@ -347,7 +347,7 @@ static void update_settings_ID(SettingsId ID)
 		g_settings.showBattery = !g_settings.showBattery;
 		break;
 	case ID_Extra:
-		g_settings.askForExtraContent = !g_settings.askForExtraContent;
+		g_settings.checkForExtraContent = !g_settings.checkForExtraContent;
 		break;
 	// Enums
 	case ID_TimeFmt:
@@ -401,14 +401,14 @@ void log_settings()
 		"progloc: %s, "
 		"language: %s, "
 		"lumalocalemode: %s, "
-		"askForExtraContent: %s, "
+		"checkForExtraContent: %s, "
 		"warnNoBase: %s, "
 		"maxExtraLogs: %u",
 			BOOL(isLightMode), BOOL(resumeDownloads), BOOL(loadFreeSpace),
 			BOOL(showBattery), BOOL(showNet), (int) g_settings.timeFormat,
 			g_settings.progloc == ProgressBarLocation::bottom ? "bottom" : "top",
 			i18n::langname(g_settings.language), localemode2str_en(g_settings.lumalocalemode),
-			BOOL(askForExtraContent), BOOL(warnNoBase), g_settings.maxExtraLogs);
+			BOOL(checkForExtraContent), BOOL(warnNoBase), g_settings.maxExtraLogs);
 #undef BOOL
 }
 
@@ -424,7 +424,7 @@ void show_settings()
 		{ STRING(progbar_screen) , STRING(progbar_screen_desc) , ID_ProgLoc    },
 		{ STRING(language)       , STRING(language_desc)       , ID_Language   },
 		{ STRING(lumalocalemode) , STRING(lumalocalemode)      , ID_Localemode },
-		{ STRING(ask_extra)      , STRING(ask_extra_desc)      , ID_Extra      },
+		{ STRING(check_extra)    , STRING(check_extra_desc)    , ID_Extra      },
 		{ STRING(proxy)          , STRING(proxy_desc)          , ID_Proxy      },
 		{ STRING(warn_no_base)   , STRING(warn_no_base_desc)   , ID_WarnNoBase },
 		{ STRING(max_elogs)      , STRING(max_elogs_desc)      , ID_MaxELogs   },

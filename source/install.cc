@@ -21,7 +21,6 @@
 #include "error.hh"
 #include "proxy.hh"
 #include "panic.hh"
-#include "seed.hh"
 #include "ctr.hh"
 #include "log.hh"
 
@@ -267,18 +266,22 @@ static Result i_install_hs_cia(const hsapi::FullTitle& meta, prog_func prog, boo
 
 Result install::net_cia(get_url_func get_url, hsapi::htid tid, prog_func prog, bool reinstallable)
 {
+	FS_MediaType dest = ctr::mediatype_of(tid);
+	Result ret;
 	if(reinstallable)
 	{
 		// Ask ninty why this stupid restriction is in place
 		// Basically reinstalling the CURRENT cia requires you
 		// To NOT delete the cia but instead have a higher version
 		// and just install like normal
-		u64 selftid = 0;
-		if(!(R_FAILED(APT_GetProgramID(&selftid)) || selftid == tid))
+		FS_MediaType selfmt;
+		u64 selftid;
+		if(R_FAILED(ret = APT_GetAppletInfo((NS_APPID) envGetAptAppId(), &selftid, (u8 *) &selfmt, nullptr, nullptr, nullptr)))
+			return ret;
+		if(envIsHomebrew() || selftid != tid || dest != selfmt)
 		{
-			Result res = 0;
-			if(R_FAILED(res = ctr::delete_if_exist(tid)))
-				return res;
+			if(R_FAILED(ret = ctr::delete_if_exist(tid)))
+				return ret;
 		}
 	}
 
@@ -288,8 +291,8 @@ Result install::net_cia(get_url_func get_url, hsapi::htid tid, prog_func prog, b
 			return APPERR_NOREINSTALL;
 	}
 
-	Handle cia; Result ret;
-	ret = AM_StartCiaInstall(ctr::mediatype_of(tid), &cia);
+	Handle cia;
+	ret = AM_StartCiaInstall(dest, &cia);
 	ilog("AM_StartCiaInstall(...): 0x%08lX", ret);
 	if(R_FAILED(ret)) return ret;
 
@@ -302,16 +305,12 @@ Result install::net_cia(get_url_func get_url, hsapi::htid tid, prog_func prog, b
 	{
 		AM_CancelCIAInstall(cia);
 		svcCloseHandle(cia);
-		if(!aptMainLoop())
-			exit(0);
 		return ret;
 	}
 
 	ret = AM_FinishCiaInstall(cia);
 	svcCloseHandle(cia);
 	ilog("AM_FinishCiaInstall(...): 0x%08lX", ret);
-	if(!aptMainLoop())
-		exit(0);
 
 	return ret;
 }

@@ -37,6 +37,7 @@
 	#define HS_BASE_LOC "https://hshop.erista.me/api"
 #endif
 
+#define CHECKAPI() if((res = api_res_to_rc(j)) != OK) return res
 #define OK 0
 
 // openssl s_client -showcerts -servername hshop.erista.me -connect hshop.erista.me:443 </dev/null | openssl x509 -outform DER -out hscert.der; xxd -i hscert.der; rm hscert.der
@@ -47,7 +48,6 @@ extern "C" void        hsapi_token(char *); /* hsapi_auth.c */
 extern "C" const int   hsapi_token_length;  /* hsapi_auth.c */
 extern "C" const char *hsapi_user;          /* hsapi_auth.c */
 
-using ojson = nlohmann::ordered_json;
 using json = nlohmann::json;
 
 static u32 *g_socbuf = nullptr;
@@ -157,6 +157,21 @@ static Result basereq(const std::string& url, std::string& data, HTTPC_RequestMe
 #undef TRY
 }
 
+static Result api_res_to_rc(json& j)
+{
+	Result code = j["status"]["code"].get<Result>();
+	switch(code)
+	{
+	case 0:
+		return OK;
+	/* perhaps expand this switch for common API errors
+	 * although they shouldn't happen */
+	default:
+		elog("API Error: %s (%08lX)", j["error_message"].get<std::string>().c_str(), code);
+		return APPERR_API_FAIL;
+	}
+}
+
 template <typename J>
 static Result basereq(const std::string& url, J& j, HTTPC_RequestMethod reqmeth = HTTPC_METHOD_GET)
 {
@@ -170,11 +185,11 @@ static Result basereq(const std::string& url, J& j, HTTPC_RequestMethod reqmeth 
 	return OK;
 }
 
-static void serialize_subcategories(std::vector<hsapi::Subcategory>& rscats, const std::string& cat, ojson& scats)
+static void serialize_subcategories(std::vector<hsapi::Subcategory>& rscats, const std::string& cat, json& scats)
 {
-	for(ojson::iterator scat = scats.begin(); scat != scats.end(); ++scat)
+	for(json::iterator scat = scats.begin(); scat != scats.end(); ++scat)
 	{
-		ojson& jscat = scat.value();
+		json& jscat = scat.value();
 
 		rscats.emplace_back();
 		hsapi::Subcategory& s = rscats.back();
@@ -189,11 +204,11 @@ static void serialize_subcategories(std::vector<hsapi::Subcategory>& rscats, con
 	}
 }
 
-static void serialize_categories(std::vector<hsapi::Category>& rcats, ojson& cats)
+static void serialize_categories(std::vector<hsapi::Category>& rcats, json& cats)
 {
-	for(ojson::iterator cat = cats.begin(); cat != cats.end(); ++cat)
+	for(json::iterator cat = cats.begin(); cat != cats.end(); ++cat)
 	{
-		ojson& jcat = cat.value();
+		json& jcat = cat.value();
 
 		rcats.emplace_back();
 		hsapi::Category& c = rcats.back();
@@ -305,10 +320,11 @@ hsapi::Category *hsapi::Index::find(const std::string& name)
 
 Result hsapi::fetch_index()
 {
-	ojson j;
+	json j;
 	Result res;
-	if(R_FAILED(res = basereq<ojson>(HS_BASE_LOC "/title-index", j)))
+	if(R_FAILED(res = basereq<json>(HS_BASE_LOC "/title-index", j)))
 		return res;
+	CHECKAPI();
 	j = j["value"];
 
 	g_index.titles = j["total_content_count"].get<hsapi::hsize>();
@@ -326,6 +342,7 @@ Result hsapi::titles_in(std::vector<hsapi::Title>& ret, const std::string& cat, 
 	Result res;
 	if(R_FAILED(res = basereq<json>(HS_BASE_LOC "/title/category/" + cat + "/" + scat, j)))
 		return res;
+	CHECKAPI();
 	j = j["value"];
 
 	serialize_titles(ret, j);
@@ -338,6 +355,7 @@ Result hsapi::title_meta(hsapi::FullTitle& ret, hsapi::hid id)
 	Result res;
 	if(R_FAILED(res = basereq<json>(HS_BASE_LOC "/title/" + std::to_string(id), j)))
 		return res;
+	CHECKAPI();
 	j = j["value"];
 
 	serialize_full_title(ret, j);
@@ -350,6 +368,7 @@ Result hsapi::get_download_link(std::string& ret, const hsapi::Title& meta)
 	Result res;
 	if(R_FAILED(res = basereq<json>(HS_CDN_BASE "/content/" + std::to_string(meta.id) + "/request", j)))
 		return res;
+	CHECKAPI();
 	j = j["value"];
 
 	ret = HS_CDN_BASE "/content/" + std::to_string(meta.id) + "?token=" + j["token"].get<std::string>();
@@ -362,6 +381,7 @@ Result hsapi::search(std::vector<hsapi::Title>& ret, const std::string& query)
 	Result res;
 	if(R_FAILED(res = basereq<json>(HS_BASE_LOC "/title/search?q=" + url_encode(query), j)))
 		return res;
+	CHECKAPI();
 	j = j["value"];
 
 	serialize_titles(ret, j);
@@ -374,6 +394,7 @@ Result hsapi::random(hsapi::FullTitle& ret)
 	Result res;
 	if(R_FAILED(res = basereq<json>(HS_BASE_LOC "/title/random", j)))
 		return res;
+	CHECKAPI();
 	j = j["value"];
 
 	serialize_full_title(ret, j);
@@ -391,13 +412,16 @@ Result hsapi::batch_related(hsapi::BatchRelated& ret, const std::vector<hsapi::h
 	Result res = OK;
 	if(R_FAILED(res = basereq<json>(url, j)))
 		return res;
+	CHECKAPI();
 	j = j["value"];
 
 	for(json::iterator it = j.begin(); it != j.end(); ++it)
 	{
 		htid tid = ctr::str_to_tid(it.key());
-		serialize_titles_ver(ret[tid].updates, it.value()["updates"]);
-		serialize_titles_ver(ret[tid].dlc, it.value()["dlc"]);
+		json& j2 = it.value()["updates"];
+		if(j2.is_array()) serialize_titles_ver(ret[tid].updates, j2);
+		j2 = it.value()["dlc"];
+		if(j2.is_array()) serialize_titles_ver(ret[tid].dlc, j2);
 	}
 
 	return OK;

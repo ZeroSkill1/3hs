@@ -54,7 +54,7 @@ typedef struct Settings
 	ProgressBarLocation progloc = ProgressBarLocation::bottom;
 	lang::type language = lang::english;
 	LumaLocaleMode lumalocalemode = LumaLocaleMode::automatic;
-	bool askForExtraContent = true;
+	bool checkForExtraContent = true;
 	bool warnNoBase = true;
 	u8 maxExtraLogs = 3;
 } Settings;

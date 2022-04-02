@@ -23,6 +23,7 @@
 
 #include "panic.hh"
 #include "i18n.hh"
+#include "log.hh"
 
 /* because you can't copy a u8[0x10] but you can a struct containing a u8[0x10].... */
 typedef struct Seed
@@ -83,7 +84,12 @@ void init_seeddb()
 
 Result add_seed(u64 tid)
 {
-	if(g_seeddb.count(tid) == 0) return 0x0;
+	if(g_seeddb.count(tid) == 0)
+	{
+		ilog("Not adding seed for %016llX", tid);
+		return 0x0;
+	}
+	ilog("Adding seed for %016llX", tid);
 	return FSUSER_AddSeed(tid, g_seeddb[tid].seed);
 }
 

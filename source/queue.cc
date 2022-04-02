@@ -141,10 +141,9 @@ void show_queue()
 				if(g_queue.size() == 0)
 					return false; /* we're done */
 				/* if we removed the last item */
-				if(i == g_queue.size())
+				if(i >= g_queue.size())
 					--i;
 
-				i = i > 0 ? i - 1 : 0;
 				meta->set_title(self->at(i));
 				self->set_pos(i);
 				self->update();
