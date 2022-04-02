@@ -108,7 +108,6 @@ namespace hsapi
 		std::vector<FullTitle> updates;
 		std::vector<FullTitle> dlc;
 	} Related;
-	/* NOTE: updates/dlc are missing the prod and desc properties */
 	using BatchRelated = std::unordered_map<htid, Related>;
 
 

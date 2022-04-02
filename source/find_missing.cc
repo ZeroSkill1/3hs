@@ -79,8 +79,8 @@ ssize_t show_find_missing(hsapi::htid tid)
 			return title.version > te.version;
 		});
 
-		for(const hsapi::Title& title : newInstalls)
-			queue_add(title.id, false);
+		for(const hsapi::FullTitle& title : newInstalls)
+			queue_add(title);
 		ret = newInstalls.size();
 	});
 	return ret;

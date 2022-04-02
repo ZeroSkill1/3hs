@@ -243,16 +243,6 @@ static void serialize_titles(std::vector<hsapi::Title>& rtitles, json& j)
 	}
 }
 
-static void serialize_titles_ver(std::vector<hsapi::FullTitle>& rtitles, json& j)
-{
-	for(json::iterator it = j.begin(); it != j.end(); ++it)
-	{
-		rtitles.emplace_back();
-		serialize_title(rtitles.back(), it.value());
-		rtitles.back().version = j["version"].get<hsapi::hiver>();
-	}
-}
-
 static void serialize_full_title(hsapi::FullTitle& ret, json& j)
 {
 	serialize_title(ret, j);
@@ -260,6 +250,16 @@ static void serialize_full_title(hsapi::FullTitle& ret, json& j)
 	ret.prod = j["product_code"].get<std::string>();
 	ret.version = j["version"].get<hsapi::hiver>();
 }
+
+static void serialize_full_titles(std::vector<hsapi::FullTitle>& rtitles, json& j)
+{
+	for(json::iterator it = j.begin(); it != j.end(); ++it)
+	{
+		rtitles.emplace_back();
+		serialize_full_title(rtitles.back(), it.value());
+	}
+}
+
 
 // https://en.wikipedia.org/wiki/Percent-encoding
 static std::string url_encode(const std::string& str)
@@ -419,9 +419,9 @@ Result hsapi::batch_related(hsapi::BatchRelated& ret, const std::vector<hsapi::h
 	{
 		htid tid = ctr::str_to_tid(it.key());
 		json& j2 = it.value()["updates"];
-		if(j2.is_array()) serialize_titles_ver(ret[tid].updates, j2);
+		if(j2.is_array()) serialize_full_titles(ret[tid].updates, j2);
 		j2 = it.value()["dlc"];
-		if(j2.is_array()) serialize_titles_ver(ret[tid].dlc, j2);
+		if(j2.is_array()) serialize_full_titles(ret[tid].dlc, j2);
 	}
 
 	return OK;
