@@ -72,7 +72,7 @@ const std::string *next::sel_sub(const std::string& cat, size_t *cursor)
 {
 	using list_t = ui::List<hsapi::Subcategory>;
 
-	std::string desc = set_desc(STRING(select_cat));
+	std::string desc = set_desc(STRING(select_subcat));
 	bool focus = set_focus(false);
 	const std::string *ret = nullptr;
 

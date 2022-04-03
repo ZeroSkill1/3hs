@@ -224,10 +224,12 @@ Result ctr::delete_if_exist(u64 tid, FS_MediaType media)
 
 bool ctr::is_base_tid(u64 tid)
 {
-	u16 cat = (tid >> 32) & 0xFFFF;
+	u16 cat = ctr::get_tid_cat(tid);
 	/* 0x4 = AddOnContents,
-	 * which updates also include (0xE) */
-	return (cat & 0x4) == 0;
+	 * which updates (0xE) and DLC (0x8C) also include
+	 * 0x8000 = DSiWare,
+	 * consider all DSiWare base. For some reason sets 0x4 for all DSiWare */
+	return (cat & 0x8000) || (cat & 0x4) == 0;
 }
 
 u64 ctr::get_base_tid(u64 tid)

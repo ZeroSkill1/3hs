@@ -149,7 +149,7 @@ static bool enable_gamepatching_buf(u8 *buf)
 	return ret;
 }
 
-/* return sif gamepatching was set before */
+/* returns if gamepatching was set before */
 static bool enable_gamepatching()
 {
 	FILE *config = fopen("/luma/config.bin", "r");
