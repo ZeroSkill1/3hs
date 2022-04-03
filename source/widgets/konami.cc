@@ -55,6 +55,6 @@ void ui::KonamiListner::show_bunny()
 		.x(ui::layout::center_x).y(ui::layout::center_y)
 		.wrap().add_to(queue);
 
-	queue.render_finite_button(KEY_A | KEY_START);
+	queue.render_finite_button(KEY_A | KEY_START | KEY_B);
 }
 

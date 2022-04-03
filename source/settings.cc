@@ -65,7 +65,9 @@ void save_settings()
 
 static void write_default_settings()
 {
+	cfguInit(); /* ensure cfg is loaded */
 	g_settings.language = i18n::default_lang();
+	cfguExit(); /* remove cfg reference */
 	save_settings();
 }
 

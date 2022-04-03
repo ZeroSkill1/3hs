@@ -87,7 +87,7 @@ static const char *get_manual_lang_str(ctr::TitleSMDH *smdh)
 
 	set_focus(focus);
 	return lang == LANG_INVALID
-		? "\0" : langlut[lang].c_str();
+		? nullptr : langlut[lang].c_str();
 }
 #undef LANG_INVALID
 
@@ -238,13 +238,14 @@ void luma::set_locale(u64 tid)
 	if(get_settings()->lumalocalemode == LumaLocaleMode::automatic)
 	{
 		langstr = get_auto_lang_str(smdh);
+		if(!langstr) goto del_smdh; /* shouldn't happen */
 		ilog("(lumalocale) Automatically deduced %s %s", regstr, langstr);
 	}
 	else if(get_settings()->lumalocalemode == LumaLocaleMode::manual)
 	{
 		langstr = get_manual_lang_str(smdh);
 		/* cancelled the selection */
-		if(langstr[0] == '\0') goto del_smdh;
+		if(!langstr) goto del_smdh;
 		ilog("(lumalocale) Manually selected %s %s", regstr, langstr);
 	}
 
