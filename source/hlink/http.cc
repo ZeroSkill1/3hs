@@ -115,6 +115,9 @@ void hlink::HTTPRequestContext::serve_500()
 }
 /* 1}}} */
 
+static std::unordered_map<std::string, std::string> file_cache;
+
+
 int hlink::HTTPServer::make_fd()
 {
 	panic_assert(this->fd == -1, "tried to re-create bound socket");
@@ -316,8 +319,23 @@ void hlink::HTTPRequestContext::serve_file(int status, const std::string& fname,
 	fclose(f);
 }
 
+void hlink::HTTPRequestContext::serve_path(int status, const std::string& path, HTTPHeaders headers)
+{
+	this->path = path; /* sneaky */
+	std::string content;
+	this->read_path_content(content);
+	this->respond(status, content, headers);
+}
+
 void hlink::HTTPRequestContext::read_path_content(std::string& buf)
 {
+	auto it = file_cache.find(this->path);
+	if(it != file_cache.end())
+	{
+		buf = it->second;
+		return;
+	}
+
 	FILE *f = fopen((this->server->root + this->path).c_str(), "r");
 	if(f == nullptr) return;
 
@@ -335,6 +353,7 @@ void hlink::HTTPRequestContext::read_path_content(std::string& buf)
 	}
 
 	fclose(f);
+	file_cache[this->path] = buf;
 }
 
 void hlink::HTTPRequestContext::serve_plain()

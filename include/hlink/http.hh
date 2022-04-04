@@ -49,6 +49,7 @@ namespace hlink
 
 		inline bool is_get() { return this->method == "get"; }
 		void serve_file(int status, const std::string& fname, HTTPHeaders headers);
+		void serve_path(int status, const std::string& path, HTTPHeaders headers);
 		void respond(int status, const std::string& data, HTTPHeaders headers);
 		void respond_chunked(int status, HTTPHeaders headers);
 		void respond(int status, const HTTPHeaders& headers);

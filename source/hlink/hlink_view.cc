@@ -29,6 +29,7 @@ static void addreq(ui::RenderQueue& queue, const std::string& reqstr)
 	ui::builder<ui::Text>(ui::Screen::bottom, "Last request\n" + reqstr)
 		.x(ui::layout::center_x)
 		.y(ui::layout::base)
+		.wrap()
 		.add_to(queue);
 }
 
@@ -93,6 +94,7 @@ void show_hlink()
 			queue.render_frame();
 		},
 		[]() -> bool {
+			if(!aptMainLoop()) return false;
 			ui::Keys keys = ui::RenderQueue::get_keys();
 			return !((keys.kDown | keys.kHeld) & (KEY_START | KEY_B));
 		},

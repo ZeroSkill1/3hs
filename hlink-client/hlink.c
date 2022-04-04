@@ -32,14 +32,14 @@ typedef struct iTransactionHeader
 {
 	char magic[MAGIC_LEN];
 	uint8_t action; // enum HAction
-	uint64_t size;
+	uint32_t size;
 } __attribute__((__packed__)) iTransactionHeader;
 
 typedef struct iTransactionResponse
 {
 	char magic[MAGIC_LEN];
 	uint8_t resp; // enum HResponse
-	uint64_t size;
+	uint32_t size;
 } __attribute__((__packed__)) iTransactionResponse;
 
 #define ERROR_MAXLEN 100
@@ -101,11 +101,11 @@ static int readdiscard(int sock)
 	return readcheckresp(&resp, sock);
 }
 
-static iTransactionHeader makeheader(uint8_t action, uint64_t size)
+static iTransactionHeader makeheader(uint8_t action, uint32_t size)
 {
 	iTransactionHeader header;
 	memcpy(header.magic, MAGIC, MAGIC_LEN);
-	header.size = htonll(size);
+	header.size = htonl(size);
 	header.action = action;
 	return header;
 }
@@ -238,7 +238,7 @@ int hl_sleep(hLink *link)
 	int sock = makesock(link);
 	if(sock < 0) return -errno;
 
-	iTransactionHeader header = makeheader(HA_sleep, sizeof(uint64_t));
+	iTransactionHeader header = makeheader(HA_sleep, 0);
 	if(send(sock, &header, sizeof(iTransactionHeader), 0) < 0)
 	{ close(sock); return -errno; }
 

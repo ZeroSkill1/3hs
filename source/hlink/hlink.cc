@@ -38,10 +38,19 @@
 #include "hsapi.hh"
 #include "i18n.hh"
 #include "ctr.hh"
+#include "log.hh"
 
 #define SLEEP_AMOUNT 5
 #define SLEEP_AMOUNT_S "5"
 #define SLEEP_AMOUNT_S_PLUS_ONE "6"
+
+#ifdef RELEASE
+	#define TIMER_START(label)
+	#define TIMER_END(label)
+#else
+	#define TIMER_START(label) u64 timer_##label = osGetTime();
+	#define TIMER_END(label) dlog("Completing " #label " took %llums", osGetTime() - timer_##label);
+#endif
 
 // All network byte order (BE)
 
@@ -49,23 +58,19 @@ typedef struct iTransactionHeader
 {
 	char magic[hlink::transaction_magic_len];
 	hlink::action action;
-	uint64_t size;
+	uint32_t size;
 } __attribute__((__packed__)) iTransactionHeader;
 
 typedef struct iTransactionResponse
 {
 	char magic[hlink::transaction_magic_len];
 	hlink::response resp;
-	uint64_t size;
+	uint32_t size;
 } __attribute__((__packed__)) iTransactionResponse;
 
 static bool g_lock = false; // is a hlink transaction going on?
 
 using trust_store_t = std::unordered_map<in_addr_t, bool>;
-
-// Why do these not exist already?
-static uint64_t htonll(uint64_t n)
-{ return __builtin_bswap64(n); }
 
 static uint64_t ntohll(uint64_t n)
 { return __builtin_bswap64(n); }
@@ -91,7 +96,7 @@ static void send_response(int clientfd, hlink::response resp, const std::string&
 {
 	iTransactionResponse respb;
 	strncpy(respb.magic, hlink::transaction_magic, hlink::transaction_magic_len + 1);
-	respb.size = htonll(body.size());
+	respb.size = htonl(body.size());
 	respb.resp = resp;
 
 	send(clientfd, &respb, sizeof(iTransactionResponse), 0);
@@ -214,7 +219,7 @@ static bool handle_request(int clientfd, int serverfd, hlink::HTTPServer serv, c
 		goto cleanup;
 	}
 
-	disp_req(std::string(clientaddr) + ": " + action2string(header.action));
+	disp_req(std::string(clientaddr) + "\n" + action2string(header.action));
 
 	switch(header.action)
 	{
@@ -234,8 +239,10 @@ static bool handle_request(int clientfd, int serverfd, hlink::HTTPServer serv, c
 			return true;
 		break;
 	case hlink::action::sleep:
+		send_response(clientfd, hlink::response::success);
+		close(clientfd);
 		sleep(SLEEP_AMOUNT);
-		break;
+		goto no_close;
 	default:
 		send_response(clientfd, hlink::response::error, "invalid action");
 		break;
@@ -243,6 +250,7 @@ static bool handle_request(int clientfd, int serverfd, hlink::HTTPServer serv, c
 
 cleanup:
 	close(clientfd);
+no_close:
 	g_lock = false;
 	return false;
 }
@@ -257,7 +265,8 @@ static void finish_ctx(hlink::HTTPRequestContext& ctx, hlink::TemplRen& ren, siz
 	if((code = ren.finish(src, res)) != hlink::TemplRen::result::ok)
 	{
 		ctx.respond(500, "<!DOCTYPE html><html><body>Failed to render due to a template error. Code = " + std::to_string((int) code)
-			+ ". If you do not know what this code means <a href=\"/doc/3hs-template-language.html\">try reading the documentation</a>"
+			+ ". If you do not know what this code means <a href=\"/doc/3hs-template-language.html\">try reading the documentation</a>."
+			"<p>If your 3DS showed an ARM11 message/crashed this is a bug.</p>"
 			"<p><a href=\"/index.html\">Back to home</a></p></body></html>",
 			{ { "Content-Type", "text/html" } });
 	}
@@ -268,7 +277,7 @@ static void finish_ctx(hlink::HTTPRequestContext& ctx, hlink::TemplRen& ren, siz
 static bool handle_http_request(hlink::HTTPRequestContext ctx, int serverfd, char *clientaddr, std::function<void(const std::string&)> disp_req,
 	std::function<void(const std::string&)> disp_error)
 {
-	disp_req(std::string(clientaddr) + ": " + ctx.path);
+	disp_req(std::string(clientaddr) + "\n" + ctx.path);
 	((void) disp_error);
 	((void) serverfd);
 
@@ -352,6 +361,12 @@ static bool handle_http_request(hlink::HTTPRequestContext ctx, int serverfd, cha
 			}
 
 			ctr::TitleSMDH *smdh = ctr::smdh::get(tid);
+			if(!smdh)
+			{
+				status = 500;
+				ren.use("error-message", "failed to fetch SMDH");
+				goto begin_render;
+			}
 			ren.use("title-name", ctr::smdh::u16conv(
 				ctr::smdh::get_native_title(smdh)->descShort, 0x40));
 			delete smdh;
@@ -386,7 +401,7 @@ static bool handle_http_request(hlink::HTTPRequestContext ctx, int serverfd, cha
 
 		else
 		{
-			ctx.respond(500, "<!DOCTYPE html><html><body>this shouldn't happen (path=" + ctx.path + ")</body></html>", { });
+			ctx.respond(500, "<!DOCTYPE html><html><body>this shouldn't happen (path=" + ctx.path + ")</body></html>", { { "Content-Type", "text/html" } });
 			break;
 		}
 
@@ -404,7 +419,7 @@ end_render_no_close:
 
 static bool isallowedtrust(struct sockaddr_in clientaddr, trust_store_t& truststore, std::function<bool(const std::string&)> on_requester)
 {
-	if(truststore.count(clientaddr.sin_addr.s_addr) > 0 && !truststore[clientaddr.sin_addr.s_addr])
+	if(truststore.count(clientaddr.sin_addr.s_addr) != 0 && !truststore[clientaddr.sin_addr.s_addr])
 		return false;
 
 	else if(truststore.count(clientaddr.sin_addr.s_addr) == 0)
@@ -413,7 +428,12 @@ static bool isallowedtrust(struct sockaddr_in clientaddr, trust_store_t& trustst
 		bool trusted = on_requester(clientipaddr);
 
 		truststore[clientaddr.sin_addr.s_addr] = trusted;
-		if(!trusted) return false;
+		if(!trusted)
+		{
+			ilog("Adding %s as untrusted", clientipaddr);
+			return false;
+		}
+		ilog("Adding %s as trusted", clientipaddr);
 	}
 
 	return true;
@@ -428,10 +448,12 @@ static void handle_http(hlink::HTTPServer& serv, trust_store_t& truststore, int 
 
 	if(g_lock)
 	{
-		ctx.serve_file(429, "romfs:/public/busy.html", { });
+		ctx.serve_path(429, "/busy.html", { });
 		ctx.close();
 		return;
 	}
+
+	g_lock = true;
 
 	if(!isallowedtrust(ctx.clientaddr, truststore, on_requester))
 	{
@@ -440,13 +462,12 @@ static void handle_http(hlink::HTTPServer& serv, trust_store_t& truststore, int 
 		return;
 	}
 
-	g_lock = true;
-
-	g_lock = true;
+	/* we need to make a copy of ctx because else stack corruption */
 	handleThread.run([&ctx, serverfd, disp_req, disp_error, &keepOpenSignal]() -> void {
-		/* we need to make a copy of ctx because else stack corruption */
+		TIMER_START(http_request)
 		if(handle_http_request(ctx, serverfd, inet_ntoa(ctx.clientaddr.sin_addr), disp_req, disp_error))
 			keepOpenSignal = false;
+		TIMER_END(http_request)
 	});
 }
 
@@ -482,8 +503,10 @@ static void handle_hlink(int serverfd, trust_store_t& truststore, hlink::HTTPSer
 
 	g_lock = true;
 	handleThread.run([clientfd, serverfd, &serv, clientaddr, disp_req, disp_error, &keepOpenSignal]() -> void {
+		TIMER_START(hlink_request)
 		if(handle_request(clientfd, serverfd, serv, inet_ntoa(clientaddr.sin_addr), disp_req, disp_error))
 			keepOpenSignal = false;
+		TIMER_END(hlink_request)
 	});
 }
 
@@ -545,13 +568,27 @@ void hlink::create_server(
 	trust_store_t truststore;
 
 begin_loop:
-	const char *ipaddr = inet_ntoa(servaddr.sin_addr);
-	on_server_create(ipaddr); // We might need to redraw the screen
-
-	while(keepOpenSignal && on_poll_exit())
+	/* if g_lock is set that thread may want to write already */
+	bool haveDispedServ = false;
+	if(!g_lock)
 	{
-		if(poll(serverpolls, polls_len, -1) == 0)
+		const char *ipaddr = inet_ntoa(servaddr.sin_addr);
+		on_server_create(ipaddr); // We might need to redraw the screen
+		haveDispedServ = true;
+	}
+
+	while(keepOpenSignal && (g_lock || on_poll_exit()))
+	{
+		if(!g_lock && !haveDispedServ)
+		{
+			const char *ipaddr = inet_ntoa(servaddr.sin_addr);
+			on_server_create(ipaddr); // We might need to redraw the screen
+			haveDispedServ = true;
+		}
+
+		if(poll(serverpolls, polls_len, 1000) == 0)
 			continue; // no events; we do nothing
+		haveDispedServ = false;
 		for(size_t i = 0; i < polls_len; ++i)
 		{
 			if(!(serverpolls[i].revents & POLLIN))

@@ -88,7 +88,7 @@
 					</tr>
 					<tr>
 						<td>size</td>
-						<td>uint64_t/8 bytes</td>
+						<td>uint32_t/4 bytes</td>
 						<td>size of the body</td>
 					</tr>
 					<tr>
@@ -120,7 +120,7 @@
 					</tr>
 					<tr>
 						<td>size</td>
-						<td>uint64_t/8 bytes</td>
+						<td>uint32_t/4 bytes</td>
 						<td>size of the body</td>
 					</tr>
 					<tr>
@@ -255,11 +255,11 @@
 /* request */
 	0x48 0x4C 0x54                          /* magic ("HLT") */
 	0x04                                    /* action code (<em>nothing</em>) */
-	0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 /* size (0 bytes) */
+	0x00 0x00 0x00 0x00                     /* size (0 bytes) */
 /* response (authentication successfull) */
 	0x48 0x4C 0x54                          /* magic ("HLT") */
 	0x00                                    /* response code (<em>accept</em>) */
-	0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 /* size (0 bytes) */
+	0x00 0x00 0x00 0x00                     /* size (0 bytes) */
 /* response (authentication failed) */
 	0x48 0x4C 0x54                          /* magic ("HLT") */
 	0x02                                    /* response code (<em>untrusted</em>) */
@@ -271,7 +271,7 @@
 /* request */
 	0x48 0x4C 0x54                          /* magic ("HLT") */
 	0x00                                    /* action code (<em>add_queue</em>) */
-	0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x10 /* size (16 bytes) */
+	0x00 0x00 0x00 0x10                     /* size (16 bytes) */
 /* body */
 	0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x66 /* ID 1 (id=102) */
 	0x00 0x00 0x00 0x00 0x00 0x00 0xCB 0x00 /* ID 2 (id=3248) */
@@ -293,4 +293,5 @@
 			</ul>
 		</div>
 	</body>
+	<a href="/index.html">Back to home</a>
 </html>

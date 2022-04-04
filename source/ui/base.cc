@@ -213,7 +213,7 @@ bool ui::RenderQueue::render_frame(const ui::Keys& keys)
 	{
 		C3D_FrameEnd(0); /* we first need to finish because panic() will render */
 		g_inRender = false;
-		panic("illegal recursive render");
+		panic("illegal double render");
 	}
 
 	C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
