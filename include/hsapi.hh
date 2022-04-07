@@ -148,7 +148,7 @@ namespace hsapi
 	{
 		std::string desc = set_desc(STRING(loading));
 		bool focus = set_focus(false);
-		Result res = 0;
+		Result res;
 		do {
 			ui::loading([&res, func, &args...]() -> void {
 				res = (*func)(args...);

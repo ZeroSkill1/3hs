@@ -110,9 +110,9 @@ static const std::unordered_map<Result, std::unordered_map<Result, const char *>
 		RM_HTTP, {
 			{ 3  , "POST data too large"              },
 			{ 60 , "Failed to verify TLS certificate" },
-			{ 70 , "WiFi not connected"               },
+			{ 70 , "Network unavailable"              },
 			{ 72 , "Timed out"                        },
-			{ 73 , "WiFi not connected"               },
+			{ 73 , "Failed to connect to host"        },
 			{ 102, "Wrong context handle"             },
 			{ 105, "Request timed out"                },
 		}
