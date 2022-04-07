@@ -5,6 +5,7 @@ v1.0.0:
  - add log spliting: logs get split into multiple files sorted on age
  - add a download speed and ETA field while installing titles
  - add random title button
+ - add log uploading
  - improve utf8 handling
  - remove find_missing prompt in favor of automatical adding
  - fix issue where categories weren't sorted as on website
