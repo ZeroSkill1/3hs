@@ -248,3 +248,8 @@ int hl_sleep(hLink *link)
 	return ret;
 }
 
+void hl_waittimeout(void)
+{
+	usleep(500);
+}
+

@@ -60,6 +60,8 @@ int hl_launch(hLink *link, uint64_t tid);
 int hl_addqueue(hLink *link, uint64_t *ids, size_t amount);
 /* sleeps the 3ds for 5 seconds */
 int hl_sleep(hLink *link);
+/* wait on host for a bit because the 3ds is garbage */
+void hl_waittimeout(void);
 
 #ifdef __cplusplus
 }
