@@ -15,6 +15,7 @@
  */
 
 #include "log_view.hh"
+#include "hsapi.hh"
 #include "util.hh"
 #include "i18n.hh"
 #include "log.hh"
@@ -25,13 +26,27 @@
 #include <string>
 
 
-// Gonna have to wait until hsite v3 releases
-#ifndef RELEASE
 static void upload_logs()
 {
-	ui::notice("TODO");
+	FILE *f = fopen(log_filename(), "r");
+	if(!f) return;
+	fseek(f, 0, SEEK_END);
+	long size = ftell(f);
+	fseek(f, 0, SEEK_SET);
+	char *data = (char *) malloc(size);
+	if(fread(data, size, 1, f) != 1)
+		return;
+	std::string u;
+	Result res = hsapi::upload_log(data, size, u);
+	free(data);
+	if(R_FAILED(res))
+	{
+		error_container err = get_error(res);
+		handle_error(err);
+		return;
+	}
+	ui::notice(PSTRING(log_url, u));
 }
-#endif
 
 static void clear_logs()
 {

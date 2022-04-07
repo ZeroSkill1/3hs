@@ -18,6 +18,7 @@
 #include "panic.hh"
 #include "log.hh"
 
+#include "hlink/hlink.hh"
 #include "hlink/http.hh"
 
 #include <sys/socket.h>
@@ -138,7 +139,7 @@ int hlink::HTTPServer::make_fd()
 		return errno;
 	}
 
-	if(listen(serverfd, 2) < 0)
+	if(listen(serverfd, hlink::backlog) < 0)
 	{
 		::close(serverfd);
 		return errno;

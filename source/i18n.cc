@@ -163,6 +163,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::max_elogs] = "Maximum old log files",
 			[str::max_elogs_desc] = "Amount of old log files to keep. Between 0-255 inclusive where 0 keeps no additional log files.",
 			[str::elogs_hint] = "Number between 0-255 inclusive",
+			[str::log_url] = "You can find the log at\n%1", // %1 = url
 		},
 
 	[lang::dutch] =
@@ -277,7 +278,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::password] = "Wachtwoord",
 			[str::clear] = "Maak leeg",
 			[str::progbar_screen_desc] = "Het scherm om de laadbalk op te laten verschijnen",
-			[str::light_mode_desc] = "Zet lichte modus aan. Dit zal het uiterlijk van 3hs een lichtere tint geven",
+			[str::light_mode_desc] = "Zet lichte modus aan. Dit zal het uiterlijk van 3hs een lichte tint geven",
 			[str::resume_dl_desc] = "Hervat downloads wanneer zij onderbroken worden",
 			[str::load_space_desc] = "Laad de vrije opslag balk",
 			[str::show_battery_desc] = "Laat de status van de batterij zien",
@@ -299,6 +300,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::max_elogs] = "Maximum aantal extra log bestanden",
 			[str::max_elogs_desc] = "Aantal oude log bestanden om te bewaren. Een nummer van 0 tot en met 255.",
 			[str::elogs_hint] = "Nummer van 0 tot/met 255",
+			[str::log_url] = "Je kunt het log-bestand hier vinden:\n%1",
 		},
 
 	[lang::german] =
@@ -432,6 +434,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::max_elogs] = "Maximale Anzahl von alten Protokolldateien",
 			[str::max_elogs_desc] = "Anzahl von alten Protokolldateien die behalten werden sollen, zwischen 0-255 inklusive, 0 = keine zusätzlichen Protokolldateien werden behalten.",
 			[str::elogs_hint] = "Nummer zwischen 0-255 inklusive",
+			[str::log_url] = "Das Protokoll kannst du hier finden:\n%1",
 		},
 
 	[lang::spanish] =
@@ -566,6 +569,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::max_elogs] = "Máxima capacidad de archivos de registro viejos",
 			[str::max_elogs_desc] = "Capacidad de archivos de registro que se puede guardar. Debe ser un número que incluya de 0 a 255, al escoger 0, no se guardarán registros adicionales.",
 			[str::elogs_hint] = "Número que incluya 0 a 255",
+			[str::log_url] = "Puedes encontrar el registro en\n%1", // %1 = url
 		}
 };
 #pragma GCC diagnostic pop

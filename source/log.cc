@@ -153,6 +153,11 @@ void log_exit()
 		LightLock_Unlock(&file_lock);
 }
 
+const char *log_filename()
+{
+	return F;
+}
+
 void _logf(const char *fnname, const char *filen,
 	size_t line, LogLevel lvl, const char *fmt, ...)
 {

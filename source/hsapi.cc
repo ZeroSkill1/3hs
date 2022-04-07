@@ -30,11 +30,13 @@
 
 #define HS_UPDATE_BASE  "http://download2.erista.me/3hs"
 #if !RELEASE && defined(HS_DEBUG_SERVER)
-	#define HS_CDN_BASE HS_DEBUG_SERVER ":5001"
 	#define HS_BASE_LOC HS_DEBUG_SERVER ":5000/api"
+	#define HS_CDN_BASE HS_DEBUG_SERVER ":5001"
+	#define HS_SITE_LOC HS_DEBUG_SERVER ":5002"
 #else
-	#define HS_CDN_BASE "http://download4.erista.me"
 	#define HS_BASE_LOC "https://hshop.erista.me/api"
+	#define HS_CDN_BASE "http://download4.erista.me"
+	#define HS_SITE_LOC "https://hshop.erista.me"
 #endif
 
 #define CHECKAPI() if((res = api_res_to_rc(j)) != OK) return res
@@ -72,7 +74,7 @@ bool hsapi::global_init()
 	return true;
 }
 
-static Result basereq(const std::string& url, std::string& data, HTTPC_RequestMethod reqmeth = HTTPC_METHOD_GET)
+static Result basereq(const std::string& url, std::string& data, HTTPC_RequestMethod reqmeth = HTTPC_METHOD_GET, const char *postdata = nullptr, u32 postdata_len = 0)
 {
 	httpcContext ctx;
 	Result res = OK;
@@ -88,6 +90,9 @@ static Result basereq(const std::string& url, std::string& data, HTTPC_RequestMe
 /*TRY(httpcAddRequestHeaderField(&ctx, "X-Auth-Token", token));*/char*token=(char*)malloc(hsapi_token_length+1);hsapi_token(token);token[hsapi_token_length]=0;TRY(httpcAddRequestHeaderField(&ctx,"X-Auth-Token",token));memset(token,0,hsapi_token_length);free(token);
 	if(url.find("https") == 0) // only use certs on https
 		TRY(httpcAddTrustedRootCA(&ctx, hscert_der, hscert_der_len));
+	if(postdata && postdata_len != 0)
+		/* for some reason postdata is a u32 instead of u8.... */
+		TRY(httpcAddPostDataRaw(&ctx, (const u32 *) postdata, postdata_len));
 	TRY(proxy::apply(&ctx));
 
 	TRY(httpcBeginRequest(&ctx));
@@ -128,7 +133,7 @@ static Result basereq(const std::string& url, std::string& data, HTTPC_RequestMe
 
 		httpcCancelConnection(&ctx);
 		httpcCloseContext(&ctx);
-		return APPERR_NON200;
+		return status == 413 ? APPERR_TOO_LARGE : APPERR_NON200;
 	}
 
 	u32 totalSize = 0;
@@ -177,10 +182,10 @@ static Result api_res_to_rc(json& j)
 }
 
 template <typename J>
-static Result basereq(const std::string& url, J& j, HTTPC_RequestMethod reqmeth = HTTPC_METHOD_GET)
+static Result basereq(const std::string& url, J& j, HTTPC_RequestMethod reqmeth = HTTPC_METHOD_GET, const char *postdata = nullptr, u32 postdata_len = 0)
 {
 	std::string data;
-	Result res = basereq(url, data, reqmeth);
+	Result res = basereq(url, data, reqmeth, postdata, postdata_len);
 	if(R_FAILED(res)) return res;
 
 	j = J::parse(data, nullptr, false);
@@ -402,6 +407,17 @@ Result hsapi::random(hsapi::FullTitle& ret)
 	j = j["value"];
 
 	serialize_full_title(ret, j);
+	return OK;
+}
+
+Result hsapi::upload_log(const char *contents, u32 size, std::string& logurl)
+{
+	json j;
+	Result res;
+	if(R_FAILED(res = basereq<json>(HS_CDN_BASE "/log", j, HTTPC_METHOD_POST, contents, size)))
+		return res;
+	CHECKAPI();
+	logurl = HS_SITE_LOC "/log/" + j["value"]["id"].get<std::string>();
 	return OK;
 }
 

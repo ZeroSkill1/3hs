@@ -151,6 +151,7 @@ namespace str
 		max_elogs = 111,
 		max_elogs_desc = 112,
 		elogs_hint = 113,
+		log_url = 114,
 
 		_i_max,
 	};

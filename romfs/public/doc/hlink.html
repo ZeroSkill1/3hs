@@ -1,10 +1,9 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
 	<head>
 		<title>hLink documentation</title>
 		<meta charset="utf-8"/>
 	</head>
-
 	<style>
 		.table p /* label */ {
 			margin: 10px 0px 2px 0px;
@@ -29,7 +28,6 @@
 			margin: 0px;
 		}
 	</style>
-
 	<body>
 		<div id="toc">
 			<h2>Table of Contents</h2>
@@ -263,7 +261,7 @@
 /* response (authentication failed) */
 	0x48 0x4C 0x54                          /* magic ("HLT") */
 	0x02                                    /* response code (<em>untrusted</em>) */
-	0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 /* size (0 bytes) */
+	0x00 0x00 0x00 0x00                     /* size (0 bytes) */
 			</pre>
 
 			<p>Sending 2 hShop IDs to add to the queue</p>
@@ -281,12 +279,9 @@
 		<hr/>
 
 		<div id="ub">
-			<p>
-				As all good protocols the hLink protocol also has undefined behaviour.
-		    You, not the hshop devs, are left to enforce the rules of an abstract computational machine, and when you inevitably fail, it's your fault.
-				Here follows a list of undefined bevahiour for clients:
-			</p>
-
+		  <blockquote><q>You, not the hshop developers, are left to enforce the rules of an abstract computational machine, and when you inevitably fail, it's your fault.</q></blockquote>
+			<p>As all good protocols the hLink protocol also includes undefined behaviour.
+				Here follows a list of undefined bevahiour for clients:</p>
 			<ul>
 				<li>Sending invalid hShop IDs</li>
 				<li>Having a <em>size</em> dividable by 8 that is greater than <code>total_ids * 8</code></li>
