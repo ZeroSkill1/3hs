@@ -410,14 +410,14 @@ Result hsapi::random(hsapi::FullTitle& ret)
 	return OK;
 }
 
-Result hsapi::upload_log(const char *contents, u32 size, std::string& logurl)
+Result hsapi::upload_log(const char *contents, u32 size, std::string& logid)
 {
 	json j;
 	Result res;
 	if(R_FAILED(res = basereq<json>(HS_CDN_BASE "/log", j, HTTPC_METHOD_POST, contents, size)))
 		return res;
 	CHECKAPI();
-	logurl = HS_SITE_LOC "/log/" + j["value"]["id"].get<std::string>();
+	logid = j["value"]["id"].get<std::string>();
 	return OK;
 }
 

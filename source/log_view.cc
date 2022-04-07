@@ -36,8 +36,8 @@ static void upload_logs()
 	char *data = (char *) malloc(size);
 	if(fread(data, size, 1, f) != 1)
 		return;
-	std::string u;
-	Result res = hsapi::upload_log(data, size, u);
+	std::string id;
+	Result res = hsapi::upload_log(data, size, id);
 	free(data);
 	if(R_FAILED(res))
 	{
@@ -45,7 +45,7 @@ static void upload_logs()
 		handle_error(err);
 		return;
 	}
-	ui::notice(PSTRING(log_url, u));
+	ui::notice(PSTRING(log_id, id));
 }
 
 static void clear_logs()
