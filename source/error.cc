@@ -108,6 +108,7 @@ static const std::unordered_map<Result, std::unordered_map<Result, const char *>
 	},
 	{
 		RM_HTTP, {
+			{ 3  , "POST data too large"              },
 			{ 60 , "Failed to verify TLS certificate" },
 			{ 70 , "WiFi not connected"               },
 			{ 72 , "Timed out"                        },
@@ -133,16 +134,16 @@ static const std::unordered_map<Result, std::unordered_map<Result, const char *>
 	},
 	{
 		RM_APPLICATION, {
-			{ 0,  "Can't install n3ds exclusive games on an o3ds" },
-			{ 1,  "Cancelled"                                     },
-			{ 2,  "Too little free space on your SD Card"         },
-			{ 3,  "Can't reinstall title unless asked"            },
-			{ 4,  "Title count and list mismatch"                 },
-			{ 5,  "Server doesn't support Range"                  },
-			{ 6,  "Server doesn't support Content-Length"         },
-			{ 7,  "Failed to parse server json"                   },
-			{ 8,  "Server didn't return status code 200"          },
-			{ 9,  "API failed to process request"                 },
+			{ 0 , "Can't install n3ds exclusive games on an o3ds" },
+			{ 1 , "Cancelled"                                     },
+			{ 2 , "Too little free space on your SD Card"         },
+			{ 3 , "Can't reinstall title unless asked"            },
+			{ 4 , "Title count and list mismatch"                 },
+			{ 5 , "Server doesn't support Range"                  },
+			{ 6 , "Server doesn't support Content-Length"         },
+			{ 7 , "Failed to parse server json"                   },
+			{ 8 , "Server didn't return status code 200"          },
+			{ 9 , "API failed to process request"                 },
 			{ 10, "Log was too large to upload"                   },
 		}
 	},

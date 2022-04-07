@@ -414,7 +414,7 @@ Result hsapi::upload_log(const char *contents, u32 size, std::string& logid)
 {
 	json j;
 	Result res;
-	if(R_FAILED(res = basereq<json>(HS_CDN_BASE "/log", j, HTTPC_METHOD_POST, contents, size)))
+	if(R_FAILED(res = basereq<json>(HS_SITE_LOC "/log", j, HTTPC_METHOD_POST, contents, size)))
 		return res;
 	CHECKAPI();
 	logid = j["value"]["id"].get<std::string>();

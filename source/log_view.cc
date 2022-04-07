@@ -31,13 +31,13 @@ static void upload_logs()
 	FILE *f = fopen(log_filename(), "r");
 	if(!f) return;
 	fseek(f, 0, SEEK_END);
-	long size = ftell(f);
+	u32 size = ftell(f);
 	fseek(f, 0, SEEK_SET);
 	char *data = (char *) malloc(size);
 	if(fread(data, size, 1, f) != 1)
 		return;
 	std::string id;
-	Result res = hsapi::upload_log(data, size, id);
+	Result res = hsapi::call(hsapi::upload_log, (const char *) data, std::move(size), id);
 	free(data);
 	if(R_FAILED(res))
 	{
