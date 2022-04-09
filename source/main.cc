@@ -207,14 +207,16 @@ int main(int argc, char* argv[])
 		.tag(ui::tag::search)
 		.add_to(ui::RenderQueue::global());
 
+	static bool isInRand = false;
 	ui::builder<ui::Button>(ui::Screen::bottom, ui::SpriteStore::get_by_id(ui::sprite::random_light), ui::SpriteStore::get_by_id(ui::sprite::random_dark))
 		.connect(ui::Button::click, []() -> bool {
 			ui::RenderQueue::global()->render_and_then([]() -> void {
+				if(isInRand) return;
+				isInRand = true;
 				hsapi::FullTitle t;
-				if(R_FAILED(hsapi::call(hsapi::random, t)))
-					return;
-				if(show_extmeta(t))
+				if(R_SUCCEEDED(hsapi::call(hsapi::random, t)) && show_extmeta(t))
 					install::gui::hs_cia(t);
+				isInRand = false;
 			});
 			return true;
 		})
@@ -248,16 +250,16 @@ int main(int argc, char* argv[])
 	ui::builder<ui::TimeIndicator>(ui::Screen::top)
 		.add_to(ui::RenderQueue::global());
 
-	ui::builder<ui::BatteryIndicator>(ui::Screen::top)
-		.add_to(ui::RenderQueue::global());
-
 #ifndef RELEASE
 	ui::builder<FrameCounter>(ui::Screen::top)
 		.size(0.4f)
-		.x(ui::layout::right)
-		.y(25.0f)
+		.align_x(ui::RenderQueue::global()->back())
+		.under(ui::RenderQueue::global()->back())
 		.add_to(ui::RenderQueue::global());
 #endif
+
+	ui::builder<ui::BatteryIndicator>(ui::Screen::top)
+		.add_to(ui::RenderQueue::global());
 
 	ui::builder<ui::NetIndicator>(ui::Screen::top)
 		.add_to(ui::RenderQueue::global());

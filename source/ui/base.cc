@@ -388,12 +388,15 @@ void ui::Text::prepare_arrays()
 	u8 expect = 0;
 	u8 cpc = 0;
 	std::string cur;
+	/* should be enough for a line */
+	cur.reserve(128);
 
 	for(size_t i = 0; i < this->text.size(); ++i)
 	{
 		if((this->doAutowrap && width - curWidth < 0) || this->text[i] == '\n')
 		{
 			curWidth = this->x;
+			/* TODO: Push the previous word to the next line */
 			if(!isspace(this->text[i]))
 				cur.push_back('-');
 			this->push_str(cur);

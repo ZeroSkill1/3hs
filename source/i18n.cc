@@ -164,6 +164,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::max_elogs_desc] = "Amount of old log files to keep. Between 0-255 inclusive where 0 keeps no additional log files.",
 			[str::elogs_hint] = "Number between 0-255 inclusive",
 			[str::log_id] = "Use this ID to get support\n%1", // %1 = id
+			[str::block] = "block",
+			[str::blocks] = "blocks",
 		},
 
 	[lang::dutch] =
@@ -301,6 +303,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::max_elogs_desc] = "Aantal oude log bestanden om te bewaren. Een nummer van 0 tot en met 255.",
 			[str::elogs_hint] = "Nummer van 0 tot/met 255",
 			[str::log_id] = "Gebruik deze ID om hulp te krijgen\n%1",
+			[str::block] = "blok",
+			[str::blocks] = "blokken",
 		},
 
 	[lang::german] =
@@ -381,7 +385,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::queue_empty] =
 				"Warteschlange ist leer\n"
 				"Drücke " UI_GLYPH_A " um zurückzukehren\n"
-				"Tipp: Drücke " UI_GLYPH_Y " um einen Inhalt zur Warteschlange\nhinzuzufügen",
+				"Tipp: Drücke " UI_GLYPH_Y " um einen Inhalt zur\nWarteschlange hinzuzufügen",
 			[str::cancel] = "Abbrechen",
 			[str::confirm] = "Bestätigen",
 			[str::invalid_proxy] = "Ungültige Proxy-Einstellungen",
@@ -435,6 +439,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::max_elogs_desc] = "Anzahl von alten Protokolldateien die behalten werden sollen, zwischen 0-255 inklusive, 0 = keine zusätzlichen Protokolldateien werden behalten.",
 			[str::elogs_hint] = "Nummer zwischen 0-255 inklusive",
 			[str::log_id] = "Benutze diese ID, um Hilfe zu bekommen\n%1",
+			[str::block] = "Block",
+			[str::blocks] = "Blöcke",
 		},
 
 	[lang::spanish] =
@@ -570,6 +576,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::max_elogs_desc] = "Capacidad de archivos de registro que se puede guardar. Debe ser un número que incluya de 0 a 255, al escoger 0, no se guardarán registros adicionales.",
 			[str::elogs_hint] = "Número que incluya 0 a 255",
 			[str::log_id] = "Usa este ID para conseguir soporte\n%1",
+			[str::block] = "bloque",
+			[str::blocks] = "bloques",
 		}
 };
 #pragma GCC diagnostic pop

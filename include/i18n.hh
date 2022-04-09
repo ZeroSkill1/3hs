@@ -152,6 +152,8 @@ namespace str
 		max_elogs_desc = 112,
 		elogs_hint = 113,
 		log_id = 114,
+		block = 115,
+		blocks = 116,
 
 		_i_max,
 	};

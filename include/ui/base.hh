@@ -33,6 +33,8 @@
 #include <string>
 #include <list>
 
+#include "i18n.hh"
+
 #define UI_WIDGET(name) \
 	public: \
 		using ui::BaseWidget::BaseWidget; \
@@ -676,7 +678,7 @@ namespace ui
 		TInt blk = (double) i / 1024 / 128;
 		blk = blk == 0 ? 1 : blk;
 
-		return ret + std::string(" (") + std::to_string(blk) + (blk == 1 ? " block)" : " blocks)");
+		return ret + std::string(" (") + std::to_string(blk) + (blk == 1 ? STRING(block) : STRING(blocks)) + ")";
 	}
 }
 
