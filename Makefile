@@ -49,7 +49,7 @@ CIA_PREFIX			:=	cia_stuff
 ICON						:=	$(CIA_PREFIX)/icon.png
 APP_TITLE				:=	3hs
 APP_DESCRIPTION	:=	An on-device client for hShop
-APP_AUTHOR			:=	TimmSkiller & MyPasswordIsWeak
+APP_AUTHOR			:=	hShop
 
 #---------------------------------------------------------------------------------
 # options for code generation

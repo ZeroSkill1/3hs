@@ -7,7 +7,7 @@ v1.0.0:
  - add random title button
  - add log uploading
  - improve utf8 handling
- - remove find_missing prompt in favor of automatical adding
+ - remove find_missing prompt in favor of automatic adding
  - fix issue where categories weren't sorted as on website
  - fix issue where closing the app from home would freeze the system
  - fix issue where spamming toggle on a "true"/"false" setting would crash the system
