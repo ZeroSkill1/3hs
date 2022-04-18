@@ -678,7 +678,7 @@ namespace ui
 		TInt blk = (double) i / 1024 / 128;
 		blk = blk == 0 ? 1 : blk;
 
-		return ret + std::string(" (") + std::to_string(blk) + (blk == 1 ? STRING(block) : STRING(blocks)) + ")";
+		return ret + std::string(" (") + std::to_string(blk) + " " + (blk == 1 ? STRING(block) : STRING(blocks)) + ")";
 	}
 }
 

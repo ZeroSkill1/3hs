@@ -61,9 +61,7 @@ void show_logs_menu()
 
 	ui::RenderQueue queue;
 	ui::builder<ui::MenuSelect>(ui::Screen::bottom)
-#ifndef RELEASE
 		.connect(ui::MenuSelect::add, STRING(upload_logs), upload_logs)
-#endif
 		.connect(ui::MenuSelect::add, STRING(clear_logs), clear_logs)
 		.add_to(queue);
 

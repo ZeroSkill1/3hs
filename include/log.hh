@@ -42,10 +42,10 @@ void log_del();
 
 #ifdef RELEASE
 	/* inlined check so compiler can optimize it out entirely */
-	#define l__log(l, ...) do { if(l <= LogLevel::info) \
-		_logf(__func__, NULL, __LINE__, l, __VA_ARGS__); } while(0)
+	#define l__log(l, ...) if(l <= LogLevel::info) \
+		_logf(__func__, NULL, __LINE__, l, __VA_ARGS__)
 #else
-	#define l__log(l, ...) _logf(__func__, __FILE__, __LINE__, l, __VA_ARGS__);
+	#define l__log(l, ...) _logf(__func__, __FILE__, __LINE__, l, __VA_ARGS__)
 #endif
 
 #define elog(...) l__log(LogLevel::error, __VA_ARGS__)

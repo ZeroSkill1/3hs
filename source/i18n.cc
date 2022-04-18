@@ -123,7 +123,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 				"Luma3DS Game Patching was enabled.\n"
 				"For the change to take effect, you have to\nrestart your 3DS.",
 			[str::reboot_now] = "Restart now?",
-			[str::this_version] = "This is 3hs version %1",
+			[str::this_version] = "This is 3hs version %1", // %1 = version int "version desc"
 			[str::retry_req] = "Request failed. Do you want to retry?",
 			[str::search_zero_results] = "Search gave 0 results\nPress " UI_GLYPH_A " to go back",
 			[str::credits] = "Credits",

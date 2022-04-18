@@ -39,7 +39,7 @@ void show_about()
 		.align_y_center(queue.back())
 		.next_center(queue.back(), 15.0f)
 		.add_to(queue);
-	ui::builder<ui::Text>(ui::Screen::top, PSTRING(this_version, VERSION))
+	ui::builder<ui::Text>(ui::Screen::top, PSTRING(this_version, VERSION " \"" VERSION_DESC "\"" ))
 		.x(ui::layout::center_x)
 		.under(sprite)
 		.add_to(queue);

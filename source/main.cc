@@ -122,7 +122,7 @@ int main(int argc, char* argv[])
 #else
 	#define EV "-debug"
 #endif
-	ilog("current 3hs version is " VVERSION EV "%s", envIsHomebrew() ? "-3dsx" : "");
+	ilog("current 3hs version is " VVERSION EV "%s" " \"" VERSION_DESC "\"", envIsHomebrew() ? "-3dsx" : "");
 #undef EV
 	log_settings();
 
