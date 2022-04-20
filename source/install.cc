@@ -80,10 +80,12 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 	if(status / 100 == 3)
 	{
 		char newurl[2048];
-		httpcGetResponseHeader(pctx, "location", newurl, 2048);
+		CHECKRET(httpcGetResponseHeader(pctx, "location", newurl, sizeof(newurl)));
+		newurl[sizeof(newurl) - 1] = '\0';
 		std::string redir(newurl);
 
 		vlog("Redirected to %s", redir.c_str());
+		httpcCancelConnection(pctx);
 		httpcCloseContext(pctx);
 		return i_install_net_cia(redir, data, from, pctx);
 	}
@@ -95,9 +97,17 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 		httpcCloseContext(pctx);
 		return APPERR_NORANGE;
 	}
+	// Bad status code
+	else if(status != 200)
+	{
+		httpcCancelConnection(pctx);
+		httpcCloseContext(pctx);
+		return APPERR_NON200;
+	}
 
 	if(from == 0)
 		CHECKRET(httpcGetDownloadSizeState(pctx, nullptr, &data->totalSize));
+	/* else data->totalSize is already known */
 	if(data->totalSize == 0)
 	{
 #ifndef RELEASE
