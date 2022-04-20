@@ -200,7 +200,7 @@ static void i_install_loop_thread_cb(Result& res, get_url_func get_url, cia_net_
 		if(R_FAILED(res)) { elog("Failed in install loop. ErrCode=0x%08lX", res); }
 		if(R_MODULE(res) == RM_HTTP)
 		{
-			ilog("timeout. ui::timeoutscreen() is up.");
+			ilog("timeout.? ui::timeoutscreen() is up.");
 			// Does the user want to stop?
 
 			data.itc = ITC::timeoutscr;

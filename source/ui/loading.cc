@@ -140,7 +140,7 @@ void ui::detail::TimeoutScreenHelper::update_text(time_t now)
 
 bool ui::detail::TimeoutScreenHelper::render(const ui::Keys& keys)
 {
-	if(keys.kDown & KEY_START && this->shouldStop != nullptr)
+	if((keys.kDown & (KEY_START | KEY_B)) && this->shouldStop)
 	{
 		*this->shouldStop = true;
 		return false;
