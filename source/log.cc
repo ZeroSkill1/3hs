@@ -27,8 +27,9 @@
 #include <stdio.h>
 #include <3ds.h>
 
+#define MIN(a,b) (((a)<(b))?(a):(b))
 #define F "/3ds/3hs/3hs.log"
-#define GEN_MAX_LEN 100
+#define GEN_MAX_LEN 200
 
 static FILE *log_file = NULL;
 static LightLock file_lock = -1;
@@ -106,6 +107,7 @@ static void write_string(const char *s)
 				__VA_ARGS__ \
 			} \
 		}  \
+		closedir(d); \
 	} while(0)
 
 static void clear_all_logs()
@@ -208,7 +210,9 @@ void _logf(const char *fnname, const char *filen,
 	int ulen = vsnprintf(NULL, 0, fmt, va);
 	va_end(va);
 	char *s = (char *) malloc(ulen + GEN_MAX_LEN + 2);
+	if(!s) return; /* shouldn't happen */
 	int start = snprintf(s, GEN_MAX_LEN, FMT, ARGS);
+	start = MIN(start, GEN_MAX_LEN);
 	va_start(va, fmt);
 	vsprintf(s + start, fmt, va);
 	va_end(va);
