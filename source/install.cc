@@ -100,6 +100,13 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 		CHECKRET(httpcGetDownloadSizeState(pctx, nullptr, &data->totalSize));
 	if(data->totalSize == 0)
 	{
+#ifndef RELEASE
+		char buffer[0x6000];
+		u32 total;
+		httpcDownloadData(pctx, (u8 *) buffer, sizeof(buffer), &total);
+		buffer[total] = '\0';
+		dlog("API data on '%s' (probably json):\n%s", url.c_str(), buffer);
+#endif
 		httpcCancelConnection(pctx);
 		httpcCloseContext(pctx);
 		return APPERR_NOSIZE;

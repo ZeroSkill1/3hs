@@ -253,13 +253,13 @@ int main(int argc, char* argv[])
 #ifndef RELEASE
 	ui::builder<FrameCounter>(ui::Screen::top)
 		.size(0.4f)
-		.align_x(ui::RenderQueue::global()->back())
+		.x(ui::layout::right)
 		.under(ui::RenderQueue::global()->back())
 		.add_to(ui::RenderQueue::global());
-#endif
-
+#else
 	ui::builder<ui::BatteryIndicator>(ui::Screen::top)
 		.add_to(ui::RenderQueue::global());
+#endif
 
 	ui::builder<ui::NetIndicator>(ui::Screen::top)
 		.add_to(ui::RenderQueue::global());
