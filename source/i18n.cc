@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2021-2022 MyPasswordIsWeak
+/* This file is part of 3hs
+ * Copyright (C) 2021-2022 hShop developer team
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -45,13 +45,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 				"Thank you for using 3hs, a 3ds client for hShop\n"
 				"You can get this software for free at\n"
 				"https://hshop.erista.me/",
-			[str::credits_names] =
-				"MyPasswordIsWeak: Programming,\n"
-				"      Translations\n"
-				"TimmSkiller: Programming,\n"
-				"      Translations\n"
-				"Laswell: Design, Translations\n"
-				"CremeChocolate: Art",
+			[str::credits_names] = "",
 			[str::press_to_install] =
 				"Press " UI_GLYPH_A " if you want to install this title.\n"
 				"Press " UI_GLYPH_B " if you don't want to.",
@@ -183,13 +177,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 				"hShop applicatie\n"
 				"Je kan deze software gratis verkrijgen op\n"
 				"https://hshop.erista.me/",
-			[str::credits_names] =
-				"MyPasswordIsWeak: Programmeren,\n"
-				"      Vertalingen\n"
-				"TimmSkiller: Programmeren,\n"
-				"      Vertalingen\n"
-				"Laswell: Ontwerp, Vertalingen\n"
-				"CremeChocolate: Kunst",
+			[str::credits_names] = "",
 			[str::press_to_install] =
 				"Klik op " UI_GLYPH_A " als je deze titel wilt installeren.\n"
 				"Klik op " UI_GLYPH_B " als je dat niet wilt.",
@@ -320,13 +308,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::credits_thanks] =
 				"Danke, dass du 3hs nutzt.\n3hs ist ein 3DS-Client für hShop.\n"
 				"Du kannst diese Software auf\nhttps://hshop.erista.me kostenlos herunterladen.\n",
-			[str::credits_names] =
-				"MyPasswordIsWeak: Programmierung,\n"
-				"      Übersetzungen\n"
-				"TimmSkiller: Programmierung,\n"
-				"      Übersetzungen\n"
-				"Laswell: Design, Übersetzungen\n"
-				"CremeChocolate: Kunstwerke",
+			[str::credits_names] = "",
 			[str::press_to_install] =
 				"Drücke " UI_GLYPH_A " falls du diesen Inhalt zu installieren\nmöchtest.\n"
 				"Drücke " UI_GLYPH_B " falls nicht.",
@@ -457,13 +439,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 				"Gracias por usar 3hs, un cliente de 3ds\npara hShop\n"
 				"Puedes conseguir este software gratuito en at\n"
 				"https://hshop.erista.me/",
-			[str::credits_names] =
-				"MyPasswordIsWeak: Programación,\n"
-				"      Traducción\n"
-				"TimmSkiller: Programación,\n"
-				"      Traducción\n"
-				"Laswell: Diseño, Traducción\n"
-				"CremeChocolate: Arte",
+			[str::credits_names] = "",
 			[str::press_to_install] =
 				"Presiona " UI_GLYPH_A " si quieres instalar este título.\n"
 				"Presiona " UI_GLYPH_B " si no quieres.",

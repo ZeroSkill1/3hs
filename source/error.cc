@@ -1,6 +1,6 @@
 // vim: foldmethod=syntax
-/*
- * Copyright (C) 2021-2022 MyPasswordIsWeak
+/* This file is part of 3hs
+ * Copyright (C) 2021-2022 hShop developer team
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software

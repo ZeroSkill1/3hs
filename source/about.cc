@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2021-2022 MyPasswordIsWeak
+/* This file is part of 3hs
+ * Copyright (C) 2021-2022 hShop developer team
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -42,15 +42,6 @@ void show_about()
 	ui::builder<ui::Text>(ui::Screen::top, PSTRING(this_version, VERSION " \"" VERSION_DESC "\"" ))
 		.x(ui::layout::center_x)
 		.under(sprite)
-		.add_to(queue);
-	ui::builder<ui::Text>(ui::Screen::bottom, STRING(credits))
-		.size(0.75f)
-		.x(10.0f)
-		.y(15.0f)
-		.add_to(queue);
-	ui::builder<ui::Text>(ui::Screen::bottom, STRING(credits_names))
-		.x(15.0f)
-		.under(queue.back())
 		.add_to(queue);
 
 	bool focus = set_focus(true);
