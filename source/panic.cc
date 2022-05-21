@@ -50,10 +50,7 @@ Result init_services(bool& isLuma)
 
 void exit_services()
 {
-#ifdef RELEASE
 	mcuHwcExit();
-#endif
-
 	httpcExit();
 	romfsExit();
 	cfguExit();

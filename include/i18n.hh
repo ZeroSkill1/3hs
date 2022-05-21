@@ -154,6 +154,8 @@ namespace str
 		log_id = 114,
 		block = 115,
 		blocks = 116,
+		search_text = 117,
+		search_id = 118,
 
 		_i_max,
 	};

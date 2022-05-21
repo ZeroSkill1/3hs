@@ -18,6 +18,7 @@
 
 #include <widgets/meta.hh>
 
+#include <ui/menuselect.hh>
 #include <ui/loading.hh>
 #include <ui/swkbd.hh>
 #include <ui/base.hh>
@@ -46,11 +47,6 @@ static void error(const std::string& msg)
 
 static void show_searchbar_search()
 {
-	std::string desc = set_desc(STRING(search_content));
-	bool focus = set_focus(true);
-
-	ui::RenderQueue::global()->render_frame();
-
 	SwkbdResult res;
 	SwkbdButton btn;
 
@@ -60,17 +56,11 @@ static void show_searchbar_search()
 	}, &btn, &res);
 
 	if(btn != SWKBD_BUTTON_CONFIRM)
-	{
-		set_focus(focus);
-		set_desc(desc);
 		return;
-	}
 
 	if(query.size() < 2 || res == SWKBD_INVALID_INPUT || res == SWKBD_OUTOFMEM || res == SWKBD_BANNED_INPUT)
 	{
 		error(STRING(invalid_query));
-		set_focus(focus);
-		set_desc(desc);
 		return;
 	}
 
@@ -79,18 +69,11 @@ static void show_searchbar_search()
 
 	std::vector<hsapi::Title> titles;
 	Result rres = hsapi::call<std::vector<hsapi::Title>&, const std::string&>(hsapi::search, titles, query);
-	if(R_FAILED(rres))
-	{
-		set_focus(focus);
-		set_desc(desc);
-		return;
-	}
+	if(R_FAILED(rres)) return;
 
 	if(titles.size() == 0)
 	{
 		error(STRING(search_zero_results));
-		set_focus(focus);
-		set_desc(desc);
 		return;
 	}
 
@@ -104,13 +87,45 @@ static void show_searchbar_search()
 		if(show_extmeta_lazy(titles, id, &meta))
 			install::gui::hs_cia(meta);
 	} while(true);
+}
 
-	set_focus(focus);
-	set_desc(desc);
+static void show_id_search()
+{
+	SwkbdResult res;
+	SwkbdButton btn;
+
+	uint64_t id = ui::numpad([](ui::AppletSwkbd *swkbd) -> void {
+		swkbd->hint(STRING(search_id));
+	}, 16, &btn, &res);
+
+	if(btn != SWKBD_BUTTON_CONFIRM)
+		return;
+
+	if(res == SWKBD_INVALID_INPUT || res == SWKBD_OUTOFMEM || res == SWKBD_BANNED_INPUT)
+		return;
+
+	hsapi::FullTitle title;
+	Result rres = hsapi::call<hsapi::FullTitle&, hsapi::hid>(hsapi::title_meta, title, id);
+	if(R_FAILED(rres)) return;
+
+	if(show_extmeta(title))
+		install::gui::hs_cia(title);
 }
 
 void show_search()
 {
-	show_searchbar_search();
+	std::string desc = set_desc(STRING(search_content));
+	bool focus = set_focus(true);
+
+	ui::RenderQueue queue;
+	ui::builder<ui::MenuSelect>(ui::Screen::bottom)
+		.connect(ui::MenuSelect::add, STRING(search_text), show_searchbar_search)
+		.connect(ui::MenuSelect::add, STRING(search_id), show_id_search)
+		.add_to(queue);
+
+	queue.render_finite_button(KEY_B);
+
+	set_focus(focus);
+	set_desc(desc);
 }
 

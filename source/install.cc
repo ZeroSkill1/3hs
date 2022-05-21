@@ -148,7 +148,7 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 			httpcCancelConnection(pctx); \
 			httpcCloseContext(pctx); \
 			break; \
-		} 
+		}
 		CHK_EXIT
 		dlog("Writing to cia handle, size=%lu,index=%lu,totalSize=%lu", dlnext, data->index, data->totalSize);
 		/* we don't need to add the FS_WRITE_FLUSH flag because AM just ignores write flags... */

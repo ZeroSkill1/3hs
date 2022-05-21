@@ -160,6 +160,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::log_id] = "Use this ID to get support\n%1", // %1 = id
 			[str::block] = "block",
 			[str::blocks] = "blocks",
+			[str::search_text] = "Search by text",
+			[str::search_id] = "Lookup using hShop ID",
 		},
 
 	[lang::dutch] =
@@ -293,6 +295,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::log_id] = "Gebruik deze ID om hulp te krijgen\n%1",
 			[str::block] = "blok",
 			[str::blocks] = "blokken",
+			[str::search_text] = "Zoek op tekst",
+			[str::search_id] = "Vind met hShop ID",
 		},
 
 	[lang::german] =
@@ -423,6 +427,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::log_id] = "Benutze diese ID, um Hilfe zu bekommen\n%1",
 			[str::block] = "Block",
 			[str::blocks] = "Blöcke",
+			[str::search_text] = "Mithilfe von Text suchen",
+			[str::search_id] = "Mithilfe einer hShop ID suchen"
 		},
 
 	[lang::spanish] =
@@ -554,6 +560,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::log_id] = "Usa este ID para conseguir soporte\n%1",
 			[str::block] = "bloque",
 			[str::blocks] = "bloques",
+			[str::search_text] = "Busqueda por texto",
+			[str::search_id] = "Buscar usando una ID de hShop",
 		}
 };
 #pragma GCC diagnostic pop

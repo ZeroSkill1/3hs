@@ -103,7 +103,6 @@ namespace ctr
 		~reuse_thread() { this->cleanup(); }
 
 
-
 	private:
 		void cleanup()
 		{
