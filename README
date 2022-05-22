@@ -1,8 +1,15 @@
         = = 3hs = =
 
-Blobfrii 3ds client for erista's hShop
-3hs is licensed under GPLv3 (see: LICENSE)
-nlohmann::json is licensed under MIT (see: LICENSE.nlohann-json.TXT)
+Blobfrii 3ds client for erista's hShop.
+3hs is licensed under GPLv3 (see: LICENSE).
+
+  = = Special thanks to = =
+
+The developers of nlohmann::json (license MIT, see: LICENSE.nlohann-json.TXT), of which their library is bundled,
+Ghost retard, who made me rethink some obfuscation,
+everyone in the hShop discord channel, for giving me motivation by insisting a 3ds client is too hard to make,
+Coin, for his inspiring lua hShop client,
+and Cremè, for making some nice art.
 
       = = Building = =
 
@@ -15,7 +22,19 @@ Requirements:
 Run `make` for a debug build and `make RELEASE=1 cia` for a release cia build.
 
 Other variables used in the building process:
- - VERSION=version-int => A version to set in the release cia;
- - DEVICE\_ID=device-id-int => A device id to limit the build to; and
- - HS_DEBUG_SERVER="debug-server" => Servers to use instead of the official ones (only active in debug builds).
+ - VERSION=version-int
+ - DEVICE_ID=device-id-int
+ - HS_DEBUG_SERVER="debug-server"
+ - HS_UPDATE_BASE="update-url"
+ - HS_BASE_LOC="api-url"
+ - HS_CDN_BASE="cdn-url"
+ - HS_SITE_LOC="hsite-url"
 
+To successfully build you need
+  HS_UPDATE_BASE && (HS_DEBUG_SERVER || (HS_BASE_LOC && HS_CDN_BASE && HS_SITE_LOC))
+
+Additionally you need a file called source/hsapi_auth.c with the following contents
+ #include <string.h>
+ const char *hsapi_user = "api-user";
+ const int hsapi_token_length = token-length-int;
+ void hsapi_token(char *ret) { memcpy(ret, "api-token", hsapi_token_length); }

@@ -28,15 +28,13 @@
 #define SOC_ALIGN       0x100000
 #define SOC_BUFFERSIZE  0x20000
 
-#define HS_UPDATE_BASE  "http://download2.erista.me/3hs"
-#if !RELEASE && defined(HS_DEBUG_SERVER)
+#if defined(HS_DEBUG_SERVER)
 	#define HS_BASE_LOC HS_DEBUG_SERVER ":5000/api"
 	#define HS_CDN_BASE HS_DEBUG_SERVER ":5001"
 	#define HS_SITE_LOC HS_DEBUG_SERVER ":5002"
-#else
-	#define HS_BASE_LOC "https://hshop.erista.me/api"
-	#define HS_CDN_BASE "http://download4.erista.me"
-	#define HS_SITE_LOC "https://hshop.erista.me"
+#endif
+#if !defined(HS_BASE_LOC) || !defined(HS_CDN_BASE) || !defined(HS_SITE_LOC) || !defined(HS_UPDATE_BASE)
+	#error "You must define HS_BASE_LOC, HS_CDN_BASE, HS_SITE_LOC and HS_UPDATE_BASE"
 #endif
 
 #define CHECKAPI() if((res = api_res_to_rc(j)) != OK) return res

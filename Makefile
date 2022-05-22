@@ -68,9 +68,26 @@ ifneq ($(RELEASE),)
 	CFLAGS	+= -DRELEASE -Os
 else
 	CFLAGS  += -ggdb3
+endif
+
 ifneq ($(HS_DEBUG_SERVER),)
 	CFLAGS	+=	-DHS_DEBUG_SERVER=\"$(HS_DEBUG_SERVER)\"
 endif
+
+ifneq ($(HS_UPDATE_BASE),)
+	CFLAGS	+=	-DHS_UPDATE_BASE=\"$(HS_UPDATE_BASE)\"
+endif
+
+ifneq ($(HS_BASE_LOC),)
+	CFLAGS	+=	-DHS_BASE_LOC=\"$(HS_BASE_LOC)\"
+endif
+
+ifneq ($(HS_CDN_BASE),)
+	CFLAGS	+=	-DHS_CDN_BASE=\"$(HS_CDN_BASE)\"
+endif
+
+ifneq ($(HS_SITE_LOC),)
+	CFLAGS	+=	-DHS_SITE_LOC=\"$(HS_SITE_LOC)\"
 endif
 
 ifneq ($(DEVICE_ID),)
