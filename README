@@ -6,7 +6,7 @@ Blobfrii 3ds client for erista's hShop.
   = = Special thanks to = =
 
 The developers of nlohmann::json (license MIT, see: LICENSE.nlohann-json.TXT), of which their library is bundled,
-Ghost retard, who made me rethink some obfuscation,
+Ghost, who made me rethink some obfuscation,
 everyone in the hShop discord channel, for giving me motivation by insisting a 3ds client is too hard to make,
 Coin, for his inspiring lua hShop client,
 and Cremè, for making some nice art.
@@ -35,6 +35,6 @@ To successfully build you need
 
 Additionally you need a file called source/hsapi_auth.c with the following contents
  #include <string.h>
- const char *hsapi_user = "api-user";
- const int hsapi_token_length = token-length-int;
- void hsapi_token(char *ret) { memcpy(ret, "api-token", hsapi_token_length); }
+ const char *hsapi_user = "<api-user>";
+ const int hsapi_password_length = <password-length-int>;
+ void hsapi_password(char *ret) { memcpy(ret, "<api-password>", hsapi_password_length); }

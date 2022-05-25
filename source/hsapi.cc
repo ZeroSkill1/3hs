@@ -46,7 +46,7 @@ static unsigned int hscert_der_len = 1321;
 
 extern "C" void        hsapi_password(char *); /* hsapi_auth.c */
 extern "C" const int   hsapi_password_length;  /* hsapi_auth.c */
-extern "C" const char *hsapi_user;          /* hsapi_auth.c */
+extern "C" const char *hsapi_user;             /* hsapi_auth.c */
 
 using json = nlohmann::json;
 
