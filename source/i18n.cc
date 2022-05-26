@@ -119,7 +119,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::reboot_now] = "Restart now?",
 			[str::this_version] = "This is 3hs version %1", // %1 = version int "version desc"
 			[str::retry_req] = "Request failed. Retry?",
-			[str::search_zero_results] = "Search gave 0 results.\nPress " UI_GLYPH_A " to go back.",
+			[str::search_zero_results] = "Your search returned no results.\nPress " UI_GLYPH_A " to go back.",
 			[str::credits] = "Credits",
 			[str::extra_content] = "Add extra content to queue?",
 			[str::check_extra] = "Search for extra content",
