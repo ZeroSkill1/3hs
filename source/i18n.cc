@@ -168,8 +168,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 		{
 			[str::banner]  = "De ultieme 3DS verzameling.",
 			[str::loading] = "Aan het laden ...",
-			[str::luma_not_installed] = "Luma3DS is niet geïnstalleerd op dit systeem",
-			[str::install_luma] = "Installeer Luma3DS op een echte 3DS",
+			[str::luma_not_installed] = "Je gebruikt een (C)FW die niet ondersteund is",
+			[str::install_luma] = "Je kan 3hs niet op deze 3DS gebruiken",
 			[str::queue] = "Wachtrij",
 			[str::connect_wifi] = "Verbind met WiFi en start de app opnieuw op",
 			[str::fail_init_networking] = "Kon netwerkdiensten niet opstarten",
@@ -303,8 +303,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 		{
 			[str::banner]  = "Der ultimative 3DS-Inhalte-Dienst.",
 			[str::loading] = "Laden ...",
-			[str::luma_not_installed] = "Luma3DS wurde auf dieser Konsole nicht gefunden.",
-			[str::install_luma] = "Bitte installiere Luma3DS auf einem echten 3DS.",
+			[str::luma_not_installed] = "Dieses Gerät verwendet eine nicht unterstützte Firmware",
+			[str::install_luma] = "3hs kann auf diesem Gerät nicht verwendet werden",
 			[str::queue] = "Warteschlange",
 			[str::connect_wifi] = "Stell eine Verbindung zum Internet her und starte die App neu",
 			[str::fail_init_networking] = "Netzwerkverbindung fehlgeschlagen",
