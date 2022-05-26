@@ -33,24 +33,24 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 {
 	[lang::english] =
 		{
-			[str::banner]  = "The ultimate 3DS content preservation service.",
-			[str::loading] = "Loading ...",
-			[str::luma_not_installed] = "Luma3DS is not installed on this system",
-			[str::install_luma] = "Please install Luma3DS on a real 3DS",
+			[str::banner]  = "The ultimate 3DS content preservation service",
+			[str::loading] = "Loading...",
+			[str::luma_not_installed] = "An unsupported firmware was detected.",
+			[str::install_luma] = "3hs cannot be used on this system.",
 			[str::queue] = "Queue",
-			[str::connect_wifi] = "Please connect to WiFi and restart the app",
+			[str::connect_wifi] = "Please connect to Wi-Fi and restart the app.",
 			[str::fail_init_networking] = "Failed to initialize networking",
 			[str::fail_fetch_index] = "Failed to fetch index\n%1",
 			[str::credits_thanks] =
-				"Thank you for using 3hs, a 3ds client for hShop\n"
+				"Thank you for using 3hs, a 3ds client for hShop.\n"
 				"You can get this software for free at\n"
 				"https://hshop.erista.me/",
 			[str::credits_names] = "",
 			[str::press_to_install] =
-				"Press " UI_GLYPH_A " if you want to install this title.\n"
-				"Press " UI_GLYPH_B " if you don't want to.",
+				"Press " UI_GLYPH_A " to install this content.\n"
+				"Press " UI_GLYPH_B " to go back.",
 			[str::version] = "Version",
-			[str::prodcode] = "Product code",
+			[str::prodcode] = "Product Code",
 			[str::size] = "Size",
 			[str::name] = "Name",
 			[str::tid] = "Title ID",
@@ -73,10 +73,10 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::bottom] = "bottom",
 			[str::light_mode] = "Light mode",
 			[str::resume_dl] = "Resume downloads",
-			[str::load_space] = "Load Free Space indicator",
-			[str::show_battery] = "Show Battery",
+			[str::load_space] = "Show free space indicator",
+			[str::show_battery] = "Show battery level indicator",
 			[str::time_format] = "Time format",
-			[str::progbar_screen] = "Progress bar screen",
+			[str::progbar_screen] = "Progress bar position",
 			[str::language] = "Language",
 			[str::value_x] = "Value: %1",
 			[str::back] = "Back",
@@ -88,9 +88,9 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::about_app] = "About",
 			[str::help_manual] = "Help/Manual",
 			[str::find_missing_content] = "Find missing content",
-			[str::press_a_exit] = "Press " UI_GLYPH_A " to exit",
-			[str::fatal_panic] = "Fatal Panic Occurred",
-			[str::failed_open_seeddb] = "Failed to open seeddb.bin",
+			[str::press_a_exit] = "Press " UI_GLYPH_A " to exit.",
+			[str::fatal_panic] = "A fatal panic has occurred.",
+			[str::failed_open_seeddb] = "Failed to open seeddb.bin.",
 			[str::update_to] = "Do you want to update to %1?",
 			[str::search_content] = "Search for content",
 			[str::search_content_action] = "Search for content...",
@@ -99,12 +99,12 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::level] = "Level: %1",
 			[str::summary] = "Summary: %1",
 			[str::module] = "Module: %1",
-			[str::hs_bunny_found] = "Congrats! You found the hShop bunny",
+			[str::hs_bunny_found] = "Congrats! You found the hShop bunny!",
 			[str::already_installed_reinstall] = "Title already installed. Reinstall?",
 			[str::queue_empty] =
 				"Queue is empty\n"
-				"Press " UI_GLYPH_A " to go back\n"
-				"Tip: press " UI_GLYPH_Y " to add a title to the queue",
+				"Press " UI_GLYPH_A " to go back.\n"
+				"Tip: Press " UI_GLYPH_Y " to add a title to the queue.",
 			[str::cancel] = "Cancel",
 			[str::confirm] = "Confirm",
 			[str::invalid_proxy] = "Invalid proxy settings",
@@ -114,54 +114,54 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::manual] = "manual",
 			[str::disabled] = "disabled",
 			[str::patching_reboot] =
-				"Luma3DS Game Patching was enabled.\n"
-				"For the change to take effect, you have to\nrestart your 3DS.",
+				"Luma3DS Game Patching is now enabled.\n"
+				"The system must be restarted\nfor this change to take effect.",
 			[str::reboot_now] = "Restart now?",
 			[str::this_version] = "This is 3hs version %1", // %1 = version int "version desc"
-			[str::retry_req] = "Request failed. Do you want to retry?",
-			[str::search_zero_results] = "Search gave 0 results\nPress " UI_GLYPH_A " to go back",
+			[str::retry_req] = "Request failed. Retry?",
+			[str::search_zero_results] = "Search gave 0 results.\nPress " UI_GLYPH_A " to go back.",
 			[str::credits] = "Credits",
 			[str::extra_content] = "Add extra content to queue?",
 			[str::check_extra] = "Search for extra content",
-			[str::no_req] = "no requests made yet", /* context: hlink requests */
-			[str::invalid_query] = "Invalid query\nPress " UI_GLYPH_A " to go back",
+			[str::no_req] = "No requests made yet", /* context: hlink requests */
+			[str::invalid_query] = "Invalid query\nPress " UI_GLYPH_A " to go back.",
 			[str::min_constraint] = "Current 3hs version %1 is lower than the required version %2",
 			[str::proxy] = "Proxy",
 			[str::none] = "(none)",
-			[str::press_a_to_view] = "Click " UI_GLYPH_A " to view",
+			[str::press_a_to_view] = "Click " UI_GLYPH_A " to view.",
 			[str::host] = "Host",
 			[str::port] = "Port",
 			[str::username] = "Username",
 			[str::password] = "Password",
 			[str::clear] = "Clear", /* context: clear the contents of a field */
-			[str::progbar_screen_desc] = "The screen to draw progress bars on",
-			[str::light_mode_desc] = "Turn on light mode. This will change the way most ui elements look",
-			[str::resume_dl_desc] = "Should we start where we left off downloading the first time if we failed the first try?",
-			[str::load_space_desc] = "Load the free space indicator",
-			[str::show_battery_desc] = "Toggle visibility of battery in top right corner",
-			[str::time_format_desc] = "Your preferred time format. Either 24h or 12h",
-			[str::language_desc] = "The language 3hs is in. Note that to update all text you might need to restart 3hs",
-			[str::lumalocalemode_desc] = "The mode LumaLocale autosetter uses. Automatic selects a language automatically. If you choose manual 3hs will prompt for a region after the installation of a content",
-			[str::check_extra_desc] = "Search for extra content after an installation.",
-			[str::proxy_desc] = "Configure a proxy. If you don't know what you're doing don't touch this",
+			[str::progbar_screen_desc] = "Select the position of the progress bar.",
+			[str::light_mode_desc] = "Enable/disable light mode. This will change the way most UI elements look.",
+			[str::resume_dl_desc] = "Resume downloads after a network interruption.",
+			[str::load_space_desc] = "Toggle the free space indicator.",
+			[str::show_battery_desc] = "Toggle the battery level indicator.",
+			[str::time_format_desc] = "Select the time format.",
+			[str::language_desc] = "Set the language for 3hs. The application must be restarted for the selected language to take effect.",
+			[str::lumalocalemode_desc] = "Set the mode of the LumaLocale autosetter. Automatic selects a language automatically. If this is set to manual, 3hs will prompt for a region after the installation of content",
+			[str::check_extra_desc] = "Search for extra content after installation.",
+			[str::proxy_desc] = "Configure a proxy server for 3hs. This setting is for advanced users.",
 			[str::install_all] = "Install all", /* context: install all items in queue */
-			[str::install_no_base] = "DLC/Update doesn't have the base game installed. Install regardless?",
+			[str::install_no_base] = "The base game is not installed. Continue anyway?",
 			[str::warn_no_base] = "Warn if a base game is not installed",
-			[str::warn_no_base_desc] = "Give a warning if you're trying to install a DLC/update and the base game is not installed.",
+			[str::warn_no_base_desc] = "Shows a message before installing update or DLC content if the base game is missing.",
 			[str::replaying_errors] = "Replaying errors encountered while processing the queue.",
 			[str::log] = "Logs",
 			[str::upload_logs] = "Upload logs",
 			[str::clear_logs] = "Clear logs",
-			[str::found_missing] = "Found %1 missing title(s)\nCheck the queue to install them", // %1 = amount of titles found
-			[str::found_0_missing] = "Didn't find any missing titles",
+			[str::found_missing] = "Found %1 missing title(s)\nCheck the queue to install them.", // %1 = amount of titles found
+			[str::found_0_missing] = "No missing titles were found.",
 			[str::max_elogs] = "Maximum old log files",
-			[str::max_elogs_desc] = "Amount of old log files to keep. Between 0-255 inclusive where 0 keeps no additional log files.",
-			[str::elogs_hint] = "Number between 0-255 inclusive",
-			[str::log_id] = "Use this ID to get support\n%1", // %1 = id
+			[str::max_elogs_desc] = "Set the number of log files to keep. Possible values are 0 to 255, where 0 keeps no additional log files.",
+			[str::elogs_hint] = "Value between 0 and 255",
+			[str::log_id] = "Use this ID to get support:\n%1", // %1 = id
 			[str::block] = "block",
 			[str::blocks] = "blocks",
 			[str::search_text] = "Search by text",
-			[str::search_id] = "Lookup using hShop ID",
+			[str::search_id] = "Search by hShop ID",
 		},
 
 	[lang::dutch] =
