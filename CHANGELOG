@@ -1,4 +1,9 @@
 
+v1.1.0 "aeraria":
+ - fix issue where NAND titles wouldn't be reinstallable
+ - add Romanian translation
+ - add French translation
+
 v1.0.1 "aeraria":
  - additionally to initial release:
  - hotfix arm11 after title installation

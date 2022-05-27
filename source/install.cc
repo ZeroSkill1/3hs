@@ -330,17 +330,15 @@ Result install::net_cia(get_url_func get_url, hsapi::htid tid, prog_func prog, b
 			return ret;
 		if(envIsHomebrew() || selftid != tid || dest != selfmt)
 		{
-			if(R_FAILED(ret = ctr::delete_if_exist(tid)))
+			if(R_FAILED(ret = ctr::delete_if_exist(tid, dest)))
 				return ret;
 		}
 	}
 	else
 	{
-		if(ctr::title_exists(tid))
+		if(ctr::title_exists(tid, dest))
 			return APPERR_NOREINSTALL;
 	}
-	dest = MEDIATYPE_SD;
-
 
 	Handle cia;
 	ilog("Installing %016llX to %s", tid, dest2str(dest));

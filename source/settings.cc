@@ -173,8 +173,10 @@ static void read_set_enum(const std::vector<std::string>& keys,
 {
 	ui::RenderQueue queue;
 
+	ui::Selector<TEnum> *sel;
 	ui::builder<ui::Selector<TEnum>>(ui::Screen::bottom, keys, values, &val)
-		.add_to(queue);
+		.add_to(&sel, queue);
+	sel->search_set_idx(val);
 
 	queue.render_finite();
 }
