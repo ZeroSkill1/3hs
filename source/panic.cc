@@ -68,6 +68,7 @@ static void pusha(ui::RenderQueue& queue)
 	ui::builder<ui::Text>(ui::Screen::top, STRING(press_a_exit))
 		.x(ui::layout::center_x)
 		.y(ui::layout::bottom)
+		.wrap()
 		.add_to(queue);
 }
 
@@ -120,6 +121,7 @@ void handle_error(const error_container& err)
 		ui::builder<ui::Text>(ui::Screen::top, STRING(fatal_panic))
 			.x(ui::layout::center_x)
 			.y(4.0f)
+			.wrap()
 			.add_to(&action, ui::RenderQueue::global());
 	}
 
@@ -134,6 +136,7 @@ void handle_error(const error_container& err)
 	ui::builder<ui::Text>(ui::Screen::top, caller)
 		.x(ui::layout::center_x)
 		.under(action)
+		.wrap()
 		.add_to(queue);
 
 	queue.render_finite_button(KEY_A);

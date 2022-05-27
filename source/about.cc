@@ -30,6 +30,7 @@ void show_about()
 	ui::builder<ui::Text>(ui::Screen::top, STRING(credits_thanks))
 		.x(ui::layout::center_x)
 		.y(ui::layout::base)
+		.wrap()
 		.add_to(queue);
 	ui::Sprite *sprite;
 	ui::builder<ui::Sprite>(ui::Screen::top, ui::SpriteStore::get_by_id(ui::sprite::logo))
@@ -42,6 +43,7 @@ void show_about()
 	ui::builder<ui::Text>(ui::Screen::top, PSTRING(this_version, VERSION " \"" VERSION_DESC "\"" ))
 		.x(ui::layout::center_x)
 		.under(sprite)
+		.wrap()
 		.add_to(queue);
 
 	bool focus = set_focus(true);

@@ -45,6 +45,7 @@ static extmeta_return extmeta(ui::RenderQueue& queue, const hsapi::Title& base, 
 	ui::builder<ui::Text>(ui::Screen::top, STRING(press_to_install))
 		.x(ui::layout::center_x)
 		.y(170.0f)
+		.wrap()
 		.add_to(queue);
 
 	/***

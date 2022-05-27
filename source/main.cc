@@ -146,9 +146,11 @@ int main(int argc, char* argv[])
 
 		ui::builder<ui::Text>(ui::Screen::top, STRING(luma_not_installed))
 			.x(ui::layout::center_x).y(45.0f)
+			.wrap()
 			.add_to(queue);
 		ui::builder<ui::Text>(ui::Screen::top, STRING(install_luma))
 			.x(ui::layout::center_x).under(queue.back())
+			.wrap()
 			.add_to(queue);
 
 		queue.render_finite_button(KEY_START | KEY_B);
@@ -168,6 +170,7 @@ int main(int argc, char* argv[])
 		.x(ui::layout::center_x)
 		.y(4.0f)
 		.tag(ui::tag::action)
+		.wrap()
 		.add_to(ui::RenderQueue::global());
 
 	/* buttons */

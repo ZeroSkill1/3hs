@@ -114,6 +114,7 @@ void ui::notice(const std::string& msg)
 	ui::builder<ui::Text>(ui::Screen::top, STRING(press_a_exit))
 		.x(ui::layout::center_x)
 		.y(ui::layout::bottom)
+		.wrap()
 		.add_to(queue);
 
 	ui::builder<ui::Text>(ui::Screen::top, msg)

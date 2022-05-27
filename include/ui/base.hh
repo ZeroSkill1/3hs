@@ -84,7 +84,7 @@ namespace ui
 		constexpr float right    = -4.0f; /* right of the screen */
 		constexpr float top      =  3.0f; /* top of the screen */
 		constexpr float bottom   = -6.0f; /* bottom of the screen */
-		constexpr float base     = 50.0f; /* base heigth */
+		constexpr float base     = 35.0f; /* base heigth */
 	}
 
 	namespace layer
