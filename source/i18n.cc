@@ -33,19 +33,19 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 {
 	[lang::english] =
 		{
-			[str::banner]  = "The ultimate 3DS content preservation service",
+			[str::banner]  = "The ultimate 3DS content preservation service", /* unused */
 			[str::loading] = "Loading...",
 			[str::luma_not_installed] = "An unsupported firmware was detected.",
 			[str::install_luma] = "3hs cannot be used on this system.",
 			[str::queue] = "Queue",
-			[str::connect_wifi] = "Please connect to Wi-Fi and restart the app.",
+			[str::connect_wifi] = "Please connect to Wi-Fi and restart the app.", /* unused */
 			[str::fail_init_networking] = "Failed to initialize networking",
-			[str::fail_fetch_index] = "Failed to fetch index\n%1",
+			[str::fail_fetch_index] = "Failed to fetch index\n%1", /* unused */
 			[str::credits_thanks] =
 				"Thank you for using 3hs, a 3ds client for hShop.\n"
 				"You can get this software for free at\n"
 				"https://hshop.erista.me/",
-			[str::credits_names] = "",
+			[str::credits_names] = "", /* unused */
 			[str::press_to_install] =
 				"Press " UI_GLYPH_A " to install this content.\n"
 				"Press " UI_GLYPH_B " to go back.",
@@ -55,22 +55,22 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::name] = "Name",
 			[str::tid] = "Title ID",
 			[str::category] = "Category",
-			[str::landing_id] = "Landing ID",
+			[str::landing_id] = "hShop ID",
 			[str::description] = "Description",
 			[str::total_titles] = "Total Titles",
 			[str::select_cat] = "Select a category",
 			[str::select_subcat] = "Select a subcategory",
 			[str::select_title] = "Select a title",
-			[str::no_cats_index] = "no categories in index (?)",
-			[str::empty_subcat] = "Empty subcategory (?)",
-			[str::empty_cat] = "Empty category (?)",
-			[str::fmt_24h] = "24 hour",
-			[str::fmt_12h] = "12 hour",
-			[str::unknown] = "unknown",
-			[str::btrue] = "true",
-			[str::bfalse] = "false",
-			[str::top] = "top",
-			[str::bottom] = "bottom",
+			[str::no_cats_index] = "no categories in index (?)", /* unused */
+			[str::empty_subcat] = "Empty subcategory (?)", /* unused */
+			[str::empty_cat] = "Empty category (?)", /* unused */
+			[str::fmt_24h] = "24 hour", /* context: time format */
+			[str::fmt_12h] = "12 hour", /* context: time format */
+			[str::unknown] = "unknown", /* context: unknown setting */
+			[str::btrue] = "true", /* context: setting is set to ON */
+			[str::bfalse] = "false", /* context: setting is set to OFF */
+			[str::top] = "top", /* context: top screen */
+			[str::bottom] = "bottom", /* context: bottom screen */
 			[str::light_mode] = "Light mode",
 			[str::resume_dl] = "Resume downloads",
 			[str::load_space] = "Show free space indicator",
@@ -78,28 +78,28 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::time_format] = "Time format",
 			[str::progbar_screen] = "Progress bar position",
 			[str::language] = "Language",
-			[str::value_x] = "Value: %1",
-			[str::back] = "Back",
+			[str::value_x] = "Value: %1", /* context: value of setting */
+			[str::back] = "Back", /* context: back button */
 			[str::invalid] = "invalid",
-			[str::title_doesnt_exist] = "Title doesn't exist: %1",
-			[str::fail_create_tex] = "Failed to create tex",
-			[str::fail_load_smdh_icon] = "load_smdh_icon(): invalid SMDHIconType",
-			[str::netcon_lost] = "Network connection lost (%1).\nRetrying in $t seconds...",
+			[str::title_doesnt_exist] = "Title doesn't exist: %1", /* %1: title id */
+			[str::fail_create_tex] = "Failed to create tex", /* unused */
+			[str::fail_load_smdh_icon] = "load_smdh_icon(): invalid SMDHIconType", /* unused */
+			[str::netcon_lost] = "Network connection lost (%1).\nRetrying in $t seconds...", /* %1: error code, $t: seconds remaining */
 			[str::about_app] = "About",
 			[str::help_manual] = "Help/Manual",
 			[str::find_missing_content] = "Find missing content",
-			[str::press_a_exit] = "Press " UI_GLYPH_A " to exit.",
-			[str::fatal_panic] = "A fatal panic has occurred.",
+			[str::press_a_exit] = "Press " UI_GLYPH_A " to exit.", /* context: exit menu and sometimes application */
+			[str::fatal_panic] = "A fatal panic has occurred.", /* context: can also be translated as fatal error */
 			[str::failed_open_seeddb] = "Failed to open seeddb.bin.",
-			[str::update_to] = "Do you want to update to %1?",
+			[str::update_to] = "Do you want to update to %1?", /* %1: new version, i.e. 1.0.2 */
 			[str::search_content] = "Search for content",
 			[str::search_content_action] = "Search for content...",
-			[str::results_query] = "Results for query \"%1\"",
-			[str::result_code] = "Result code: %1",
-			[str::level] = "Level: %1",
-			[str::summary] = "Summary: %1",
-			[str::module] = "Module: %1",
-			[str::hs_bunny_found] = "Congrats! You found the hShop bunny!",
+			[str::results_query] = "Results for query \"%1\"", /* %1: search query */
+			[str::result_code] = "Result code: %1", /* %1: result code */
+			[str::level] = "Level: %1", /* %1: (english) level name + level code */
+			[str::summary] = "Summary: %1", /* %1 (english) summary name + level code */
+			[str::module] = "Module: %1", /* %1 (english) module name + module code */
+			[str::hs_bunny_found] = "Congrats! You found the hShop bunny!", /* context: easter egg, see also: gfx/img/bun.png */
 			[str::already_installed_reinstall] = "Title already installed. Reinstall?",
 			[str::queue_empty] =
 				"Queue is empty\n"
@@ -115,24 +115,24 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::disabled] = "disabled",
 			[str::patching_reboot] =
 				"Luma3DS Game Patching is now enabled.\n"
-				"The system must be restarted\nfor this change to take effect.",
+				"The system must be restarted for this change to take effect.",
 			[str::reboot_now] = "Restart now?",
-			[str::this_version] = "This is 3hs version %1", // %1 = version int "version desc"
-			[str::retry_req] = "Request failed. Retry?",
+			[str::this_version] = "This is 3hs version %1", /* %1 = version int "version desc" */
+			[str::retry_req] = "Request failed. Retry?", /* context: API request */
 			[str::search_zero_results] = "Your search returned no results.\nPress " UI_GLYPH_A " to go back.",
 			[str::credits] = "Credits",
-			[str::extra_content] = "Add extra content to queue?",
-			[str::check_extra] = "Search for extra content",
+			[str::extra_content] = "Add extra content to queue?", /* context: i.e. DLC/Updates */
+			[str::check_extra] = "Search for extra content", /* context: i.e. DLC/Updates */
 			[str::no_req] = "No requests made yet", /* context: hlink requests */
 			[str::invalid_query] = "Invalid query\nPress " UI_GLYPH_A " to go back.",
 			[str::min_constraint] = "Current 3hs version %1 is lower than the required version %2",
 			[str::proxy] = "Proxy",
-			[str::none] = "(none)",
-			[str::press_a_to_view] = "Click " UI_GLYPH_A " to view.",
-			[str::host] = "Host",
-			[str::port] = "Port",
-			[str::username] = "Username",
-			[str::password] = "Password",
+			[str::none] = "(none)", /* context: used for no proxy set */
+			[str::press_a_to_view] = "Click " UI_GLYPH_A " to view.", /* context: view proxy settings */
+			[str::host] = "Host", /* context: proxy */
+			[str::port] = "Port", /* context: proxy */
+			[str::username] = "Username", /* context: proxy */
+	 		[str::password] = "Password", /* context: proxy */
 			[str::clear] = "Clear", /* context: clear the contents of a field */
 			[str::progbar_screen_desc] = "Select the position of the progress bar.",
 			[str::light_mode_desc] = "Enable/disable light mode. This will change the way most UI elements look.",
@@ -149,7 +149,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::warn_no_base] = "Warn if a base game is not installed",
 			[str::warn_no_base_desc] = "Shows a message before installing update or DLC content if the base game is not installed.",
 			[str::replaying_errors] = "Replaying errors encountered while processing the queue.",
-			[str::log] = "Logs",
+			[str::log] = "Logs", /* context: may also be translated as "manage logs" */
 			[str::upload_logs] = "Upload logs",
 			[str::clear_logs] = "Clear logs",
 			[str::found_missing] = "Found %1 missing title(s)\nCheck the queue to install them.", // %1 = amount of titles found
@@ -157,9 +157,9 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::max_elogs] = "Maximum old log files",
 			[str::max_elogs_desc] = "Set the number of log files to keep. Possible values are 0 to 255, where 0 keeps no additional log files.",
 			[str::elogs_hint] = "Value between 0 and 255",
-			[str::log_id] = "Use this ID to get support:\n%1", // %1 = id
-			[str::block] = "block",
-			[str::blocks] = "blocks",
+			[str::log_id] = "Use this ID to get support:\n%1", /* %1 = id */
+			[str::block] = "block", /* context: nintendo blocks, use official nintendo translation if available */
+			[str::blocks] = "blocks", /* context: see above, just in plural this time */
 			[str::search_text] = "Search by text",
 			[str::search_id] = "Search by hShop ID",
 		},
@@ -238,8 +238,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::queue_empty] =
 				"De wachtrij is leeg\n"
 				"Klik op " UI_GLYPH_A " om terug te gaan\n"
-				"Tip: klik op " UI_GLYPH_Y " om een titel toe te voegen\n"
-				"aan de wachtrij",
+				"Tip: klik op " UI_GLYPH_Y " om een titel toe te voegen aan de wachtrij",
 			[str::cancel] = "Weiger",
 			[str::confirm] = "Accepteer",
 			[str::invalid_proxy] = "Ongeldige proxy instellingen",
@@ -284,9 +283,9 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::warn_no_base] = "Waarschuw bij nutteloze extras",
 			[str::warn_no_base_desc] = "Geef een waarschuwing als je een extra probeert te installeren waarvan het bijhorende spel niet is geïnstalleerd",
 			[str::replaying_errors] = "Fouten aan het herspelen die zijn voorgekomen.",
-			[str::log] = "Logs",
-			[str::upload_logs] = "Logs uploaden",
-			[str::clear_logs] = "Logs verwijderen",
+			[str::log] = "Beheer logboek",
+			[str::upload_logs] = "Logboek uploaden",
+			[str::clear_logs] = "Logboek verwijderen",
 			[str::found_missing] = "%1 missende titel(s) gevonden\nGa naar de wachtrij om ze te installeren",
 			[str::found_0_missing] = "Geen missende titles gevonden",
 			[str::max_elogs] = "Maximum aantal extra log bestanden",
@@ -314,7 +313,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 				"Du kannst diese Software auf\nhttps://hshop.erista.me kostenlos herunterladen.\n",
 			[str::credits_names] = "",
 			[str::press_to_install] =
-				"Drücke " UI_GLYPH_A " falls du diesen Inhalt zu installieren\nmöchtest.\n"
+				"Drücke " UI_GLYPH_A " falls du diesen Inhalt zu installieren möchtest.\n"
 				"Drücke " UI_GLYPH_B " falls nicht.",
 			[str::version] = "Version",
 			[str::prodcode] = "Produkt-Code",
@@ -322,7 +321,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::name] = "Name",
 			[str::tid] = "Title-ID",
 			[str::category] = "Kategorie",
-			[str::landing_id] = "Inhalt-ID",
+			[str::landing_id] = "hShop-ID",
 			[str::description] = "Beschreibung",
 			[str::total_titles] = "Gesamte Anzahl der Inhalte",
 			[str::select_cat] = "Wähle eine Kategorie aus",
@@ -371,7 +370,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::queue_empty] =
 				"Warteschlange ist leer\n"
 				"Drücke " UI_GLYPH_A " um zurückzukehren\n"
-				"Tipp: Drücke " UI_GLYPH_Y " um einen Inhalt zur\nWarteschlange hinzuzufügen",
+				"Tipp: Drücke " UI_GLYPH_Y " um einen Inhalt zur Warteschlange hinzuzufügen",
 			[str::cancel] = "Abbrechen",
 			[str::confirm] = "Bestätigen",
 			[str::invalid_proxy] = "Ungültige Proxy-Einstellungen",
@@ -382,7 +381,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::disabled] = "Deaktiviert",
 			[str::patching_reboot] =
 					"Luma3DS-Game-Patching wurde aktiviert.\n"
-					"Damit die Änderungen übernommen werden\nkönnen, musst du deinen 3DS neustarten.",
+					"Damit die Änderungen übernommen werden können, musst du deinen 3DS neustarten.",
 			[str::reboot_now] = "Jetzt neustarten?",
 			[str::this_version] = "Dies ist 3hs Version %1",
 			[str::retry_req] = "Erneut versuchen?",
@@ -443,7 +442,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::fail_fetch_index] = "No se pudo recuperar el índice\n%1",
 			[str::credits_thanks] =
 				"Gracias por usar 3hs, un cliente de 3ds\npara hShop\n"
-				"Puedes conseguir este software gratuito en at\n"
+				"Puedes conseguir este software gratuito en\n"
 				"https://hshop.erista.me/",
 			[str::credits_names] = "",
 			[str::press_to_install] =
@@ -455,7 +454,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::name] = "Nombre",
 			[str::tid] = "ID de título",
 			[str::category] = "Categoría",
-			[str::landing_id] = "Landing ID",
+			[str::landing_id] = "ID hShop",
 			[str::description] = "Descripción",
 			[str::total_titles] = "Total de Titulos",
 			[str::select_cat] = "Selecciona una categoría",
@@ -504,7 +503,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::queue_empty] =
 				"La cola está vacia\n"
 				"Presiona " UI_GLYPH_A " para volver\n"
-				"Consejo: presiona " UI_GLYPH_Y " para añadir un título\na la cola",
+				"Consejo: presiona " UI_GLYPH_Y " para añadir un título a la cola",
 			[str::cancel] = "Cancelar",
 			[str::confirm] = "Confirmar",
 			[str::invalid_proxy] = "Configuración de proxy inválida",
@@ -549,7 +548,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::warn_no_base] = "Advertir si el juego base no está instalado",
 			[str::warn_no_base_desc] = "Dar un aviso si estás intentanto instalar una actualización/DLC y el juego base no está instalado.",
 			[str::replaying_errors] = "Reproduciendo errores ocurridos mientras se procesa la cola.",
-			[str::log] = "Regustros",
+			[str::log] = "Registros",
 			[str::upload_logs] = "Subir registros",
 			[str::clear_logs] = "Despejar registros",
 			[str::found_missing] = "Se encontró %1 Título faltante(s)\nRevisa la cola para instalarlos", // %1 = amount of titles found
@@ -561,8 +560,274 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::block] = "bloque",
 			[str::blocks] = "bloques",
 			[str::search_text] = "Busqueda por texto",
-			[str::search_id] = "Buscar usando una ID de hShop",
-		}
+			[str::search_id] = "Buscar usando una ID hShop",
+		},
+
+	[lang::french] =
+		{
+			[str::banner]  = "L'ultime service de préservation de contenu 3DS",
+			[str::loading] = "Chargement...",
+			[str::luma_not_installed] = "Un firmware non supporté a été détecté.",
+			[str::install_luma] = "3hs ne peut pas être utilisé sur ce système.",
+			[str::queue] = "Liste d'attente",
+			[str::connect_wifi] = "Connectez vous au WIFI et redémarrez l'app",
+			[str::fail_init_networking] = "Impossible d'initialiser le réseau",
+			[str::fail_fetch_index] = "Impossible de récupérer l'index\n%1",
+			[str::credits_thanks] =
+				"Merci d'utiliser 3hs, un client 3DS pour hshop.\n"
+				"Vous pouvez avoir ce logiciel gratuitement sur\n"
+				"https://hshop.erista.me/",
+			[str::credits_names] = "",
+			[str::press_to_install] =
+				"Appuyez sur " UI_GLYPH_A " pour installer.\n"
+				"Appuyez sur " UI_GLYPH_B " pour revenir.",
+			[str::version] = "Version",
+			[str::prodcode] = "Nom de Code",
+			[str::size] = "Taille",
+			[str::name] = "Nom",
+			[str::tid] = "ID de titre",
+			[str::category] = "Catégorie",
+			[str::landing_id] = "ID hShop",
+			[str::description] = "Description",
+			[str::total_titles] = "Titres Total",
+			[str::select_cat] = "Sélectionnez une catégorie",
+			[str::select_subcat] = "Sélectionnez une sous-catégorie",
+			[str::select_title] = "Sélectionnez un titre",
+			[str::no_cats_index] = "aucune catégories dans l'index (?)",
+			[str::empty_subcat] = "Sous-catégorie vide (?)",
+			[str::empty_cat] = "Catégorie vide (?)",
+			[str::fmt_24h] = "24 heures",
+			[str::fmt_12h] = "12 heures",
+			[str::unknown] = "inconnu",
+			[str::btrue] = "vrai",
+			[str::bfalse] = "faux",
+			[str::top] = "haut",
+			[str::bottom] = "bas",
+			[str::light_mode] = "Thème clair",
+			[str::resume_dl] = "Continuer les téléchargements",
+			[str::load_space] = "Montrer l'indicateur d'espace libre",
+			[str::show_battery] = "Montrer l'indicateur de batterie",
+			[str::time_format] = "Format horaire",
+			[str::progbar_screen] = "Position de la barre de progression",
+			[str::language] = "Langue",
+			[str::value_x] = "Valeur: %1",
+			[str::back] = "Retour",
+			[str::invalid] = "invalide",
+			[str::title_doesnt_exist] = "Ce titre n'existe pas: %1",
+			[str::fail_create_tex] = "Impossible de créer la texture",
+			[str::fail_load_smdh_icon] = "load_smdh_icon(): invalid SMDHIconType",
+			[str::netcon_lost] = "La connexion internet a été perdue (%1).\nNouvelle tentative dans $t seconds...",
+			[str::about_app] = "A propos",
+			[str::help_manual] = "Aide/Manuel",
+			[str::find_missing_content] = "Trouver le contenu perdu",
+			[str::press_a_exit] = "Appuyez sur " UI_GLYPH_A " pour quitter.",
+			[str::fatal_panic] = "Une erreur fatale est survenue.",
+			[str::failed_open_seeddb] = "Impossible d'ouvrir le seeddb.bin.",
+			[str::update_to] = "Voulez vous mettre à jour en %1?",
+			[str::search_content] = "Rechercher",
+			[str::search_content_action] = "Recherche en cours...",
+			[str::results_query] = "Résultats de la recherche \"%1\"",
+			[str::result_code] = "Result code: %1",
+			[str::level] = "Level: %1",
+			[str::summary] = "Summary: %1",
+			[str::module] = "Module: %1",
+			[str::hs_bunny_found] = "Bravo! Tu as trouvé le lapin hShop!",
+			[str::already_installed_reinstall] = "Le titre est déjà installé. Voulez-vous le réinstaller?",
+			[str::queue_empty] =
+				"La liste d'attente est vide.\n"
+				"Appuyez sur " UI_GLYPH_A " pour revenir.\n"
+				"Astuce: Appuyez sur " UI_GLYPH_Y " pour ajouter un titre à la liste d'attente.",
+			[str::cancel] = "Annuler",
+			[str::confirm] = "Confirmer",
+			[str::invalid_proxy] = "Paramètre proxy invalide",
+			[str::more_about_content] = "En savoir plus sur ce contenu",
+			[str::lumalocalemode] = "LumaLocale mode",
+			[str::automatic] = "automatique",
+			[str::manual] = "manuel",
+			[str::disabled] = "désactivé",
+			[str::patching_reboot] =
+				"Luma3DS Game Patching est maintenant activé.\n"
+				"La console doit redémarrer pour que ce changement fasse effet.",
+			[str::reboot_now] = "Redémarrer maintenant?",
+			[str::this_version] = "Version de 3hs %1", // %1 = version int "version desc"
+			[str::retry_req] = "Echec de la requête. Réessayer?",
+			[str::search_zero_results] = "Aucun résultat pour votre recherche.\nAppuyez sur " UI_GLYPH_A " pour revenir.",
+			[str::credits] = "Crédits",
+			[str::extra_content] = "Ajouter le contenu additionnel à la liste d'attente?",
+			[str::check_extra] = "Recherche de contenu additionnel",
+			[str::no_req] = "Aucune requête pour le moment", /* context: hlink requests */
+			[str::invalid_query] = "Recherche invalide\n appuyez sur " UI_GLYPH_A " pour revenir.",
+			[str::min_constraint] = "La version actuelle de 3hs %1 est inférieure à celle requise %2",
+			[str::proxy] = "Proxy",
+			[str::none] = "(none)",
+			[str::press_a_to_view] = "Appuyez sur " UI_GLYPH_A " pour afficher.",
+			[str::host] = "Host",
+			[str::port] = "Port",
+			[str::username] = "Nom d'utilisateur",
+			[str::password] = "Mot de passe",
+			[str::clear] = "Supprimer", /* context: clear the contents of a field */
+			[str::progbar_screen_desc] = "Choisissez la position de la barre de progression.",
+			[str::light_mode_desc] = "Active/Désactive le thème clair.",
+			[str::resume_dl_desc] = "Continuer les téléchargements après une interruption réseau.",
+			[str::load_space_desc] = "Active/Désactive l'indicateur d'espace libre.",
+			[str::show_battery_desc] = "Active/Désactive l'indicateur de batterie.",
+			[str::time_format_desc] = "Choisissez le format de l'heure.",
+			[str::language_desc] = "Change la langue de 3hs.\nL'application doit être redémarrée pour que la nouvelle langue soit affichée.",
+			[str::lumalocalemode_desc] = "Choisit le mode de LumaLocale autosetter. \"Automatique\" séléctionne une langue automatiquement alors que \"Manuel\" affiche la région à choisir après l'installation.",
+			[str::check_extra_desc] = "Cherche de contenu additionnel après l'installation.",
+			[str::proxy_desc] = "Configure a proxy server for 3hs. This setting is for advanced users.",
+			[str::install_all] = "Tout installer", /* context: install all items in queue */
+			[str::install_no_base] = "Le jeu de base n'est pas installé. Continuer quand même?",
+			[str::warn_no_base] = "Avertir si le jeu de base n'est pas installé",
+			[str::warn_no_base_desc] = "Montre un message avant d'installer une mise à jour/DLC si le jeu de base n'est pas installé.",
+			[str::replaying_errors] = "Remontre les erreurs encontrés dans la liste d'attente.",
+			[str::log] = "Registres",
+			[str::upload_logs] = "Envoyer les registres",
+			[str::clear_logs] = "Supprimer les registres",
+			[str::found_missing] = "%1 titre(s) manquant a été trouvé\nVérifiez la liste d'attente pour les installer.", // %1 = amount of titles found
+			[str::found_0_missing] = "Aucun titre manquant n'a été trouvé.",
+			[str::max_elogs] = "Nombre maximum de fichiers log",
+			[str::max_elogs_desc] = "Choisissez le nombre de fichiers logs à conserver. Les valeurs possibles sont comprises entre 0 et 255, où 0 ne conserve pas de fichiers log additionnels.",
+			[str::elogs_hint] = "Valeur entre 0 et 255",
+			[str::log_id] = "Utilisez cet ID pour obtenir de l'aide:\n%1", // %1 = id
+			[str::block] = "bloc",
+			[str::blocks] = "blocs",
+			[str::search_text] = "Recherche par texte",
+			[str::search_id] = "Recherche par l'ID hshop",
+		},
+
+		[lang::romanian] =
+			{
+				[str::banner] = "Serviciul suprem de prezervare al conținutului pentru 3DS",
+				[str::loading] = "Se încarcă...",
+				[str::luma_not_installed] = "O versiune de sistem nesuportată a fost detetcată.",
+				[str::install_luma] = "3hs nu poate fi folosit pe acest sistem.",
+				[str::queue] = "Coadă",
+				[str::connect_wifi] = "Vă rugăm să vă conectați la Wi-Fi şi să reporniți aplicația.",
+				[str::fail_init_networking] = "Nu s-au putut inițializa serviciile de rețea",
+				[str::fail_fetch_index] = "Nu s-a putut obține indexul\n%1",
+				[str::credits_thanks] =
+					"Mulțumim pentru că ați folosit 3hs, un client 3DS pentru hShop.\n"
+					"Puteți obține această aplicație pe gratis la\n"
+					"https://hshop.erista.me/",
+				[str::credits_names] = "",
+				[str::press_to_install] =
+					"Apăsați " UI_GLYPH_A " pentru a instala acest conținut.\n"
+					"Apăsați " UI_GLYPH_B " pentru a vă întoarce.",
+				[str::version] = "Versiune",
+				[str::prodcode] = "Cod de Produs",
+				[str::size] = "Mărime",
+				[str::name] = "Nume",
+				[str::tid] = "ID de titlu",
+				[str::category] = "Categorie",
+				[str::landing_id] = "ID hShop",
+				[str::description] = "Descriere",
+				[str::total_titles] = "Totalul Titlurilor",
+				[str::select_cat] = "Selectați o categorie",
+				[str::select_subcat] = "Selectați o subcategorie",
+				[str::select_title] = "Selectați un titlu",
+				[str::no_cats_index] = "no categories in index (?)",
+				[str::empty_subcat] = "Empty subcategory (?)",
+				[str::empty_cat] = "Empty category (?)",
+				[str::fmt_24h] = "24 de ore",
+				[str::fmt_12h] = "12 ore",
+				[str::unknown] = "necunoscut/ă",
+				[str::btrue] = "adevărat",
+				[str::bfalse] = "fals",
+				[str::top] = "sus",
+				[str::bottom] = "jos",
+				[str::light_mode] = "Mod luminos",
+				[str::resume_dl] = "Reluați descărcările",
+				[str::load_space] = "Afişați indicator de spațiu liber",
+				[str::show_battery] = "Afişați indicator de baterie",
+				[str::time_format] = "Format de timp",
+				[str::progbar_screen] = "Poziția bării de progres",
+				[str::language] = "Limbă",
+				[str::value_x] = "Valoare: %1",
+				[str::back] = "Înapoi",
+				[str::invalid] = "invalid",
+				[str::title_doesnt_exist] = "Titlul nu există: %1",
+				[str::fail_create_tex] = "Crearea de texturi a eşuat",
+				[str::fail_load_smdh_icon] = "load_smdh_icon(): invalid SMDHIconType",
+				[str::netcon_lost] = "Conexiunea la internet s-a pierdut (%1).\nSe va reîncerca în $t secunde...",
+				[str::about_app] = "Despre",
+				[str::help_manual] = "Ajutor/Manual",
+				[str::find_missing_content] = "Găsiți conținut lipsă",
+				[str::press_a_exit] = "Apăsați " UI_GLYPH_A " pentru a ieşi.",
+				[str::fatal_panic] = "O panică fatală a avut loc.",
+				[str::failed_open_seeddb] = "Deschiderea seeddb.bin a eşuat.",
+				[str::update_to] = "Vreți să actualizați la %1?",
+				[str::search_content] = "Căutați conținut",
+				[str::search_content_action] = "Căutați conținut...",
+				[str::results_query] = "Resultate ale căutării \"%1\"",
+				[str::result_code] = "Cod rezultat: %1",
+				[str::level] = "Nivel: %1",
+				[str::summary] = "Sumar: %1",
+				[str::module] = "Modul: %1",
+				[str::hs_bunny_found] = "Felicitări! Ai găsit iepuraşul hShop!",
+				[str::already_installed_reinstall] = "Titlu deja instalat. Reinstalați?",
+				[str::queue_empty] =
+					"Coada este goală\n"
+					"Apăsați " UI_GLYPH_A " pentru a vă întoarce.\n"
+					"Pont: Apăsați " UI_GLYPH_Y " pentru a adăuga un titlu la coadă.",
+				[str::cancel] = "Anulați",
+				[str::confirm] = "Confirmați",
+				[str::invalid_proxy] = "Setări proxy invalide",
+				[str::more_about_content] = "Mai multe despre acest conținut",
+				[str::lumalocalemode] = "Modul LumaLocale",
+				[str::automatic] = "automat",
+				[str::manual] = "manual",
+				[str::disabled] = "oprit",
+				[str::patching_reboot] =
+					"Luma3DS Game Patching este acum pornit.\n"
+					"Sistemul trebuie repornit\npentru ca această schimbare să aibă efect.",
+				[str::reboot_now] = "Reporniți acum?",
+				[str::this_version] = "Acesta este 3hs versiunea %1", // %1 = version int "version desc"
+				[str::retry_req] = "Cerere eşuată. Reîncercați?",
+				[str::search_zero_results] = "Căutarea dvs. nu a dat rezultate.\nApăsați " UI_GLYPH_A " pentru a vă întoarce.",
+				[str::credits] = "Mulțumiri",
+				[str::extra_content] = "Adăugați conținut extra la coadă?",
+				[str::check_extra] = "Căutați conținut extra",
+				[str::no_req] = "Nici o cerere făcută încă", /* context: hlink requests */
+				[str::invalid_query] = "Căutare invalidă\nApăsați " UI_GLYPH_A " pentru a vă întoarce.",
+				[str::min_constraint] = " Versiunea curentă a 3hs %1 este mai mică decât versiunea necesară %2",
+				[str::proxy] = "Proxy",
+				[str::none] = "(nimic)",
+				[str::press_a_to_view] = "Apăsați " UI_GLYPH_A " pentru a vizualiza.",
+				[str::host] = "Gazdă",
+				[str::port] = "Port",
+				[str::username] = "Nume de Utilizator",
+				[str::password] = "Parlă",
+				[str::clear] = "Curățați", /* context: clear the contents of a field */
+				[str::progbar_screen_desc] = "Selectați poziția bării de progres.",
+				[str::light_mode_desc] = "Porniți/opriți modul luminos. Acesta va schimba felul în care arată majoritatea elementelor UI.",
+				[str::resume_dl_desc] = "Reluați descărcările după o întrerupere de rețea.",
+				[str::load_space_desc] = "Afişați indicatorul de progres.",
+				[str::show_battery_desc] = "Afişați indicatorul de baterie.",
+				[str::time_format_desc] = "Selectați formatul orar.",
+				[str::language_desc] = "Setați limba a 3hs. Aplicația trebuie repornită pentru ca limba selectată să intre în efect.",
+				[str::lumalocalemode_desc] = "Setați modul autosetatorului LumaLocale. Automat alege o limbă automat. Dacă este setat la manual, 3hs va solicita o regiune după instalarea conținutului.",
+				[str::check_extra_desc] = "Căutați conținut extra după instalare.",
+				[str::proxy_desc] = "Configurați un server proxy pentru 3hs. Această setare este pentru utilizatorii avansați.",
+				[str::install_all] = "Instalați tot", /* context: install all items in queue */
+				[str::install_no_base] = "Jocul de bază nu este instalat. Continuați totuşi?",
+				[str::warn_no_base] = "Avertizează dacă un joc de bază nu a fost instalat",
+				[str::warn_no_base_desc] = "Afişează un mesaj înainte de a instala un conținut de actualizare sau DLC dacă jocul de bază nu este instalat.",
+				[str::replaying_errors] = "Se reiau erori apărute în timpul procesării cozii.",
+				[str::log] = "Registre",
+				[str::upload_logs] = "Încărcați registre",
+				[str::clear_logs] = "ştergeți registre",
+				[str::found_missing] = "S-au găsit %1 titluri care lipsesc\nVerificați coada pentru a le instala.", // %1 = amount of titles found
+				[str::found_0_missing] = "Niciun titlu lipsă nu a fost găsit.",
+				[str::max_elogs] = "Numărul maxim de registre vechi",
+				[str::max_elogs_desc] = "Setați numărul de registre pe care să le țineți. Valorile posibile sunt de la 0 la 255, unde 0 nu reține niciun fişier de registru.",
+				[str::elogs_hint] = "Valoare între 0 şi 255",
+				[str::log_id] = "Folosiți acest ID pentru a obține suport:\n%1", // %1 = id
+				[str::block] = "bloc",
+				[str::blocks] = "blocuri",
+				[str::search_text] = "Căutați după text",
+				[str::search_id] = "Căutați după ID hShop",
+			}
 };
 #pragma GCC diagnostic pop
 
@@ -591,6 +856,7 @@ const char *i18n::langname(lang::type id)
 	case lang::dutch: return LANGNAME_DUTCH;
 	case lang::german: return LANGNAME_GERMAN;
 	case lang::spanish: return LANGNAME_SPANISH;
+	case lang::romanian: return LANGNAME_ROMANIAN;
 	}
 
 	return "invalid";
@@ -602,15 +868,18 @@ lang::type i18n::default_lang()
 	if(R_FAILED(CFGU_GetSystemLanguage(&syslang)))
 		return lang::english;
 
+	/* langs that don't have official syslangs and thus can't be added to this switch:
+	 *  - Romanian */
+
 	switch(syslang)
 	{
 	case CFG_LANGUAGE_DE: return lang::german;
 	case CFG_LANGUAGE_ES: return lang::spanish;
 	case CFG_LANGUAGE_NL: return lang::dutch;
+	case CFG_LANGUAGE_FR: return lang::french;
 
 	case CFG_LANGUAGE_JP: // fallthrough
 	case CFG_LANGUAGE_EN: // fallthrough
-	case CFG_LANGUAGE_FR: // fallthrough
 	case CFG_LANGUAGE_IT: // fallthrough
 	case CFG_LANGUAGE_ZH: // fallthrough
 	case CFG_LANGUAGE_KO: // fallthrough

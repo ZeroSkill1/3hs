@@ -40,7 +40,7 @@ bool tid_can_have_missing(hsapi::htid tid)
 ssize_t show_find_missing(hsapi::htid tid)
 {
 	ssize_t ret = -1;
-	ui::loading([&tid, &ret]() -> void {
+	ui::loading([tid, &ret]() -> void {
 		std::vector<hsapi::htid> installed;
 		panic_if_err_3ds(ctr::list_titles_on(MEDIATYPE_SD, installed));
 		ctr::list_titles_on(MEDIATYPE_GAME_CARD, installed); // it might error if there is no cart inserted so we don't want to panic if it fails

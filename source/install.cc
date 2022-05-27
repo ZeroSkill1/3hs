@@ -301,6 +301,16 @@ static Result i_install_hs_cia(const hsapi::FullTitle& meta, prog_func prog, boo
 	}, meta.tid, prog, reinstallable);
 }
 
+static const char *dest2str(FS_MediaType dest)
+{
+	switch(dest)
+	{
+	case MEDIATYPE_GAME_CARD: return "GAME CARD";
+	case MEDIATYPE_NAND: return "NAND";
+	case MEDIATYPE_SD: return "SD";
+	}
+	return "INVALID VALUE";
+}
 
 // public api
 
@@ -324,14 +334,16 @@ Result install::net_cia(get_url_func get_url, hsapi::htid tid, prog_func prog, b
 				return ret;
 		}
 	}
-
 	else
 	{
 		if(ctr::title_exists(tid))
 			return APPERR_NOREINSTALL;
 	}
+	dest = MEDIATYPE_SD;
+
 
 	Handle cia;
+	ilog("Installing %016llX to %s", tid, dest2str(dest));
 	ret = AM_StartCiaInstall(dest, &cia);
 	ilog("AM_StartCiaInstall(...): 0x%08lX", ret);
 	if(R_FAILED(ret)) return ret;
@@ -348,9 +360,10 @@ Result install::net_cia(get_url_func get_url, hsapi::htid tid, prog_func prog, b
 		return ret;
 	}
 
+	ilog("Done writing all data to CIA handle, finishing up");
 	ret = AM_FinishCiaInstall(cia);
-	svcCloseHandle(cia);
 	ilog("AM_FinishCiaInstall(...): 0x%08lX", ret);
+	svcCloseHandle(cia);
 
 	return ret;
 }

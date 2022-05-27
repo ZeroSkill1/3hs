@@ -357,5 +357,6 @@ if(note != "") {
 	elog("Level       : %s (0x%08lX)",  container.sLvl.c_str(), container.iLvl);
 	elog("Summary     : %s (0x%08lX)",  container.sSum.c_str(), container.iSum);
 	elog("===========================");
+	log_flush();
 }
 

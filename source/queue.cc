@@ -101,6 +101,7 @@ static void queue_is_empty()
 	ui::builder<ui::Text>(ui::Screen::top, STRING(queue_empty))
 		.x(ui::layout::center_x)
 		.y(ui::layout::center_y)
+		.wrap()
 		.add_to(queue);
 
 	queue.render_finite_button(KEY_A | KEY_B);

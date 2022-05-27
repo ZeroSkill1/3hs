@@ -160,6 +160,13 @@ const char *log_filename()
 	return F;
 }
 
+void log_flush()
+{
+#ifdef RELEASE
+	fflush(log_file);
+#endif
+}
+
 void _logf(const char *fnname, const char *filen,
 	size_t line, LogLevel lvl, const char *fmt, ...)
 {

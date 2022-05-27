@@ -36,6 +36,7 @@ void _logf(const char *fnname, const char *filen,
 
 const char *log_filename();
 void log_delete_invalid();
+void log_flush();
 void log_init();
 void log_exit();
 void log_del();

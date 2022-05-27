@@ -23,21 +23,32 @@
 #include <ui/menuselect.hh>
 #include <ui/loading.hh>
 #include <ui/base.hh>
+#include <errno.h>
 #include <string>
 
 
 static void upload_logs()
 {
+	log_flush();
 	FILE *f = fopen(log_filename(), "r");
-	if(!f) return;
+	if(!f)
+	{
+		elog("failed to open log: %s", strerror(errno));
+		return;
+	}
 	fseek(f, 0, SEEK_END);
 	u32 size = ftell(f);
 	fseek(f, 0, SEEK_SET);
 	char *data = (char *) malloc(size);
-	if(fread(data, size, 1, f) != 1)
+	int rsize = fread(data, 1, size, f);
+	if(rsize <= 0)
+	{
+		elog("failed to read log: %s", strerror(errno));
 		return;
+	}
+	std::string sdata(data, rsize);
 	std::string id;
-	Result res = hsapi::call(hsapi::upload_log, (const char *) data, std::move(size), id);
+	Result res = hsapi::call(hsapi::upload_log, sdata.c_str(), std::move(size), id);
 	free(data);
 	if(R_FAILED(res))
 	{

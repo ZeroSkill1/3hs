@@ -23,6 +23,7 @@
 #include "hsapi.hh"
 #include "i18n.hh"
 #include "util.hh"
+#include "log.hh"
 
 
 Result init_services(bool& isLuma)
@@ -106,6 +107,8 @@ void handle_error(const error_container& err)
 
 [[noreturn]] static void panic_core(const std::string& caller, ui::RenderQueue& queue)
 {
+	elog("PANIC -- THERE IS AN ERROR IN THE APPLCIATION");
+	elog("Caller is %s", caller.c_str());
 	aptSetHomeAllowed(true); /* these might be set otherwise in other parts of the code */
 	C3D_FrameRate(60.0f);
 
@@ -148,6 +151,7 @@ void handle_error(const error_container& err)
 		.wrap()
 		.add_to(queue);
 
+	elog("PANIC MESSAGE -- %s", msg.c_str());
 	panic_core(caller, queue);
 }
 
@@ -158,6 +162,7 @@ void handle_error(const error_container& err)
 	error_container err = get_error(res);
 	pusherror(err, queue, 70.0f);
 
+	elog("PANIC RESULT -- 0x%016lX", res);
 	panic_core(caller, queue);
 }
 

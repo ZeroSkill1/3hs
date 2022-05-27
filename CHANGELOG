@@ -1,4 +1,8 @@
 
+v1.0.1 "aeraria":
+ - additionally to initial release:
+ - hotfix arm11 after title installation
+
 v1.0.0 "aeraria":
  - update for new hsite v3 api
  - re-add light theme & make it the default

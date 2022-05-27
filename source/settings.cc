@@ -129,7 +129,7 @@ static const char *localemode2str_en(LumaLocaleMode mode)
 	case LumaLocaleMode::automatic: return "automatic";
 	case LumaLocaleMode::disabled: return "disabled";
 	}
-	return "unknown";
+	return STRING(unknown);
 }
 
 static std::string serialize_id(SettingsId ID)
@@ -368,8 +368,8 @@ static void update_settings_ID(SettingsId ID)
 		break;
 	case ID_Language:
 		read_set_enum<lang::type>(
-			{ LANGNAME_ENGLISH, LANGNAME_DUTCH, LANGNAME_GERMAN, LANGNAME_SPANISH },
-			{ lang::english, lang::dutch, lang::german, lang::spanish },
+			{ LANGNAME_ENGLISH, LANGNAME_DUTCH, LANGNAME_GERMAN, LANGNAME_SPANISH, LANGNAME_FRENCH, LANGNAME_ROMANIAN },
+			{ lang::english, lang::dutch, lang::german, lang::spanish, lang::french, lang::romanian },
 			g_settings.language
 		);
 		break;

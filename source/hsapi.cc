@@ -267,7 +267,6 @@ static void serialize_full_titles(std::vector<hsapi::FullTitle>& rtitles, json& 
 	}
 }
 
-
 // https://en.wikipedia.org/wiki/Percent-encoding
 static std::string url_encode(const std::string& str)
 {
@@ -327,6 +326,7 @@ hsapi::Category *hsapi::Index::find(const std::string& name)
 
 Result hsapi::fetch_index()
 {
+	ilog("calling api");
 	json j;
 	Result res;
 	if(R_FAILED(res = basereq<json>(HS_BASE_LOC "/title-index", j)))
@@ -345,6 +345,7 @@ Result hsapi::fetch_index()
 
 Result hsapi::titles_in(std::vector<hsapi::Title>& ret, const std::string& cat, const std::string& scat)
 {
+	ilog("calling api");
 	json j;
 	Result res;
 	if(R_FAILED(res = basereq<json>(HS_BASE_LOC "/title/category/" + cat + "/" + scat, j)))
@@ -358,6 +359,7 @@ Result hsapi::titles_in(std::vector<hsapi::Title>& ret, const std::string& cat, 
 
 Result hsapi::title_meta(hsapi::FullTitle& ret, hsapi::hid id)
 {
+	ilog("calling api");
 	json j;
 	Result res;
 	if(R_FAILED(res = basereq<json>(HS_BASE_LOC "/title/" + std::to_string(id), j)))
@@ -371,6 +373,7 @@ Result hsapi::title_meta(hsapi::FullTitle& ret, hsapi::hid id)
 
 Result hsapi::get_download_link(std::string& ret, const hsapi::Title& meta)
 {
+	ilog("calling api");
 	json j;
 	Result res;
 	if(R_FAILED(res = basereq<json>(HS_CDN_BASE "/content/" + std::to_string(meta.id) + "/request", j)))
@@ -384,6 +387,7 @@ Result hsapi::get_download_link(std::string& ret, const hsapi::Title& meta)
 
 Result hsapi::search(std::vector<hsapi::Title>& ret, const std::string& query)
 {
+	ilog("calling api");
 	json j;
 	Result res;
 	if(R_FAILED(res = basereq<json>(HS_BASE_LOC "/title/search?q=" + url_encode(query), j)))
@@ -397,6 +401,7 @@ Result hsapi::search(std::vector<hsapi::Title>& ret, const std::string& query)
 
 Result hsapi::random(hsapi::FullTitle& ret)
 {
+	ilog("calling api");
 	json j;
 	Result res;
 	if(R_FAILED(res = basereq<json>(HS_BASE_LOC "/title/random", j)))
@@ -410,6 +415,7 @@ Result hsapi::random(hsapi::FullTitle& ret)
 
 Result hsapi::upload_log(const char *contents, u32 size, std::string& logid)
 {
+	ilog("calling api");
 	json j;
 	Result res;
 	if(R_FAILED(res = basereq<json>(HS_SITE_LOC "/log", j, HTTPC_METHOD_POST, contents, size)))
@@ -421,6 +427,7 @@ Result hsapi::upload_log(const char *contents, u32 size, std::string& logid)
 
 Result hsapi::batch_related(hsapi::BatchRelated& ret, const std::vector<hsapi::htid>& tids)
 {
+	ilog("calling api");
 	if(tids.size() == 0) return OK;
 
 	std::string url = HS_BASE_LOC "/title/related/batch?title_ids=" + ctr::tid_to_str(tids[0]);
@@ -447,6 +454,7 @@ Result hsapi::batch_related(hsapi::BatchRelated& ret, const std::vector<hsapi::h
 
 Result hsapi::get_latest_version_string(std::string& ret)
 {
+	ilog("calling api");
 	Result res = OK;
 	if(R_FAILED(res = basereq(HS_UPDATE_BASE "/version", ret)))
 		return res;
