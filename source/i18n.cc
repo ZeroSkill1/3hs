@@ -1442,7 +1442,7 @@ lang::type i18n::default_lang()
 	u8 syslang = 0;
 	u8 countryinfo[4];
 	if(R_FAILED(CFGU_GetSystemLanguage(&syslang)))
-		return lang::english;
+		syslang = CFG_LANGUAGE_EN;
 	/* countryinfo */
 	if(R_FAILED(CFGU_GetConfigInfoBlk2(4, 0x000B0000, countryinfo)))
 		countryinfo[3] = 0;

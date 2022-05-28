@@ -326,12 +326,12 @@ namespace ui
 
 		enum signal { signal_cancel = 1 };
 
+		std::list<ui::BaseWidget *> top;
+		std::list<ui::BaseWidget *> bot;
 
 	private:
 		std::function<bool()> *after_render_complete = nullptr;
 		ui::BaseWidget *backPtr = nullptr;
-		std::list<ui::BaseWidget *> top;
-		std::list<ui::BaseWidget *> bot;
 		u8 signalBit = 0;
 
 

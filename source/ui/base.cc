@@ -380,23 +380,24 @@ void ui::Text::prepare_arrays()
 		this->lines.clear();
 	}
 
-	int width = ui::screen_width(this->screen);
+	int width = ui::screen_width(this->screen) - this->x;
 	int lines = (this->text.size() / (width - this->x)) + 1;
 	this->lines.reserve(lines);
 
-	int curWidth = this->x;
+	float curWidth = 0;
 	char codepoint[5] = { 0x00, 0x00, 0x00, 0x00, 0x00 };
 	u8 expect = 0;
 	u8 cpc = 0;
 	std::string cur;
 	/* should be enough for a line */
 	cur.reserve(128);
+	C2D_TextBuf linebuf = C2D_TextBufNew(1024);
+	C2D_Text linetext;
 
 	for(size_t i = 0; i < this->text.size(); ++i)
 	{
-		if((this->doAutowrap && width - curWidth < 0) || this->text[i] == '\n')
+		if((this->doAutowrap && width - curWidth < 10.0f) || this->text[i] == '\n')
 		{
-			curWidth = this->x;
 			if(!isspace(this->text[i]))
 			{
 				std::string::size_type last_space = cur.rfind(' ');
@@ -442,14 +443,14 @@ void ui::Text::prepare_arrays()
 
 		if(this->doAutowrap)
 		{
-			u32 rcodepoint;
-			decode_utf8(&rcodepoint, (u8 *) codepoint);
-			charWidthInfo_s *ch = C2D_FontGetCharWidthInfo(NULL, C2D_FontGlyphIndexFromCodePoint(NULL, rcodepoint));
-			if(ch != NULL) curWidth += ch->glyphWidth;
-			else dlog("Codepoint not found: %s (0x%08lX)", codepoint, rcodepoint);
+			/* this seems inefficient, is there a better way to do this? */
+			C2D_TextParse(&linetext, linebuf, cur.c_str());
+			C2D_TextGetDimensions(&linetext, this->xsiz, this->ysiz, &curWidth, nullptr);
+			curWidth += 10.0f; /* small margin */
+			C2D_TextBufClear(linebuf);
 		}
 
-		memset(codepoint, 0x00, 4);
+		codepoint[0] = '\0';
 		expect = 0;
 		cpc = 0;
 	}
@@ -464,6 +465,7 @@ void ui::Text::prepare_arrays()
 			&this->lineHeigth);
 	}
 	else this->lineHeigth = 0;
+	C2D_TextBufDelete(linebuf);
 }
 
 void ui::Text::push_str(const std::string& str)

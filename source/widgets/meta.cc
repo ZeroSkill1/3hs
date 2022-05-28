@@ -35,6 +35,31 @@
 
 /* CatMeta */
 
+static void clip_q(ui::RenderQueue& q, float base, float size = 0.65f)
+{
+	float totalHeight = base;
+	for(ui::BaseWidget *wid : q.bot)
+		totalHeight += wid->height();
+	if(totalHeight > 210.0f)
+	{
+		ui::Text *prev = nullptr;
+		/* everything needs to be smaller...
+		 * required on KOR where everything is a tad larger */
+		for(std::list<ui::BaseWidget *>::iterator it = q.bot.begin(); it != q.bot.end(); ++it)
+		{
+			ui::Text *cur = (ui::Text *) *it;
+			cur->resize(size - 0.10f, size - 0.10f);
+			++it;
+			ui::Text *label = (ui::Text *) *it;
+			label->resize(size - 0.25f, size - 0.25f);
+			if(prev)
+				cur->set_y(ui::under(prev, cur, -2.5f));
+			label->set_y(ui::under(cur, label, -3.5f));
+			prev = label;
+		}
+	}
+}
+
 void ui::CatMeta::setup(const hsapi::Category& cat)
 { this->set_cat(cat); }
 
@@ -56,6 +81,7 @@ void ui::CatMeta::set_cat(const hsapi::Category& cat)
 	PAIR(ui::human_readable_size_block(cat.size), STRING(size));
 	PAIR(std::to_string(cat.titles), STRING(total_titles));
 	PAIR(cat.desc, STRING(description));
+	clip_q(this->queue, this->get_y());
 }
 
 bool ui::CatMeta::render(const ui::Keys& keys)
@@ -96,9 +122,10 @@ void ui::SubMeta::set_sub(const hsapi::Subcategory& sub)
 		.add_to(this->queue);
 
 	PAIR(ui::human_readable_size_block(sub.size), STRING(size));
-	PAIR(sub.cat, STRING(category));
+	PAIR(hsapi::get_index()->find(sub.cat)->disp, STRING(category));
 	PAIR(std::to_string(sub.titles), STRING(total_titles));
 	PAIR(sub.desc, STRING(description));
+	clip_q(this->queue, this->get_y());
 }
 
 bool ui::SubMeta::render(const ui::Keys& keys)
@@ -138,12 +165,13 @@ void ui::TitleMeta::set_title(const hsapi::Title& meta)
 		.under(this->queue.back(), -1.0f)
 		.add_to(this->queue);
 
-	PAIR(hsapi::get_index()->find(meta.cat)->disp+ " -> " +
+	PAIR(hsapi::get_index()->find(meta.cat)->disp + " -> " +
 			hsapi::get_index()->find(meta.cat)->find(meta.subcat)->disp,
 		STRING(category));
 	PAIR(ctr::tid_to_str(meta.tid), STRING(tid));
 	PAIR(std::to_string(meta.id), STRING(landing_id));
 	PAIR(ui::human_readable_size_block(meta.size), STRING(size));
+	clip_q(this->queue, this->get_y());
 }
 
 bool ui::TitleMeta::render(const ui::Keys& keys)

@@ -26,7 +26,7 @@
 #define UI_SLOTS_PROTO_EXTERN(name) \
 	extern ui::slot_color_getter *name##__do_not_touch;
 #define UI_SLOTS_PROTO(name, count) \
-	ui::SlotManager slots = ui::ThemeManager::global()->get_slots(this, id, count, name##__do_not_touch);
+	ui::SlotManager slots = ui::ThemeManager::global()->get_slots(this, id /* id is defined by UI_WIDGET */, count, name##__do_not_touch);
 #define UI_SLOTS__3(line, name, ...) \
 	static ui::slot_color_getter _slot_data__do_not_touch##line[] = { __VA_ARGS__ }; \
 	ui::slot_color_getter *name##__do_not_touch = _slot_data__do_not_touch##line;

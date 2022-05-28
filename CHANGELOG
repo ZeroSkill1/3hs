@@ -3,7 +3,7 @@ v1.2.0 "aeraria":
  - make text wrapping not use hyphens
  - make long texts in lists scroll horizontally
  - fix issue where text search query data would get cut off
- - fix some wrapping issues on korean systems
+ - fix some wrapping issues on Korean systems
  - automatically detect Romanian based on system country
  - add French (Canada) translation
  - add Italian translation
