@@ -140,6 +140,10 @@ static bool enable_gamepatching_buf(u8 *buf)
 	// byte 6-7 : version_minor
 	// byte ... : config
 
+	/* is this actually a luma configuration file? */
+	if(memcmp(buf, "CONF", 4) != 0)
+		return true;
+
 	// version_major != 2
 	if(* (u16 *) &buf[4] != 2)
 		return true;
@@ -160,7 +164,9 @@ static bool enable_gamepatching()
 	{ fclose(config); return true; }
 
 	fclose(config);
+	vlog("checking if gamepatching is enabled");
 	bool isSet = enable_gamepatching_buf(buf);
+	vlog("isSet: %i", isSet);
 	if(isSet) return true;
 
 	// We need to update settings
@@ -182,6 +188,7 @@ void luma::maybe_set_gamepatching()
 	// We should prompt for reboot...
 	if(!enable_gamepatching())
 	{
+		ilog("enabled game patching");
 		ui::RenderQueue queue;
 		bool reboot;
 
@@ -199,18 +206,19 @@ void luma::maybe_set_gamepatching()
 	}
 }
 
-void luma::set_locale(u64 tid)
+bool luma::set_locale(u64 tid)
 {
 	// we don't want to set a locale
 	if(get_settings()->lumalocalemode == LumaLocaleMode::disabled)
-		return;
+		return false;
 
 	ctr::TitleSMDH *smdh = ctr::smdh::get(tid);
 	ctr::Region region = ctr::Region::WORLD;
 	const char *langstr = nullptr;
 	const char *regstr = nullptr;
 
-	if(smdh == nullptr) return;
+	if(smdh == nullptr) return false;
+	bool ret = false;
 
 	// We don't need to do anything
 	if(smdh->region == (u32) ctr::RegionLockout::WORLD)
@@ -251,9 +259,10 @@ void luma::set_locale(u64 tid)
 	}
 
 	write_file(tid, regstr, langstr);
+	ret = true;
 
 del_smdh:
 	delete smdh;
-
+	return ret;
 }
 

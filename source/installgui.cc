@@ -64,10 +64,10 @@ static void finalize_install(u64 tid, bool interactive)
 
 	/* only set locale if we're interactive or if it's set to go automatically */
 	if(interactive || get_settings()->lumalocalemode == LumaLocaleMode::automatic)
-		luma::set_locale(tid);
-	/* this can prompt for a reboot so it should only be done
-	 * interactively */
-	if(interactive) luma::maybe_set_gamepatching();
+	{
+		if(luma::set_locale(tid) && interactive)
+			luma::maybe_set_gamepatching();
+	}
 }
 
 /* returns if the user wants to continue */

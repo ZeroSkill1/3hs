@@ -381,8 +381,9 @@ void ui::Text::prepare_arrays()
 	}
 
 	int width = ui::screen_width(this->screen) - this->x;
-	int lines = (this->text.size() / (width - this->x)) + 1;
-	this->lines.reserve(lines);
+	int lines = (this->text.size() / width) + 1;
+	/* this caused an issue before.. lines was -12 */
+	if(lines > 0) this->lines.reserve(lines);
 
 	float curWidth = 0;
 	char codepoint[5] = { 0x00, 0x00, 0x00, 0x00, 0x00 };
