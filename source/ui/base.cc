@@ -398,6 +398,7 @@ void ui::Text::prepare_arrays()
 	{
 		if((this->doAutowrap && width - curWidth < 10.0f) || this->text[i] == '\n')
 		{
+			curWidth = 0;
 			if(!isspace(this->text[i]))
 			{
 				std::string::size_type last_space = cur.rfind(' ');
