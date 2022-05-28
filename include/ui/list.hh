@@ -161,7 +161,7 @@ builtin_controls_done:
 					if(this->scrolldata.shouldScroll)
 					{
 						ofs = this->scrolldata.xof;
-						C2D_DrawRectSolid(0, ypos, this->z + 0.1f, this->x + text_offset,
+						C2D_DrawRectSolid(0, ypos - 5.0f, this->z + 0.1f, this->x + text_offset,
 							this->selh, this->slots.get(0));
 						if(this->scrolldata.framecounter <= 60)
 							++this->scrolldata.framecounter;
