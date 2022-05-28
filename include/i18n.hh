@@ -28,7 +28,11 @@
 #define LANGNAME_GERMAN "Deutsch"
 #define LANGNAME_SPANISH "Español"
 #define LANGNAME_FRENCH "Français"
+#define LANGNAME_FRENCH_CANADA "Français (Canada)"
 #define LANGNAME_ROMANIAN "Română"
+#define LANGNAME_ITALIAN "Italiano"
+#define LANGNAME_PORTUGUESE "Português"
+#define LANGNAME_KOREAN "한국인"
 
 // ParamSTRING
 #define PSTRING(x, ...) i18n::interpolate(str::x, __VA_ARGS__)
@@ -169,12 +173,16 @@ namespace lang
 {
 	enum _enum
 	{
-		english  = 0,
-		dutch    = 1,
-		german   = 2,
-		spanish  = 3,
-		french   = 4,
-		romanian = 5,
+		english       = 0,
+		dutch         = 1,
+		german        = 2,
+		spanish       = 3,
+		french        = 4,
+		french_canada = 5,
+		romanian      = 6,
+		italian       = 7,
+		portuguese    = 8,
+		korean        = 9,
 
 		_i_max,
 	};

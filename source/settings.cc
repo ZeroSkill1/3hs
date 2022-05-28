@@ -370,8 +370,10 @@ static void update_settings_ID(SettingsId ID)
 		break;
 	case ID_Language:
 		read_set_enum<lang::type>(
-			{ LANGNAME_ENGLISH, LANGNAME_DUTCH, LANGNAME_GERMAN, LANGNAME_SPANISH, LANGNAME_FRENCH, LANGNAME_ROMANIAN },
-			{ lang::english, lang::dutch, lang::german, lang::spanish, lang::french, lang::romanian },
+			{ LANGNAME_ENGLISH, LANGNAME_DUTCH, LANGNAME_GERMAN, LANGNAME_SPANISH, LANGNAME_FRENCH,
+			  LANGNAME_FRENCH_CANADA, LANGNAME_ROMANIAN, LANGNAME_ITALIAN, LANGNAME_PORTUGUESE, LANGNAME_KOREAN },
+			{ lang::english, lang::dutch, lang::german, lang::spanish, lang::french,
+			  lang::french_canada, lang::romanian, lang::italian, lang::portuguese, lang::korean },
 			g_settings.language
 		);
 		break;

@@ -150,17 +150,38 @@ builtin_controls_done:
 			/* render the on-screen elements */
 			size_t end = this->view + (this->lines.size() > this->amountRows
 				? this->amountRows - 1 : this->lines.size());
+			u32 color = this->slots.get(1);
 			for(size_t i = this->view, j = 0; i < end; ++i, ++j)
 			{
-				u32 color = this->slots.get(1);
+				float ofs = 0;
 				if(i == this->pos)
 				{
-					C2D_DrawLine(this->x, this->y + text_spacing * j + selector_offset,
+					float ypos = this->y + text_spacing * j + selector_offset;
+					/* update offsets */
+					if(this->scrolldata.shouldScroll)
+					{
+						ofs = this->scrolldata.xof;
+						C2D_DrawRectSolid(0, ypos, this->z + 0.1f, this->x + text_offset,
+							this->selh, this->slots.get(0));
+						if(this->scrolldata.framecounter <= 60)
+							++this->scrolldata.framecounter;
+						else if(ui::screen_width(this->screen) - this->x - text_offset + ofs > this->selw + 10.0f)
+						{
+							if(this->scrolldata.framecounter > 120)
+							{
+								this->scrolldata.framecounter = 0;
+								this->scrolldata.xof = 0;
+							}
+							else ++this->scrolldata.framecounter;
+						}
+						else this->scrolldata.xof += 0.2f;
+					}
+					C2D_DrawLine(this->x, ypos,
 						color, this->x, this->y + text_spacing * j + this->selh - selector_offset,
-						color, 1.5f, this->z);
+						color, 1.5f, this->z + 0.2f);
 				}
 
-				C2D_DrawText(&this->lines[i], C2D_WithColor, this->x + text_offset,
+				C2D_DrawText(&this->lines[i], C2D_WithColor, this->x + text_offset - ofs,
 					this->y + text_spacing * j, this->z, text_size, text_size,
 					color);
 			}
@@ -314,6 +335,12 @@ builtin_controls_done:
 		size_t view; /* first visable element */
 		size_t pos; /* cursor position */
 
+		struct ScrolldataContainer {
+			bool shouldScroll;
+			int framecounter;
+			float xof;
+		} scrolldata;
+
 		template <typename TInt>
 		TInt min(TInt a, TInt b)
 		{
@@ -342,6 +369,11 @@ builtin_controls_done:
 					ui::screen_height() - this->sy - this->y,
 					((float) this->visable() / (float) this->lines.size()) * this->height()
 				);
+
+			this->scrolldata = {
+				ui::screen_width(this->screen) - this->x - text_offset < this->selw,
+				0, 0
+			};
 		}
 
 		void clear()

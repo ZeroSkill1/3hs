@@ -1,4 +1,14 @@
 
+v1.2.0 "aeraria":
+ - make text wrapping not use hyphens
+ - make long texts in lists scroll horizontally
+ - fix some wrapping issues on korean systems
+ - automatically detect Romanian based on system country
+ - add French (Canada) translation
+ - add Italian translation
+ - add Portuguese translation
+ - add Korean translation
+
 v1.1.0 "aeraria":
  - fix issue where NAND titles wouldn't be reinstallable
  - add Romanian translation

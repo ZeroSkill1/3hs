@@ -385,7 +385,7 @@ void ui::Text::prepare_arrays()
 	this->lines.reserve(lines);
 
 	int curWidth = this->x;
-	char codepoint[4] = { 0x00, 0x00, 0x00, 0x00 };
+	char codepoint[5] = { 0x00, 0x00, 0x00, 0x00, 0x00 };
 	u8 expect = 0;
 	u8 cpc = 0;
 	std::string cur;
@@ -397,9 +397,18 @@ void ui::Text::prepare_arrays()
 		if((this->doAutowrap && width - curWidth < 0) || this->text[i] == '\n')
 		{
 			curWidth = this->x;
-			/* TODO: Push the previous word to the next line */
 			if(!isspace(this->text[i]))
-				cur.push_back('-');
+			{
+				std::string::size_type last_space = cur.rfind(' ');
+				/* means the whole line was taken up by one word....
+				 * we can only make it wrap then */
+				if(last_space != std::string::npos)
+				{
+					std::string::size_type discarded = cur.size() - last_space;
+					cur.erase(last_space);
+					i -= discarded;
+				}
+			}
 			this->push_str(cur);
 			cur.clear();
 
@@ -426,15 +435,18 @@ void ui::Text::prepare_arrays()
 			codepoint[cpc++] = code;
 			if(cpc != expect)
 				continue;
+			codepoint[cpc] = '\0';
 		}
 
 		cur.append(codepoint, cpc);
 
 		if(this->doAutowrap)
 		{
-			charWidthInfo_s *ch = C2D_FontGetCharWidthInfo(NULL, C2D_FontGlyphIndexFromCodePoint(NULL, * (u32 *) codepoint));
+			u32 rcodepoint;
+			decode_utf8(&rcodepoint, (u8 *) codepoint);
+			charWidthInfo_s *ch = C2D_FontGetCharWidthInfo(NULL, C2D_FontGlyphIndexFromCodePoint(NULL, rcodepoint));
 			if(ch != NULL) curWidth += ch->glyphWidth;
-			else dlog("Codepoint not found: %s (0x%08lX)", std::string(codepoint, cpc).c_str(), * (u32 *) codepoint);
+			else dlog("Codepoint not found: %s (0x%08lX)", codepoint, rcodepoint);
 		}
 
 		memset(codepoint, 0x00, 4);
