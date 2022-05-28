@@ -17,6 +17,8 @@
 #ifndef inc_next_hh
 #define inc_next_hh
 
+#include "installgui.hh"
+#include "extmeta.hh"
 #include "hsapi.hh"
 
 #include <string>
@@ -34,6 +36,7 @@ namespace next
 	const std::string *sel_cat(size_t *cursor = nullptr);
 	const std::string *sel_sub(const std::string& cat, size_t *cursor = nullptr);
 	hsapi::hid sel_gam(std::vector<hsapi::Title>& titles, size_t *cursor = nullptr);
+	void maybe_sel_gam(std::vector<hsapi::Title>& titles);
 }
 
 #endif

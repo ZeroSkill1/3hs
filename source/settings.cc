@@ -253,7 +253,7 @@ static void show_update_proxy()
 				SwkbdButton btn;
 				uint64_t val = ui::numpad([](ui::AppletSwkbd *swkbd) -> void {
 					swkbd->hint(STRING(port));
-				}, 5 /* max is 65535: 5 digits */, &btn);
+				}, &btn, nullptr, 5 /* max is 65535: 5 digits */);
 
 				if(btn == SWKBD_BUTTON_CONFIRM)
 				{
@@ -316,7 +316,7 @@ static void show_elogs()
 		SwkbdButton btn;
 		val = ui::numpad([](ui::AppletSwkbd *swkbd) -> void {
 			swkbd->hint(STRING(elogs_hint));
-		}, 3 /* max is 255: 3 digits */, &btn);
+		}, &btn, nullptr, 3 /* max is 255: 3 digits */);
 
 		if(btn != SWKBD_BUTTON_CONFIRM)
 			return;

@@ -162,6 +162,9 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::blocks] = "blocks", /* context: see above, just in plural this time */
 			[str::search_text] = "Search by text",
 			[str::search_id] = "Search by hShop ID",
+			[str::search_tid] = "Search by Title ID",
+			[str::invalid_tid] = "Invalid Title ID",
+			[str::theme_installer_tid_bad] = "Please browse the Themes category manually to look for themes",
 		},
 
 	[lang::dutch] =
@@ -296,6 +299,9 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::blocks] = "blokken",
 			[str::search_text] = "Zoek op tekst",
 			[str::search_id] = "Vind met hShop ID",
+			STUB(search_tid),
+			STUB(invalid_tid),
+			STUB(theme_installer_tid_bad),
 		},
 
 	[lang::german] =
@@ -427,7 +433,10 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::block] = "Block",
 			[str::blocks] = "Blöcke",
 			[str::search_text] = "Mithilfe von Text suchen",
-			[str::search_id] = "Mithilfe einer hShop ID suchen"
+			[str::search_id] = "Mithilfe einer hShop ID suchen",
+			STUB(search_tid),
+			STUB(invalid_tid),
+			STUB(theme_installer_tid_bad),
 		},
 
 	[lang::spanish] =
@@ -561,6 +570,9 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::blocks] = "bloques",
 			[str::search_text] = "Busqueda por texto",
 			[str::search_id] = "Buscar usando una ID hShop",
+			STUB(search_tid),
+			STUB(invalid_tid),
+			STUB(theme_installer_tid_bad),
 		},
 
 	[lang::french] =
@@ -694,6 +706,9 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::blocks] = "blocs",
 			[str::search_text] = "Recherche par texte",
 			[str::search_id] = "Recherche par l'ID hshop",
+			STUB(search_tid),
+			STUB(invalid_tid),
+			STUB(theme_installer_tid_bad),
 		},
 
 	[lang::french_canada] =
@@ -827,9 +842,12 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::blocks] = "blocs", /* context: see above, just in plural this time */
 			[str::search_text] = "Recherce par text",
 			[str::search_id] = "Recherche par ID hShop",
+			STUB(search_tid),
+			STUB(invalid_tid),
+			STUB(theme_installer_tid_bad),
 		},
 
-	[lang::romanian] =
+		[lang::romanian] =
 		{
 			[str::banner] = "Serviciul suprem de prezervare al conținutului pentru 3DS",
 			[str::loading] = "Se încarcă...",
@@ -960,6 +978,9 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::blocks] = "blocuri",
 			[str::search_text] = "Căutați după text",
 			[str::search_id] = "Căutați după ID hShop",
+			STUB(search_tid),
+			STUB(invalid_tid),
+			STUB(theme_installer_tid_bad),
 		},
 
 	[lang::italian] =
@@ -1093,6 +1114,9 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::blocks] = "blocchi",
 			[str::search_text] = "Cerca tramite testo",
 			[str::search_id] = "Cerca tramite ID hShop",
+			STUB(search_tid),
+			STUB(invalid_tid),
+			STUB(theme_installer_tid_bad),
 		},
 
 	[lang::portuguese] =
@@ -1226,6 +1250,9 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::blocks] = "blocos", /* context: see above, just in plural this time */
 			[str::search_text] = "Pesquisa por texto",
 			[str::search_id] = "Pesquisa por ID hShop",
+			STUB(search_tid),
+			STUB(invalid_tid),
+			STUB(theme_installer_tid_bad),
 		},
 
 	[lang::korean] =
@@ -1360,7 +1387,10 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::blocks] = "블록", /* context: see above, just in plural this time */
 			[str::search_text] = "이름으로 검색",
 			[str::search_id] = "hShop ID로 검색",
-		},
+			STUB(search_tid),
+			STUB(invalid_tid),
+			STUB(theme_installer_tid_bad),
+		}
 };
 #pragma GCC diagnostic pop
 

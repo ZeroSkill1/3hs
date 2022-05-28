@@ -162,3 +162,17 @@ hsapi::hid next::sel_gam(std::vector<hsapi::Title>& titles, size_t *cursor)
 	return ret;
 }
 
+void next::maybe_sel_gam(std::vector<hsapi::Title>& titles)
+{
+	size_t cur = 0;
+	do {
+		hsapi::hid id = next::sel_gam(titles, &cur);
+		if(id == next_gam_exit || id == next_gam_back)
+			break;
+
+		hsapi::FullTitle meta;
+		if(show_extmeta_lazy(titles, id, &meta))
+			install::gui::hs_cia(meta);
+	} while(true);
+}
+

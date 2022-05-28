@@ -162,7 +162,9 @@ namespace str
 		blocks = 116,
 		search_text = 117,
 		search_id = 118,
-
+		search_tid = 119,
+		invalid_tid = 120,
+		theme_installer_tid_bad = 121,
 		_i_max,
 	};
 

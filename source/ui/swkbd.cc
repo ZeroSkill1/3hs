@@ -81,13 +81,13 @@ void ui::AppletSwkbd::connect(ui::AppletSwkbd::connect_type t, SwkbdResult *r)
 /* keyboard */
 
 std::string ui::keyboard(std::function<void(ui::AppletSwkbd *)> configure,
-	SwkbdButton *btn, SwkbdResult *res)
+	SwkbdButton *btn, SwkbdResult *res, size_t length)
 {
 	ui::RenderQueue queue;
 	std::string ret;
 
 	ui::AppletSwkbd *swkbd;
-	ui::builder<ui::AppletSwkbd>(ui::Screen::top, &ret)
+	ui::builder<ui::AppletSwkbd>(ui::Screen::top, &ret, length)
 		.connect(ui::AppletSwkbd::button, btn)
 		.connect(ui::AppletSwkbd::result, res)
 		.add_to(&swkbd, queue);
@@ -100,7 +100,7 @@ std::string ui::keyboard(std::function<void(ui::AppletSwkbd *)> configure,
 /* numpad */
 
 uint64_t ui::numpad(std::function<void(ui::AppletSwkbd *)> configure,
-	size_t length, SwkbdButton *btn, SwkbdResult *res)
+	SwkbdButton *btn, SwkbdResult *res, size_t length)
 {
 	ui::RenderQueue queue;
 	std::string ret;

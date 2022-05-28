@@ -65,10 +65,10 @@ namespace ui
 
 	/* Gets string input with ui::AppletSwkbd */
 	std::string keyboard(std::function<void(ui::AppletSwkbd *)> configure,
-		SwkbdButton *btn = nullptr, SwkbdResult *res = nullptr);
+		SwkbdButton *btn = nullptr, SwkbdResult *res = nullptr, size_t length = 200);
 	/* Gets a number with ui::AppletSwkbd */
 	uint64_t numpad(std::function<void(ui::AppletSwkbd *)> configure,
-		size_t length = 10, SwkbdButton *btn = nullptr, SwkbdResult *res = nullptr);
+		SwkbdButton *btn = nullptr, SwkbdResult *res = nullptr, size_t length = 10);
 
 /*	class Swkbd
 	{

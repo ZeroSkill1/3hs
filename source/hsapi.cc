@@ -285,7 +285,6 @@ static std::string url_encode(const std::string& str)
 			// Why is there no std::hex(uchar) function?
 			snprintf(hex, 4, "%%%02X", str[i]);
 			ret += hex;
-			break;
 		}
 	}
 
@@ -462,6 +461,19 @@ Result hsapi::get_latest_version_string(std::string& ret)
 	return OK;
 }
 
+Result hsapi::get_by_title_id(std::vector<Title>& ret, const std::string& title_id)
+{
+	ilog("calling api");
+	json j;
+	Result res = OK;
+	if(R_FAILED(res = basereq<json>(HS_BASE_LOC "/title/id/" + title_id, j)))
+		return res;
+	CHECKAPI();
+	j = j["value"];
+
+	serialize_titles(ret, j);
+	return OK;
+}
 
 std::string hsapi::update_location(const std::string& ver)
 {

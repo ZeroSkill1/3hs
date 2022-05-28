@@ -114,6 +114,7 @@ namespace hsapi
 	void global_deinit();
 	bool global_init();
 
+	Result get_by_title_id(std::vector<Title>& ret, const std::string& title_id);
 	Result titles_in(std::vector<Title>& ret, const std::string& cat, const std::string& scat);
 	Result batch_related(BatchRelated& ret, const std::vector<htid>& tids);
 	Result upload_log(const char *contents, u32 size, std::string& logid);

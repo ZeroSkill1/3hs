@@ -32,6 +32,14 @@
 #include "util.hh"
 #include "i18n.hh"
 
+static bool is_tid(std::string& str)
+{
+	for(size_t i = 0; i < str.size(); ++i)
+  		if(!((str[i] >= '0' && str[i] <= '9') || (str[i] >= 'a' && str[i] <= 'z') || (str[i] >= 'A' && str[i] <= 'Z')))
+    		return false;
+
+	return str.find("0004") == 0;
+}
 
 static void error(const std::string& msg)
 {
@@ -77,16 +85,8 @@ static void show_searchbar_search()
 		return;
 	}
 
-	size_t cur = 0;
-	do {
-		hsapi::hid id = next::sel_gam(titles, &cur);
-		if(id == next_gam_exit || id == next_gam_back)
-			break;
-
-		hsapi::FullTitle meta;
-		if(show_extmeta_lazy(titles, id, &meta))
-			install::gui::hs_cia(meta);
-	} while(true);
+	next::maybe_sel_gam(titles);
+	return;
 }
 
 static void show_id_search()
@@ -96,7 +96,7 @@ static void show_id_search()
 
 	uint64_t id = ui::numpad([](ui::AppletSwkbd *swkbd) -> void {
 		swkbd->hint(STRING(search_id));
-	}, 16, &btn, &res);
+	}, &btn, &res, 16);
 
 	if(btn != SWKBD_BUTTON_CONFIRM)
 		return;
@@ -112,6 +112,48 @@ static void show_id_search()
 		install::gui::hs_cia(title);
 }
 
+static void show_tid_search()
+{
+	SwkbdResult res;
+	SwkbdButton btn;
+
+	std::string title_id = ui::keyboard([](ui::AppletSwkbd *swkbd) -> void {
+		swkbd->hint(STRING(search_tid));
+	}, &btn, &res, 16);
+
+	if(btn != SWKBD_BUTTON_CONFIRM)
+		return;
+
+	if(res == SWKBD_INVALID_INPUT || res == SWKBD_OUTOFMEM || res == SWKBD_BANNED_INPUT)
+		return;
+
+	if (!is_tid(title_id))
+	{
+		error(STRING(invalid_tid));
+		return;
+	}
+
+	if (title_id == "0004000001111100")
+	{
+		error(STRING(theme_installer_tid_bad));
+		return;
+	}
+
+	std::vector<hsapi::Title> titles;
+	Result rres = hsapi::call<std::vector<hsapi::Title>&, const std::string&>(hsapi::get_by_title_id, titles, title_id);
+	if(R_FAILED(rres))
+		return;
+
+	if(titles.size() == 0)
+	{
+		error(STRING(search_zero_results));
+		return;
+	}
+
+	next::maybe_sel_gam(titles);
+	return;
+}
+
 void show_search()
 {
 	std::string desc = set_desc(STRING(search_content));
@@ -121,6 +163,7 @@ void show_search()
 	ui::builder<ui::MenuSelect>(ui::Screen::bottom)
 		.connect(ui::MenuSelect::add, STRING(search_text), show_searchbar_search)
 		.connect(ui::MenuSelect::add, STRING(search_id), show_id_search)
+		.connect(ui::MenuSelect::add, STRING(search_tid), show_tid_search)
 		.add_to(queue);
 
 	queue.render_finite_button(KEY_B);
