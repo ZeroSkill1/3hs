@@ -174,6 +174,7 @@ namespace str
 		invalid_excludes = 128,
 		filter_overlap = 129,
 		lgy_search = 130,
+
 		_i_max,
 	};
 

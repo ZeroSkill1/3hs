@@ -33,6 +33,7 @@
 #include "i18n.hh"
 
 static const char *short_keys[5] = { "i", "e", "sb", "sd", "t" };
+#define SHORT_KEYS_SIZE (sizeof(short_keys) / sizeof(const char *))
 
 static const std::unordered_map<std::string, std::string> keys =
 {
@@ -70,7 +71,7 @@ static const std::unordered_map<std::string, std::string> sort_by =
 	{ "dls"         , "downloads"    },
 };
 
-static const std::unordered_map<std::string, std::string> sort_direction = 
+static const std::unordered_map<std::string, std::string> sort_direction =
 {
 	{ "ascending"  , "ascending"  },
 	{ "asc"        , "ascending"  },
@@ -81,8 +82,8 @@ static const std::unordered_map<std::string, std::string> sort_direction =
 static bool is_tid(std::string& str)
 {
 	for(size_t i = 0; i < str.size(); ++i)
-  		if(!((str[i] >= '0' && str[i] <= '9') || (str[i] >= 'a' && str[i] <= 'z') || (str[i] >= 'A' && str[i] <= 'Z')))
-    		return false;
+		if(!((str[i] >= '0' && str[i] <= '9') || (str[i] >= 'a' && str[i] <= 'z') || (str[i] >= 'A' && str[i] <= 'Z')))
+			return false;
 
 	return !str.empty() && str.find("0004") == 0;
 }
@@ -127,7 +128,7 @@ static bool has_key(std::unordered_map<std::string, std::string> map, const std:
 
 static bool is_short_key(const std::string& key)
 {
-	for(size_t i = 0; i < 5; ++i)
+	for(size_t i = 0; i < SHORT_KEYS_SIZE; ++i)
 		if(strcmp(key.c_str(), short_keys[i]) == 0)
 			return true;
 
@@ -137,8 +138,7 @@ static bool is_short_key(const std::string& key)
 static bool contains(const std::vector<std::string>& list, const std::string& s)
 {
 	for(const std::string& elem : list)
-		if(elem == s)
-			return true;
+		if(elem == s) return true;
 
 	return false;
 }
@@ -165,23 +165,23 @@ static bool parse_filters(std::string& ret, std::vector<std::string>& out_catego
 		case 0:
 			return false;
 		case 1:
-			{
-				if(!is_filter_name(filter_split[0], false) || contains(out_categories, filter_split[0]))
-					return false;
-				out_categories.push_back(filter_split[0]);
-				out_filters.push_back(filter_split[0] + ".*");
-				break;
-			}
+		{
+			if(!is_filter_name(filter_split[0], false) || contains(out_categories, filter_split[0]))
+				return false;
+			out_categories.push_back(filter_split[0]);
+			out_filters.push_back(filter_split[0] + ".*");
+			break;
+		}
 		case 2:
-			{
-				if(!is_filter_name(filter_split[0], false) || !is_filter_name(filter_split[1], true) || contains(out_categories, filter_split[0]))
-					return false;
-				std::string cur_filter;
-				join(cur_filter, filter_split, ".");
-				out_categories.push_back(filter_split[0]);
-				out_filters.push_back(cur_filter);
-				break;
-			}
+		{
+			if(!is_filter_name(filter_split[0], false) || !is_filter_name(filter_split[1], true) || contains(out_categories, filter_split[0]))
+				return false;
+			std::string cur_filter;
+			join(cur_filter, filter_split, ".");
+			out_categories.push_back(filter_split[0]);
+			out_filters.push_back(cur_filter);
+			break;
+		}
 		default:
 			return false;
 		}
@@ -222,9 +222,6 @@ static void show_searchbar_search()
 		return;
 	}
 
-	set_desc(PSTRING(results_query, query));
-	set_focus(true);
-
 	std::vector<hsapi::Title> titles;
 	Result rres = hsapi::call<std::vector<hsapi::Title>&, const std::unordered_map<std::string, std::string>&>(hsapi::search, titles, { { "q", query } });
 	if(R_FAILED(rres)) return;
@@ -235,7 +232,7 @@ static void show_searchbar_search()
 		return;
 	}
 
-	next::maybe_sel_gam(titles);
+	next::maybe_install_gam(titles);
 	return;
 }
 
@@ -248,10 +245,7 @@ static void show_id_search()
 		swkbd->hint(STRING(search_id));
 	}, &btn, &res, 16);
 
-	if(btn != SWKBD_BUTTON_CONFIRM)
-		return;
-
-	if(res == SWKBD_INVALID_INPUT || res == SWKBD_OUTOFMEM || res == SWKBD_BANNED_INPUT)
+	if(btn != SWKBD_BUTTON_CONFIRM || res == SWKBD_INVALID_INPUT || res == SWKBD_OUTOFMEM || res == SWKBD_BANNED_INPUT)
 		return;
 
 	hsapi::FullTitle title;
@@ -271,10 +265,7 @@ static void show_tid_search()
 		swkbd->hint(STRING(search_tid));
 	}, &btn, &res, 16);
 
-	if(btn != SWKBD_BUTTON_CONFIRM)
-		return;
-
-	if(res == SWKBD_INVALID_INPUT || res == SWKBD_OUTOFMEM || res == SWKBD_BANNED_INPUT)
+	if(btn != SWKBD_BUTTON_CONFIRM || res == SWKBD_INVALID_INPUT || res == SWKBD_OUTOFMEM || res == SWKBD_BANNED_INPUT)
 		return;
 
 	if(!is_tid(title_id))
@@ -300,7 +291,7 @@ static void show_tid_search()
 		return;
 	}
 
-	next::maybe_sel_gam(titles);
+	next::maybe_install_gam(titles);
 	return;
 }
 
@@ -313,15 +304,12 @@ void legacy_search()
 		swkbd->hint(STRING(enter_lgy_query));
 	}, &btn, &res, 1024);
 
-	if(btn != SWKBD_BUTTON_CONFIRM)
-		return;
-
-	if(res == SWKBD_INVALID_INPUT || res == SWKBD_OUTOFMEM || res == SWKBD_BANNED_INPUT)
+	if(btn != SWKBD_BUTTON_CONFIRM || res == SWKBD_INVALID_INPUT || res == SWKBD_OUTOFMEM || res == SWKBD_BANNED_INPUT)
 		return;
 
 	std::unordered_map<std::string, std::string> params;
 	std::vector<std::string> parts;
-	std::string query = "";	
+	std::string query = "";
 
 	str_split(parts, input, " ");
 
@@ -332,7 +320,7 @@ void legacy_search()
 		bool short_key = is_short_key(param_pair[0]);
 		if(param_pair.size() != 2 || (!short_key && !has_key(keys, param_pair[0])))
 		{
-			query += (part + " ");
+			query += part + " ";
 			continue;
 		}
 
@@ -351,14 +339,14 @@ void legacy_search()
 		error(STRING(no_other_params_tid));
 		return;
 	}
-	
+
 	if(has_tid && !is_tid(params["t"]))
 	{
 		error(STRING(invalid_tid));
 		return;
 	}
 
-	if(!has_tid && !(query.size() >= 3))
+	if(!has_tid && query.size() < 2)
 	{
 		error(STRING(invalid_query));
 		return;
@@ -382,7 +370,6 @@ void legacy_search()
 			error(STRING(invalid_sb));
 			return;
 		}
-
 		params["sb"] = sort_by.at(params["sb"]);
 	}
 
@@ -393,42 +380,34 @@ void legacy_search()
 			error(STRING(invalid_sd));
 			return;
 		}
-
 		params["sd"] = sort_direction.at(params["sd"]);
 	}
 
-	if(has_i || has_e)
+	std::string includes, excludes;
+	std::vector<std::string> include_cats, exclude_cats;
+
+	if(has_i && !parse_filters(includes, include_cats, params["i"]))
 	{
-		std::string includes, excludes;
-		std::vector<std::string> include_cats, exclude_cats;
+		error(STRING(invalid_includes));
+		return;
+	}
+	if(!includes.empty()) params["i"] = includes;
 
-		if(has_i && !parse_filters(includes, include_cats, params["i"]))
-		{
-			error(STRING(invalid_includes));
-			return;
-		}
-		else
-			if(!includes.empty())
-				params["i"] = includes;
+	if(has_e && !parse_filters(excludes, exclude_cats, params["e"]))
+	{
+		error(STRING(invalid_excludes));
+		return;
+	}
+	if(!excludes.empty()) params["e"] = excludes;
 
-		if(has_e && !parse_filters(excludes, exclude_cats, params["e"]))
-		{
-			error(STRING(invalid_excludes));
-			return;
-		}
-		else
-			if(!excludes.empty())
-				params["e"] = excludes;
-
-		for(const std::string& include_cat : include_cats)
-		{
-			for(const std::string& exclude_cat : exclude_cats)
-				if(include_cat == exclude_cat)
-				{
-					error(STRING(filter_overlap));
-					return;
-				}
-		}
+	for(const std::string& include_cat : include_cats)
+	{
+		for(const std::string& exclude_cat : exclude_cats)
+			if(include_cat == exclude_cat)
+			{
+				error(STRING(filter_overlap));
+				return;
+			}
 	}
 
 	std::vector<hsapi::Title> titles;
@@ -441,7 +420,7 @@ void legacy_search()
 		return;
 	}
 
-	next::maybe_sel_gam(titles);
+	next::maybe_install_gam(titles);
 	return;
 }
 

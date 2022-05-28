@@ -162,7 +162,7 @@ hsapi::hid next::sel_gam(std::vector<hsapi::Title>& titles, size_t *cursor)
 	return ret;
 }
 
-void next::maybe_sel_gam(std::vector<hsapi::Title>& titles)
+void next::maybe_install_gam(std::vector<hsapi::Title>& titles)
 {
 	size_t cur = 0;
 	do {
