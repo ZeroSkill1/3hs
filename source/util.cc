@@ -43,3 +43,28 @@ std::string set_desc(const std::string& nlabel)
 	return old;
 }
 
+void lower(std::string& s)
+{
+	for(size_t i = 0; i < s.size(); ++i)
+		s[i] = tolower(s[i]);
+}
+
+// https://stackoverflow.com/questions/1798112/removing-leading-and-trailing-spaces-from-a-string#1798170
+void trim(std::string& str, const std::string& whitespace)
+{
+	const size_t str_begin = str.find_first_not_of(whitespace);
+	if(str_begin == std::string::npos) { str = ""; return; }
+
+	const size_t str_end = str.find_last_not_of(whitespace);
+	const size_t str_range = str_end - str_begin + 1;
+
+	str = str.substr(str_begin, str_range);
+}
+
+void join(std::string& ret, const std::vector<std::string>& tokens, const std::string& sep)
+{
+	if(tokens.size() == 0) { ret = ""; return; }
+	ret = tokens[0];
+	for(size_t i = 1; i < tokens.size(); ++i)
+		ret += sep + tokens[i];
+}

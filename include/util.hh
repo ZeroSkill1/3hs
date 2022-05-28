@@ -25,6 +25,8 @@
 bool set_focus(bool focus);
 /* sets the action description and returns the old one */
 std::string set_desc(const std::string& nlabel);
-
+void lower(std::string& s);
+void trim(std::string& str, const std::string& whitespace);
+void join(std::string& ret, const std::vector<std::string>& tokens, const std::string& sep);
 #endif
 

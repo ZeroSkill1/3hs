@@ -17,6 +17,8 @@
 #ifndef inc_hlink_http_hh
 #define inc_hlink_http_hh
 
+#include "util.hh"
+
 #include <arpa/inet.h>
 
 #include <unordered_map>

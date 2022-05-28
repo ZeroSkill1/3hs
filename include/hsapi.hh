@@ -118,7 +118,7 @@ namespace hsapi
 	Result titles_in(std::vector<Title>& ret, const std::string& cat, const std::string& scat);
 	Result batch_related(BatchRelated& ret, const std::vector<htid>& tids);
 	Result upload_log(const char *contents, u32 size, std::string& logid);
-	Result search(std::vector<Title>& ret, const std::string& query);
+	Result search(std::vector<Title>& ret, const std::unordered_map<std::string, std::string>& params);
 	Result get_download_link(std::string& ret, const Title& title);
 	Result get_latest_version_string(std::string& ret);
 	Result title_meta(FullTitle& ret, hid id);

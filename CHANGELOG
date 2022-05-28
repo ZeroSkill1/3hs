@@ -10,6 +10,7 @@ v1.2.0 "aeraria":
  - add Portuguese translation
  - add Korean translation
  - add searching using a title id
+ - add searching using a legacy search query
 
 v1.1.0 "aeraria":
  - fix issue where NAND titles wouldn't be reinstallable

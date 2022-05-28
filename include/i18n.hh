@@ -165,6 +165,15 @@ namespace str
 		search_tid = 119,
 		invalid_tid = 120,
 		theme_installer_tid_bad = 121,
+		enter_lgy_query = 122,
+		no_other_params_tid = 123,
+		both_sd_and_sb = 124,
+		invalid_sb = 125,
+		invalid_sd = 126,
+		invalid_includes = 127,
+		invalid_excludes = 128,
+		filter_overlap = 129,
+		lgy_search = 130,
 		_i_max,
 	};
 

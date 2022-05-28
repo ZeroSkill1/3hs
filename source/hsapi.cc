@@ -291,16 +291,23 @@ static std::string url_encode(const std::string& str)
 	return ret;
 }
 
-// https://stackoverflow.com/questions/1798112/removing-leading-and-trailing-spaces-from-a-string#1798170
-static void trim(std::string& str, const std::string& whitespace)
+static std::string gen_url(const std::string& base, const std::unordered_map<std::string, std::string>& params)
 {
-	const size_t strBegin = str.find_first_not_of(whitespace);
-	if(strBegin == std::string::npos) { str = ""; return; }
+	std::string ret = base;
+	bool first_set = false;
 
-	const size_t strEnd = str.find_last_not_of(whitespace);
-	const size_t strRange = strEnd - strBegin + 1;
+	for(std::unordered_map<std::string, std::string>::const_iterator i = params.begin(); i != params.end(); ++i)
+	{
+		if(first_set)
+			ret += "&" + i->first + "=" + url_encode(i->second);
+		else
+		{
+			ret += "?" + i->first + "=" + url_encode(i->second);
+			first_set = true;
+		}
+	}
 
-	str = str.substr(strBegin, strRange);
+	return ret;
 }
 
 hsapi::Subcategory *hsapi::Category::find(const std::string& name)
@@ -384,12 +391,12 @@ Result hsapi::get_download_link(std::string& ret, const hsapi::Title& meta)
 	return OK;
 }
 
-Result hsapi::search(std::vector<hsapi::Title>& ret, const std::string& query)
+Result hsapi::search(std::vector<hsapi::Title>& ret, const std::unordered_map<std::string, std::string>& params)
 {
 	ilog("calling api");
 	json j;
 	Result res;
-	if(R_FAILED(res = basereq<json>(HS_BASE_LOC "/title/search?q=" + url_encode(query), j)))
+	if(R_FAILED(res = basereq<json>(gen_url(HS_BASE_LOC "/title/search", params), j)))
 		return res;
 	CHECKAPI();
 	j = j["value"];

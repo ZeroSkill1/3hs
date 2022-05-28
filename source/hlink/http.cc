@@ -463,12 +463,6 @@ static int bufnllen(char *buf, size_t len)
 	return 0;
 }
 
-static void lower(std::string& s)
-{
-	for(size_t i = 0; i < s.size(); ++i)
-		s[i] = tolower(s[i]);
-}
-
 static void normalize_path(std::string& path)
 {
 	std::string::size_type pos;

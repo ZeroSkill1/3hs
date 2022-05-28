@@ -17,6 +17,8 @@
 #ifndef inc_search_hh
 #define inc_search_hh
 
+#include "log.hh"
+
 void show_search();
 
 #endif
