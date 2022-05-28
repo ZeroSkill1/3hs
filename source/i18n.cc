@@ -693,9 +693,9 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::warn_no_base] = "Avertir si le jeu de base n'est pas installé",
 			[str::warn_no_base_desc] = "Montre un message avant d'installer une mise à jour/DLC si le jeu de base n'est pas installé.",
 			[str::replaying_errors] = "Remontre les erreurs encontrés dans la liste d'attente.",
-			[str::log] = "Registres",
-			[str::upload_logs] = "Envoyer les registres",
-			[str::clear_logs] = "Supprimer les registres",
+			[str::log] = "Logs",
+			[str::upload_logs] = "Envoyer les logs",
+			[str::clear_logs] = "Supprimer les logs",
 			[str::found_missing] = "%1 titre(s) manquant a été trouvé\nVérifiez la liste d'attente pour les installer.", // %1 = amount of titles found
 			[str::found_0_missing] = "Aucun titre manquant n'a été trouvé.",
 			[str::max_elogs] = "Nombre maximum de fichiers log",

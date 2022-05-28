@@ -138,7 +138,10 @@ namespace ui
 			{
 				if((*this->values)[i] == value)
 				{
+					if(this->res != nullptr)
+						*this->res = value;
 					this->idx = i;
+					this->assign_txty();
 					break;
 				}
 			}
