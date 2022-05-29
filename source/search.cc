@@ -166,18 +166,22 @@ static bool parse_filters(std::string& ret, std::vector<std::string>& out_catego
 			return false;
 		case 1:
 		{
-			if(!is_filter_name(filter_split[0], false) || contains(out_categories, filter_split[0]))
+			if(!is_filter_name(filter_split[0], false))
+				return false;
+			std::string cur_filter = filter_split[0] + ".*";
+			if(contains(out_filters, cur_filter))
 				return false;
 			out_categories.push_back(filter_split[0]);
-			out_filters.push_back(filter_split[0] + ".*");
+			out_filters.push_back(cur_filter);
 			break;
 		}
 		case 2:
 		{
-			if(!is_filter_name(filter_split[0], false) || !is_filter_name(filter_split[1], true) || contains(out_categories, filter_split[0]))
+			if(!is_filter_name(filter_split[0], false) || !is_filter_name(filter_split[1], true))
 				return false;
-			std::string cur_filter;
-			join(cur_filter, filter_split, ".");
+			std::string cur_filter = filter_split[0] + "." + filter_split[1];
+			if(contains(out_filters, cur_filter))
+				return false;
 			out_categories.push_back(filter_split[0]);
 			out_filters.push_back(cur_filter);
 			break;
@@ -426,6 +430,11 @@ void legacy_search()
 
 void show_search()
 {
+	static bool in_search = false;
+
+	if(in_search) return;
+	in_search = true;
+
 	std::string desc = set_desc(STRING(search_content));
 	bool focus = set_focus(true);
 
@@ -441,5 +450,7 @@ void show_search()
 
 	set_focus(focus);
 	set_desc(desc);
+
+	in_search = false;
 }
 
