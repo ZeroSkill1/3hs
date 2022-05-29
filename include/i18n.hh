@@ -32,8 +32,8 @@
 #define LANGNAME_ROMANIAN "Română"
 #define LANGNAME_ITALIAN "Italiano"
 #define LANGNAME_PORTUGUESE "Português"
-#define LANGNAME_KOREAN "한국인 (Korean)"
-#define LANGNAME_GREEK "Ελληνικ"
+#define LANGNAME_KOREAN "한국어 (Korean)"
+#define LANGNAME_GREEK "Ελληνικά"
 
 // ParamSTRING
 #define PSTRING(x, ...) i18n::interpolate(str::x, __VA_ARGS__)

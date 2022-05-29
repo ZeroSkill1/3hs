@@ -162,7 +162,7 @@ builtin_controls_done:
 					{
 						ofs = this->scrolldata.xof;
 						C2D_DrawRectSolid(0, ypos - 5.0f, this->z + 0.1f, this->x + text_offset,
-							this->selh, this->slots.get(0));
+							this->selh + 1.0f, this->slots.get(0));
 						if(this->scrolldata.framecounter <= 60)
 							++this->scrolldata.framecounter;
 						else if(ui::screen_width(this->screen) - this->x - text_offset + ofs > this->selw + 10.0f)

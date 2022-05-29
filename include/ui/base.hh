@@ -660,11 +660,13 @@ namespace ui
 		float width() override { return 40.0f; }
 		void toggle(bool toggled);
 		void set_toggled(bool toggled);
+
 	private:
 		UI_SLOTS_PROTO(Toggle_color, 3)
 		std::function<void()> toggle_cb;
 		bool toggled_state;
 		u64 last_touch_toggle;
+
 	};
 
 	template <typename T>

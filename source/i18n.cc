@@ -67,8 +67,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::fmt_24h] = "24 hour", /* context: time format */
 			[str::fmt_12h] = "12 hour", /* context: time format */
 			[str::unknown] = "unknown", /* context: unknown setting */
-			[str::btrue] = "true", /* context: setting is set to ON */ /* unused */
-			[str::bfalse] = "false", /* context: setting is set to OFF */ /* unused */
+			[str::btrue] = "true", /* unused, context: setting is set to ON */
+			[str::bfalse] = "false", /* unused, context: setting is set to OFF */
 			[str::top] = "top", /* context: top screen in progress bar location settings switcher */
 			[str::bottom] = "bottom", /* context: bottom screen in progress bar location settings switcher */
 			[str::light_mode] = "Light mode",
@@ -169,7 +169,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::no_other_params_tid] = "Cannot specify any other parameters when specifying a Title ID",
 			[str::both_sd_and_sb] = "You must specify a sort method and a sort direction when sorting search results",
 			[str::invalid_sb] = "Invalid sort method",
-			[str::invalid_sd] = "Invalid sort direction",
+			[str::invalid_sd] = "Invalid sort direction", /* context: ascending/descending */
 			[str::invalid_includes] = "Invalid include filters",
 			[str::invalid_excludes] = "Invalid exclude filters",
 			[str::filter_overlap] = "Detected an overlap in the specified search filters",
@@ -212,8 +212,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::fmt_24h] = "24 uur",
 			[str::fmt_12h] = "12 uur",
 			[str::unknown] = "onbekend",
-			[str::btrue] = "waar", /* unused */
-			[str::bfalse] = "niet waar", /* unused */
+			[str::btrue] = "waar",
+			[str::bfalse] = "niet waar",
 			[str::top] = "boven",
 			[str::bottom] = "onder",
 			[str::light_mode] = "Licht thema",
@@ -356,8 +356,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::fmt_24h] = "24-Stunden-Zeit",
 			[str::fmt_12h] = "12-Stunden-Zeit",
 			[str::unknown] = "unbekannt",
-			[str::btrue] = "Ja", /* unused */
-			[str::bfalse] = "Nein", /* unused */
+			[str::btrue] = "Ja",
+			[str::bfalse] = "Nein",
 			[str::top] = "Oben",
 			[str::bottom] = "Unten",
 			[str::light_mode] = "Helles Design",
@@ -467,147 +467,147 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 
 	[lang::spanish] =
 		{
-			[str::banner]  = "El servicio de preservación de 3DS definitivo.",
-			[str::loading] = "Cargando ...",
-			[str::luma_not_installed] = "Luma3DS no está instalado en este sistema",
-			[str::install_luma] = "Por favor installe Luma3DS en una 3DS real",
+			[str::banner]  = "The ultimate 3DS content preservation service", /* unused */
+			[str::loading] = "Cargando...",
+			[str::luma_not_installed] = "Se detectó un firmware incompatible.",
+			[str::install_luma] = "No se puede usar 3hs en este sistema.",
 			[str::queue] = "Cola",
-			[str::connect_wifi] = "Por favor conéctese al Wi-Fi",
-			[str::fail_init_networking] = "No se pudo inicializar redes",
-			[str::fail_fetch_index] = "No se pudo recuperar el índice\n%1",
+			[str::connect_wifi] = "Please connect to Wi-Fi and restart the app.", /* unused */
+			[str::fail_init_networking] = "No se pudo inicializar la red",
+			[str::fail_fetch_index] = "Failed to fetch index\n%1", /* unused */
 			[str::credits_thanks] =
-				"Gracias por usar 3hs, un cliente de 3DS para hShop\n"
-				"Puedes conseguir este software gratuito en\n"
+				"Gracias por usar 3hs, un cliente de 3DS para hShop.\n"
+				"Puedes conseguir este software gratuitamente en\n"
 				"https://hshop.erista.me/",
-			[str::credits_names] = "",
+			[str::credits_names] = "", /* unused */
 			[str::press_to_install] =
-				"Presiona " UI_GLYPH_A " si quieres instalar este título.\n"
-				"Presiona " UI_GLYPH_B " si no quieres.",
+				"Presiona " UI_GLYPH_A " para instalar este contenido.\n"
+				"Presiona " UI_GLYPH_B " para volver.",
 			[str::version] = "Versión",
 			[str::prodcode] = "Código de producto",
 			[str::size] = "Tamaño",
 			[str::name] = "Nombre",
-			[str::tid] = "ID de título",
+			[str::tid] = "ID de Título",
 			[str::category] = "Categoría",
-			[str::landing_id] = "ID hShop",
+			[str::landing_id] = "ID de hShop",
 			[str::description] = "Descripción",
-			[str::total_titles] = "Total de Titulos",
+			[str::total_titles] = "Títulos totales",
 			[str::select_cat] = "Selecciona una categoría",
-			[str::select_subcat] = "Selecciona una subcategoría",
-			[str::select_title] = "Selecciona un título",
-			[str::no_cats_index] = "No hay categorías en el índice (?)",
-			[str::empty_subcat] = "Subcategoría vacía (?)",
-			[str::empty_cat] = "Categoría Vacía (?)",
-			[str::fmt_24h] = "24 horas",
-			[str::fmt_12h] = "12 horas",
-			[str::unknown] = "Desconocido",
-			[str::btrue] = "Verdadero", /* unused */
-			[str::bfalse] = "Falso", /* unused */
-			[str::top] = "Superior",
-			[str::bottom] = "Inferior",
+			[str::select_subcat] = "Selecciona una sub-categoría",
+			[str::select_title] = "Select a title",
+			[str::no_cats_index] = "no categories in index (?)", /* unused */
+			[str::empty_subcat] = "Empty subcategory (?)", /* unused */
+			[str::empty_cat] = "Empty category (?)", /* unused */
+			[str::fmt_24h] = "24 horas", /* context: time format */
+			[str::fmt_12h] = "12 horas", /* context: time format */
+			[str::unknown] = "desconocido", /* context: unknown setting */
+			[str::btrue] = "verdadero", /* unused, context: setting is set to ON */
+			[str::bfalse] = "falso", /* unused, context: setting is set to OFF */
+			[str::top] = "superior", /* context: top screen in progress bar location settings switcher */
+			[str::bottom] = "inferior", /* context: bottom screen in progress bar location settings switcher */
 			[str::light_mode] = "Modo luz",
 			[str::resume_dl] = "Resumir descargas",
-			[str::load_space] = "Cargar indicador de espacio libre",
-			[str::show_battery] = "Mostrar Batería",
+			[str::load_space] = "Mostrar el indicador de espacio libre",
+			[str::show_battery] = "Mostrar el indicador de batería",
 			[str::time_format] = "Formato de tiempo",
-			[str::progbar_screen] = "Pantalla de barra de progreso",
+			[str::progbar_screen] = "Posición de la barra de progreso",
 			[str::language] = "Lenguaje",
-			[str::value_x] = "Valor: %1",
-			[str::back] = "Volver",
-			[str::invalid] = "Inválido",
-			[str::title_doesnt_exist] = "El título no existe: %1",
-			[str::fail_create_tex] = "No se pudo crear tex",
-			[str::fail_load_smdh_icon] = "load_smdh_icon(): SMDHIconType inválido",
-			[str::netcon_lost] = "Se perdió la conexión con la red (%1).\nReintentando in $t seconds...",
+			[str::value_x] = "Valor: %1", /* context: value of setting */
+			[str::back] = "Volver", /* context: back button */
+			[str::invalid] = "inválido",
+			[str::title_doesnt_exist] = "El título no existe: %1", /* %1: title id */
+			[str::fail_create_tex] = "Failed to create tex", /* unused */
+			[str::fail_load_smdh_icon] = "load_smdh_icon(): invalid SMDHIconType", /* unused */
+			[str::netcon_lost] = "Se perdió la conexión con la red (%1).\nReintentando en $t segundos...", /* %1: error code, $t: seconds remaining */
 			[str::about_app] = "Acerca de",
 			[str::help_manual] = "Ayuda/Manual",
-			[str::find_missing_content] = "Buscar contenido ausente",
-			[str::press_a_exit] = "Presiona " UI_GLYPH_A " para salir",
-			[str::fatal_panic] = "Ocurrió un error fatal de pánico",
-			[str::failed_open_seeddb] = "No se pudo abrir seeddb.bin",
-			[str::update_to] = "¿Quieres actualizar a %1?",
-			[str::search_content] = "Buscar contenido",
+			[str::find_missing_content] = "Buscar contenido faltante",
+			[str::press_a_exit] = "Presiona " UI_GLYPH_A " para salir.", /* context: exit menu and sometimes application */
+			[str::fatal_panic] = "Ocurrió un error fatal.", /* context: can also be translated as fatal error */
+			[str::failed_open_seeddb] = "Fallo al abrir seeddb.bin.",
+			[str::update_to] = "Quieres actualizar a %1?", /* %1: new version, i.e. 1.0.2 */
+			[str::search_content] = "Buscar por contenido",
 			[str::search_content_action] = "Buscando por contenido...",
-			[str::results_query] = "Resultados de \"%1\"",
-			[str::result_code] = "Código de resultado: %1",
-			[str::level] = "Nivel: %1",
-			[str::summary] = "Sumario: %1",
-			[str::module] = "Módulo: %1",
-			[str::hs_bunny_found] = "¡Felicidades! ¡Encontraste a la conejita de hShop!",
-			[str::already_installed_reinstall] = "Título ya instalado. ¿Reinstalar?",
+			[str::results_query] = "Results for query \"%1\"", /* unused, %1: search query */
+			[str::result_code] = "Código de resultado: %1", /* %1: result code */
+			[str::level] = "Level: %1", /* %1: english level name (level code), context: used when displaying errors */
+			[str::summary] = "Summary: %1", /* %1 english summary name (summary code), context: used when displaying errors */
+			[str::module] = "Module: %1", /* %1 english module name (module code), context: used when displaying errors */
+			[str::hs_bunny_found] = "¡Felicidades! You found the hShop bunny!", /* context: easter egg, see also: gfx/img/bun.png */
+			[str::already_installed_reinstall] = "El título ya está instalado. ¿Reinstalar?",
 			[str::queue_empty] =
-				"La cola está vacia\n"
-				"Presiona " UI_GLYPH_A " para volver\n"
-				"Consejo: presiona " UI_GLYPH_Y " para añadir un título a la cola",
+				"La cola está vacía\n"
+				"Presiona " UI_GLYPH_A " para volver.\n"
+				"Consejo: Presiona " UI_GLYPH_Y " para añadir un título a la cola.",
 			[str::cancel] = "Cancelar",
 			[str::confirm] = "Confirmar",
-			[str::invalid_proxy] = "Configuración de proxy inválida",
-			[str::more_about_content] = "Más sobre este contenido",
-			[str::lumalocalemode] = "modo LumaLocale",
+			[str::invalid_proxy] = "Configuración de Proxy invalida",
+			[str::more_about_content] = "Más acerca de este contenido",
+			[str::lumalocalemode] = "Modo de LumaLocale",
 			[str::automatic] = "automático",
 			[str::manual] = "manual",
 			[str::disabled] = "desactivado",
 			[str::patching_reboot] =
-					"El Parcheo de Juegos de Luma3DS ha sido activado.\n"
-					"Para que el cambio tenga efecto, tienes que reinicia tu 3DS.",
-			[str::reboot_now] = "¿Reiniciar ahora?",
-			[str::this_version] = "Esto es 3hs, versión %1",
-			[str::retry_req] = "¿Quieres reintentar?",
-			[str::search_zero_results] = "La búsqueda no dió resultados\nPresiona " UI_GLYPH_A " para regresar",
-			[str::credits] = "Créditos",
-			[str::extra_content] = "¿Añadir contenido extra a la cola?",
-			[str::check_extra] = "Buscar contenido extra",
+				"El parcheador de juegos de Luma3DS está activado.\n"
+				"El sistema tiene que reiniciar para que los cambios den efecto.",
+			[str::reboot_now] = "Reiniciar ahora?",
+			[str::this_version] = "Está es la versión %1 de 3hs", /* %1 = version int "version desc" */
+			[str::retry_req] = "Petición fallida. ¿Reintentar?", /* context: API request */
+			[str::search_zero_results] = "La búsqueda no dió resultados.\nPresiona " UI_GLYPH_A " para volver.",
+			[str::credits] = "Credits",
+			[str::extra_content] = "¿Añadir contenido adicional a la cola?", /* context: i.e. DLC/Updates */
+			[str::check_extra] = "Buscar por contenido adicional", /* context: i.e. DLC/Updates */
 			[str::no_req] = "No hay solicitudes hechas todavía", /* context: hlink requests */
-			[str::invalid_query] = "Consulta invalida\nPresiona " UI_GLYPH_A " para volver",
+			[str::invalid_query] = "Consulta inválida\nPresiona " UI_GLYPH_A " para volver.",
 			[str::min_constraint] = "La versión de 3hs %1 es inferior a la versión requerida %2",
 			[str::proxy] = "Proxy",
-			[str::none] = "(ninguno)",
-			[str::press_a_to_view] = "Pulsa " UI_GLYPH_A " para ver",
-			[str::host] = "Host",
-			[str::port] = "Puerto",
-			[str::username] = "Usuario",
-			[str::password] = "Contraseña",
+			[str::none] = "(ninguno)", /* context: used for no proxy set */
+			[str::press_a_to_view] = "Presiona " UI_GLYPH_A " para ver.", /* context: view proxy settings */
+			[str::host] = "Host", /* context: proxy */
+			[str::port] = "Puerto", /* context: proxy */
+			[str::username] = "Nombre de Usuario", /* context: proxy */
+			[str::password] = "Contraseña", /* context: proxy */
 			[str::clear] = "Despejar", /* context: clear the contents of a field */
-			[str::progbar_screen_desc] = "La pantalla para dibujar barras de progreso",
-			[str::light_mode_desc] = "Activar modo luz. Esto cambiará cómo se verán la mayoría de la interfaz",
-			[str::resume_dl_desc] = "¿Debería resumir donde dejamos la descarga por primera vez si fallamos la anterior?",
-			[str::load_space_desc] = "Cargar el indicador de espacio libre",
-			[str::show_battery_desc] = "Alternar visibilidad de la batería en la esquina superior derecha",
-			[str::time_format_desc] = "Formato de tiempo preferido. Entre 24 o 12 horas",
-			[str::language_desc] = "El lenguaje que 3hs usa. Nótese que para actualizar todo el texto, tienes que reiniciar 3hs",
-			[str::lumalocalemode_desc] = "El modo en la que el auto selector de LumaLocale funciona. Automático selecciona un lenjuage automáticamente. Si eliges manual, 3hs pedirá por una región después de la instalación de contenido",
-			[str::check_extra_desc] = "Busca por contenido extra después de la instalación.",
-			[str::proxy_desc] = "Configurar un proxy. Si no sabes lo que estás haciendo, no toques esto",
+			[str::progbar_screen_desc] = "Selecciona la posición de la barra de progreso.",
+			[str::light_mode_desc] = "Activar/desactivar modo luz. Esto cambiará cómo se verá la mayoria de la interfaz de usuario.",
+			[str::resume_dl_desc] = "Reanudar descargas después de una interrupción de la red.",
+			[str::load_space_desc] = "Alternar el indicador de espacio libre.",
+			[str::show_battery_desc] = "Alternar el indicador de nivel de batería.",
+			[str::time_format_desc] = "Selecciona el formato de tiempo.",
+			[str::language_desc] = "Set the language for 3hs. The application must be restarted for the selected language to take effect.",
+			[str::lumalocalemode_desc] = "Set the mode of the LumaLocale autosetter. Automatic selects a language automatically. If this is set to manual, 3hs will prompt for a region after the installation of content.",
+			[str::check_extra_desc] = "Buscar por contenido adicional después de la instalación.",
+			[str::proxy_desc] = "Configurar un servidor proxy para 3hs. Esta opción es para usuarios avanzados.",
 			[str::install_all] = "Instalar todo", /* context: install all items in queue */
-			[str::install_no_base] = "La actualización/DLC no tiene el juego base instalado. ¿Instalar de todas maneras?",
-			[str::warn_no_base] = "Advertir si el juego base no está instalado",
-			[str::warn_no_base_desc] = "Dar un aviso si estás intentanto instalar una actualización/DLC y el juego base no está instalado.",
-			[str::replaying_errors] = "Reproduciendo errores ocurridos mientras se procesa la cola.",
-			[str::log] = "Registros",
+			[str::install_no_base] = "El juego base no está instalado. ¿Continuar igualmente?",
+			[str::warn_no_base] = "Informar si el juego base no está instalado",
+			[str::warn_no_base_desc] = "Muestra un mensaje antes de instalar una actualización/DLC si el juego base no está instalado.",
+			[str::replaying_errors] = "Reproduciendo errores encontrados mientras se procesaba la cola.",
+			[str::log] = "Registros", /* context: may also be translated as "manage logs" */
 			[str::upload_logs] = "Subir registros",
 			[str::clear_logs] = "Despejar registros",
-			[str::found_missing] = "Se encontró %1 Título faltante(s)\nRevisa la cola para instalarlos", // %1 = amount of titles found
-			[str::found_0_missing] = "No se encontraron títulos faltantes",
-			[str::max_elogs] = "Máxima capacidad de archivos de registro viejos",
-			[str::max_elogs_desc] = "Capacidad de archivos de registro que se puede guardar. Debe ser un número que incluya de 0 a 255, al escoger 0, no se guardarán registros adicionales.",
-			[str::elogs_hint] = "Número que incluya 0 a 255",
-			[str::log_id] = "Usa este ID para conseguir soporte\n%1",
-			[str::block] = "bloque",
-			[str::blocks] = "bloques",
-			[str::search_text] = "Busqueda por texto",
-			[str::search_id] = "Buscar usando una ID hShop",
-			STUB(search_tid),
-			STUB(invalid_tid),
-			STUB(theme_installer_tid_bad),
-			STUB(enter_lgy_query),
-			STUB(no_other_params_tid),
-			STUB(both_sd_and_sb),
-			STUB(invalid_sb),
-			STUB(invalid_sd),
-			STUB(invalid_includes),
-			STUB(invalid_excludes),
-			STUB(filter_overlap),
-			STUB(lgy_search),
+			[str::found_missing] = "Se encontró %1 título perdido(s)\nRevisa la cola para instalarlos.", // %1 = amount of titles found
+			[str::found_0_missing] = "No se encontraron títulos faltantes.",
+			[str::max_elogs] = "Máximo de archivos de registro antiguos",
+			[str::max_elogs_desc] = "Establezca el número de archivos de registro que desea conservar. Los valores posibles son de 0 a 255, donde 0 no guarda archivos de registro adicionales.",
+			[str::elogs_hint] = "Valor entre 0 y 255",
+			[str::log_id] = "Use este ID para conseguir soporte:\n%1", /* %1 = id */
+			[str::block] = "bloque", /* context: nintendo blocks, use official nintendo translation if available */
+			[str::blocks] = "bloques", /* context: see above, just in plural this time */
+			[str::search_text] = "Buscar por texto",
+			[str::search_id] = "Buscar por ID de hShop",
+			[str::search_tid] = "Buscar por ID de título",
+			[str::invalid_tid] = "ID de título inválido",
+			[str::theme_installer_tid_bad] = "Por favor, busque la categoría de Temas manualmente para buscar temas",
+			[str::enter_lgy_query] = "Enter a legacy search query", /* context: this is displayed in transparent letters on the keyboard */
+			[str::no_other_params_tid] = "No se puede especificar ningún otro parámetro al buscar un ID de Título",
+			[str::both_sd_and_sb] = "Debes especificar un método y dirección de organización para ordenar los resultados de busqueda",
+			[str::invalid_sb] = "Método de organización inválido",
+			[str::invalid_sd] = "Dirección de organización inválido",
+			[str::invalid_includes] = "Filtros de inclusión inválidos",
+			[str::invalid_excludes] = "Filtros de exclusión inválidos",
+			[str::filter_overlap] = "Se detectó una superposición en los filtros de búsqueda especificados",
+			[str::lgy_search] = "Búsqueda Clásica",
 		},
 
 	[lang::french] =
@@ -646,8 +646,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::fmt_24h] = "24 heures",
 			[str::fmt_12h] = "12 heures",
 			[str::unknown] = "inconnu",
-			[str::btrue] = "vrai", /* unused */
-			[str::bfalse] = "faux", /* unused */
+			[str::btrue] = "vrai",
+			[str::bfalse] = "faux",
 			[str::top] = "haut",
 			[str::bottom] = "bas",
 			[str::light_mode] = "Thème clair",
@@ -791,8 +791,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::fmt_24h] = "24 heures",
 			[str::fmt_12h] = "12 heures",
 			[str::unknown] = "Inconnu",
-			[str::btrue] = "Vrai", /* unused */
-			[str::bfalse] = "Faux", /* unused */
+			[str::btrue] = "Vrai",
+			[str::bfalse] = "Faux",
 			[str::top] = "En haut",
 			[str::bottom] = "En bas",
 			[str::light_mode] = "Mode clair",
@@ -936,8 +936,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::fmt_24h] = "24 de ore",
 			[str::fmt_12h] = "12 ore",
 			[str::unknown] = "necunoscut/ă",
-			[str::btrue] = "adevărat", /* unused */
-			[str::bfalse] = "fals", /* unused */
+			[str::btrue] = "adevărat",
+			[str::bfalse] = "fals",
 			[str::top] = "sus",
 			[str::bottom] = "jos",
 			[str::light_mode] = "Mod luminos",
@@ -1081,8 +1081,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::fmt_24h] = "24 ore",
 			[str::fmt_12h] = "12 ore",
 			[str::unknown] = "sconosciuto",  //"sconosciuta" may fit the context better.
-			[str::btrue] = "sì", /* unused */
-			[str::bfalse] = "no", /* unused */
+			[str::btrue] = "sì",
+			[str::bfalse] = "no",
 			[str::top] = "superiore",
 			[str::bottom] = "inferiore",
 			[str::light_mode] = "Modalità chiara",
@@ -1226,8 +1226,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::fmt_24h] = "24 horas", /* context: time format */
 			[str::fmt_12h] = "12 horas", /* context: time format */
 			[str::unknown] = "desconhecido", /* context: unknown setting */
-			[str::btrue] = "ligado", /* context: setting is set to ON */ /* unused */
-			[str::bfalse] = "desligado", /* context: setting is set to OFF */ /* unused */
+			[str::btrue] = "ligado", /* context: setting is set to ON */
+			[str::bfalse] = "desligado", /* context: setting is set to OFF */
 			[str::top] = "cima", /* context: top screen */
 			[str::bottom] = "baixo", /* context: bottom screen */
 			[str::light_mode] = "Modo escuro",
@@ -1321,18 +1321,18 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::blocks] = "blocos", /* context: see above, just in plural this time */
 			[str::search_text] = "Pesquisa por texto",
 			[str::search_id] = "Pesquisa por ID hShop",
-			STUB(search_tid),
-			STUB(invalid_tid),
-			STUB(theme_installer_tid_bad),
-			STUB(enter_lgy_query),
-			STUB(no_other_params_tid),
-			STUB(both_sd_and_sb),
-			STUB(invalid_sb),
-			STUB(invalid_sd),
-			STUB(invalid_includes),
-			STUB(invalid_excludes),
-			STUB(filter_overlap),
-			STUB(lgy_search),
+			[str::search_tid] = "Pesquisar por ID de Jogo",
+			[str::invalid_tid] = "ID de Jogo inválido",
+			[str::theme_installer_tid_bad] = "Porfavor pesquise a categoria dos temas manualmente para pesquisar temas.",
+			[str::enter_lgy_query] = "Insira uma pesquisa clássica", /* context: this is displayed in transparent letters on the keyboard */
+			[str::no_other_params_tid] = "Impossivel especificar outros parâmetros quando se especifica um ID de Jogo",
+			[str::both_sd_and_sb] = "Tens de especificar um metodo de ordenagem e de direção enquanto se ordena os resultados da pesquisa",
+			[str::invalid_sb] = "Metodo de ordenagem inválido",
+			[str::invalid_sd] = "Direção de ordenagem inválida",
+			[str::invalid_includes] = "Filtros de inclusão inválidos",
+			[str::invalid_excludes] = "Filtros de exclusão inválidos",
+			[str::filter_overlap] = "Detetada uma sobreposição nos filtros de pesquisa utilizados",
+			[str::lgy_search] = "Pesquisa Clássica",
 		},
 
 	[lang::korean] =
@@ -1358,22 +1358,22 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::prodcode] = "제품 코드",
 			[str::size] = "크기",
 			[str::name] = "이름",
-			[str::tid] = "소프트웨어 ID",
+			[str::tid] = "타이틀 ID",
 			[str::category] = "카테고리",
 			[str::landing_id] = "hShop ID",
 			[str::description] = "설명",
-			[str::total_titles] = "총 소프트웨어",
+			[str::total_titles] = "총 타이틀",
 			[str::select_cat] = "카테고리를 선택해주세요",
 			[str::select_subcat] = "하위 카테고리를 선택해주세요",
-			[str::select_title] = "소프트웨어를 선택해주세요",
+			[str::select_title] = "타이틀를 선택해주세요",
 			[str::no_cats_index] = "색인에 카테고리가 없음 (?)", /* unused */
 			[str::empty_subcat] = "비어있는 하위 카테고리 (?)", /* unused */
 			[str::empty_cat] = "비어있는 카테고리 (?)", /* unused */
 			[str::fmt_24h] = "24시간 형식", /* context: time format */
 			[str::fmt_12h] = "12시간 형식", /* context: time format */
 			[str::unknown] = "unknown", /* context: unknown setting */
-			[str::btrue] = "켜짐", /* context: setting is set to ON */ /* unused */
-			[str::bfalse] = "꺼짐", /* context: setting is set to OFF */ /* unused */
+			[str::btrue] = "켜짐", /* context: setting is set to ON */
+			[str::bfalse] = "꺼짐", /* context: setting is set to OFF */
 			[str::top] = "위", /* context: top screen */
 			[str::bottom] = "아래", /* context: bottom screen */
 			[str::light_mode] = "밝은 테마",
@@ -1386,7 +1386,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::value_x] = "값: %1", /* context: value of setting */
 			[str::back] = "뒤로", /* context: back button */
 			[str::invalid] = "유효하지 않음",
-			[str::title_doesnt_exist] = "소프트웨어가 존재하지 않습니다: %1", /* %1: title id */
+			[str::title_doesnt_exist] = "타이틀이 존재하지 않습니다: %1", /* %1: title id */
 			[str::fail_create_tex] = "텍스처 생성 실패", /* unused */
 			[str::fail_load_smdh_icon] = "load_smdh_icon(): invalid SMDHIconType", /* unused */
 			[str::netcon_lost] = "네트워크 연결 실패 (%1).\n $t 초 후 재시도...", /* %1: error code, $t: seconds remaining */
@@ -1405,11 +1405,11 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::summary] = "Summary: %1", /* %1 (english) summary name + level code */
 			[str::module] = "Module: %1", /* %1 (english) module name + module code */
 			[str::hs_bunny_found] = "hShop 토끼를 찾았다! ^^", /* context: easter egg, see also: gfx/img/bun.png */
-			[str::already_installed_reinstall] = "소프트웨어가 이미 설치되어있습니다. 다시 설치하시겠습니다?",
+			[str::already_installed_reinstall] = "타이틀이 이미 설치되어있습니다. 다시 설치하시겠습니다?",
 			[str::queue_empty] =
 				"대기열이 비어있습니다\n"
 				"" UI_GLYPH_A ": 뒤로가기\n"
-				"Tip: " UI_GLYPH_Y " 를 눌러 소프트웨어를 대기열에 추가",
+				"Tip: " UI_GLYPH_Y " 를 눌러 타이틀을 대기열에 추가",
 			[str::cancel] = "취소",
 			[str::confirm] = "확인",
 			[str::invalid_proxy] = "유효하지 않은 프록시 설정",
@@ -1446,7 +1446,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::show_battery_desc] = "배터리 퍼센트 표시 켜기/끄기",
 			[str::time_format_desc] = "시간 형식을 선택",
 			[str::language_desc] = "3hs의 언어를 설정합니다. 변경 후 앱을 재시작해야 적용됩니다.",
-			[str::lumalocalemode_desc] = "LumaLocale autosetter 모드 설정. 자동은 자동으로 언어를 선택합니다. 수동으로 설정시, 3hs가 소프트웨어 설치 후 지역을 선택하도록 합니다.",
+			[str::lumalocalemode_desc] = "LumaLocale autosetter 모드 설정. 자동은 자동으로 언어를 선택합니다. 수동으로 설정시, 3hs가 타이틀 설치 후 지역을 선택하도록 합니다.",
 			[str::check_extra_desc] = "설치 후 DLC/업데이트 검색",
 			[str::proxy_desc] = "3hs 프록시 서버 설정. 고급 유저용",
 			[str::install_all] = "모두 설치", /* context: install all items in queue */
@@ -1467,18 +1467,18 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::blocks] = "블록", /* context: see above, just in plural this time */
 			[str::search_text] = "이름으로 검색",
 			[str::search_id] = "hShop ID로 검색",
-			STUB(search_tid),
-			STUB(invalid_tid),
-			STUB(theme_installer_tid_bad),
-			STUB(enter_lgy_query),
-			STUB(no_other_params_tid),
-			STUB(both_sd_and_sb),
-			STUB(invalid_sb),
-			STUB(invalid_sd),
-			STUB(invalid_includes),
-			STUB(invalid_excludes),
-			STUB(filter_overlap),
-			STUB(lgy_search),
+			[search_tid] = "타이틀 ID로 검색하기",
+			[invalid_tid]= "일치하는 타이틀 ID가 없습니다",
+			[theme_installer_tid_bad] = "테마 카테고리에서 직접 찾아보시기 바랍니다",
+			[enter_lgy_query] = "구형 검색 방식을 사용하세요",
+			[no_other_params_tid] = "타이틀 ID를 검색시 다른 필터를 사용할 수 없습니다",
+			[str::both_sd_and_sb] = "검색결과 필터링시 필터 방식을 선택해야 합니다",
+			[str::invalid_sb] = "사용할 수 없는 필터링 방식",
+			[str::invalid_sd] = "사용할 수 없는 필터링 방향",
+			[str::invalid_includes] = "사용할 수 없는 필터",
+			[str::invalid_excludes] = "사용할 수 없는 필터",
+			[str::filter_overlap] = "추가/제외 검색 필터가 겹침",
+			[str::lgy_search] = "구형 검색창",
 		},
 
 	[lang::greek] =
@@ -1517,8 +1517,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::fmt_24h] = "24-ώρο",
 			[str::fmt_12h] = "12-ώρο",
 			[str::unknown] = "άγνωστο",
-			[str::btrue] = "αληθές", /* unused */
-			[str::bfalse] = "ψευδές", /* unused */
+			[str::btrue] = "αληθές",
+			[str::bfalse] = "ψευδές",
 			[str::top] = "πάνω οθόνη",
 			[str::bottom] = "κάτω οθόνη",
 			[str::light_mode] = "Ανοιχτόχρωμη λειτουργία",
@@ -1612,18 +1612,18 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::blocks] = "blocks",
 			[str::search_text] = "Αναζήτηση με βάση κείμενο",
 			[str::search_id] = "Αναζήτηση με βάση hShop ID",
-			STUB(search_tid),
-			STUB(invalid_tid),
-			STUB(theme_installer_tid_bad),
-			STUB(enter_lgy_query),
-			STUB(no_other_params_tid),
-			STUB(both_sd_and_sb),
-			STUB(invalid_sb),
-			STUB(invalid_sd),
-			STUB(invalid_includes),
-			STUB(invalid_excludes),
-			STUB(filter_overlap),
-			STUB(lgy_search),
+			[str::search_tid] = "Αναζήτηση με βάση ID Τίτλου",
+			[str::invalid_tid] = "Μη έγκυρο ID Τίτλου",
+			[str::theme_installer_tid_bad] = "Περιηγηθείτε στην κατηγορία Θέματα για να αναζητήσετε θέματα ",
+			[str::enter_lgy_query] = "Εισάγετε ένα ερώτημα αναζήτησης παλαιού τύπου", /* context: this is displayed in transparent letters on the keyboard */
+			[str::no_other_params_tid] = "Δεν μπορούν να καθοριστούν άλλες παράμετροι κατά τον προσδιορισμό ενός ID Τίτλου",
+			[str::both_sd_and_sb] = "Πρέπει να καθορίσετε μια μέθοδο ταξινόμησης και μια κατεύθυνση ταξινόμησης κατά την ταξινόμηση των αποτελεσμάτων αναζήτησης",
+			[str::invalid_sb] = "Μη έγκυρη μέθοδος ταξινόμησης",
+			[str::invalid_sd] = "Μη έγκυρη κατεύθυνση ταξινόμησης",
+			[str::invalid_includes] = "Μη έγκυρα φίλτρα συμπερίληψης",
+			[str::invalid_excludes] = "Μη έγκυρα φίλτρα αποκλεισμού",
+			[str::filter_overlap] = "Εντοπίστηκε επικάλυψη στα καθορισμένα φίλτρα αναζήτησης",
+			[str::lgy_search] = "Αναζήτηση παλαιού τύπου",
 		},
 };
 #pragma GCC diagnostic pop
@@ -1667,11 +1667,14 @@ const char *i18n::langname(lang::type id)
 
 // https://www.3dbrew.org/wiki/Country_Code_List
 //  only took over those that we actually use
-enum class CountryCode {
-	canada  = 18,
-	greece  = 79,
-	romania = 99,
-};
+namespace CountryCode
+{
+	enum _codes {
+		canada  = 18,
+		greece  = 79,
+		romania = 99,
+	};
+}
 
 lang::type i18n::default_lang()
 {
@@ -1685,8 +1688,8 @@ lang::type i18n::default_lang()
 
 	switch(countryinfo[3])
 	{
-	case (int) CountryCode::romania: return lang::romanian;
-	case (int) CountryCode::greece: return lang::greek;
+	case CountryCode::romania: return lang::romanian;
+	case CountryCode::greece: return lang::greek;
 	}
 
 	switch(syslang)
@@ -1698,7 +1701,7 @@ lang::type i18n::default_lang()
 	case CFG_LANGUAGE_KO: return lang::korean;
 	case CFG_LANGUAGE_PT: return lang::portuguese;
 	case CFG_LANGUAGE_FR:
-		return countryinfo[3] == (int) CountryCode::canada
+		return countryinfo[3] == CountryCode::canada
 			? lang::french_canada : lang::french;
 	case CFG_LANGUAGE_JP: // fallthrough
 	case CFG_LANGUAGE_EN: // fallthrough

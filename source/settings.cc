@@ -487,8 +487,7 @@ void show_settings()
 
 	bool focus = set_focus(true);
 
-	SettingsId *current_setting = &settingsInfo[0].ID;
-	dlog("current_setting is now %d", *current_setting);
+	SettingsId current_setting = settingsInfo[0].ID;
 	ui::RenderQueue queue;
 	ui::Toggle *toggle;
 	ui::Text *value;
@@ -500,34 +499,36 @@ void show_settings()
 		.y(20.0f)
 		.wrap()
 		.add_to(&desc, queue);
-	ui::builder<ui::Text>(ui::Screen::bottom, "")
+	ui::builder<ui::Text>(ui::Screen::bottom)
 		.x(10.0f)
 		.under(desc, 5.0f)
 		.wrap()
 		.hide()
 		.add_to(&value, queue);
-	ui::builder<ui::Toggle>(ui::Screen::bottom, serialize_id_bool(settingsInfo[0].ID), [current_setting]() -> void { update_settings_ID(*current_setting); })
+	ui::builder<ui::Toggle>(ui::Screen::bottom, serialize_id_bool(settingsInfo[0].ID),
+			[&current_setting]() -> void { update_settings_ID(current_setting); })
 		.x(10.0f)
 		.under(desc, 5.0f)
 		.add_to(&toggle, queue);
 
 	ui::builder<list_t>(ui::Screen::top, &settingsInfo)
 		.connect(list_t::to_string, [](const SettingInfo& entry) -> std::string { return entry.name; })
-		.connect(list_t::select, [value, toggle, current_setting](list_t *self, size_t i, u32 kDown) -> bool {
-			((void) kDown);
-			ui::RenderQueue::global()->render_and_then([self, i, value, toggle, current_setting]() -> void {
-				const SettingInfo &set = self->at(i);
+		.connect(list_t::select, [value, toggle](list_t *self, size_t i, u32 kDown) -> bool {
+			(void) kDown;
+			ui::RenderQueue::global()->render_and_then([self, i, value, toggle]() -> void {
+				const SettingInfo& set = self->at(i);
 				update_settings_ID(set.ID);
 				display_setting_value(set, value, toggle);
 			});
 			return true;
 		})
-		.connect(list_t::change, [value, toggle, desc, current_setting](list_t *self, size_t i) -> void {
-			const SettingInfo &set = self->at(i);
-			*current_setting = (SettingsId)i;
+		.connect(list_t::change, [value, toggle, desc, &current_setting](list_t *self, size_t i) -> void {
+			const SettingInfo& set = self->at(i);
+			current_setting = set.ID;
 			display_setting_value(set, value, toggle);
 			desc->set_text(set.desc);
-			ui::BaseWidget *display = set.as_text ? (ui::BaseWidget *)value : (ui::BaseWidget *)toggle;
+			ui::BaseWidget *display = set.as_text
+				? (ui::BaseWidget *) value : (ui::BaseWidget *) toggle;
 			display->set_y(ui::under(desc, display, 5.0f));
 		})
 		.x(5.0f).y(25.0f)

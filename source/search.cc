@@ -202,6 +202,7 @@ static void error(const std::string& msg)
 	ui::builder<ui::Text>(ui::Screen::top, msg)
 		.x(ui::layout::center_x)
 		.y(ui::layout::center_y)
+		.wrap()
 		.add_to(queue);
 
 	queue.render_finite_button(KEY_A);
