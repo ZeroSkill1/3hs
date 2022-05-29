@@ -3,6 +3,7 @@ v1.2.0 "aeraria":
  - make text wrapping not use hyphens
  - make long texts in lists scroll horizontally
  - fix issue where text search query data would get cut off
+ - fix 'base game missing' message for system title dlc / updates
  - fix some wrapping issues on Korean systems
  - automatically detect Romanian based on system country
  - add French (Canada) translation
@@ -12,6 +13,7 @@ v1.2.0 "aeraria":
  - add Greek translation
  - add searching using a title id
  - add searching using a legacy search query
+ - add toggles in settings menu to replace value true/false
 
 v1.1.0 "aeraria":
  - fix issue where NAND titles wouldn't be reinstallable

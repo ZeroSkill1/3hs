@@ -94,12 +94,18 @@ void ensure_settings()
 
 enum SettingsId
 {
-	ID_LightMode, ID_Resumable,
-	ID_FreeSpace, ID_Battery,
-	ID_TimeFmt, ID_ProgLoc,
-	ID_Language, ID_Localemode,
-	ID_Extra, ID_Proxy, ID_WarnNoBase,
-	ID_MaxELogs,
+	ID_LightMode,  // bool
+	ID_Resumable,  // bool
+	ID_FreeSpace,  // bool
+	ID_Battery,    // bool
+	ID_Extra,      // bool
+	ID_WarnNoBase, // bool
+	ID_TimeFmt,    // show as text: enum val
+	ID_ProgLoc,    // show as text: enum val
+	ID_Language,   // show as text: enum val
+	ID_Localemode, // show as text: enum val
+	ID_Proxy,      // show as text: custom menu
+	ID_MaxELogs,   // show as text: custom menu
 };
 
 typedef struct SettingInfo
@@ -107,6 +113,7 @@ typedef struct SettingInfo
 	std::string name;
 	std::string desc;
 	SettingsId ID;
+	bool as_text;
 } SettingInfo;
 
 static const char *localemode2str(LumaLocaleMode mode)
@@ -132,32 +139,53 @@ static const char *localemode2str_en(LumaLocaleMode mode)
 	return STRING(unknown);
 }
 
-static std::string serialize_id(SettingsId ID)
+static bool serialize_id_bool(SettingsId ID)
 {
 	switch(ID)
 	{
 	case ID_LightMode:
-		return g_settings.isLightMode ? STRING(btrue) : STRING(bfalse);
+		return g_settings.isLightMode;
 	case ID_Resumable:
-		return g_settings.resumeDownloads ? STRING(btrue) : STRING(bfalse);
+		return g_settings.resumeDownloads;
 	case ID_FreeSpace:
-		return g_settings.loadFreeSpace ? STRING(btrue) : STRING(bfalse);
+		return g_settings.loadFreeSpace;
 	case ID_Battery:
-		return g_settings.showBattery ? STRING(btrue) : STRING(bfalse);
+		return g_settings.showBattery;
+	case ID_Extra:
+		return g_settings.checkForExtraContent;
 	case ID_WarnNoBase:
-		return g_settings.warnNoBase ? STRING(btrue) : STRING(bfalse);
+		return g_settings.warnNoBase;
 	case ID_TimeFmt:
-		return g_settings.timeFormat == Timefmt::good
-			? STRING(fmt_24h) : STRING(fmt_12h);
 	case ID_ProgLoc:
-		return g_settings.progloc == ProgressBarLocation::top
-			? STRING(top) : STRING(bottom);
+	case ID_Language:
+	case ID_Localemode:
+	case ID_Proxy:
+	case ID_MaxELogs:
+		panic("impossible bool setting switch case reached");
+	}
+
+	return false;
+}
+
+static std::string serialize_id_text(SettingsId ID)
+{
+	switch(ID)
+	{
+	case ID_LightMode:
+	case ID_Resumable:
+	case ID_FreeSpace:
+	case ID_Battery:
+	case ID_Extra:
+	case ID_WarnNoBase:
+		panic("impossible text setting switch case reached");
+	case ID_TimeFmt:
+		return g_settings.timeFormat == Timefmt::good ? STRING(fmt_24h) : STRING(fmt_12h);
+	case ID_ProgLoc:
+		return g_settings.progloc == ProgressBarLocation::top ? STRING(top) : STRING(bottom);
 	case ID_Language:
 		return i18n::langname(g_settings.language);
 	case ID_Localemode:
 		return localemode2str(g_settings.lumalocalemode);
-	case ID_Extra:
-		return g_settings.checkForExtraContent ? STRING(btrue) : STRING(bfalse);
 	case ID_Proxy:
 		return proxy::is_set() ? STRING(press_a_to_view) : STRING(none);
 	case ID_MaxELogs:
@@ -420,22 +448,37 @@ void log_settings()
 #undef BOOL
 }
 
+static void display_setting_value(const SettingInfo& set, ui::Text *value, ui::Toggle *toggle)
+{
+	if(set.as_text)
+	{
+		value->set_text(PSTRING(value_x, serialize_id_text(set.ID)));
+		value->set_hidden(false);
+		toggle->set_hidden(true);
+		return;
+	}
+
+	value->set_hidden(true);
+	toggle->set_hidden(false);
+	toggle->set_toggled(serialize_id_bool(set.ID));
+}
+
 void show_settings()
 {
 	std::vector<SettingInfo> settingsInfo =
 	{
-		{ STRING(light_mode)     , STRING(light_mode_desc)     , ID_LightMode  },
-		{ STRING(resume_dl)      , STRING(resume_dl_desc)      , ID_Resumable  },
-		{ STRING(load_space)     , STRING(load_space_desc)     , ID_FreeSpace  },
-		{ STRING(show_battery)   , STRING(show_battery_desc)   , ID_Battery    },
-		{ STRING(time_format)    , STRING(time_format_desc)    , ID_TimeFmt    },
-		{ STRING(progbar_screen) , STRING(progbar_screen_desc) , ID_ProgLoc    },
-		{ STRING(language)       , STRING(language_desc)       , ID_Language   },
-		{ STRING(lumalocalemode) , STRING(lumalocalemode)      , ID_Localemode },
-		{ STRING(check_extra)    , STRING(check_extra_desc)    , ID_Extra      },
-		{ STRING(proxy)          , STRING(proxy_desc)          , ID_Proxy      },
-		{ STRING(warn_no_base)   , STRING(warn_no_base_desc)   , ID_WarnNoBase },
-		{ STRING(max_elogs)      , STRING(max_elogs_desc)      , ID_MaxELogs   },
+		{ STRING(light_mode)     , STRING(light_mode_desc)     , ID_LightMode  , false },
+		{ STRING(resume_dl)      , STRING(resume_dl_desc)      , ID_Resumable  , false },
+		{ STRING(load_space)     , STRING(load_space_desc)     , ID_FreeSpace  , false },
+		{ STRING(show_battery)   , STRING(show_battery_desc)   , ID_Battery    , false },
+		{ STRING(check_extra)    , STRING(check_extra_desc)    , ID_Extra      , false },
+		{ STRING(warn_no_base)   , STRING(warn_no_base_desc)   , ID_WarnNoBase , false },
+		{ STRING(time_format)    , STRING(time_format_desc)    , ID_TimeFmt    , true  },
+		{ STRING(progbar_screen) , STRING(progbar_screen_desc) , ID_ProgLoc    , true  },
+		{ STRING(language)       , STRING(language_desc)       , ID_Language   , true  },
+		{ STRING(lumalocalemode) , STRING(lumalocalemode)      , ID_Localemode , true  },
+		{ STRING(proxy)          , STRING(proxy_desc)          , ID_Proxy      , true  },
+		{ STRING(max_elogs)      , STRING(max_elogs_desc)      , ID_MaxELogs   , true  },
 	};
 
 	panic_assert(settingsInfo.size() > 0, "empty settings meta table");
@@ -444,7 +487,10 @@ void show_settings()
 
 	bool focus = set_focus(true);
 
+	SettingsId *current_setting = &settingsInfo[0].ID;
+	dlog("current_setting is now %d", *current_setting);
 	ui::RenderQueue queue;
+	ui::Toggle *toggle;
 	ui::Text *value;
 	ui::Text *desc;
 	list_t *list;
@@ -454,25 +500,35 @@ void show_settings()
 		.y(20.0f)
 		.wrap()
 		.add_to(&desc, queue);
-	ui::builder<ui::Text>(ui::Screen::bottom, PSTRING(value_x, serialize_id(settingsInfo[0].ID)))
-		.x(20.0f)
+	ui::builder<ui::Text>(ui::Screen::bottom, "")
+		.x(10.0f)
 		.under(desc, 5.0f)
 		.wrap()
+		.hide()
 		.add_to(&value, queue);
+	ui::builder<ui::Toggle>(ui::Screen::bottom, serialize_id_bool(settingsInfo[0].ID), [current_setting]() -> void { update_settings_ID(*current_setting); })
+		.x(10.0f)
+		.under(desc, 5.0f)
+		.add_to(&toggle, queue);
+
 	ui::builder<list_t>(ui::Screen::top, &settingsInfo)
 		.connect(list_t::to_string, [](const SettingInfo& entry) -> std::string { return entry.name; })
-		.connect(list_t::select, [value](list_t *self, size_t i, u32 kDown) -> bool {
+		.connect(list_t::select, [value, toggle, current_setting](list_t *self, size_t i, u32 kDown) -> bool {
 			((void) kDown);
-			ui::RenderQueue::global()->render_and_then([self, i, value]() -> void {
-				update_settings_ID(self->at(i).ID);
-				value->set_text(PSTRING(value_x, serialize_id(self->at(i).ID)));
+			ui::RenderQueue::global()->render_and_then([self, i, value, toggle, current_setting]() -> void {
+				const SettingInfo &set = self->at(i);
+				update_settings_ID(set.ID);
+				display_setting_value(set, value, toggle);
 			});
 			return true;
 		})
-		.connect(list_t::change, [value, desc](list_t *self, size_t i) -> void {
-			value->set_text(PSTRING(value_x, serialize_id(self->at(i).ID)));
-			desc->set_text(self->at(i).desc);
-			value->set_y(ui::under(desc, value, 5.0f));
+		.connect(list_t::change, [value, toggle, desc, current_setting](list_t *self, size_t i) -> void {
+			const SettingInfo &set = self->at(i);
+			*current_setting = (SettingsId)i;
+			display_setting_value(set, value, toggle);
+			desc->set_text(set.desc);
+			ui::BaseWidget *display = set.as_text ? (ui::BaseWidget *)value : (ui::BaseWidget *)toggle;
+			display->set_y(ui::under(desc, display, 5.0f));
 		})
 		.x(5.0f).y(25.0f)
 		.add_to(&list, queue);

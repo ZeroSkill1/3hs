@@ -73,7 +73,7 @@ static void finalize_install(u64 tid, bool interactive)
 /* returns if the user wants to continue */
 static bool maybe_warn_already_installed(u64 tid, bool interactive)
 {
-	if(!interactive || !get_settings()->warnNoBase || ctr::is_base_tid(tid) || ctr::title_exists(ctr::get_base_tid(tid)))
+	if(!interactive || !get_settings()->warnNoBase || ctr::is_base_tid(tid) || ctr::title_exists(ctr::get_base_tid(tid), ctr::to_mediatype(ctr::detect_dest(tid))))
 		return true;
 
 	/* we need to warn the user and ask if he wants to continue now */

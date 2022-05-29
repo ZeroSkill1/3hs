@@ -896,3 +896,40 @@ void ui::ButtonCallback::connect(ui::ButtonCallback::connect_type type, std::fun
 	this->cb = cb;
 }
 
+static u32 color_green() { return DICOLOR(UI_COLOR(00,FF,00,FF), UI_COLOR(00,A2,00,FF)); }
+static u32 color_red() { return DICOLOR(UI_COLOR(FF,00,00,FF), UI_COLOR(DA,00,00,FF)); }
+static u32 color_white() { return DICOLOR(UI_COLOR(FF, FF, FF, FF), UI_COLOR(FF, FF, FF, FF)); }
+
+UI_SLOTS(ui::Toggle_color, color_green, color_red, color_white)
+
+void ui::Toggle::setup(bool state, std::function<void()> on_toggle_cb)
+{
+	this->toggled_state = state;
+	this->toggle_cb = on_toggle_cb;
+}
+
+void ui::Toggle::set_toggled(bool toggled)
+{
+	this->toggled_state = toggled;
+}
+
+void ui::Toggle::toggle(bool toggled)
+{
+	this->toggled_state = toggled;
+	this->toggle_cb();
+}
+
+bool ui::Toggle::render(const ui::Keys& keys)
+{
+	if((keys.touch.px >= this->x && keys.touch.px <= this->x + this->width()) && (keys.touch.py >= this->y && keys.touch.py <= this->y + this->height()) && (osGetTime() - this->last_touch_toggle) >= 300)
+	{
+		this->toggle(!this->toggled_state);
+		this->last_touch_toggle = osGetTime();
+	}
+
+	C2D_DrawRectSolid(this->x, this->y, this->z, this->width(), this->height(), this->slots.get(this->toggled_state ? 0 : 1));
+	C2D_DrawRectSolid(this->toggled_state ? (this-> x + 2) + (this->width() - 4) / 2 : (this->x + 2), this->y + 2, this->z, (this->width() - 4) / 2, this->height() - 4, this->slots.get(2));
+
+	return true;
+}
+

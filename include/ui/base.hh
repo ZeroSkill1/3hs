@@ -650,6 +650,23 @@ namespace ui
 
 	};
 
+	UI_SLOTS_PROTO_EXTERN(Toggle_color)
+	class Toggle : public ui::BaseWidget
+	{ UI_WIDGET("Toggle")
+	public:
+		void setup(bool state, std::function<void()> on_toggle_cb);
+		bool render(const ui::Keys& keys) override;
+		float height() override { return 20.0f; }
+		float width() override { return 40.0f; }
+		void toggle(bool toggled);
+		void set_toggled(bool toggled);
+	private:
+		UI_SLOTS_PROTO(Toggle_color, 3)
+		std::function<void()> toggle_cb;
+		bool toggled_state;
+		u64 last_touch_toggle;
+	};
+
 	template <typename T>
 	std::string floating_prec(T inte, int prec = 2)
 	{
