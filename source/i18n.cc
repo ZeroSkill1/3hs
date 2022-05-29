@@ -187,8 +187,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::fail_init_networking] = "Kon netwerkdiensten niet opstarten",
 			[str::fail_fetch_index] = "Kon gegevens niet van de server halen\n%1",
 			[str::credits_thanks] =
-				"Bedankt voor het gebruiken van 3hs, een 3ds\n"
-				"hShop applicatie\n"
+				"Bedankt voor het gebruiken van 3hs, een 3DS hShop applicatie\n"
 				"Je kan deze software gratis verkrijgen op\n"
 				"https://hshop.erista.me/",
 			[str::credits_names] = "",
@@ -261,7 +260,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::disabled] = "uitgeschakeled",
 			[str::patching_reboot] =
 				"Luma3DS Game Patching is ingeschakeld\n"
-				"Om de verandering te zien, moet je je\n3DS herstarten",
+				"Om de verandering te zien, moet je je 3DS herstarten",
 			[str::reboot_now] = "Nu herstarten?",
 			[str::this_version] = "Dit is 3hs versie %1",
 			[str::retry_req] ="Opnieuw proberen gegevens te halen?",
@@ -333,8 +332,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::fail_init_networking] = "Netzwerkverbindung fehlgeschlagen",
 			[str::fail_fetch_index] = "Index konnte nicht heruntergeladen werden\n%1",
 			[str::credits_thanks] =
-				"Danke, dass du 3hs nutzt.\n3hs ist ein 3DS-Client für hShop.\n"
-				"Du kannst diese Software auf\nhttps://hshop.erista.me kostenlos herunterladen.\n",
+				"Danke, dass du 3hs nutzt. 3hs ist ein 3DS-Client für hShop.\n"
+				"Du kannst diese Software auf\nhttps://hshop.erista.me/ kostenlos herunterladen.\n",
 			[str::credits_names] = "",
 			[str::press_to_install] =
 				"Drücke " UI_GLYPH_A " falls du diesen Inhalt zu installieren möchtest.\n"
@@ -477,7 +476,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::fail_init_networking] = "No se pudo inicializar redes",
 			[str::fail_fetch_index] = "No se pudo recuperar el índice\n%1",
 			[str::credits_thanks] =
-				"Gracias por usar 3hs, un cliente de 3ds\npara hShop\n"
+				"Gracias por usar 3hs, un cliente de 3DS para hShop\n"
 				"Puedes conseguir este software gratuito en\n"
 				"https://hshop.erista.me/",
 			[str::credits_names] = "",
@@ -550,7 +549,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::disabled] = "desactivado",
 			[str::patching_reboot] =
 					"El Parcheo de Juegos de Luma3DS ha sido activado.\n"
-					"Para que el cambio tenga efecto, tienes que \nreinicia tu 3DS.",
+					"Para que el cambio tenga efecto, tienes que reinicia tu 3DS.",
 			[str::reboot_now] = "¿Reiniciar ahora?",
 			[str::this_version] = "Esto es 3hs, versión %1",
 			[str::retry_req] = "¿Quieres reintentar?",
@@ -622,7 +621,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::fail_init_networking] = "Impossible d'initialiser le réseau",
 			[str::fail_fetch_index] = "Impossible de récupérer l'index\n%1",
 			[str::credits_thanks] =
-				"Merci d'utiliser 3hs, un client 3DS pour hshop.\n"
+				"Merci d'utiliser 3hs, un client 3DS pour hShop.\n"
 				"Vous pouvez avoir ce logiciel gratuitement sur\n"
 				"https://hshop.erista.me/",
 			[str::credits_names] = "",
@@ -741,7 +740,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::block] = "bloc",
 			[str::blocks] = "blocs",
 			[str::search_text] = "Recherche par texte",
-			[str::search_id] = "Recherche par l'ID hshop",
+			[str::search_id] = "Recherche par l'ID hShop",
 			STUB(search_tid),
 			STUB(invalid_tid),
 			STUB(theme_installer_tid_bad),
@@ -901,7 +900,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			STUB(lgy_search),
 		},
 
-		[lang::romanian] =
+	[lang::romanian] =
 		{
 			[str::banner] = "Serviciul suprem de prezervare al conținutului pentru 3DS",
 			[str::loading] = "Se încarcă...",
@@ -1202,7 +1201,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::fail_init_networking] = "Falha ao iniciar a rede",
 			[str::fail_fetch_index] = "falha ao buscar índice\n%1", /* unused */
 			[str::credits_thanks] =
-				"Obrigado por usares a 3hs, um cliente de 3ds para a hShop.\n"
+				"Obrigado por usares a 3hs, um cliente de 3DS para a hShop.\n"
 				"Podes ter este programa de graça pelo\n"
 				"https://hshop.erista.me/",
 			[str::credits_names] = "", /* unused */
@@ -1480,7 +1479,152 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			STUB(invalid_excludes),
 			STUB(filter_overlap),
 			STUB(lgy_search),
-		}
+		},
+
+	[lang::greek] =
+		{
+			[str::banner]  = "Η καλύτερη πλατφόρμα διατήρησης περιεχομένου για το 3DS",
+			[str::loading] = "Φορτώνει...",
+			[str::luma_not_installed] = "Εντοπίστηκε μη υποστηριζόμενο firmware.",
+			[str::install_luma] = "To 3hs δεν υποστηρίζεται για αυτή την κονσόλα.",
+			[str::queue] = "Ουρά",
+			[str::connect_wifi] = "Παρακαλούμε συνδεθείτε σε δίκτυο Wi-Fi και επανεκκινήστε την εφαρμογή.",
+			[str::fail_init_networking] = "Αποτυχία αρχικοποίησης δικτύωσης.",
+			[str::fail_fetch_index] = "Αποτυχία ανάκτησης ευρετηρίου.\n%1",
+			[str::credits_thanks] =
+				"Ευχαριστούμε που χρησιμοποιήσατε το 3hs, ενα client του hShop για το 3DS.\n"
+				"Μπορείτε να κατεβάσετε αυτο το λογισμικό δωρεάν στο\n"
+				"https://hshop.erista.me/",
+			[str::credits_names] = "",
+			[str::press_to_install] =
+				"Πατήστε το " UI_GLYPH_A " για να εγκαταστήσετε το περιεχόμενο.\n"
+				"Πατήστε το " UI_GLYPH_B " για να πάτε πίσω.",
+			[str::version] = "Έκδοση",
+			[str::prodcode] = "Κωδικός Προϊόντος",
+			[str::size] = "Μέγεθος",
+			[str::name] = "Όνομα",
+			[str::tid] = "ID Τίτλου",
+			[str::category] = "Κατηγορία",
+			[str::landing_id] = "hShop ID",
+			[str::description] = "Περιγραφή",
+			[str::total_titles] = "Σύνολο Τίτλων",
+			[str::select_cat] = "Επιλέξτε μια κατηγορία",
+			[str::select_subcat] = "Επιλέξτε μια υποκατηγορία",
+			[str::select_title] = "Επιλέξτε ένα τίτλο",
+			[str::no_cats_index] = "δεν υπάρχουν κατηγορίες στο ευρετήριο (?)",
+			[str::empty_subcat] = "Κενή υποκατηγορία (?)",
+			[str::empty_cat] = "Κενή κατηγορία (?)",
+			[str::fmt_24h] = "24-ώρο",
+			[str::fmt_12h] = "12-ώρο",
+			[str::unknown] = "άγνωστο",
+			[str::btrue] = "αληθές",
+			[str::bfalse] = "ψευδές",
+			[str::top] = "πάνω οθόνη",
+			[str::bottom] = "κάτω οθόνη",
+			[str::light_mode] = "Ανοιχτόχρωμη λειτουργία",
+			[str::resume_dl] = "Συνέχιση λήψεων",
+			[str::load_space] = "Εμφάνιση ένδειξης ελεύθερου χώρου",
+			[str::show_battery] = "Εμφάνιση ένδειξης στάθμης μπαταρίας",
+			[str::time_format] = "Μορφή ώρας",
+			[str::progbar_screen] = "Θέση γραμμής προόδου",
+			[str::language] = "Γλώσσα",
+			[str::value_x] = "Τιμή: %1",
+			[str::back] = "Πίσω",
+			[str::invalid] = "Μη έγκυρο",
+			[str::title_doesnt_exist] = "Ο τίτλος δεν υπάρχει: %1",
+			[str::fail_create_tex] = "Αποτυχία δημιουργίας tex",
+			[str::fail_load_smdh_icon] = "load_smdh_icon(): invalid SMDHIconType",
+			[str::netcon_lost] = "Η σύνδεση με το δίκτυο χάθηκε (%1).\nΠροσπάθεια επανασύνδεσης σε $t δευτερόλεπτα...",
+			[str::about_app] = "Σχετικά",
+			[str::help_manual] = "Βοήθεια/Εγχειρίδιο",
+			[str::find_missing_content] = "Εύρεση ελλείποντος περιεχομένου",
+			[str::press_a_exit] = "Πατήστε το " UI_GLYPH_A " για έξοδο.",
+			[str::fatal_panic] = "Προέκυψε ένα μοιραίο σφάλμα.",
+			[str::failed_open_seeddb] = "Αποτυχία ανοίγματος seeddb.bin.",
+			[str::update_to] = "Θέλετε να κάνετε ενημέρωση στην έκδοση %1?",
+			[str::search_content] = "Αναζήτηση για περιεχόμενο",
+			[str::search_content_action] = "Αναζήτηση περιεχομένου...",
+			[str::results_query] = "Αποτελέσματα για την αναζήτηση \"%1\"",
+			[str::result_code] = "Κώδικας αποτελέσματος: %1",
+			[str::level] = "Επίπεδο: %1",
+			[str::summary] = "Σύνοψη: %1",
+			[str::module] = "Ενότητα: %1",
+			[str::hs_bunny_found] = "Συγχαρητήρια! Βρήκατε το λαγουδάκι του hShop!",
+			[str::already_installed_reinstall] = "Ο τίτλος είναι ήδη εγκατεστημένος. Να γίνει επανεγκατάσταση;",
+			[str::queue_empty] =
+				"Η ουρά είναι κενή\n"
+				"Πατήστε το " UI_GLYPH_A " για να πάτε πίσω.\n"
+				"Tip: Πατήστε το " UI_GLYPH_Y " για να προσθέσετε ένα τίτλο στην ουρά.",
+			[str::cancel] = "Ακύρωση",
+			[str::confirm] = "Επιβεβαίωση",
+			[str::invalid_proxy] = "Μη έγκυρες ρυθμίσεις proxy",
+			[str::more_about_content] = "Περισσότερα για αυτό το περιεχόμενο",
+			[str::lumalocalemode] = "Λειτουργία LumaLocale",
+			[str::automatic] = "αυτόματη",
+			[str::manual] = "χειροκίνητη",
+			[str::disabled] = "απενεργοποιημένη",
+			[str::patching_reboot] =
+				"Το Luma3DS Game Patching είναι τώρα ενεργοποιημένο.\n"
+				"Το σύστημα πρέπει να επανεκκινηθεί για να τεθεί σε ισχύ αυτή η αλλαγή.",
+			[str::reboot_now] = "Να γίνει επανεκκίνηση τώρα;",
+			[str::this_version] = "Αυτή είναι η έκδοση %1 του 3hs",
+			[str::retry_req] = "Το αίτημα απέτυχε. Να γίνει επανάληψη;",
+			[str::search_zero_results] = "Η αναζήτηση σας δεν επέστρεψε κανένα αποτέλεσμα.\nΠατήστε το " UI_GLYPH_A " για να πάτε πίσω.",
+			[str::credits] = "Συντελεστές",
+			[str::extra_content] = "Προσθήκη επιπλέον περιεχομένου (DLC, ενημερώσεις) στην ουρά;",
+			[str::check_extra] = "Αναζήτηση για επιπλέον περιεχόμενο",
+			[str::no_req] = "Δεν έχουν υποβληθεί ακόμη αιτήματα",
+			[str::invalid_query] = "Μη έγκυρο ερώτημα\nΠατήστε το " UI_GLYPH_A " για να πάτε πίσω.",
+			[str::min_constraint] = "Η τρέχουσα έκδοση %1 του 3hs είναι χαμηλότερη από την απαιτούμενη έκδοση %2",
+			[str::proxy] = "Proxy",
+			[str::none] = "(κανένα)",
+			[str::press_a_to_view] = "Πατήστε το " UI_GLYPH_A " για προβολή.",
+			[str::host] = "Host",
+			[str::port] = "Port",
+			[str::username] = "Username",
+			[str::password] = "Password",
+			[str::clear] = "Καθαρισμός",
+			[str::progbar_screen_desc] = "Επιλέξτε τη θέση της γραμμής προόδου.",
+			[str::light_mode_desc] = "Ενεργοποίηση/απενεργοποίηση της ανοιχτόχρωμης λειτουργίας. Αυτό θα αλλάξει την εμφάνιση των περισσότερων στοιχείων του UI.",
+			[str::resume_dl_desc] = "Συνέχιση λήψεων μετά από διακοπή δικτύου.",
+			[str::load_space_desc] = "Μεταβολή της ένδειξης ελεύθερου χώρου.",
+			[str::show_battery_desc] = "Μεταβολή της ένδειξης στάθμης μπαταρίας.",
+			[str::time_format_desc] = "Επιλογή της μορφής ώρας.",
+			[str::language_desc] = "Ρύθμιση γλώσσας του 3hs. Η εφαρμογή πρέπει να επανακκινηθεί για να τεθεί σε ισχύ η επιλεγμένη γλώσσα.",
+			[str::lumalocalemode_desc] = "Ορισμός της λειτουργίας του ρυθμιστή LumaLocale. Ο ορισμός σε αυτόματη επιλέγει την γλώσσα αυτόματα. Εαν αυτή εχει οριστεί σε χειροκίνητη, το 3hs θα ζητήσει ορισμό μιας περιοχής μετά την εγκατάσταση περιεχομένου.",
+			[str::check_extra_desc] = "Αναζήτηση επιπλέον περιεχομένου μετά την εγκατάσταση.",
+			[str::proxy_desc] = "Ρύθμιση ενός proxy server για το 3hs. Αυτή η ρύθμιση είναι για προχωρημένους χρήστες.",
+			[str::install_all] = "Εγκατάσταση όλων",
+			[str::install_no_base] = "Θα εγκαταστήσετε DLC χωρις το αντίστοιχο παιχνιδι. Συνέχεια ούτως ή άλλως;",
+			[str::warn_no_base] = "Προειδοποίηση αν δεν έχει εγκατασταθεί ένα αρχικό παιχνίδι",
+			[str::warn_no_base_desc] = "Εμφανίζει ένα μήνυμα πριν από την εγκατάσταση ενημέρωσης ή DLC, εάν δεν έχει εγκατασταθεί το αντίστοιχο παιχνίδι.",
+			[str::replaying_errors] = "Επανάληψη των σφαλμάτων που παρουσιάστηκαν κατά την επεξεργασία της ουράς.",
+			[str::log] = "Διαχείριση αρχείων καταγραφής",
+			[str::upload_logs] = "Ανεβάστε αρχεία καταγραφής",
+			[str::clear_logs] = "Καθαρισμός αρχείων καταγραφής",
+			[str::found_missing] = "Βρέθηκε(αν) %1 τίτλος(οι) που λείπει(ουν)\nΕλέγξτε την ουρά για να κάνετε εγκατάσταση.",
+			[str::found_0_missing] = "Δεν βρέθηκαν ελλείποντες τίτλοι.",
+			[str::max_elogs] = "Μέγιστο όριο παλαιών αρχείων καταγραφής",
+			[str::max_elogs_desc] = "Ορίστε τον αριθμό των αρχείων καταγραφής που θα διατηρούνται. Οι αποδεκτές τιμές είναι από 0 έως 255, όπου το 0 δεν διατηρεί κανένα επιπλέον αρχείο καταγραφής.",
+			[str::elogs_hint] = "Τιμή μεταξύ 0 και 255",
+			[str::log_id] = "Χρησιμοποιήστε αυτό το αναγνωριστικό (ID) για να λάβετε υποστήριξη:\n%1",
+			[str::block] = "block",
+			[str::blocks] = "blocks",
+			[str::search_text] = "Αναζήτηση με βάση κείμενο",
+			[str::search_id] = "Αναζήτηση με βάση hShop ID",
+			STUB(search_tid),
+			STUB(invalid_tid),
+			STUB(theme_installer_tid_bad),
+			STUB(enter_lgy_query),
+			STUB(no_other_params_tid),
+			STUB(both_sd_and_sb),
+			STUB(invalid_sb),
+			STUB(invalid_sd),
+			STUB(invalid_includes),
+			STUB(invalid_excludes),
+			STUB(filter_overlap),
+			STUB(lgy_search),
+		},
 };
 #pragma GCC diagnostic pop
 
@@ -1515,6 +1659,7 @@ const char *i18n::langname(lang::type id)
 	case lang::italian: return LANGNAME_ITALIAN;
 	case lang::portuguese: return LANGNAME_PORTUGUESE;
 	case lang::korean: return LANGNAME_KOREAN;
+	case lang::greek: return LANGNAME_GREEK;
 	}
 
 	return "invalid";
@@ -1524,6 +1669,7 @@ const char *i18n::langname(lang::type id)
 //  only took over those that we actually use
 enum class CountryCode {
 	canada  = 18,
+	greece  = 79,
 	romania = 99,
 };
 
@@ -1540,6 +1686,7 @@ lang::type i18n::default_lang()
 	switch(countryinfo[3])
 	{
 	case (int) CountryCode::romania: return lang::romanian;
+	case (int) CountryCode::greece: return lang::greek;
 	}
 
 	switch(syslang)

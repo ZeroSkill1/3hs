@@ -361,6 +361,8 @@ C2D_Sprite ui::SpriteStore::get_by_id(ui::sprite id)
 
 /* core widget class Text */
 
+#define TEXT_MAXLINES 16
+
 UI_SLOTS(ui::Text_color, ui::color_bg, ui::color_text)
 
 void ui::Text::setup(const std::string& label)
@@ -371,19 +373,20 @@ void ui::Text::setup()
 
 void ui::Text::prepare_arrays()
 {
-	if(this->buf == nullptr) this->buf = C2D_TextBufNew(this->text.size() + 11);
+	if(this->buf == nullptr)
+	{
+		this->buf = C2D_TextBufNew(this->text.size() + TEXT_MAXLINES + 1);
+		this->lines.reserve(TEXT_MAXLINES);
+	}
 	else
 	{
 		// Reset
 		C2D_TextBufClear(this->buf);
-		this->buf = C2D_TextBufResize(this->buf, this->text.size() + 11);
+		this->buf = C2D_TextBufResize(this->buf, this->text.size() + TEXT_MAXLINES + 1);
 		this->lines.clear();
 	}
 
 	int width = ui::screen_width(this->screen) - this->x;
-	int lines = (this->text.size() / width) + 1;
-	/* this caused an issue before.. lines was -12 */
-	if(lines > 0) this->lines.reserve(lines);
 
 	float curWidth = 0;
 	char codepoint[5] = { 0x00, 0x00, 0x00, 0x00, 0x00 };
@@ -472,6 +475,11 @@ void ui::Text::prepare_arrays()
 
 void ui::Text::push_str(const std::string& str)
 {
+	if(this->lines.size() + 1 == TEXT_MAXLINES)
+	{
+		elog("too many lines to handle, discarding line '%s'", str.c_str());
+		return;
+	}
 	this->lines.emplace_back();
 	C2D_TextParse(&this->lines.back(), this->buf, str.c_str());
 	C2D_TextOptimize(&this->lines.back());
