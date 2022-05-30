@@ -900,6 +900,11 @@ static u32 color_green() { return DICOLOR(UI_COLOR(00,FF,00,FF), UI_COLOR(00,A2,
 static u32 color_red() { return DICOLOR(UI_COLOR(FF,00,00,FF), UI_COLOR(DA,00,00,FF)); }
 static u32 color_white() { return DICOLOR(UI_COLOR(FF, FF, FF, FF), UI_COLOR(FF, FF, FF, FF)); }
 
+#define SLIDER_X(t) (t->toggled_state ? (t->x + 2) + (t->width() - 4) / 2 : (t->x + 2))
+#define SLIDER_Y(t) (t->y + 2)
+#define SLIDER_WIDTH(t) ((t->width() - 4) / 2)
+#define SLIDER_HEIGHT(t) (t->height() - 4)
+
 UI_SLOTS(ui::Toggle_color, color_green, color_red, color_white)
 
 void ui::Toggle::setup(bool state, std::function<void()> on_toggle_cb)
@@ -921,14 +926,14 @@ void ui::Toggle::toggle(bool toggled)
 
 bool ui::Toggle::render(const ui::Keys& keys)
 {
-	if((keys.touch.px >= this->x && keys.touch.px <= this->x + this->width()) && (keys.touch.py >= this->y && keys.touch.py <= this->y + this->height()) && (osGetTime() - this->last_touch_toggle) >= 300)
+	if((keys.touch.px >= SLIDER_X(this) && keys.touch.px <= SLIDER_X(this) + SLIDER_WIDTH(this)) && (keys.touch.py >= SLIDER_Y(this) && keys.touch.py <= SLIDER_Y(this) + SLIDER_HEIGHT(this)) && (osGetTime() - this->last_touch_toggle) >= 300)
 	{
 		this->toggle(!this->toggled_state);
 		this->last_touch_toggle = osGetTime();
 	}
 
 	C2D_DrawRectSolid(this->x, this->y, this->z, this->width(), this->height(), this->slots.get(this->toggled_state ? 0 : 1));
-	C2D_DrawRectSolid(this->toggled_state ? (this-> x + 2) + (this->width() - 4) / 2 : (this->x + 2), this->y + 2, this->z, (this->width() - 4) / 2, this->height() - 4, this->slots.get(2));
+	C2D_DrawRectSolid(SLIDER_X(this), SLIDER_Y(this), this->z, SLIDER_WIDTH(this), SLIDER_HEIGHT(this), this->slots.get(2));
 
 	return true;
 }
