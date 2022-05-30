@@ -307,18 +307,18 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::blocks] = "blokken",
 			[str::search_text] = "Zoek op tekst",
 			[str::search_id] = "Vind met hShop ID",
-			STUB(search_tid),
-			STUB(invalid_tid),
-			STUB(theme_installer_tid_bad),
-			STUB(enter_lgy_query),
-			STUB(no_other_params_tid),
-			STUB(both_sd_and_sb),
-			STUB(invalid_sb),
-			STUB(invalid_sd),
-			STUB(invalid_includes),
-			STUB(invalid_excludes),
-			STUB(filter_overlap),
-			STUB(lgy_search),
+			[str::search_tid] = "Vind met titel ID",
+			[str::invalid_tid] = "Ongeldige title ID",
+			[str::theme_installer_tid_bad] = "Bekijk de \"Themes\" categorie als je op zoek wilt naar thema's",
+			[str::enter_lgy_query] = "Tik een classieke zoekopdracht in",
+			[str::no_other_params_tid] = "Je kan geen andere parameters gebruiken wanneer je op titel ID zoekt",
+			[str::both_sd_and_sb] = "Je moet een sorteer methode en zoek richting aangeven als zelfs als je één van beide wilt gebruiken",
+			[str::invalid_sb] = "Ongeldige sorteer methode",
+			[str::invalid_sd] = "Ongeldige zoek richting",
+			[str::invalid_includes] = "Ongeldige inclusie filters",
+			[str::invalid_excludes] = "Ongelidge exclusie filters",
+			[str::filter_overlap] = "Er is een overlap tussen de filters",
+			[str::lgy_search] = "Classieke zoekmethode",
 		},
 
 	[lang::german] =
@@ -494,7 +494,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::total_titles] = "Títulos totales",
 			[str::select_cat] = "Selecciona una categoría",
 			[str::select_subcat] = "Selecciona una sub-categoría",
-			[str::select_title] = "Select a title",
+			[str::select_title] = "Selecciona un título",
 			[str::no_cats_index] = "no categories in index (?)", /* unused */
 			[str::empty_subcat] = "Empty subcategory (?)", /* unused */
 			[str::empty_cat] = "Empty category (?)", /* unused */
@@ -550,23 +550,23 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::patching_reboot] =
 				"El parcheador de juegos de Luma3DS está activado.\n"
 				"El sistema tiene que reiniciar para que los cambios den efecto.",
-			[str::reboot_now] = "Reiniciar ahora?",
+			[str::reboot_now] = "¿Reiniciar ahora?",
 			[str::this_version] = "Está es la versión %1 de 3hs", /* %1 = version int "version desc" */
 			[str::retry_req] = "Petición fallida. ¿Reintentar?", /* context: API request */
 			[str::search_zero_results] = "La búsqueda no dió resultados.\nPresiona " UI_GLYPH_A " para volver.",
-			[str::credits] = "Credits",
+			[str::credits] = "Créditos",
 			[str::extra_content] = "¿Añadir contenido adicional a la cola?", /* context: i.e. DLC/Updates */
 			[str::check_extra] = "Buscar por contenido adicional", /* context: i.e. DLC/Updates */
 			[str::no_req] = "No hay solicitudes hechas todavía", /* context: hlink requests */
 			[str::invalid_query] = "Consulta inválida\nPresiona " UI_GLYPH_A " para volver.",
-			[str::min_constraint] = "La versión de 3hs %1 es inferior a la versión requerida %2",
+			[str::min_constraint] = "La versión de 3hs, %1, es inferior a la versión requerida, %2",
 			[str::proxy] = "Proxy",
 			[str::none] = "(ninguno)", /* context: used for no proxy set */
 			[str::press_a_to_view] = "Presiona " UI_GLYPH_A " para ver.", /* context: view proxy settings */
 			[str::host] = "Host", /* context: proxy */
 			[str::port] = "Puerto", /* context: proxy */
 			[str::username] = "Nombre de Usuario", /* context: proxy */
-			[str::password] = "Contraseña", /* context: proxy */
+	 		[str::password] = "Contraseña", /* context: proxy */
 			[str::clear] = "Despejar", /* context: clear the contents of a field */
 			[str::progbar_screen_desc] = "Selecciona la posición de la barra de progreso.",
 			[str::light_mode_desc] = "Activar/desactivar modo luz. Esto cambiará cómo se verá la mayoria de la interfaz de usuario.",
@@ -591,7 +591,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::max_elogs] = "Máximo de archivos de registro antiguos",
 			[str::max_elogs_desc] = "Establezca el número de archivos de registro que desea conservar. Los valores posibles son de 0 a 255, donde 0 no guarda archivos de registro adicionales.",
 			[str::elogs_hint] = "Valor entre 0 y 255",
-			[str::log_id] = "Use este ID para conseguir soporte:\n%1", /* %1 = id */
+			[str::log_id] = "Usa este ID para conseguir soporte:\n%1", /* %1 = id */
 			[str::block] = "bloque", /* context: nintendo blocks, use official nintendo translation if available */
 			[str::blocks] = "bloques", /* context: see above, just in plural this time */
 			[str::search_text] = "Buscar por texto",
@@ -599,7 +599,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::search_tid] = "Buscar por ID de título",
 			[str::invalid_tid] = "ID de título inválido",
 			[str::theme_installer_tid_bad] = "Por favor, busque la categoría de Temas manualmente para buscar temas",
-			[str::enter_lgy_query] = "Enter a legacy search query", /* context: this is displayed in transparent letters on the keyboard */
+			[str::enter_lgy_query] = "Ingresa una consulta de búsqueda clásica", /* context: this is displayed in transparent letters on the keyboard */
 			[str::no_other_params_tid] = "No se puede especificar ningún otro parámetro al buscar un ID de Título",
 			[str::both_sd_and_sb] = "Debes especificar un método y dirección de organización para ordenar los resultados de busqueda",
 			[str::invalid_sb] = "Método de organización inválido",
@@ -722,7 +722,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::language_desc] = "Change la langue de 3hs.\nL'application doit être redémarrée pour que la nouvelle langue soit affichée.",
 			[str::lumalocalemode_desc] = "Choisit le mode de LumaLocale autosetter. \"Automatique\" séléctionne une langue automatiquement alors que \"Manuel\" affiche la région à choisir après l'installation.",
 			[str::check_extra_desc] = "Cherche de contenu additionnel après l'installation.",
-			[str::proxy_desc] = "Configure a proxy server for 3hs. This setting is for advanced users.",
+			[str::proxy_desc] = "Configure un serveur proxy pour 3hs. Ce paramètre est pour les utilisateurs avancés.",
 			[str::install_all] = "Tout installer", /* context: install all items in queue */
 			[str::install_no_base] = "Le jeu de base n'est pas installé. Continuer quand même?",
 			[str::warn_no_base] = "Avertir si le jeu de base n'est pas installé",
@@ -926,7 +926,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::category] = "Categorie",
 			[str::landing_id] = "ID hShop",
 			[str::description] = "Descriere",
-			[str::total_titles] = "Totalul Titlurilor",
+			[str::total_titles] = "Titluri",
 			[str::select_cat] = "Selectați o categorie",
 			[str::select_subcat] = "Selectați o subcategorie",
 			[str::select_title] = "Selectați un titlu",
@@ -1031,18 +1031,18 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::blocks] = "blocuri",
 			[str::search_text] = "Căutați după text",
 			[str::search_id] = "Căutați după ID hShop",
-			STUB(search_tid),
-			STUB(invalid_tid),
-			STUB(theme_installer_tid_bad),
-			STUB(enter_lgy_query),
-			STUB(no_other_params_tid),
-			STUB(both_sd_and_sb),
-			STUB(invalid_sb),
-			STUB(invalid_sd),
-			STUB(invalid_includes),
-			STUB(invalid_excludes),
-			STUB(filter_overlap),
-			STUB(lgy_search),
+			[str::search_tid] = "Căutați după ID de titlu",
+			[str::invalid_tid] = "ID de titlu invalid",
+			[str::theme_installer_tid_bad] = "vă rugăm să navigați categoria Teme manual pentru a găsi teme",
+			[str::enter_lgy_query] = "Introduceți termeni pentru căutarea clasică", /* context: this is displayed in transparent letters on the keyboard */
+			[str::no_other_params_tid] = "Nu se poate specifica nici un alt parametru când specificați un ID de titlu",
+			[str::both_sd_and_sb] = "Trebuie să specificați o metodă de sortare și o direcție de sortare când sortați rezultatele căutării",
+			[str::invalid_sb] = "Metodă de sortare invalidă",
+			[str::invalid_sd] = "Direcție de sortare invalidă",
+			[str::invalid_includes] = "Filtre de includere invalide",
+			[str::invalid_excludes] = "Filtre de excludere invalide",
+			[str::filter_overlap] = "A fost găsită o suprapunere a filtrelor de căutare",
+			[str::lgy_search] = "Căutare Clasică",
 		},
 
 	[lang::italian] =
