@@ -14,6 +14,7 @@ v1.2.0 "aeraria":
  - Add searching using a title id
  - Add searching using a legacy search query
  - Add toggles in settings menu to replace value true/false
+ - Add ability to add an item to the queue from extended meta
 
 v1.1.0 "aeraria":
  - fix issue where NAND titles wouldn't be reinstallable
