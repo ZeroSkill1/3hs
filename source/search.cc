@@ -221,7 +221,7 @@ static void show_searchbar_search()
 	if(btn != SWKBD_BUTTON_CONFIRM)
 		return;
 
-	if(query.size() < 2 || res == SWKBD_INVALID_INPUT || res == SWKBD_OUTOFMEM || res == SWKBD_BANNED_INPUT)
+	if(query.size() < 3 || res == SWKBD_INVALID_INPUT || res == SWKBD_OUTOFMEM || res == SWKBD_BANNED_INPUT)
 	{
 		error(STRING(invalid_query));
 		return;
@@ -351,7 +351,7 @@ void legacy_search()
 		return;
 	}
 
-	if(!has_tid && query.size() < 2)
+	if(!has_tid && query.size() < 3)
 	{
 		error(STRING(invalid_query));
 		return;

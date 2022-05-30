@@ -1,17 +1,18 @@
 
-v1.2.0 "aeraria":
+v1.2.0 "cotidie morimur":
  - Make text wrapping not use hyphens
  - Make long texts in lists scroll horizontally
  - Fix issue where text search query data would get cut off
- - Fix 'base game missing' message for system title DLC / updates
+ - Fix "base game missing" message for system title DLC & updates
  - Fix some wrapping issues on Korean systems
  - Fix Romanian not being detected
+ - Fix common occurence of the "server didn't return status 200" error
  - Add French (Canada) translation
- - Add Italian translation
+ - Add (partial) Italian translation
  - Add Portuguese translation
  - Add Korean translation
  - Add Greek translation
- - Add searching using a title id
+ - Add searching using a title ID
  - Add searching using a legacy search query
  - Add toggles in settings menu to replace value true/false
  - Add ability to add an item to the queue from extended meta

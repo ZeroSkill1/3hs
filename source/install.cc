@@ -91,15 +91,22 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 	}
 
 	// Are we resuming and does the server support range?
-	if(from != 0 && status != 206)
+	if(from != 0)
 	{
-		httpcCancelConnection(pctx);
-		httpcCloseContext(pctx);
-		return APPERR_NORANGE;
+		/* fuck me
+		 * before this if used to be && meaning if from != 0 it would always fail
+		 * reason: status != 200 check was added later than range support */
+		if(status != 206)
+		{
+			httpcCancelConnection(pctx);
+			httpcCloseContext(pctx);
+			return APPERR_NORANGE;
+		}
 	}
 	// Bad status code
 	else if(status != 200)
 	{
+		elog("HTTP status was NOT 200 but instead %lu", status);
 		httpcCancelConnection(pctx);
 		httpcCloseContext(pctx);
 		return APPERR_NON200;
