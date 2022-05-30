@@ -114,6 +114,7 @@ static Result basereq(const std::string& url, std::string& data, HTTPC_RequestMe
 
 	if(status != 200)
 	{
+		elog("HTTP status was NOT 200 but instead %lu", status);
 #ifdef RELEASE
 		// We _may_ require a different 3hs version
 		if(status == 400)
