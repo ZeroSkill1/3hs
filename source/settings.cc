@@ -17,10 +17,11 @@
 #include "settings.hh"
 
 #include <widgets/indicators.hh>
-#include <ui/theme.hh>
 
 #include <ui/selector.hh>
+#include <ui/confirm.hh>
 #include <ui/swkbd.hh>
+#include <ui/theme.hh>
 #include <ui/list.hh>
 
 #include <sys/stat.h>
@@ -33,6 +34,7 @@
 #include "util.hh"
 #include "log.hh"
 
+#define SETTINGS_LOCATION "/3ds/3hs/settings"
 
 static bool g_loaded = false;
 static Settings g_settings;
@@ -69,6 +71,18 @@ static void write_default_settings()
 	g_settings.language = i18n::default_lang();
 	cfguExit(); /* remove cfg reference */
 	save_settings();
+}
+
+void reset_settings()
+{
+	/* construct defaults */
+	g_settings = Settings();
+	/* do we want to automatically detect language here? i don't think we should
+	 * since it wouldn't be useful incase a user has a system which is set in a
+	 * language he doesn't speak, think people buying japanese 3DS' because they're
+	 * cheaper when they don't actually speak japanese. */
+	save_settings();
+	g_loaded = true;
 }
 
 void ensure_settings()
@@ -400,10 +414,10 @@ static void update_settings_ID(SettingsId ID)
 		read_set_enum<lang::type>(
 			{ LANGNAME_ENGLISH, LANGNAME_DUTCH, LANGNAME_GERMAN, LANGNAME_SPANISH, LANGNAME_FRENCH,
 			  LANGNAME_FRENCH_CANADA, LANGNAME_ROMANIAN, LANGNAME_ITALIAN, LANGNAME_PORTUGUESE, LANGNAME_KOREAN,
-			  LANGNAME_GREEK },
+			  LANGNAME_GREEK, LANGNAME_POLISH, LANGNAME_HUNGARIAN },
 			{ lang::english, lang::dutch, lang::german, lang::spanish, lang::french,
 			  lang::french_canada, lang::romanian, lang::italian, lang::portuguese, lang::korean,
-			  lang::greek },
+			  lang::greek, lang::polish, lang::hungarian },
 			g_settings.language
 		);
 		break;
@@ -533,6 +547,25 @@ void show_settings()
 		})
 		.x(5.0f).y(25.0f)
 		.add_to(&list, queue);
+
+	auto reset_settings_local = [](u32) -> bool {
+		ui::RenderQueue::global()->render_and_then([]() -> void {
+			if(ui::Confirm::exec(STRING(sure_reset)))
+			{
+				reset_settings();
+				/* Perhaps this should be intergrated into reset_settings()?
+				 * only other place it's used is main() where nothing is loaded yet anyway */
+				ui::ThemeManager::global()->reget();
+				ui::RenderQueue::global()->find_tag<ui::FreeSpaceIndicator>(ui::tag::free_indicator)->update();
+			}
+		});
+		return true;
+	};
+
+	ui::builder<ui::ButtonCallback>(ui::Screen::top, KEY_R)
+		.connect(ui::ButtonCallback::kdown, reset_settings_local)
+		.connect(ui::ButtonCallback::kheld, reset_settings_local)
+		.add_to(queue);
 
 	queue.render_finite_button(KEY_B);
 	set_focus(focus);

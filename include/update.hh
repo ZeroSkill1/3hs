@@ -17,20 +17,6 @@
 #ifndef inc_update_hh
 #define inc_update_hh
 
-
-#define UP_BASE "http://download2.erista.me/3hs"
-#define UP_VERSION UP_BASE "/version"
-
-#ifdef DEVICE_ID
-# define UP_CIA_(v,id) (std::string(UP_BASE) + "/app-" + v + "-" + #id + ".cia")
-# define UP_CIA(v,id) UP_CIA_(v,id)
-# define DEVID DEVICE_ID
-#else
-# define UP_CIA_(v,id) (std::string(UP_BASE) + "/app-" + v + ".cia")
-# define UP_CIA(v,id) UP_CIA_(v,id)
-# define DEVID
-#endif
-
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 2
 #define VERSION_PATCH 0

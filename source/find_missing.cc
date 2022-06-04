@@ -20,6 +20,7 @@
 #include "queue.hh"
 #include "panic.hh"
 #include "ctr.hh"
+#include "log.hh"
 
 #include <ui/loading.hh>
 
@@ -46,17 +47,9 @@ ssize_t show_find_missing(hsapi::htid tid)
 		ctr::list_titles_on(MEDIATYPE_GAME_CARD, installed); // it might error if there is no cart inserted so we don't want to panic if it fails
 
 		std::vector<hsapi::htid> doCheckOn;
-		dlog("tid: %016llX", tid);
-		if(tid == 0)
-		{
-			dlog("%d c before reserve", doCheckOn.capacity());
-			doCheckOn.reserve(installed.size());
-			dlog("%d c after reserve", doCheckOn.capacity());
-			for(size_t i = 0; i < installed.size(); i++)
-				doCheckOn.push_back(installed[i]);
-		}
-		else
-			doCheckOn.push_back(tid);
+		dlog("TID = %016llX", tid);
+		if(tid == 0) doCheckOn = installed;
+		else doCheckOn.push_back(tid);
 
 		dlog("%d", doCheckOn.size());
 

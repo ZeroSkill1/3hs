@@ -43,15 +43,7 @@ bool update_app()
 	if(nver == VERSION)
 		return false;
 
-	bool update;
-	ui::RenderQueue queue;
-
-	ui::builder<ui::Confirm>(ui::Screen::bottom, PSTRING(update_to, nver), update)
-		.y(80.0f).add_to(queue);
-
-	queue.render_finite();
-
-	if(!update)
+	if(!ui::Confirm::exec(PSTRING(update_to, nver)))
 	{
 		ilog("User declined update");
 		return false;

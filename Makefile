@@ -216,10 +216,24 @@ else
 	REAL_ALL	:=	$(REAL_ALL) cia
 endif
 
+OFILES += hscert.o
+
 #---------------------------------------------------------------------------------
 all: $(REAL_ALL)
-_build_all:
+_build_all: build/hscert.c
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
+
+ifneq ($(wildcard hscert.der),)
+# If hscert.der exists we use that ...
+build/hscert.c: hscert.der
+	$(SILENTCMD) xxd -i hscert.der > build/hscert.c
+	$(SILENTMSG) generated ... hscert.c
+else
+# ... else we install a dummy
+build/hscert.c:
+	$(SILENTCMD) echo 'unsigned int hscert_der_len = 0; unsigned char hscert_der[] = { 0x00 };' > build/hscert.c
+	$(SILENTMSG) stubbed ... hscert.c
+endif
 
 $(BUILD)/romfs.bin: $(ROMFS_FILES)
 	$(SILENTCMD) 3dstool -ctf romfs $(BUILD)/romfs.bin --romfs-dir romfs

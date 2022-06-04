@@ -1,4 +1,10 @@
 
+v1.2.1 "cotidie morimur":
+ - Fix functionality of "find all missing"
+ - Add ability to reset settings by pressing R on startup or R in settings
+ - Add Hungarian translation
+ - Add Polish translation
+
 v1.2.0 "cotidie morimur":
  - Make text wrapping not use hyphens
  - Make long texts in lists scroll horizontally

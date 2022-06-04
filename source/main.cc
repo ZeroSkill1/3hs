@@ -135,6 +135,10 @@ int main(int argc, char* argv[])
 		exit(0);
 	}
 
+	hidScanInput();
+	if((hidKeysDown() | hidKeysHeld()) & KEY_R)
+		reset_settings();
+
 #ifdef RELEASE
 	// Check if luma is installed
 	// 1. Citra is used; not compatible

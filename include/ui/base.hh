@@ -42,11 +42,6 @@
 		const char *get_id() override { return name; } \
 	private:
 
-#define UI_REQUIRES_METHOD_VARIADIC(T, VarTs, method, Signature) \
-	template<typename ... VarTs, typename = std::enable_if<detail::has_##method<T, Signature>::value>>
-#define UI_REQUIRES_METHOD(T, method, Signature) \
-	template<typename = std::enable_if<detail::has_##method<T, Signature>::value>>
-
 #define UI_COLOR(r,g,b,a) \
 	0x##a##b##g##r
 

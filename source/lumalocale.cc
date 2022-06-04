@@ -189,20 +189,8 @@ void luma::maybe_set_gamepatching()
 	if(!enable_gamepatching())
 	{
 		ilog("enabled game patching");
-		ui::RenderQueue queue;
-		bool reboot;
-
-		ui::builder<ui::Text>(ui::Screen::top, STRING(patching_reboot))
-			.x(ui::layout::center_x)
-			.y(ui::layout::base)
-			.wrap()
-			.add_to(queue);
-
-		ui::builder<ui::Confirm>(ui::Screen::bottom, STRING(reboot_now), reboot)
-			.y(80.0f).add_to(queue);
-
-		queue.render_finite();
-		if(reboot) NS_RebootSystem();
+		if(ui::Confirm::exec(STRING(reboot_now), STRING(patching_reboot)))
+			NS_RebootSystem();
 	}
 }
 

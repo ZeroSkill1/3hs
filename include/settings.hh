@@ -20,7 +20,6 @@
 #include <3ds/types.h>
 #include "i18n.hh"
 
-#define SETTINGS_LOCATION "/3ds/3hs/settings"
 #define DICOLOR(light, dark) (get_settings()->isLightMode ? light : dark)
 
 // 24h is superior but we'll allow 12h
@@ -63,6 +62,7 @@ typedef struct Settings
 bool settings_are_ready();
 Settings *get_settings();
 void ensure_settings();
+void reset_settings();
 void save_settings();
 void show_settings();
 void log_settings();

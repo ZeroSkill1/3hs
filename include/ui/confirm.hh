@@ -35,6 +35,9 @@ namespace ui
 
 		void set_y(float y) override;
 
+		static bool exec(const std::string& label, const std::string& label_top = "",
+			bool default_val = false);
+
 
 	private:
 		ui::RenderQueue queue;

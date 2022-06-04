@@ -34,6 +34,8 @@
 #define LANGNAME_PORTUGUESE "Português"
 #define LANGNAME_KOREAN "한국어 (Korean)"
 #define LANGNAME_GREEK "Ελληνικά"
+#define LANGNAME_POLISH "Polski"
+#define LANGNAME_HUNGARIAN "Magyar"
 
 // ParamSTRING
 #define PSTRING(x, ...) i18n::interpolate(str::x, __VA_ARGS__)
@@ -175,6 +177,7 @@ namespace str
 		invalid_excludes = 128,
 		filter_overlap = 129,
 		lgy_search = 130,
+		sure_reset = 131,
 
 		_i_max,
 	};
@@ -197,6 +200,8 @@ namespace lang
 		portuguese    = 8,
 		korean        = 9,
 		greek         = 10,
+		polish        = 11,
+		hungarian     = 12,
 
 		_i_max,
 	};

@@ -16,6 +16,13 @@
 
 #include <ui/base.hh> /* for UI_GLYPH_* */
 
+#ifndef HS_SITE_LOC
+	/* do not translate this */
+	#define PAGE_3HS "(unset)"
+#else
+	#define PAGE_3HS HS_SITE_LOC "/3hs/"
+#endif
+
 #include "settings.hh"
 #include "panic.hh"
 #include "i18n.hh"
@@ -44,7 +51,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::credits_thanks] =
 				"Thank you for using 3hs, a 3ds client for hShop.\n"
 				"You can get this software for free at\n"
-				"https://hshop.erista.me/",
+				PAGE_3HS,
 			[str::credits_names] = "", /* unused */
 			[str::press_to_install] =
 				"Press " UI_GLYPH_A " to install this content.\n"
@@ -174,6 +181,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::invalid_excludes] = "Invalid exclude filters",
 			[str::filter_overlap] = "Detected an overlap in the specified search filters",
 			[str::lgy_search] = "Legacy Search",
+			[str::sure_reset] = "Are you sure you want to reset configuration?",
 		},
 
 	[lang::dutch] =
@@ -189,7 +197,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::credits_thanks] =
 				"Bedankt voor het gebruiken van 3hs, een 3DS hShop applicatie\n"
 				"Je kan deze software gratis verkrijgen op\n"
-				"https://hshop.erista.me/",
+				PAGE_3HS,
 			[str::credits_names] = "",
 			[str::press_to_install] =
 				"Klik op " UI_GLYPH_A " als je deze titel wilt installeren.\n"
@@ -319,6 +327,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::invalid_excludes] = "Ongelidge exclusie filters",
 			[str::filter_overlap] = "Er is een overlap tussen de filters",
 			[str::lgy_search] = "Classieke zoekmethode",
+			[str::sure_reset] = "Weet je zeker dat je je instellingen wilt terugzetten?",
 		},
 
 	[lang::german] =
@@ -333,7 +342,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::fail_fetch_index] = "Index konnte nicht heruntergeladen werden\n%1",
 			[str::credits_thanks] =
 				"Danke, dass du 3hs nutzt. 3hs ist ein 3DS-Client für hShop.\n"
-				"Du kannst diese Software auf\nhttps://hshop.erista.me/ kostenlos herunterladen.\n",
+				"Du kannst diese Software auf\n" PAGE_3HS " kostenlos herunterladen.\n",
 			[str::credits_names] = "",
 			[str::press_to_install] =
 				"Drücke " UI_GLYPH_A " falls du diesen Inhalt zu installieren möchtest.\n"
@@ -463,6 +472,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::invalid_excludes] = "Ungültige Ausschließungsfilter",
 			[str::filter_overlap] = "Erkannte überschneidende Suchfilter",
 			[str::lgy_search] = "Klassische Suche",
+			STUB(sure_reset),
 		},
 
 	[lang::spanish] =
@@ -478,7 +488,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::credits_thanks] =
 				"Gracias por usar 3hs, un cliente de 3DS para hShop.\n"
 				"Puedes conseguir este software gratuitamente en\n"
-				"https://hshop.erista.me/",
+				PAGE_3HS,
 			[str::credits_names] = "", /* unused */
 			[str::press_to_install] =
 				"Presiona " UI_GLYPH_A " para instalar este contenido.\n"
@@ -608,6 +618,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::invalid_excludes] = "Filtros de exclusión inválidos",
 			[str::filter_overlap] = "Se detectó una superposición en los filtros de búsqueda especificados",
 			[str::lgy_search] = "Búsqueda Clásica",
+			STUB(sure_reset),
 		},
 
 	[lang::french] =
@@ -623,7 +634,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::credits_thanks] =
 				"Merci d'utiliser 3hs, un client 3DS pour hShop.\n"
 				"Vous pouvez avoir ce logiciel gratuitement sur\n"
-				"https://hshop.erista.me/",
+				PAGE_3HS,
 			[str::credits_names] = "",
 			[str::press_to_install] =
 				"Appuyez sur " UI_GLYPH_A " pour installer.\n"
@@ -666,7 +677,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::netcon_lost] = "La connexion internet a été perdue (%1).\nNouvelle tentative dans $t seconds...",
 			[str::about_app] = "A propos",
 			[str::help_manual] = "Aide/Manuel",
-			[str::find_missing_content] = "Trouver le contenu perdu",
+			[str::find_missing_content] = "Trouver le contenu manquant",
 			[str::press_a_exit] = "Appuyez sur " UI_GLYPH_A " pour quitter.",
 			[str::fatal_panic] = "Une erreur fatale est survenue.",
 			[str::failed_open_seeddb] = "Impossible d'ouvrir le seeddb.bin.",
@@ -753,6 +764,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::invalid_excludes] = "Filtres exclus invalide",
 			[str::filter_overlap] = "Chevauchement détecté dans les filtres de recherche spécifié",
 			[str::lgy_search] = "Recherche simple",
+			STUB(sure_reset),
 		},
 
 	[lang::french_canada] =
@@ -768,7 +780,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::credits_thanks] =
 				"Merci d'avoir utilisé 3hs.\n"
 				"Vous pouvez télécharger cette appli sur\n"
-				"https://hshop.erista.me/",
+				PAGE_3HS,
 			[str::credits_names] = "",
 			[str::press_to_install] =
 				"Appuie " UI_GLYPH_A " pour installer.\n"
@@ -898,6 +910,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::invalid_excludes] = "Filtres d'exclusion invalides",
 			[str::filter_overlap] = "Chevauchement détecté dans les filtres de recherche spécifiés",
 			[str::lgy_search] = "Recherche héritée",
+			STUB(sure_reset),
 		},
 
 	[lang::romanian] =
@@ -911,9 +924,9 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::fail_init_networking] = "Nu s-au putut inițializa serviciile de rețea",
 			[str::fail_fetch_index] = "Nu s-a putut obține indexul\n%1",
 			[str::credits_thanks] =
-				"Mulțumim pentru că ați folosit 3hs, un client 3DS pentru hShop.\n"
+				"Mulțumim că folosiți 3hs, un client 3DS pentru hShop.\n"
 				"Puteți obține această aplicație pe gratis la\n"
-				"https://hshop.erista.me/",
+				PAGE_3HS,
 			[str::credits_names] = "",
 			[str::press_to_install] =
 				"Apăsați " UI_GLYPH_A " pentru a instala acest conținut.\n"
@@ -1036,13 +1049,14 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::theme_installer_tid_bad] = "vă rugăm să navigați categoria Teme manual pentru a găsi teme",
 			[str::enter_lgy_query] = "Introduceți termeni pentru căutarea clasică", /* context: this is displayed in transparent letters on the keyboard */
 			[str::no_other_params_tid] = "Nu se poate specifica nici un alt parametru când specificați un ID de titlu",
-			[str::both_sd_and_sb] = "Trebuie să specificați o metodă de sortare și o direcție de sortare când sortați rezultatele căutării",
+			[str::both_sd_and_sb] = "Trebuie să specificați o metodă de sortare şi o direcție de sortare când sortați rezultatele căutării",
 			[str::invalid_sb] = "Metodă de sortare invalidă",
 			[str::invalid_sd] = "Direcție de sortare invalidă",
 			[str::invalid_includes] = "Filtre de includere invalide",
 			[str::invalid_excludes] = "Filtre de excludere invalide",
 			[str::filter_overlap] = "A fost găsită o suprapunere a filtrelor de căutare",
 			[str::lgy_search] = "Căutare Clasică",
+			STUB(sure_reset),
 		},
 
 	[lang::italian] =
@@ -1058,7 +1072,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::credits_thanks] =
 				"Grazie per aver scelto 3hs, app hShop per 3DS.\n"
 				"Puoi prendere gratis questo software a\n"
-				"https://hshop.erista.me/",
+				PAGE_3HS,
 			[str::credits_names] = "", /* unused */
 			[str::press_to_install] =
 				"Premi " UI_GLYPH_A " per installare questo contenuto.\n"
@@ -1188,6 +1202,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::invalid_excludes] = "Filtri di esclusione non validi",
 			[str::filter_overlap] = "Rilevata una contraddizione nei filtri di ricerca specificati",
 			[str::lgy_search] = "Ricerca classica",
+			STUB(sure_reset),
 		},
 
 	[lang::portuguese] =
@@ -1203,7 +1218,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::credits_thanks] =
 				"Obrigado por usares a 3hs, um cliente de 3DS para a hShop.\n"
 				"Podes ter este programa de graça pelo\n"
-				"https://hshop.erista.me/",
+				PAGE_3HS,
 			[str::credits_names] = "", /* unused */
 			[str::press_to_install] =
 				"Pressiona " UI_GLYPH_A " para instalar este conteúdo.\n"
@@ -1333,6 +1348,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::invalid_excludes] = "Filtros de exclusão inválidos",
 			[str::filter_overlap] = "Detetada uma sobreposição nos filtros de pesquisa utilizados",
 			[str::lgy_search] = "Pesquisa Clássica",
+			STUB(sure_reset),
 		},
 
 	[lang::korean] =
@@ -1348,7 +1364,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::fail_fetch_index] = "Failed to fetch index\n%1", /* unused */
 			[str::credits_thanks] =
 				"hShop 클라이언트 3hs를 사용해주셔서 감사합니다.\n"
-				"https://hshop.erista.me/\n"
+				PAGE_3HS "\n"
 				"에서 이 소프트웨어를 무료로 다운로드하실수 있습니다.",
 			[str::credits_names] = "", /* unused */
 			[str::press_to_install] =
@@ -1479,6 +1495,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::invalid_excludes] = "사용할 수 없는 필터",
 			[str::filter_overlap] = "추가/제외 검색 필터가 겹침",
 			[str::lgy_search] = "구형 검색창",
+			STUB(sure_reset),
 		},
 
 	[lang::greek] =
@@ -1494,7 +1511,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::credits_thanks] =
 				"Ευχαριστούμε που χρησιμοποιήσατε το 3hs, ενα client του hShop για το 3DS.\n"
 				"Μπορείτε να κατεβάσετε αυτο το λογισμικό δωρεάν στο\n"
-				"https://hshop.erista.me/",
+				PAGE_3HS,
 			[str::credits_names] = "",
 			[str::press_to_install] =
 				"Πατήστε το " UI_GLYPH_A " για να εγκαταστήσετε το περιεχόμενο.\n"
@@ -1624,6 +1641,301 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::invalid_excludes] = "Μη έγκυρα φίλτρα αποκλεισμού",
 			[str::filter_overlap] = "Εντοπίστηκε επικάλυψη στα καθορισμένα φίλτρα αναζήτησης",
 			[str::lgy_search] = "Αναζήτηση παλαιού τύπου",
+			STUB(sure_reset),
+		},
+
+	[lang::polish] =
+		{
+			//Translation by TheCreeperGuy#6743
+			//Tłumaczenie przez TheCreeperGuy#6743
+			[str::banner]  = "Najlepszy 3DS archiwum aplikacji", /* unused */
+			[str::loading] = "Ładowanie...",
+			[str::luma_not_installed] = "Wykryto nieobsługiwane oprogramowanie.",
+			[str::install_luma] = "3hs nie może być używane w tym systemie.",
+			[str::queue] = "Kolejka",
+			[str::connect_wifi] = "Połącz się z Wi-Fi i uruchom ponownie aplikację.", /* unused */
+			[str::fail_init_networking] = "Nie udało się zainicjować sieci",
+			[str::fail_fetch_index] = "Nie udało się pobrać indeksu\n%1", /* unused */
+			[str::credits_thanks] =
+				"Dziękujemy za skorzystanie z 3hs, klienta 3ds dla hShop.\n"
+				"Możesz pobrać to oprogramowanie za darmo pod adresem\n"
+				PAGE_3HS,
+			[str::credits_names] = "", /* unused */
+			[str::press_to_install] =
+				"Naciskać " UI_GLYPH_A " aby zainstalować tę zawartość.\n"
+				"Naciskać " UI_GLYPH_B " aby wrócić.",
+			[str::version] = "Wersja",
+			[str::prodcode] = "Kod produktu",
+			[str::size] = "Rozmiar pliku",
+			[str::name] = "Nazwa",
+			[str::tid] = "Identyfikator tytułu",
+			[str::category] = "Kategoria",
+			[str::landing_id] = "Identyfikator w hShop",
+			[str::description] = "Opis",
+			[str::total_titles] = "Wszystkie tytuły",
+			[str::select_cat] = "Wybierz kategorię",
+			[str::select_subcat] = "Wybierz podkategorię",
+			[str::select_title] = "Wybierz tytuł",
+			[str::no_cats_index] = "brak kategorii w indeksie (?)", /* unused */
+			[str::empty_subcat] = "Pusta podkategoria (?)", /* unused */
+			[str::empty_cat] = "Pusta kategoria (?)", /* unused */
+			[str::fmt_24h] = "zegar 24-godzinny", /* context: time format */
+			[str::fmt_12h] = "zegar 12-godzinny", /* context: time format */
+			[str::unknown] = "nieznany", /* context: unknown setting */
+			[str::btrue] = "prawda", /* unused, context: setting is set to ON */
+			[str::bfalse] = "fałszywy", /* unused, context: setting is set to OFF */
+			[str::top] = "górny", /* context: top screen in progress bar location settings switcher */
+			[str::bottom] = "dolny", /* context: bottom screen in progress bar location settings switcher */
+			[str::light_mode] = "Tryb jasny",
+			[str::resume_dl] = "Wznów pobieranie",
+			[str::load_space] = "Pokaż wskaźnik wolnego miejsca",
+			[str::show_battery] = "Pokaż wskaźnik poziomu baterii",
+			[str::time_format] = "Format czasu",
+			[str::progbar_screen] = "Pozycja paska progresu",
+			[str::language] = "Język",
+			[str::value_x] = "Wartość: %1", /* context: value of setting */
+			[str::back] = "powrótk", /* context: back button */
+			[str::invalid] = "nieprawidłowe",
+			[str::title_doesnt_exist] = "Tytuł nie istnieje: %1", /* %1: title id */
+			[str::fail_create_tex] = "Nie udało się utworzyć tekstu", /* unused */
+			[str::fail_load_smdh_icon] = "załaduj_smdh_icon(): nieprawidłowe SMDH ikon", /* unused */
+			[str::netcon_lost] = "Utracono połączenie sieciowe (%1).\nPonowna próba za $t sekund...", /* %1: error code, $t: seconds remaining */
+			[str::about_app] = "Dokumentacja",
+			[str::help_manual] = "Pomoc/Podręcznik",
+			[str::find_missing_content] = "Znajdź brakujące pliki",
+			[str::press_a_exit] = "Naciśnij " UI_GLYPH_A " aby wyjść.", /* context: exit menu and sometimes application */
+			[str::fatal_panic] = "Wystąpił błąd krytyczny.", /* context: can also be translated as fatal error */
+			[str::failed_open_seeddb] = "Nie udało się otworzyć seeddb.bin.",
+			[str::update_to] = "Czy chcesz zaktualizować do wersji %1?", /* %1: new version, i.e. 1.0.2 */
+			[str::search_content] = "Szukaj rzeczyt",
+			[str::search_content_action] = "Szukaj rzeczyt...",
+			[str::results_query] = "Wyniki dla zapytania \"%1\"", /* unused, %1: search query */
+			[str::result_code] = "Kod wyniku: %1", /* %1: result code */
+			[str::level] = "Poziom: %1", /* %1: english level name (level code), context: used when displaying errors */
+			[str::summary] = "Streszczenie: %1", /* %1 english summary name (summary code), context: used when displaying errors */
+			[str::module] = "Moduł: %1", /* %1 english module name (module code), context: used when displaying errors */
+			[str::hs_bunny_found] = "Gratulacje! Znalazłeś królika w hShop!", /* context: easter egg, see also: gfx/img/bun.png */
+			[str::already_installed_reinstall] = "Tytuł już zainstalowany. Zainstalować ponownie?",
+			[str::queue_empty] =
+				"Kolejka jest pusta\n"
+				"Naciskać " UI_GLYPH_A " aby wrócić.\n"
+				"Wskazówka: Naciskać " UI_GLYPH_Y " aby dodać tytuł do kolejki.",
+			[str::cancel] = "Anuluj",
+			[str::confirm] = "Potwierdzać",
+			[str::invalid_proxy] = "Nieprawidłowe ustawienia proxy",
+			[str::more_about_content] = "Więcej o tej treści",
+			[str::lumalocalemode] = "Tryb LumaLocale",
+			[str::automatic] = "automatyczny",
+			[str::manual] = "podręcznik",
+			[str::disabled] = "wyłączone",
+			[str::patching_reboot] =
+				"Poprawka gier Luma3DS jest teraz włączone.\n"
+				"Aby zmiana zaczęła obowiązywać, należy ponownie uruchomić system.",
+			[str::reboot_now] = "Restart now?",
+			[str::this_version] = "To jest wersja 3hs %1", /* %1 = version int "version desc" */
+			[str::retry_req] = "Żądanie nie powiodło się. Spróbować ponownie?", /* context: API request */
+			[str::search_zero_results] = "Twoje wyszukiwanie nie przyniosło żadnych rezultatów\nPress " UI_GLYPH_A " to go back.",
+			[str::credits] = "Kredyty",
+			[str::extra_content] = "Dodać dodatkowe rzeczy do kolejki?", /* context: i.e. DLC/Updates */
+			[str::check_extra] = "Szukaj dodatkowych rzeczy", /* context: i.e. DLC/Updates */
+			[str::no_req] = "Nie złożono jeszcze próśb", /* context: hlink requests */
+			[str::invalid_query] = "Nieprawidłowe zapytanie\nNaciśnij " UI_GLYPH_A " aby wrócić.",
+			[str::min_constraint] = "Ta wersja 3hs %1 jest niższa niż wymagana wersja %2",
+			[str::proxy] = "Proxy",
+			[str::none] = "(Nic)", /* context: used for no proxy set */
+			[str::press_a_to_view] = "Naciśnij " UI_GLYPH_A " wyświetlić", /* context: view proxy settings */
+			[str::host] = "Gospodarz", /* context: proxy */
+			[str::port] = "Port", /* context: proxy */
+			[str::username] = "Nazwa użytkownika", /* context: proxy */
+			[str::password] = "Hasło", /* context: proxy */
+			[str::clear] = "Oczyść", /* context: clear the contents of a field */
+			[str::progbar_screen_desc] = "Wybierz pozycję paska progresu.",
+			[str::light_mode_desc] = "Włącz / wyłącz tryb jasny. Zmieni to wygląd większości elementów interfejsu użytkownika.",
+			[str::resume_dl_desc] = "Wznów pobieranie po przerwie w sieci.",
+			[str::load_space_desc] = "Zmień widok wskaźnika wolnego miejsca.",
+			[str::show_battery_desc] = "Zmień widok wskaźnika poziomu naładowania baterii.",
+			[str::time_format_desc] = "Wybierz format czasu.",
+			[str::language_desc] = "Ustaw język na 3h. Aby wybrany język zaczął obowiązywać, aplikacja musi zostać ponownie uruchomiona.",
+			[str::lumalocalemode_desc] = "Ustaw tryb autosettera LumaLocale. Automatycznie wybiera język automatycznie. Jeśli jest to ustawione na ręczne, 3hs poprosi o region po zainstalowaniu zawartości.",
+			[str::check_extra_desc] = "Wyszukaj dodatkowe pliki po instalacji.",
+			[str::proxy_desc] = "Skonfiguruj serwer proxy na 3hs. To ustawienie jest przeznaczone dla zaawansowanych użytkowników.",
+			[str::install_all] = "Zainstaluj wszystko", /* context: install all items in queue */
+			[str::install_no_base] = "Podstawowa gra nie jest zainstalowana. Kontynuować mimo wszystko?",
+			[str::warn_no_base] = "Ostrzegaj, jeśli gra podstawowa nie jest zainstalowana",
+			[str::warn_no_base_desc] = "Wyświetla komunikat przed zainstalowaniem aktualizacji lub zawartości DLC, jeśli gra podstawowa nie jest zainstalowana.",
+			[str::replaying_errors] = "Powtarzanie błędów napotkanych podczas przetwarzania kolejki.",
+			[str::log] = "dzienniki", /* context: may also be translated as "manage logs" */
+			[str::upload_logs] = "Prześlij dzienniki",
+			[str::clear_logs] = "Wyczyść dzienniki",
+			[str::found_missing] = "Znaleziono %1 brakujących tytułów\nSprawdź kolejkę, aby je zainstalować.", // %1 = amount of titles found
+			[str::found_0_missing] = "Nie znaleziono brakujących tytułów.",
+			[str::max_elogs] = "Maksymalna liczba starych plików dziennika",
+			[str::max_elogs_desc] = "Ustaw liczbę plików dziennika do przechowywania. Możliwe wartości to od 0 do 255, gdzie 0 nie przechowuje żadnych dodatkowych plików dziennika.",
+			[str::elogs_hint] = "Wartość od 0 do 255",
+			[str::log_id] = "Użyj tego identyfikatora, aby uzyskać pomoc:\n%1", /* %1 = id */
+			[str::block] = "Blok", /* context: nintendo blocks, use official nintendo translation if available */
+			[str::blocks] = "Bloki", /* context: see above, just in plural this time */
+			[str::search_text] = "Szukaj według tekstu",
+			[str::search_id] = "Szukaj według identyfikatora hShop",
+			[str::search_tid] = "Szukaj według identyfikatora tytułu",
+			[str::invalid_tid] = "Nieprawidłowy identyfikator tytułu",
+			[str::theme_installer_tid_bad] = "Proszę ręcznie przeglądać kategorię Motywy, aby wyszukać motywy",
+			[str::enter_lgy_query] = "Wpisz starsze zapytanie", /* context: this is displayed in transparent letters on the keyboard */
+			[str::no_other_params_tid] = "Nie można określić żadnych innych parametrów podczas określania identyfikatora tytułu",
+			[str::both_sd_and_sb] = "Podczas sortowania wyników wyszukiwania musisz określić metodę sortowania i kierunek sortowania",
+			[str::invalid_sb] = "Nieprawidłowa metoda sortowania",
+			[str::invalid_sd] = "Nieprawidłowy kierunek sortowania", /* context: ascending/descending */
+			[str::invalid_includes] = "Nieprawidłowe filtry uwzględniania",
+			[str::invalid_excludes] = "Nieprawidłowe filtry wykluczania",
+			[str::filter_overlap] = "Wykryto nakładanie się określonych filtrów wyszukiwania",
+			[str::lgy_search] = "Wyszukiwanie starsze",
+			STUB(sure_reset),
+		},
+
+	[lang::hungarian] =
+		{
+			[str::banner]  = "A 3DS tartalommegőrzési szolgáltatás", /* unused */
+			[str::loading] = "Betöltés...",
+			[str::luma_not_installed] = "Nem támogatott firmware észlelve.",
+			[str::install_luma] = "Ezen a rendszeren a 3hs nem használható.",
+			[str::queue] = "Várólista",
+			[str::connect_wifi] = "Kapcsolódj egy Wi-Fi hálózathoz és indítsd újra az alkalmazást.", /* unused */
+			[str::fail_init_networking] = "Az internethez kapcsolódás sikertelen volt",
+			[str::fail_fetch_index] = "Az alábbi indexhez való hozzáférés sikertelen volt\n%1", /* unused */
+			[str::credits_thanks] =
+				"Köszönjük hogy 3hs-t, a 3DS hShop klienset választottad.\n"
+				"Ez a szoftver ingyenesen elérhető az alábbi címen:\n"
+				PAGE_3HS,
+			[str::credits_names] = "", /* unused */
+			[str::press_to_install] =
+				"Telepítéshez nyomd meg az " UI_GLYPH_A " gombot.\n"
+				"Visszalépéshez nyomd meg a " UI_GLYPH_B " gombot.",
+			[str::version] = "Verzió",
+			[str::prodcode] = "Termék Kód",
+			[str::size] = "Méret",
+			[str::name] = "Név",
+			[str::tid] = "Letöltési ID", /* Hungarian context: for simplicity and lack of a better word, the term Download was used here. This can be used for actual files, not just the process of downloading */
+			[str::category] = "Kategória",
+			[str::landing_id] = "hShop ID",
+			[str::description] = "Leírás",
+			[str::total_titles] = "Kapcsolódó Letöltések", /* Hungarian context: slightly different word for total was used here, to fit the context better */
+			[str::select_cat] = "Válassz egy kategóriát",
+			[str::select_subcat] = "Válassz egy alkategóriát",
+			[str::select_title] = "Válassz egy letöltést",
+			[str::no_cats_index] = "Nincs kategória az indexben (?)", /* unused */
+			[str::empty_subcat] = "Üres alkategória (?)", /* unused */
+			[str::empty_cat] = "Üres kategória (?)", /* unused */
+			[str::fmt_24h] = "24 órás", /* context: time format */
+			[str::fmt_12h] = "12 órás", /* context: time format */
+			[str::unknown] = "ismeretlen", /* context: unknown setting */
+			[str::btrue] = "igaz", /* unused, context: setting is set to ON */
+			[str::bfalse] = "hamis", /* unused, context: setting is set to OFF */
+			[str::top] = "Felső kijelző", /* context: top screen in progress bar location settings switcher */
+			[str::bottom] = "Alsó kijelző", /* context: bottom screen in progress bar location settings switcher */
+			[str::light_mode] = "Világos mód",
+			[str::resume_dl] = "Letöltések folytatása",
+			[str::load_space] = "Szabad tárhely kijelzése",
+			[str::show_battery] = "Akkumulátor szint kijelzése",
+			[str::time_format] = "Idő formátum",
+			[str::progbar_screen] = "Folyamatjelző sáv pozíciója",
+			[str::language] = "Nyelv",
+			[str::value_x] = "Érték: %1", /* context: value of setting */
+			[str::back] = "Vissza", /* context: back button */
+			[str::invalid] = "érvénytelen",
+			[str::title_doesnt_exist] = "Az alábbi letöltés nem létezik: %1", /* %1: title id */
+			[str::fail_create_tex] = "Failed to create tex", /* unused */
+			[str::fail_load_smdh_icon] = "load_smdh_icon(): invalid SMDHIconType", /* unused */
+			[str::netcon_lost] = "Megszakadt az internet kapcsolat (%1).\nÚjrakapcsolódás $t másodpercen belül...", /* %1: error code, $t: seconds remaining */
+			[str::about_app] = "A szoftverről",
+			[str::help_manual] = "Segítség/Kézikönyv",
+			[str::find_missing_content] = "Kapcsolódó letöltések megkeresése",
+			[str::press_a_exit] = "Kilépéshez nyomd meg az " UI_GLYPH_A " gombot.", /* context: exit menu and sometimes application */
+			[str::fatal_panic] = "Egy komoly hiba történt.", /* context: can also be translated as fatal error */
+			[str::failed_open_seeddb] = "Nem sikerült a seeddb.bin fájlt megnyitni.",
+			[str::update_to] = "Frissíteni akarsz a(z) %1 verzióra?", /* %1: new version, i.e. 1.0.2 */
+			[str::search_content] = "Letöltések keresése",
+			[str::search_content_action] = "Letöltések keresése...",
+			[str::results_query] = "Results for query \"%1\"", /* unused, %1: search query */
+			[str::result_code] = "Eredmény kód: %1", /* %1: result code */
+			[str::level] = "Level: %1", /* %1: english level name (level code), context: used when displaying errors */
+			[str::summary] = "Summary: %1", /* %1 english summary name (summary code), context: used when displaying errors */
+			[str::module] = "Module: %1", /* %1 english module name (module code), context: used when displaying errors */
+			[str::hs_bunny_found] = "Gratulálunk! Megtaláltad a hShop nyuszit!", /* context: easter egg, see also: gfx/img/bun.png */
+			[str::already_installed_reinstall] = "Az alábbi letöltés már fel van telepítve. Újra akarod telepíteni?",
+			[str::queue_empty] =
+				"Üres a várólista\n"
+				"Visszalépéshez nyomd meg az " UI_GLYPH_A " gombot.\n"
+				"Tipp: Letöltések várólistára helyezéséhez nyomd meg az " UI_GLYPH_Y " gombot.",
+			[str::cancel] = "Mégse",
+			[str::confirm] = "Tovább",
+			[str::invalid_proxy] = "Helytelen proxy beállítások",
+			[str::more_about_content] = "További információk",
+			[str::lumalocalemode] = "LumaLocale mód",
+			[str::automatic] = "automatikus",
+			[str::manual] = "manuális",
+			[str::disabled] = "kikapcsol",
+			[str::patching_reboot] =
+				"A Luma3DS Game Patching be lett kapcsolva.\n"
+				"A változtatások véglegesítéséhez a rendszer újraindítása szükséges.",
+			[str::reboot_now] = "Újraindítod most?",
+			[str::this_version] = "A 3hs aktuális verziója %1", /* %1 = version int "version desc" */
+			[str::retry_req] = "A kérelem hibába ütközött. Újra próbálod?", /* context: API request */
+			[str::search_zero_results] = "A keresés nem hozott semmi eredményt.\nVisszalépéshez nyomd meg az " UI_GLYPH_A " gombot.",
+			[str::credits] = "Készítők", /* Hungarian context: for lack of a better word I used "Creators" */
+			[str::extra_content] = "Hozzáadod a kapcsolódó letöltéseket a várólistához?", /* context: i.e. DLC/Updates */
+			[str::check_extra] = "Kapcsolódó letöltések keresése", /* context: i.e. DLC/Updates */
+			[str::no_req] = "Ehhez még nem lett kérelem beadva", /* context: hlink requests */
+			[str::invalid_query] = "Helytelen folyamat\nVisszalépéshez nyomd meg az " UI_GLYPH_A " gombot.", 
+			[str::min_constraint] = "A 3hs aktuális %1 verziója korábbi, mint a szükséges %2 verzió",
+			[str::proxy] = "Proxy",
+			[str::none] = "(nincs)", /* context: used for no proxy set */
+			[str::press_a_to_view] = "Megnyitáshoz nyomd meg az " UI_GLYPH_A " gombot.", /* context: view proxy settings */
+			[str::host] = "Cím", /* context: proxy */
+			[str::port] = "Port", /* context: proxy */
+			[str::username] = "Felhasználónév", /* context: proxy */
+			[str::password] = "Jelszó", /* context: proxy */
+			[str::clear] = "Törlés", /* context: clear the contents of a field */
+			[str::progbar_screen_desc] = "Folyamatjelző sáv pozíciójának kiválasztása.",
+			[str::light_mode_desc] = "Világos mód ki/be kapcsolása. Ez a szoftver kinézetét változtatja meg.",
+			[str::resume_dl_desc] = "Hálózati hiba után a letöltések automatikus folytatása.",
+			[str::load_space_desc] = "Szabad tárhely kijelzésének ki/be kapcsolása.",
+			[str::show_battery_desc] = "Akkumulátor szint kijelzésének ki/be kapcsolása.",
+			[str::time_format_desc] = "Idő formátum beállítása.",
+			[str::language_desc] = "3hs nyelvének beállítása. A nyelv véglegesítéséhez az alkalmazás újraindítása szükséges.",
+			[str::lumalocalemode_desc] = "LumaLocale módjának beállítása. Automatikus mód magától fog nyelvet választani. Ha manuálisra van állítva, 3hs a letöltések telepítését követően a régió kiválasztását fogja kérni.",
+			[str::check_extra_desc] = "Kapcsolódó letöltések megkeresése a telepítés után.",
+			[str::proxy_desc] = "Proxy szerver beállítása a 3hs-hez. Ez az opció tapasztaltabb felhasználóknak ajánlott.",
+			[str::install_all] = "Összes telepítése", /* context: install all items in queue */
+			[str::install_no_base] = "A kapcsolódó játék nincs feltelepítve. Folytatod nélküle?",
+			[str::warn_no_base] = "Értesítsen, ha a kapcsolódó játék nincs feltelepítve",
+			[str::warn_no_base_desc] = "Frissítés vagy DLC telepítése előtt értesít, ha a kapcsolódó játék nincs feltelepítve.",
+			[str::replaying_errors] = "Várólista feldolgozása alatt előfordult hibaüzenetek újramutatása.",
+			[str::log] = "Naplófájlok", /* context: may also be translated as "manage logs" */
+			[str::upload_logs] = "Naplófájlok feltöltése",
+			[str::clear_logs] = "Naplófájlok kiürítése",
+			[str::found_missing] = "%1 hiányzó letöltés található.\nEzek a várólistán belül feltelepíthetőek.", // %1 = amount of titles found
+			[str::found_0_missing] = "Nem találhatóak hiányzó letöltések.",
+			[str::max_elogs] = "Tárolt naplófájlok száma",
+			[str::max_elogs_desc] = "Add meg a tárolni kívánt naplófájlok számát. Az érték 1 és 255 között választható, valamint 0 nem fog fájlokat tárolni.", /* Hungarian context: I changed the way the value range is explained here, for a more natural explanation  */
+			[str::elogs_hint] = "Egy érték 0 és 255 között",
+			[str::log_id] = "Az alábbi ID számra hivatkozva tudsz segítséget kérni:\n%1", /* %1 = id */
+			[str::block] = "blokk", /* context: nintendo blocks, use official nintendo translation if available */
+			[str::blocks] = "blokk", /* Hungarian context: Plural form is mostly irrelevant here, if it follows a number */
+			[str::search_text] = "Keresés szöveg alapján",
+			[str::search_id] = "Keresés hShop ID alapján",
+			[str::search_tid] = "Keresés Letöltési ID alapján",
+			[str::invalid_tid] = "Helytelen Letöltési ID",
+			[str::theme_installer_tid_bad] = "Kinézetekhez a Themes kategória manuális keresése szükséges",
+			[str::enter_lgy_query] = "Régimódú keresés paramétereinek megadása", /* context: this is displayed in transparent letters on the keyboard */
+			[str::no_other_params_tid] = "Több paraméter nem adható meg a Letöltési ID-n kívül.",
+			[str::both_sd_and_sb] = "Az eredmények sorbarendezéséhez egy mód és irány megadása szükséges",
+			[str::invalid_sb] = "Helytelen rendezési mód",
+			[str::invalid_sd] = "Helytelen rendezési irány", /* context: ascending/descending */
+			[str::invalid_includes] = "Helytelen tartalmazási szűrők",
+			[str::invalid_excludes] = "Helytelen kizárási szűrők",
+			[str::filter_overlap] = "Átfedés található a megadott keresési szűrők között",
+			[str::lgy_search] = "Régimódú Keresés",
+			STUB(sure_reset),
 		},
 };
 #pragma GCC diagnostic pop
@@ -1660,6 +1972,8 @@ const char *i18n::langname(lang::type id)
 	case lang::portuguese: return LANGNAME_PORTUGUESE;
 	case lang::korean: return LANGNAME_KOREAN;
 	case lang::greek: return LANGNAME_GREEK;
+	case lang::polish: return LANGNAME_POLISH;
+	case lang::hungarian: return LANGNAME_HUNGARIAN;
 	}
 
 	return "invalid";
@@ -1672,6 +1986,8 @@ namespace CountryCode
 	enum _codes {
 		canada  = 18,
 		greece  = 79,
+		hungary = 80,
+		poland  = 97,
 		romania = 99,
 	};
 }
@@ -1688,7 +2004,9 @@ lang::type i18n::default_lang()
 
 	switch(countryinfo[3])
 	{
+	case CountryCode::hungary: return lang::hungarian;
 	case CountryCode::romania: return lang::romanian;
+	case CountryCode::poland: return lang::polish;
 	case CountryCode::greece: return lang::greek;
 	}
 

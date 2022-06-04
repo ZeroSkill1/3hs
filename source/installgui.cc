@@ -38,17 +38,8 @@ static void make_queue(ui::RenderQueue& queue, ui::ProgressBar **bar)
 
 static bool ask_reinstall(bool interactive)
 {
-	if(!interactive) return false;
-
-	ui::RenderQueue queue;
-
-	bool ret = false;
-	ui::builder<ui::Confirm>(ui::Screen::bottom, STRING(already_installed_reinstall), ret)
-		.y(ui::layout::center_y)
-		.add_to(queue);
-
-	queue.render_finite();
-	return ret;
+	return interactive ?
+		false : ui::Confirm::exec(STRING(already_installed_reinstall));
 }
 
 static void finalize_install(u64 tid, bool interactive)
@@ -78,15 +69,7 @@ static bool maybe_warn_already_installed(u64 tid, bool interactive)
 
 	/* we need to warn the user and ask if he wants to continue now */
 
-	bool ret = false;
-
-	ui::RenderQueue queue;
-	ui::builder<ui::Confirm>(ui::Screen::bottom, STRING(install_no_base), ret)
-		.y(ui::layout::center_y)
-		.add_to(queue);
-	queue.render_finite();
-
-	return ret;
+	return ui::Confirm::exec(STRING(install_no_base));
 }
 
 Result install::gui::net_cia(const std::string& url, u64 tid, bool interactive, bool defaultReinstallable)

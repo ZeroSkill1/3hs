@@ -91,3 +91,23 @@ float ui::Confirm::width()
 	return (this->queue.back()->width() * 2) + 6.0f;
 }
 
+bool ui::Confirm::exec(const std::string& label, const std::string& label_top, bool ret)
+{
+	ui::RenderQueue queue;
+
+	if(label_top.size())
+	{
+		ui::builder<ui::Text>(ui::Screen::top, label_top)
+			.x(ui::layout::center_x)
+			.y(ui::layout::base)
+			.wrap()
+			.add_to(queue);
+	}
+
+	ui::builder<ui::Confirm>(ui::Screen::bottom, label, ret)
+		.y(ui::layout::center_y).add_to(queue);
+
+	queue.render_finite();
+	return ret;
+}
+

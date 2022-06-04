@@ -33,6 +33,9 @@ Other variables used in the building process:
 To successfully build you need
   HS_UPDATE_BASE && (HS_DEBUG_SERVER || (HS_BASE_LOC && HS_CDN_BASE && HS_SITE_LOC))
 
+You may also need a file called 'hscert.der', which is a DER certificate to be used for https connections
+ - If this feature is used you need the runtime dependency xxd too.
+
 Additionally you need a file called source/hsapi_auth.c with the following contents
  #include <string.h>
  const char *hsapi_user = "<api-user>";

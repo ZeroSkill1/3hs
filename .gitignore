@@ -1,58 +1,19 @@
-# ---> C++
-# Prerequisites
-*.d
-
-# Frii
-cia_stuff/romfs.bin
 romfs/gfx/
 build/
 dumps/
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
 hlink-client/hlink
 *.smdh
-*.exe
-*.out
-*.app
 *.3dsx
 *.elf
-*.cxi
 *.cia
-*.bnr
+*.o
 
-# Ctags
 tags
 
-# Contains personal info
 release/
 devids.json
 
-# More stuff
 TODO
 scripts/extract_seeddb
 scripts/seeddb*
