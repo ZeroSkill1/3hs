@@ -33,6 +33,7 @@
 #include "i18n.hh"
 #include "util.hh"
 #include "ctr.hh"
+#include "log.hh"
 
 static std::vector<hsapi::FullTitle> g_queue;
 std::vector<hsapi::FullTitle>& queue_get() { return g_queue; }
@@ -72,7 +73,9 @@ void queue_process_all()
 	std::vector<Result> errs;
 	for(hsapi::FullTitle& meta : g_queue)
 	{
+		ilog("Processing title with id=%llu", meta.id);
 		Result res = install::gui::hs_cia(meta, false);
+		ilog("Finished processing, res=%016lX", res);
 		if(R_FAILED(res)) errs.push_back(res);
 	}
 

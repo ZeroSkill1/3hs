@@ -4,6 +4,7 @@ v1.2.1 "cotidie morimur":
  - Add ability to reset settings by pressing R on startup or R in settings
  - Add Hungarian translation
  - Add Polish translation
+ - Add Japanese translation
 
 v1.2.0 "cotidie morimur":
  - Make text wrapping not use hyphens

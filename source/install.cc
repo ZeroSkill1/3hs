@@ -160,10 +160,10 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 		dlog("Writing to cia handle, size=%lu,index=%lu,totalSize=%lu", dlnext, data->index, data->totalSize);
 		/* we don't need to add the FS_WRITE_FLUSH flag because AM just ignores write flags... */
 		res = FSFILE_Write(data->cia, &written, data->index, data->buffer, dlnext, 0);
-		CHK_EXIT
-#undef CHK_EXIT
 		remaining = data->totalSize - dled - from;
 		data->index += dlnext;
+		CHK_EXIT
+#undef CHK_EXIT
 
 		dlnext = BUFSIZE > remaining ? remaining : BUFSIZE;
 		svcSignalEvent(data->eventHandle);

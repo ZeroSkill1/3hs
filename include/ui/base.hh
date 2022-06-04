@@ -554,7 +554,11 @@ namespace ui
 
 	private:
 		enum flags {
-			flag_darklight = 1
+			flag_darklight = 1,
+			flag_isdark = 2,
+			flag_islight = 4,
+
+			flag_themefield = flag_isdark | flag_islight,
 		};
 
 		C2D_Sprite sprite;

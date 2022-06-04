@@ -1885,7 +1885,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::extra_content] = "Hozzáadod a kapcsolódó letöltéseket a várólistához?", /* context: i.e. DLC/Updates */
 			[str::check_extra] = "Kapcsolódó letöltések keresése", /* context: i.e. DLC/Updates */
 			[str::no_req] = "Ehhez még nem lett kérelem beadva", /* context: hlink requests */
-			[str::invalid_query] = "Helytelen folyamat\nVisszalépéshez nyomd meg az " UI_GLYPH_A " gombot.", 
+			[str::invalid_query] = "Helytelen folyamat\nVisszalépéshez nyomd meg az " UI_GLYPH_A " gombot.",
 			[str::min_constraint] = "A 3hs aktuális %1 verziója korábbi, mint a szükséges %2 verzió",
 			[str::proxy] = "Proxy",
 			[str::none] = "(nincs)", /* context: used for no proxy set */
@@ -1937,6 +1937,152 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::lgy_search] = "Régimódú Keresés",
 			STUB(sure_reset),
 		},
+
+	[lang::japanese] =
+		{
+			[str::banner]  = "究極の3DSコンテンツ保存サービス",
+			[str::loading] = "ロード中...",
+			[str::luma_not_installed] = "サポートされていないファームウェアが検出されました。",
+			[str::install_luma] = "このシステムでは3hsは使用できません。",
+			[str::queue] = "キュー",
+			[str::connect_wifi] = "Wi-Fiに接続して、アプリを再起動してください。",
+			[str::fail_init_networking] = "ネットワークの初期化に失敗しました",
+			[str::fail_fetch_index] = "インデックスの取得に失敗しました\n%1",
+			[str::credits_thanks] =
+			"hShop用の3dsクライアントである3hsをご利用いただきありがとうございます。\n"
+			"このソフトウェアは、\nで無料で入手できます。"
+			"https://hshop.erista.me/",
+			[str::credits_names] = " ",
+			[str::press_to_install] =
+			"Press " UI_GLYPH_A " このコンテンツをインストールするには。\n"
+			"Press " UI_GLYPH_B " 戻る。",
+			[str::version] = "バージョン",
+			[str::prodcode] = "プロダクトコード",
+			[str::size] = "サイズ",
+			[str::name] = "ゲーム名",
+			[str::tid] = "タイトルID",
+			[str::category] = "カテゴリー",
+			[str::landing_id] = "hShop ID",
+			[str::description] = "説明",
+			[str::total_titles] = "総タイトル",
+			[str::select_cat] = "カテゴリーを選択",
+			[str::select_subcat] = "サブカテゴリを選択",
+			[str::select_title] = "タイトルを選択",
+			[str::no_cats_index] = "インデックスにカテゴリがありません (?)",
+			[str::empty_subcat] = "空のサブカテゴリ (?)",
+			[str::empty_cat] = "空のカテゴリー (?)",
+			[str::fmt_24h] = "24時間",
+			[str::fmt_12h] = "12時間",
+			[str::unknown] = "不明",
+			[str::btrue] = "はい",
+			[str::bfalse] = "いいえ",
+			[str::top] = "上",
+			[str::bottom] = "下",
+			[str::light_mode] = "ライトモード",
+			[str::resume_dl] = "ダウンロードを再開する",
+			[str::load_space] = "空き領域インジケーターを表示する",
+			[str::show_battery] = "バッテリーレベルインジケーターを表示する",
+			[str::time_format] = "時間形式",
+			[str::progbar_screen] = "プログレスバーの位置",
+			[str::language] = "言語を変更",
+			[str::value_x] = "値: %1",
+			[str::back] = "戻る",
+			[str::invalid] = "無効",
+			[str::title_doesnt_exist] = "タイトルが存在しません: %1",
+			[str::fail_create_tex] = "texの作成に失敗しました",
+			[str::fail_load_smdh_icon] = "load_smdh_icon（）：無効なSMDHIconType",
+			[str::netcon_lost] = "ネットワーク接続が失われました(%1)。\n$t秒で再試行します。..",
+			[str::about_app] = "3hsの詳細",
+			[str::help_manual] = "ヘルプ/マニュアル",
+			[str::find_missing_content] = "不足しているコンテンツを探す",
+			[str::press_a_exit] = UI_GLYPH_A "を押して終了します。",
+			[str::fatal_panic] = "致命的なパニックが発生しました。",
+			[str::failed_open_seeddb] = "seeddb.binを開くことが出来ませんでした。",
+			[str::update_to] = "%1に更新しますか？",
+			[str::search_content] = "コンテンツを検索する",
+			[str::search_content_action] = "コンテンツを検索中...",
+			[str::results_query] = "クエリ\"%1\"の結果",
+			[str::result_code] = "結果コード:%1",
+			[str::level] = "レベル: %1",
+			[str::summary] = "要約: %1",
+			[str::module] = "モジュール: %1",
+			[str::hs_bunny_found] = "おめでとうございます！ hShopバニーを見つけました！",
+			[str::already_installed_reinstall] = "タイトルはすでにインストールされています。 再インストールしますか？",
+			[str::queue_empty] =
+			"キューが空です\n"
+			UI_GLYPH_A "を押して戻ります。\n"
+			"ヒント:" UI_GLYPH_Y "を押して、キューにタイトルを追加します。",
+			[str::cancel] = "キャンセル",
+			[str::confirm] = "確認",
+			[str::invalid_proxy] = "プロキシ設定が無効です",
+			[str::more_about_content] = "このコンテンツの詳細",
+			[str::lumalocalemode] = "LumaLocaleモード",
+			[str::automatic] = "自動",
+			[str::manual] = "マニュアル",
+			[str::disabled] = "無効",
+			[str::patching_reboot] =
+			"Luma3DSゲームパッチが有効になりました。\n"
+			"この変更を有効にするには、システムを再起動する必要があります。",
+			[str::reboot_now] = "今すぐ再起動しますか？",
+			[str::this_version] = "これは3hsバージョン%1です",
+			[str::retry_req] = "要求が失敗しました。 リトライしますか？",
+			[str::search_zero_results] = "検索結果が返されませんでした。\n" UI_GLYPH_A "を押して戻ります。",
+			[str::credits] = "クレジット",
+			[str::extra_content] = "キューにコンテンツを追加しますか？",
+			[str::check_extra] = "追加コンテンツを検索する",
+			[str::no_req] = "まだリクエストはありません",
+			[str::invalid_query] = "無効なクエリ\n戻るには" UI_GLYPH_A "を押してください。",
+			[str::min_constraint] = "現在の3hsバージョン%1は、必要なバージョン%2よりも低くなっています",
+			[str::proxy] = "プロキシー",
+			[str::none] = "(なし)",
+			[str::press_a_to_view] = UI_GLYPH_A "をクリックして表示します。",
+			[str::host] = "ホスト",
+			[str::port] = "ポート",
+			[str::username] = "ユーザー名",
+			[str::password] = "パスワード",
+			[str::clear] = "クリア",
+			[str::progbar_screen_desc] = "プログレスバーの位置を選択します。",
+			[str::light_mode_desc] = "ライトモードを有効/無効にします。 これにより、ほとんどのUIの外観が変わります。",
+			[str::resume_dl_desc] = "ネットワークが中断した後、ダウンロードを再開します。",
+			[str::load_space_desc] = "空き領域インジケーターを切り替えます。",
+			[str::show_battery_desc] = "バッテリーレベルインジケーターを切り替えます。",
+			[str::time_format_desc] = "時間形式を選択します。",
+			[str::language_desc] = "3hsの言語を設定します。 選択した言語を有効にするには、アプリケーションを再起動する必要があります。",
+			[str::lumalocalemode_desc] = "LumaLocaleオートセッターのモードを設定します。 自動は言語を自動的に選択します。 これが手動に設定されている場合、コンテンツのインストール後、3hsでリージョンの入力を求められます。",
+			[str::check_extra_desc] = "インストール後に追加のコンテンツを検索します。",
+			[str::proxy_desc] = "3hsのプロキシサーバーを構成します。 この設定は上級ユーザー向けです。",
+			[str::install_all] = "すべてインストール",
+			[str::install_no_base] = "元となるゲームがインストールされていません。 続けますか？",
+			[str::warn_no_base] = "元となるゲームがインストールされていない場合に警告する",
+			[str::warn_no_base_desc] = "元となるゲームがインストールされていない場合、アップデートまたはDLCコンテンツをインストールする前にメッセージを表示します。",
+			[str::replaying_errors] = "キューの処理中に発生した再生エラー。",
+			[str::log] = "ログ",
+			[str::upload_logs] = "ログをアップロードする",
+			[str::clear_logs] = "ログをクリアする",
+			[str::found_missing] ="%1個の不足しているタイトルが見つかりました\nキューをチェックしてインストールしてください。",
+			[str::found_0_missing] = "不足しているタイトルは見つかりませんでした。",
+			[str::max_elogs] = "古いログファイルの最大数",
+			[str::max_elogs_desc] = "保持するログファイルの数を設定します。 可能な値は0〜255で、0は追加のログファイルを保持しません。",
+			[str::elogs_hint] = "0から255までの値",
+			[str::log_id] = "このIDを使用してサポートを取得します：\n%1", /* %1 = id */
+			[str::block] = "ブロック",
+			[str::blocks] = "ブロック",
+			[str::search_text] = "テキストで検索",
+			[str::search_id] = "hShop IDで検索",
+			[str::search_tid] = "タイトルIDで検索",
+			[str::invalid_tid] = "タイトルIDが無効です",
+			[str::theme_installer_tid_bad] = "テーマを探すには、テーマカテゴリを参照してください",
+			[str::enter_lgy_query] = "従来の検索クエリを入力します",
+			[str::no_other_params_tid] = "タイトルIDを指定するときに他のパラメーターを指定することはできません",
+			[str::both_sd_and_sb] = "検索結果を並べ替えるときは、並べ替え方法と並べ替え方向を指定する必要があります",
+			[str::invalid_sb] = "無効なソート方法",
+			[str::invalid_sd] = "ソート方向が無効です",
+			[str::invalid_includes] = "ソート方向が無効です",
+			[str::invalid_excludes] = "無効な除外フィルター",
+			[str::filter_overlap] = "指定された検索フィルターで重複が検出されました",
+			[str::lgy_search] = "レガシー検索",
+			STUB(sure_reset),
+		}
 };
 #pragma GCC diagnostic pop
 
@@ -1974,6 +2120,7 @@ const char *i18n::langname(lang::type id)
 	case lang::greek: return LANGNAME_GREEK;
 	case lang::polish: return LANGNAME_POLISH;
 	case lang::hungarian: return LANGNAME_HUNGARIAN;
+	case lang::japanese: return LANGNAME_JAPANESE;
 	}
 
 	return "invalid";
@@ -2012,16 +2159,16 @@ lang::type i18n::default_lang()
 
 	switch(syslang)
 	{
-	case CFG_LANGUAGE_DE: return lang::german;
-	case CFG_LANGUAGE_ES: return lang::spanish;
-	case CFG_LANGUAGE_NL: return lang::dutch;
-	case CFG_LANGUAGE_IT: return lang::italian;
-	case CFG_LANGUAGE_KO: return lang::korean;
-	case CFG_LANGUAGE_PT: return lang::portuguese;
+	case CFG_LANGUAGE_JP: return lang::japanese;
 	case CFG_LANGUAGE_FR:
 		return countryinfo[3] == CountryCode::canada
 			? lang::french_canada : lang::french;
-	case CFG_LANGUAGE_JP: // fallthrough
+	case CFG_LANGUAGE_DE: return lang::german;
+	case CFG_LANGUAGE_IT: return lang::italian;
+	case CFG_LANGUAGE_ES: return lang::spanish;
+	case CFG_LANGUAGE_KO: return lang::korean;
+	case CFG_LANGUAGE_NL: return lang::dutch;
+	case CFG_LANGUAGE_PT: return lang::portuguese;
 	case CFG_LANGUAGE_EN: // fallthrough
 	case CFG_LANGUAGE_ZH: // fallthrough
 	case CFG_LANGUAGE_RU: // fallthrough

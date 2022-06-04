@@ -27,12 +27,17 @@ void ui::loading(ui::RenderQueue& queue, std::function<void()> callback)
 	std::string desc = ::set_desc(STRING(loading));
 	bool focus = ::set_focus(true);
 
-	ctr::thread<> th(callback);
-
 	aptSetHomeAllowed(false);
-	ui::Keys keys = ui::RenderQueue::get_keys();
-	while(!th.finished() && queue.render_frame(keys))
-		keys = ui::RenderQueue::get_keys();
+	bool spinning = true;
+	ctr::thread<ui::RenderQueue&, bool&> th([](ui::RenderQueue& queue, bool& spinning) -> void {
+		ui::Keys keys = ui::RenderQueue::get_keys();
+		while(spinning && queue.render_frame(keys))
+			keys = ui::RenderQueue::get_keys();
+	}, queue, spinning);
+
+	/* */ callback();
+	spinning = false;
+	th.join();
 	aptSetHomeAllowed(true);
 
 	::set_focus(focus);

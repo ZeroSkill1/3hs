@@ -617,7 +617,9 @@ static ui::slot_color_getter sprite_stub_a[] = { sprite_stub };
 void ui::Sprite::setup(const C2D_Sprite& light, const C2D_Sprite& dark)
 {
 	const C2D_Sprite *first = &dark, *second = &light;
-	if(get_settings()->isLightMode) { first = &light; second = &dark; }
+	this->flags = ui::Sprite::flag_isdark;
+	if(get_settings()->isLightMode)
+	{ this->flags = ui::Sprite::flag_islight; first = &light; second = &dark; }
 	this->sprite = *first;
 	this->second = *second;
 	this->flags |= ui::Sprite::flag_darklight;
@@ -642,6 +644,13 @@ void ui::Sprite::destroy()
 bool ui::Sprite::supports_theme_hook() { return true; }
 void ui::Sprite::update_theme_hook()
 { /* only called if this->flags & ui::Sprite::flag_darklight */
+	bool light = get_settings()->isLightMode;
+	if(light && (this->flags & ui::Sprite::flag_islight))
+		return;
+	if(!light && (this->flags & ui::Sprite::flag_isdark))
+		return;
+	this->flags &= ~ui::Sprite::flag_themefield;
+	this->flags |= light ? ui::Sprite::flag_islight : ui::Sprite::flag_isdark;
 	C2D_Sprite first = this->sprite;
 	this->sprite = this->second;
 	this->second = first;
