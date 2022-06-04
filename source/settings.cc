@@ -297,7 +297,7 @@ static void show_update_proxy()
 					swkbd->hint(STRING(port));
 				}, &btn, nullptr, 5 /* max is 65535: 5 digits */);
 
-				if(btn == SWKBD_BUTTON_CONFIRM)
+				if(btn == SWKBD_BUTTON_CONFIRM && val != 0)
 				{
 					val &= 0xFFFF; /* limit to a max of 0xFFFF */
 					proxy::proxy().port = val;

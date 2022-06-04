@@ -53,12 +53,9 @@ static void finalize_install(u64 tid, bool interactive)
 		if(added > 0) ui::notice(PSTRING(found_missing, added));
 	}
 
-	/* only set locale if we're interactive or if it's set to go automatically */
-	if(interactive || get_settings()->lumalocalemode == LumaLocaleMode::automatic)
-	{
-		if(luma::set_locale(tid) && interactive)
-			luma::maybe_set_gamepatching();
-	}
+	/* only set locale if we're interactive, otherwise the caller has to handle it himself */
+	if(interactive && luma::set_locale(tid))
+		luma::maybe_set_gamepatching();
 }
 
 /* returns if the user wants to continue */

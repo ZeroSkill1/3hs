@@ -14,6 +14,33 @@
  * this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+/**                          COMMENTS FOR TRANSLATORS -- READ ME FIRST
+ *
+ * - Some strings have a "context: <...>" comment which indicates a context, this may help while translating
+ *   - If you require context for anything else feel free to ask
+ * - %<n> where <n> is a number from 1-9 is a variable, their meaning is explained in the matching comment
+ *   - The value of the variable will literally be substituted (replaced)
+ *   - if this doesn't work in your language ask in the hShop discord channel so i can write a workaround for you
+ * - UI_GLYPH_ is a prefix for buttons in the system fonts i.e. UI_GLYPH_B is the B button on your 3DS
+ *   - They should not be in between double quotes, they need to be outside and you need to continue the next double quote with a space
+ *     - Even if your language has no such things, not having a space causes ugly clamping
+ * - If you want to use double quotes in your translation write them down like this: \"text in between double quotes\"
+ * - Any strings marked with "unused" may be left empty, so they DON'T have to be translated, it would be a wasted effort
+ * - A newline (denoted by "\n") makes text go the the next line (thus entering a "new" line)
+ *   - Preserve newlines (\n), they are added for stylistic purposes, everything should neatly wrap
+ * - Although text wraps in most cases, it's for the best not make your translation too verbose
+ *   - Text wrapping means the text continues on the next line if it's too large
+ *   - Strings marked with "nowrap" don't wrap.
+ *   - Strings marked with "button" use button wrap
+ *     - This means they gradually expand in size as the string gets larger
+ *     - This does not mean they wrap to the next line
+ *   - Strings marked with "selector" have a maximum length (of 200 pixels)
+ *   - Strings marked with "scroll" scroll sideways, for example all setting titles use this
+ *     - Strings that scroll obviously can't wrap
+ *
+ * Any questions and new translations can be posted in the hShop discord channel
+ */
+
 #include <ui/base.hh> /* for UI_GLYPH_* */
 
 #ifndef HS_SITE_LOC
@@ -41,33 +68,33 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 	[lang::english] =
 		{
 			[str::banner]  = "The ultimate 3DS content preservation service", /* unused */
-			[str::loading] = "Loading...",
+			[str::loading] = "Loading...", /* nowrap, context: at the top of the screen during loading (the spinner) */
 			[str::luma_not_installed] = "An unsupported firmware was detected.",
-			[str::install_luma] = "3hs cannot be used on this system.",
-			[str::queue] = "Queue",
+			[str::install_luma] = "3hs cannot be used on this system.", /* context: displayed under above string */
+			[str::queue] = "Queue", /* button, context: button on bottom of screen to enter queue */
 			[str::connect_wifi] = "Please connect to Wi-Fi and restart the app.", /* unused */
-			[str::fail_init_networking] = "Failed to initialize networking",
+			[str::fail_init_networking] = "Failed to initialize networking", /* context: networking means network libraries, may be translated as "failed to start application" if there exists no good translation for networking */
 			[str::fail_fetch_index] = "Failed to fetch index\n%1", /* unused */
 			[str::credits_thanks] =
 				"Thank you for using 3hs, a 3ds client for hShop.\n"
 				"You can get this software for free at\n"
-				PAGE_3HS,
+				PAGE_3HS, /* context: PAGE_3HS expands to the 3hs page on hShop */
 			[str::credits_names] = "", /* unused */
 			[str::press_to_install] =
 				"Press " UI_GLYPH_A " to install this content.\n"
 				"Press " UI_GLYPH_B " to go back.",
-			[str::version] = "Version",
-			[str::prodcode] = "Product Code",
-			[str::size] = "Size",
-			[str::name] = "Name",
-			[str::tid] = "Title ID",
-			[str::category] = "Category",
-			[str::landing_id] = "hShop ID",
-			[str::description] = "Description",
-			[str::total_titles] = "Total Titles",
-			[str::select_cat] = "Select a category",
-			[str::select_subcat] = "Select a subcategory",
-			[str::select_title] = "Select a title",
+			[str::version] = "Version", /* nowrap, context: title version, bottom screen metadata when you press A on a list item */
+			[str::prodcode] = "Product Code", /* nowrap, context: title product code, same location as above string */
+			[str::size] = "Size", /* nowrap, context: title size, (sub)category size, displayed on bottom screen in the main list */
+			[str::name] = "Name", /* nowrap, context: title name, (sub)category name, see above for location */
+			[str::tid] = "Title ID", /* nowrap, context: title id, extmeta & main list */
+			[str::category] = "Category", /* nowrap, context: content category, extmeta & main list */
+			[str::landing_id] = "hShop ID", /* nowrap, context: hShop ID used for searching, previously known as landing ID */
+			[str::description] = "Description", /* nowrap, context: category description */
+			[str::total_titles] = "Total Titles", /* nowrap */
+			[str::select_cat] = "Select a category", /* nowrap, context: top screen in main list */
+			[str::select_subcat] = "Select a subcategory", /* nowrap, context: top screen in main list */
+			[str::select_title] = "Select a title", /* nowrap, context: top screen in main list */
 			[str::no_cats_index] = "no categories in index (?)", /* unused */
 			[str::empty_subcat] = "Empty subcategory (?)", /* unused */
 			[str::empty_cat] = "Empty category (?)", /* unused */
@@ -78,13 +105,13 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::bfalse] = "false", /* unused, context: setting is set to OFF */
 			[str::top] = "top", /* context: top screen in progress bar location settings switcher */
 			[str::bottom] = "bottom", /* context: bottom screen in progress bar location settings switcher */
-			[str::light_mode] = "Light mode",
-			[str::resume_dl] = "Resume downloads",
-			[str::load_space] = "Show free space indicator",
-			[str::show_battery] = "Show battery level indicator",
-			[str::time_format] = "Time format",
-			[str::progbar_screen] = "Progress bar position",
-			[str::language] = "Language",
+			[str::light_mode] = "Light mode", /* scroll, context: setting title */
+			[str::resume_dl] = "Resume downloads", /* scroll, context: setting title */
+			[str::load_space] = "Show free space indicator", /* scroll, context: setting title  */
+			[str::show_battery] = "Show battery level indicator", /* scroll, context: setting title */
+			[str::time_format] = "Time format", /* scroll, context: setting title */
+			[str::progbar_screen] = "Progress bar position", /* scroll, context: setting title */
+			[str::language] = "Language", /* scroll, context: setting title */
 			[str::value_x] = "Value: %1", /* context: value of setting */
 			[str::back] = "Back", /* context: back button */
 			[str::invalid] = "invalid",
@@ -92,15 +119,15 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::fail_create_tex] = "Failed to create tex", /* unused */
 			[str::fail_load_smdh_icon] = "load_smdh_icon(): invalid SMDHIconType", /* unused */
 			[str::netcon_lost] = "Network connection lost (%1).\nRetrying in $t seconds...", /* %1: error code, $t: seconds remaining */
-			[str::about_app] = "About",
-			[str::help_manual] = "Help/Manual",
-			[str::find_missing_content] = "Find missing content",
+			[str::about_app] = "About", /* nowrap, context: burger (three lines) menu */
+			[str::help_manual] = "Help/Manual", /* nowrap, context: burger (three lines) menu */
+			[str::find_missing_content] = "Find missing content", /* nowrap, context: burger (three lines) menu */
 			[str::press_a_exit] = "Press " UI_GLYPH_A " to exit.", /* context: exit menu and sometimes application */
 			[str::fatal_panic] = "A fatal panic has occurred.", /* context: can also be translated as fatal error */
-			[str::failed_open_seeddb] = "Failed to open seeddb.bin.",
+			[str::failed_open_seeddb] = "Failed to open seeddb.bin.", /* context: failed to open romfs file, may be translated as "failed to start applcation" */
 			[str::update_to] = "Do you want to update to %1?", /* %1: new version, i.e. 1.0.2 */
-			[str::search_content] = "Search for content",
-			[str::search_content_action] = "Search for content...",
+			[str::search_content] = "Search for content", /* nowrap, context: top screen while searching */
+			[str::search_content_action] = "Search for content...", /* context: keyboard hint while searching, apparently this has a maximum length */
 			[str::results_query] = "Results for query \"%1\"", /* unused, %1: search query */
 			[str::result_code] = "Result code: %1", /* %1: result code */
 			[str::level] = "Level: %1", /* %1: english level name (level code), context: used when displaying errors */
@@ -112,14 +139,14 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 				"Queue is empty\n"
 				"Press " UI_GLYPH_A " to go back.\n"
 				"Tip: Press " UI_GLYPH_Y " to add a title to the queue.",
-			[str::cancel] = "Cancel",
-			[str::confirm] = "Confirm",
-			[str::invalid_proxy] = "Invalid proxy settings",
-			[str::more_about_content] = "More about this content",
-			[str::lumalocalemode] = "LumaLocale mode",
-			[str::automatic] = "automatic",
-			[str::manual] = "manual",
-			[str::disabled] = "disabled",
+			[str::cancel] = "Cancel", /* button, context: yes/no prompt "no" option */
+			[str::confirm] = "Confirm", /* button, context: yes/no prompt "yes" option */
+			[str::invalid_proxy] = "Invalid proxy settings", /* context: proxy settings are checked at startup for obvious errors (user tampering), if bad, it errors with this message */
+			[str::more_about_content] = "More about this content", /* nowrap, context: shown in top when clicking on extended meta */
+			[str::lumalocalemode] = "LumaLocale mode", /* scroll, context: setting title */
+			[str::automatic] = "automatic", /* selector, context: lumalocale setting */
+			[str::manual] = "manual", /* selector, context: lumalocale setting */
+			[str::disabled] = "disabled", /* selector, context: lumalocale setting */
 			[str::patching_reboot] =
 				"Luma3DS Game Patching is now enabled.\n"
 				"The system must be restarted for this change to take effect.",
@@ -128,59 +155,59 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::retry_req] = "Request failed. Retry?", /* context: API request */
 			[str::search_zero_results] = "Your search returned no results.\nPress " UI_GLYPH_A " to go back.",
 			[str::credits] = "Credits",
-			[str::extra_content] = "Add extra content to queue?", /* context: i.e. DLC/Updates */
-			[str::check_extra] = "Search for extra content", /* context: i.e. DLC/Updates */
+			[str::extra_content] = "Add extra content to queue?", /* unused, context: i.e. DLC/Updates */
+			[str::check_extra] = "Search for extra content", /* scroll, context: setting title, i.e. DLC/Updates */
 			[str::no_req] = "No requests made yet", /* context: hlink requests */
-			[str::invalid_query] = "Invalid query\nPress " UI_GLYPH_A " to go back.",
-			[str::min_constraint] = "Current 3hs version %1 is lower than the required version %2",
-			[str::proxy] = "Proxy",
-			[str::none] = "(none)", /* context: used for no proxy set */
+			[str::invalid_query] = "Invalid query\nPress " UI_GLYPH_A " to go back.", /* context: invalid search query */
+			[str::min_constraint] = "Current 3hs version %1 is lower than the required version %2", /* %1 = current version, %2 = minimum required version */
+			[str::proxy] = "Proxy", /* scroll, context: setting title */
+			[str::none] = "(none)", /* context: used for "no proxy is set" */
 			[str::press_a_to_view] = "Click " UI_GLYPH_A " to view.", /* context: view proxy settings */
 			[str::host] = "Host", /* context: proxy */
 			[str::port] = "Port", /* context: proxy */
 			[str::username] = "Username", /* context: proxy */
 	 		[str::password] = "Password", /* context: proxy */
-			[str::clear] = "Clear", /* context: clear the contents of a field */
-			[str::progbar_screen_desc] = "Select the position of the progress bar.",
-			[str::light_mode_desc] = "Enable/disable light mode. This will change the way most UI elements look.",
-			[str::resume_dl_desc] = "Resume downloads after a network interruption.",
-			[str::load_space_desc] = "Toggle the free space indicator.",
-			[str::show_battery_desc] = "Toggle the battery level indicator.",
-			[str::time_format_desc] = "Select the time format.",
-			[str::language_desc] = "Set the language for 3hs. The application must be restarted for the selected language to take effect.",
-			[str::lumalocalemode_desc] = "Set the mode of the LumaLocale autosetter. Automatic selects a language automatically. If this is set to manual, 3hs will prompt for a region after the installation of content.",
-			[str::check_extra_desc] = "Search for extra content after installation.",
-			[str::proxy_desc] = "Configure a proxy server for 3hs. This setting is for advanced users.",
+			[str::clear] = "Clear", /* context: clear the contents of all proxy fields */
+			[str::progbar_screen_desc] = "Select the position of the progress bar.", /* context: setting description */
+			[str::light_mode_desc] = "Enable/disable light mode. This will change the way most UI elements look.", /* context: setting description */
+			[str::resume_dl_desc] = "Resume downloads after a network interruption.", /* context: setting description */
+			[str::load_space_desc] = "Toggle the free space indicator.", /* context: setting description */
+			[str::show_battery_desc] = "Toggle the battery level indicator.", /* context: setting description */
+			[str::time_format_desc] = "Select the time format.", /* context: setting description */
+			[str::language_desc] = "Set the language for 3hs. The application must be restarted for the selected language to take effect.", /* context: setting description */
+			[str::lumalocalemode_desc] = "Set the mode of the LumaLocale autosetter. Automatic selects a language automatically. If this is set to manual, 3hs will prompt for a region after the installation of content.", /* context: setting description */
+			[str::check_extra_desc] = "Search for extra content after installation.", /* context: setting description */
+			[str::proxy_desc] = "Configure a proxy server for 3hs. This setting is for advanced users.", /* context: setting description */
 			[str::install_all] = "Install all", /* context: install all items in queue */
 			[str::install_no_base] = "The base game is not installed. Continue anyway?",
-			[str::warn_no_base] = "Warn if a base game is not installed",
-			[str::warn_no_base_desc] = "Shows a message before installing update or DLC content if the base game is not installed.",
-			[str::replaying_errors] = "Replaying errors encountered while processing the queue.",
+			[str::warn_no_base] = "Warn if a base game is not installed", /* scroll, context: setting title */
+			[str::warn_no_base_desc] = "Shows a message before installing update or DLC content if the base game is not installed.", /* context: setting description */
+			[str::replaying_errors] = "Replaying errors encountered while processing the queue.", /* context: if an error occurs while installing all titles from the queue, this message is displayed before showing each one */
 			[str::log] = "Logs", /* context: may also be translated as "manage logs" */
 			[str::upload_logs] = "Upload logs",
 			[str::clear_logs] = "Clear logs",
-			[str::found_missing] = "Found %1 missing title(s)\nCheck the queue to install them.", // %1 = amount of titles found
+			[str::found_missing] = "Found %1 missing title(s)\nCheck the queue to install them.", /* %1 = amount of titles found */
 			[str::found_0_missing] = "No missing titles were found.",
-			[str::max_elogs] = "Maximum old log files",
-			[str::max_elogs_desc] = "Set the number of log files to keep. Possible values are 0 to 255, where 0 keeps no additional log files.",
-			[str::elogs_hint] = "Value between 0 and 255",
+			[str::max_elogs] = "Maximum old log files", /* scroll, context: setting title */
+			[str::max_elogs_desc] = "Set the number of log files to keep. Possible values are 0 to 255, where 0 keeps no additional log files.", /* context: setting description */
+			[str::elogs_hint] = "Value between 0 and 255", /* context: keyboard hint for max old log files, apparently has a maximum amount of characters */
 			[str::log_id] = "Use this ID to get support:\n%1", /* %1 = id */
-			[str::block] = "block", /* context: nintendo blocks, use official nintendo translation if available */
+			[str::block] = "block", /* context: Nintendo blocks, use official Nintendo translation if available */
 			[str::blocks] = "blocks", /* context: see above, just in plural this time */
-			[str::search_text] = "Search by text",
-			[str::search_id] = "Search by hShop ID",
-			[str::search_tid] = "Search by Title ID",
-			[str::invalid_tid] = "Invalid Title ID",
+			[str::search_text] = "Search by text", /* nowrap, context: search menu item */
+			[str::search_id] = "Search by hShop ID", /* nowrap, context: search menu item */
+			[str::search_tid] = "Search by Title ID", /* nowrap, context: search menu item */
+			[str::invalid_tid] = "Invalid Title ID", /* context: invalid title id specified during legacy search */
 			[str::theme_installer_tid_bad] = "Please browse the Themes category manually to look for themes",
 			[str::enter_lgy_query] = "Enter a legacy search query", /* context: this is displayed in transparent letters on the keyboard */
 			[str::no_other_params_tid] = "Cannot specify any other parameters when specifying a Title ID",
 			[str::both_sd_and_sb] = "You must specify a sort method and a sort direction when sorting search results",
-			[str::invalid_sb] = "Invalid sort method",
+			[str::invalid_sb] = "Invalid sort method", /* context: i.e. sort by title_id, size, category, subcategory, etc */
 			[str::invalid_sd] = "Invalid sort direction", /* context: ascending/descending */
-			[str::invalid_includes] = "Invalid include filters",
-			[str::invalid_excludes] = "Invalid exclude filters",
-			[str::filter_overlap] = "Detected an overlap in the specified search filters",
-			[str::lgy_search] = "Legacy Search",
+			[str::invalid_includes] = "Invalid include filters", /* context: include legacy filter, includes a (sub)category */
+			[str::invalid_excludes] = "Invalid exclude filters", /* context: include legacy filter, includes a (sub)category */
+			[str::filter_overlap] = "Detected an overlap in the specified search filters", /* context: overlapping filters in legacy search, i.e. include:games exclude:games */
+			[str::lgy_search] = "Legacy Search", /* nowrap, context: "legacy" may be translated as "traditional", "old-school", "classic", you name it */
 			[str::sure_reset] = "Are you sure you want to reset configuration?",
 		},
 
@@ -1940,7 +1967,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 
 	[lang::japanese] =
 		{
-			[str::banner]  = "究極の3DSコンテンツ保存サービス",
+			[str::banner]  = "ほぼ全ての3DSコンテンツ保存サービス",
 			[str::loading] = "ロード中...",
 			[str::luma_not_installed] = "サポートされていないファームウェアが検出されました。",
 			[str::install_luma] = "このシステムでは3hsは使用できません。",
@@ -1949,13 +1976,13 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::fail_init_networking] = "ネットワークの初期化に失敗しました",
 			[str::fail_fetch_index] = "インデックスの取得に失敗しました\n%1",
 			[str::credits_thanks] =
-			"hShop用の3dsクライアントである3hsをご利用いただきありがとうございます。\n"
-			"このソフトウェアは、\nで無料で入手できます。"
-			"https://hshop.erista.me/",
-			[str::credits_names] = " ",
+				"hShop用の3dsクライアントである3hsをご利用いただきありがとうございます！\n"
+				"このソフトウェアは、\n"
+				PAGE_3HS,
+			[str::credits_names] = "",
 			[str::press_to_install] =
-			"Press " UI_GLYPH_A " このコンテンツをインストールするには。\n"
-			"Press " UI_GLYPH_B " 戻る。",
+				UI_GLYPH_A " を押して このコンテンツをインストール\n"
+				UI_GLYPH_B " を押して前の画面に戻る",
 			[str::version] = "バージョン",
 			[str::prodcode] = "プロダクトコード",
 			[str::size] = "サイズ",
@@ -1964,15 +1991,15 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::category] = "カテゴリー",
 			[str::landing_id] = "hShop ID",
 			[str::description] = "説明",
-			[str::total_titles] = "総タイトル",
+			[str::total_titles] = "総タイトル数",
 			[str::select_cat] = "カテゴリーを選択",
 			[str::select_subcat] = "サブカテゴリを選択",
 			[str::select_title] = "タイトルを選択",
 			[str::no_cats_index] = "インデックスにカテゴリがありません (?)",
 			[str::empty_subcat] = "空のサブカテゴリ (?)",
 			[str::empty_cat] = "空のカテゴリー (?)",
-			[str::fmt_24h] = "24時間",
-			[str::fmt_12h] = "12時間",
+			[str::fmt_24h] = "24時間表記",
+			[str::fmt_12h] = "12時間表記",
 			[str::unknown] = "不明",
 			[str::btrue] = "はい",
 			[str::bfalse] = "いいえ",
@@ -1995,7 +2022,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::about_app] = "3hsの詳細",
 			[str::help_manual] = "ヘルプ/マニュアル",
 			[str::find_missing_content] = "不足しているコンテンツを探す",
-			[str::press_a_exit] = UI_GLYPH_A "を押して終了します。",
+			[str::press_a_exit] = UI_GLYPH_A " を押して終了します。",
 			[str::fatal_panic] = "致命的なパニックが発生しました。",
 			[str::failed_open_seeddb] = "seeddb.binを開くことが出来ませんでした。",
 			[str::update_to] = "%1に更新しますか？",
@@ -2009,9 +2036,9 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::hs_bunny_found] = "おめでとうございます！ hShopバニーを見つけました！",
 			[str::already_installed_reinstall] = "タイトルはすでにインストールされています。 再インストールしますか？",
 			[str::queue_empty] =
-			"キューが空です\n"
-			UI_GLYPH_A "を押して戻ります。\n"
-			"ヒント:" UI_GLYPH_Y "を押して、キューにタイトルを追加します。",
+				"キューが空です\n"
+				UI_GLYPH_A " を押して元の画面に戻ります。\n"
+				"ヒント: " UI_GLYPH_Y " を押して、キューにタイトルを追加します。",
 			[str::cancel] = "キャンセル",
 			[str::confirm] = "確認",
 			[str::invalid_proxy] = "プロキシ設定が無効です",
@@ -2026,16 +2053,16 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::reboot_now] = "今すぐ再起動しますか？",
 			[str::this_version] = "これは3hsバージョン%1です",
 			[str::retry_req] = "要求が失敗しました。 リトライしますか？",
-			[str::search_zero_results] = "検索結果が返されませんでした。\n" UI_GLYPH_A "を押して戻ります。",
+			[str::search_zero_results] = "検索結果が返されませんでした。\n " UI_GLYPH_A " を押して戻ります。",
 			[str::credits] = "クレジット",
 			[str::extra_content] = "キューにコンテンツを追加しますか？",
 			[str::check_extra] = "追加コンテンツを検索する",
 			[str::no_req] = "まだリクエストはありません",
-			[str::invalid_query] = "無効なクエリ\n戻るには" UI_GLYPH_A "を押してください。",
+			[str::invalid_query] = "無効なクエリ\n戻るには " UI_GLYPH_A " を押してください。",
 			[str::min_constraint] = "現在の3hsバージョン%1は、必要なバージョン%2よりも低くなっています",
 			[str::proxy] = "プロキシー",
 			[str::none] = "(なし)",
-			[str::press_a_to_view] = UI_GLYPH_A "をクリックして表示します。",
+			[str::press_a_to_view] = UI_GLYPH_A " をクリックして表示します。",
 			[str::host] = "ホスト",
 			[str::port] = "ポート",
 			[str::username] = "ユーザー名",
@@ -2047,11 +2074,11 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::load_space_desc] = "空き領域インジケーターを切り替えます。",
 			[str::show_battery_desc] = "バッテリーレベルインジケーターを切り替えます。",
 			[str::time_format_desc] = "時間形式を選択します。",
-			[str::language_desc] = "3hsの言語を設定します。 選択した言語を有効にするには、アプリケーションを再起動する必要があります。",
+			[str::language_desc] = "3hsの言語を変更します。 選択した言語を有効にするには、アプリケーションを再起動する必要があります。",
 			[str::lumalocalemode_desc] = "LumaLocaleオートセッターのモードを設定します。 自動は言語を自動的に選択します。 これが手動に設定されている場合、コンテンツのインストール後、3hsでリージョンの入力を求められます。",
 			[str::check_extra_desc] = "インストール後に追加のコンテンツを検索します。",
 			[str::proxy_desc] = "3hsのプロキシサーバーを構成します。 この設定は上級ユーザー向けです。",
-			[str::install_all] = "すべてインストール",
+			[str::install_all] = "全てインストール",
 			[str::install_no_base] = "元となるゲームがインストールされていません。 続けますか？",
 			[str::warn_no_base] = "元となるゲームがインストールされていない場合に警告する",
 			[str::warn_no_base_desc] = "元となるゲームがインストールされていない場合、アップデートまたはDLCコンテンツをインストールする前にメッセージを表示します。",

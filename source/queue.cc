@@ -71,18 +71,17 @@ void queue_process(size_t index)
 void queue_process_all()
 {
 	std::vector<Result> errs;
+	bool needsPatching = false;
 	for(hsapi::FullTitle& meta : g_queue)
 	{
 		ilog("Processing title with id=%llu", meta.id);
 		Result res = install::gui::hs_cia(meta, false);
 		ilog("Finished processing, res=%016lX", res);
+		needsPatching |= luma::set_locale(meta.tid);
 		if(R_FAILED(res)) errs.push_back(res);
 	}
 
-	/* only enable gamepatching if one or more
-	 * titles succeeded to install */
-	if(errs.size() != g_queue.size())
-		luma::maybe_set_gamepatching();
+	if(needsPatching) luma::maybe_set_gamepatching();
 
 	if(errs.size() != 0)
 	{
