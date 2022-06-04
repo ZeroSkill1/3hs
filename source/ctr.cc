@@ -191,13 +191,11 @@ bool ctr::title_exists(u64 tid, FS_MediaType media)
 	}
 
 	for(size_t i = 0; i < tcount; ++i)
-	{
 		if(tids[i] == tid)
 		{
 			delete [] tids;
 			return true;
 		}
-	}
 
 	delete [] tids;
 	return false;

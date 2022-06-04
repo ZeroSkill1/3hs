@@ -406,14 +406,12 @@ void legacy_search()
 	if(!excludes.empty()) params["e"] = excludes;
 
 	for(const std::string& include_cat : include_cats)
-	{
 		for(const std::string& exclude_cat : exclude_cats)
 			if(include_cat == exclude_cat)
 			{
 				error(STRING(filter_overlap));
 				return;
 			}
-	}
 
 	std::vector<hsapi::Title> titles;
 	Result rres = hsapi::call<std::vector<hsapi::Title>&, const std::unordered_map<std::string, std::string>&>(hsapi::search, titles, params);

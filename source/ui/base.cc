@@ -467,9 +467,9 @@ void ui::Text::prepare_arrays()
 	if(this->lines.size() > 0)
 	{
 		C2D_TextGetDimensions(&this->lines.front(), this->xsiz, this->ysiz, nullptr,
-			&this->lineHeigth);
+			&this->lineHeight);
 	}
-	else this->lineHeigth = 0;
+	else this->lineHeight = 0;
 	C2D_TextBufDelete(linebuf);
 }
 
@@ -525,22 +525,22 @@ bool ui::Text::render(const ui::Keys& keys)
 	{
 		if(this->drawCenter)
 		{
-			float center = get_center_x(&this->lines[i], this->xsiz, this->ysiz,
+			 float center = get_center_x(&this->lines[i], this->xsiz, this->ysiz,
 				this->screen);
 
 			C2D_DrawText(&this->lines[i], C2D_WithColor, center,
-				this->y + (this->lineHeigth * i), this->z, this->xsiz, this->ysiz, this->slots.get(1));
+				this->y + (this->lineHeight * i), this->z, this->xsiz, this->ysiz, this->slots.get(1));
 		}
 		else if(this->doScroll)
 		{
 
 			C2D_DrawText(&this->lines[i], C2D_WithColor, this->sctx.rx,
-				this->y + (this->lineHeigth * i), this->z, this->xsiz, this->ysiz, this->slots.get(1));
+				this->y + (this->lineHeight * i), this->z, this->xsiz, this->ysiz, this->slots.get(1));
 		}
 		else
 		{
 			C2D_DrawText(&this->lines[i], C2D_WithColor, this->x,
-				this->y + (this->lineHeigth * i), this->z, this->xsiz, this->ysiz, this->slots.get(1));
+				this->y + (this->lineHeight * i), this->z, this->xsiz, this->ysiz, this->slots.get(1));
 		}
 	}
 
@@ -580,7 +580,7 @@ void ui::Text::set_center_x()
 
 float ui::Text::height()
 {
-	return this->lines.size() * this->lineHeigth;
+	return this->lines.size() * this->lineHeight;
 }
 
 float ui::Text::width()

@@ -57,3 +57,6 @@ TODO
 scripts/extract_seeddb
 scripts/seeddb*
 
+# VSCode
+.vscode/
+*.lst

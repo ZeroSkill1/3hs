@@ -283,7 +283,7 @@ namespace ui
 		bool render_bottom(const ui::Keys&);
 		/* renders only the top widgets */
 		bool render_top(const ui::Keys&);
-		/* renders a frame on `screen' */
+		/* renders a frame on `screen` */
 		bool render_screen(const ui::Keys&, ui::Screen screen);
 		/* removes all widgets in the queue */
 		void clear();
@@ -516,7 +516,7 @@ namespace ui
 		std::vector<C2D_Text> lines;
 		C2D_TextBuf buf = nullptr;
 		bool doAutowrap = false;
-		float lineHeigth = 0.0f;
+		float lineHeight = 0.0f;
 		bool drawCenter = false;
 		bool doScroll = false;
 		std::string text;
