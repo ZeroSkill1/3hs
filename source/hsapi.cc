@@ -234,6 +234,7 @@ static void serialize_categories(std::vector<hsapi::Category>& rcats, json& cats
 static void serialize_title(hsapi::Title& t, json& jt)
 {
 	t.size = jt["size"].get<hsapi::hsize>();
+	t.dlCount = jt["download_count"].get<hsapi::hsize>();
 	t.id = jt["id"].get<hsapi::hid>();
 	t.tid = ctr::str_to_tid(jt["title_id"].get<std::string>());
 	t.cat = jt["category"].get<std::string>();

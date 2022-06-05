@@ -85,11 +85,11 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 				"Press " UI_GLYPH_B " to go back.",
 			[str::version] = "Version", /* nowrap, context: title version, bottom screen metadata when you press A on a list item */
 			[str::prodcode] = "Product Code", /* nowrap, context: title product code, same location as above string */
-			[str::size] = "Size", /* nowrap, context: title size, (sub)category size, displayed on bottom screen in the main list */
+			[str::size] = "Size", /* nowrap, context: title size, (sub)category size, displayed on bottom screen in the main list, sort method in switcher in settings */
 			[str::name] = "Name", /* nowrap, context: title name, (sub)category name, see above for location */
-			[str::tid] = "Title ID", /* nowrap, context: title id, extmeta & main list */
+			[str::tid] = "Title ID", /* nowrap, context: title id, extmeta & main list, sort method in switcher in settings */
 			[str::category] = "Category", /* nowrap, context: content category, extmeta & main list */
-			[str::landing_id] = "hShop ID", /* nowrap, context: hShop ID used for searching, previously known as landing ID */
+			[str::landing_id] = "hShop ID", /* nowrap, context: hShop ID used for searching, previously known as landing ID, sort method in switcher in settings */
 			[str::description] = "Description", /* nowrap, context: category description */
 			[str::total_titles] = "Total Titles", /* nowrap */
 			[str::select_cat] = "Select a category", /* nowrap, context: top screen in main list */
@@ -209,6 +209,14 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::filter_overlap] = "Detected an overlap in the specified search filters", /* context: overlapping filters in legacy search, i.e. include:games exclude:games */
 			[str::lgy_search] = "Legacy Search", /* nowrap, context: "legacy" may be translated as "traditional", "old-school", "classic", you name it */
 			[str::sure_reset] = "Are you sure you want to reset configuration?",
+			[str::ascending] = "Ascending", /* nowrap, context: sort direction, in switcher in settings + if you press L in title select */
+			[str::descending] = "Descending", /* nowrap, context: sort direction, in switcher in settings + if you press L in title select */
+			[str::alphabetical] = "Alphabetical", /* nowrap, context: sort method, in switcher in settings */
+			[str::downloads] = "Downloads", /* nowrap, context: sort method, in switcher in settings */
+			[str::def_sort_meth] = "Default sort method", /* scroll, context: setting title */
+			[str::def_sort_meth_desc] = "Specifies the default sort method to use when viewing a list of titles.", /* context: setting description */
+			[str::def_sort_dir] = "Default sort direction", /* scroll, context: setting title */
+			[str::def_sort_dir_desc] = "Specifies the default sort direction to use when viewing a list of titles.", /* context: setting description */
 		},
 
 	[lang::dutch] =
@@ -355,6 +363,14 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::filter_overlap] = "Er is een overlap tussen de filters",
 			[str::lgy_search] = "Classieke zoekmethode",
 			[str::sure_reset] = "Weet je zeker dat je je instellingen wilt terugzetten?",
+			STUB(ascending),
+			STUB(descending),
+			STUB(alphabetical),
+			STUB(downloads),
+			STUB(def_sort_meth),
+			STUB(def_sort_meth_desc),
+			STUB(def_sort_dir),
+			STUB(def_sort_dir_desc),
 		},
 
 	[lang::german] =
@@ -500,6 +516,14 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::filter_overlap] = "Erkannte überschneidende Suchfilter",
 			[str::lgy_search] = "Klassische Suche",
 			STUB(sure_reset),
+			STUB(ascending),
+			STUB(descending),
+			STUB(alphabetical),
+			STUB(downloads),
+			STUB(def_sort_meth),
+			STUB(def_sort_meth_desc),
+			STUB(def_sort_dir),
+			STUB(def_sort_dir_desc),
 		},
 
 	[lang::spanish] =
@@ -646,6 +670,14 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::filter_overlap] = "Se detectó una superposición en los filtros de búsqueda especificados",
 			[str::lgy_search] = "Búsqueda Clásica",
 			STUB(sure_reset),
+			STUB(ascending),
+			STUB(descending),
+			STUB(alphabetical),
+			STUB(downloads),
+			STUB(def_sort_meth),
+			STUB(def_sort_meth_desc),
+			STUB(def_sort_dir),
+			STUB(def_sort_dir_desc),
 		},
 
 	[lang::french] =
@@ -792,6 +824,14 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::filter_overlap] = "Chevauchement détecté dans les filtres de recherche spécifié",
 			[str::lgy_search] = "Recherche simple",
 			STUB(sure_reset),
+			STUB(ascending),
+			STUB(descending),
+			STUB(alphabetical),
+			STUB(downloads),
+			STUB(def_sort_meth),
+			STUB(def_sort_meth_desc),
+			STUB(def_sort_dir),
+			STUB(def_sort_dir_desc),
 		},
 
 	[lang::french_canada] =
@@ -938,6 +978,14 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::filter_overlap] = "Chevauchement détecté dans les filtres de recherche spécifiés",
 			[str::lgy_search] = "Recherche héritée",
 			STUB(sure_reset),
+			STUB(ascending),
+			STUB(descending),
+			STUB(alphabetical),
+			STUB(downloads),
+			STUB(def_sort_meth),
+			STUB(def_sort_meth_desc),
+			STUB(def_sort_dir),
+			STUB(def_sort_dir_desc),
 		},
 
 	[lang::romanian] =
@@ -1084,6 +1132,14 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::filter_overlap] = "A fost găsită o suprapunere a filtrelor de căutare",
 			[str::lgy_search] = "Căutare Clasică",
 			STUB(sure_reset),
+			STUB(ascending),
+			STUB(descending),
+			STUB(alphabetical),
+			STUB(downloads),
+			STUB(def_sort_meth),
+			STUB(def_sort_meth_desc),
+			STUB(def_sort_dir),
+			STUB(def_sort_dir_desc),
 		},
 
 	[lang::italian] =
@@ -1230,6 +1286,14 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::filter_overlap] = "Rilevata una contraddizione nei filtri di ricerca specificati",
 			[str::lgy_search] = "Ricerca classica",
 			STUB(sure_reset),
+			STUB(ascending),
+			STUB(descending),
+			STUB(alphabetical),
+			STUB(downloads),
+			STUB(def_sort_meth),
+			STUB(def_sort_meth_desc),
+			STUB(def_sort_dir),
+			STUB(def_sort_dir_desc),
 		},
 
 	[lang::portuguese] =
@@ -1376,6 +1440,14 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::filter_overlap] = "Detetada uma sobreposição nos filtros de pesquisa utilizados",
 			[str::lgy_search] = "Pesquisa Clássica",
 			STUB(sure_reset),
+			STUB(ascending),
+			STUB(descending),
+			STUB(alphabetical),
+			STUB(downloads),
+			STUB(def_sort_meth),
+			STUB(def_sort_meth_desc),
+			STUB(def_sort_dir),
+			STUB(def_sort_dir_desc),
 		},
 
 	[lang::korean] =
@@ -1523,6 +1595,14 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::filter_overlap] = "추가/제외 검색 필터가 겹침",
 			[str::lgy_search] = "구형 검색창",
 			STUB(sure_reset),
+			STUB(ascending),
+			STUB(descending),
+			STUB(alphabetical),
+			STUB(downloads),
+			STUB(def_sort_meth),
+			STUB(def_sort_meth_desc),
+			STUB(def_sort_dir),
+			STUB(def_sort_dir_desc),
 		},
 
 	[lang::greek] =
@@ -1669,6 +1749,14 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::filter_overlap] = "Εντοπίστηκε επικάλυψη στα καθορισμένα φίλτρα αναζήτησης",
 			[str::lgy_search] = "Αναζήτηση παλαιού τύπου",
 			STUB(sure_reset),
+			STUB(ascending),
+			STUB(descending),
+			STUB(alphabetical),
+			STUB(downloads),
+			STUB(def_sort_meth),
+			STUB(def_sort_meth_desc),
+			STUB(def_sort_dir),
+			STUB(def_sort_dir_desc),
 		},
 
 	[lang::polish] =
@@ -1817,6 +1905,14 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::filter_overlap] = "Wykryto nakładanie się określonych filtrów wyszukiwania",
 			[str::lgy_search] = "Wyszukiwanie starsze",
 			STUB(sure_reset),
+			STUB(ascending),
+			STUB(descending),
+			STUB(alphabetical),
+			STUB(downloads),
+			STUB(def_sort_meth),
+			STUB(def_sort_meth_desc),
+			STUB(def_sort_dir),
+			STUB(def_sort_dir_desc),
 		},
 
 	[lang::hungarian] =
@@ -1963,6 +2059,14 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::filter_overlap] = "Átfedés található a megadott keresési szűrők között",
 			[str::lgy_search] = "Régimódú Keresés",
 			STUB(sure_reset),
+			STUB(ascending),
+			STUB(descending),
+			STUB(alphabetical),
+			STUB(downloads),
+			STUB(def_sort_meth),
+			STUB(def_sort_meth_desc),
+			STUB(def_sort_dir),
+			STUB(def_sort_dir_desc),
 		},
 
 	[lang::japanese] =
@@ -2109,6 +2213,14 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::filter_overlap] = "指定された検索フィルターで重複が検出されました",
 			[str::lgy_search] = "レガシー検索",
 			STUB(sure_reset),
+			STUB(ascending),
+			STUB(descending),
+			STUB(alphabetical),
+			STUB(downloads),
+			STUB(def_sort_meth),
+			STUB(def_sort_meth_desc),
+			STUB(def_sort_dir),
+			STUB(def_sort_dir_desc),
 		}
 };
 #pragma GCC diagnostic pop

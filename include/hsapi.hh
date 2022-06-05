@@ -86,6 +86,7 @@ namespace hsapi
 		std::string subcat; /* subcategory this title belongs to */
 		std::string name; /* name of the title on hShop */
 		std::string cat; /* category this title belongs to */
+		hsize dlCount; /* amount of title downloads */
 		hsize size; /* filesize */
 		htid tid; /* title id of the title */
 		hid id; /* hShop id */

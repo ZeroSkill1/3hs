@@ -40,6 +40,22 @@ enum class LumaLocaleMode
 	disabled, automatic, manual,
 };
 
+enum class SortMethod {
+	alpha,
+	tid,
+	size,
+	downloads,
+	id,
+//	added,
+//	updated,
+};
+
+enum class SortDirection {
+	asc,
+	desc,
+};
+
+
 typedef struct Settings
 {
 	char magic[4] = { '3', 'H', 'S', 'S' };
@@ -56,9 +72,12 @@ typedef struct Settings
 	bool checkForExtraContent = true;
 	bool warnNoBase = true;
 	u8 maxExtraLogs = 3;
+	SortMethod defaultSortMethod = SortMethod::alpha;
+	SortDirection defaultSortDirection = SortDirection::asc;
 } Settings;
 
 
+SortMethod settings_sort_switch();
 bool settings_are_ready();
 Settings *get_settings();
 void ensure_settings();

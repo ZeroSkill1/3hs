@@ -18,6 +18,7 @@
 #define inc_ui_list_hh
 
 #include <functional>
+#include <algorithm>
 
 #include <ui/base.hh>
 #include <panic.hh>
@@ -247,14 +248,6 @@ builtin_controls_done:
 				this->append_text(i);
 			this->update_scrolldata();
 		}
-
-		/* Rerenders an item in the list
-		 **/
-		void update(size_t i)
-		{
-			std::string s = this->to_string_(i);
-		}
-
 		/* Amount of items ready to be rendered
 		 **/
 		size_t size() { return this->lines.size(); }

@@ -118,6 +118,8 @@ enum SettingsId
 	ID_ProgLoc,    // show as text: enum val
 	ID_Language,   // show as text: enum val
 	ID_Localemode, // show as text: enum val
+	ID_Direction,  // show as text: enum val
+	ID_Method,     // show as text: enum val
 	ID_Proxy,      // show as text: custom menu
 	ID_MaxELogs,   // show as text: custom menu
 };
@@ -138,7 +140,6 @@ static const char *localemode2str(LumaLocaleMode mode)
 	case LumaLocaleMode::automatic: return STRING(automatic);
 	case LumaLocaleMode::disabled: return STRING(disabled);
 	}
-
 	return STRING(unknown);
 }
 
@@ -150,7 +151,53 @@ static const char *localemode2str_en(LumaLocaleMode mode)
 	case LumaLocaleMode::automatic: return "automatic";
 	case LumaLocaleMode::disabled: return "disabled";
 	}
+	return "unknown";
+}
+
+static const char *direction2str(SortDirection dir)
+{
+	switch(dir)
+	{
+	case SortDirection::asc: return STRING(ascending);
+	case SortDirection::desc: return STRING(descending);
+	}
 	return STRING(unknown);
+}
+
+static const char *direction2str_en(SortDirection dir)
+{
+	switch(dir)
+	{
+	case SortDirection::asc: return "ascending";
+	case SortDirection::desc: return "descending";
+	}
+	return "unknown";
+}
+
+static const char *method2str(SortMethod dir)
+{
+	switch(dir)
+	{
+	case SortMethod::alpha: return STRING(alphabetical);
+	case SortMethod::tid: return STRING(tid);
+	case SortMethod::size: return STRING(size);
+	case SortMethod::downloads: return STRING(downloads);
+	case SortMethod::id: return STRING(landing_id);
+	}
+	return "unknown";
+}
+
+static const char *method2str_en(SortMethod dir)
+{
+	switch(dir)
+	{
+	case SortMethod::alpha: return "alphabetical";
+	case SortMethod::tid: return "title ID";
+	case SortMethod::size: return "size";
+	case SortMethod::downloads: return "downloads";
+	case SortMethod::id: return "hShop ID";
+	}
+	return "unknown";
 }
 
 static bool serialize_id_bool(SettingsId ID)
@@ -175,6 +222,8 @@ static bool serialize_id_bool(SettingsId ID)
 	case ID_Localemode:
 	case ID_Proxy:
 	case ID_MaxELogs:
+	case ID_Method:
+	case ID_Direction:
 		panic("impossible bool setting switch case reached");
 	}
 
@@ -204,6 +253,10 @@ static std::string serialize_id_text(SettingsId ID)
 		return proxy::is_set() ? STRING(press_a_to_view) : STRING(none);
 	case ID_MaxELogs:
 		return std::to_string(g_settings.maxExtraLogs);
+	case ID_Direction:
+		return direction2str(g_settings.defaultSortDirection);
+	case ID_Method:
+		return method2str(g_settings.defaultSortMethod);
 	}
 
 	return STRING(unknown);
@@ -368,6 +421,18 @@ static void show_elogs()
 	g_settings.maxExtraLogs = val & 0xFF;
 }
 
+
+SortMethod settings_sort_switch()
+{
+	SortMethod ret = g_settings.defaultSortMethod;
+	read_set_enum<SortMethod>(
+		{ STRING(alphabetical), STRING(tid), STRING(size), STRING(downloads), STRING(landing_id) },
+		{ SortMethod::alpha, SortMethod::tid, SortMethod::size, SortMethod::downloads, SortMethod::id },
+		ret
+	);
+	return ret;
+}
+
 static void update_settings_ID(SettingsId ID)
 {
 	switch(ID)
@@ -428,6 +493,16 @@ static void update_settings_ID(SettingsId ID)
 			g_settings.lumalocalemode
 		);
 		break;
+	case ID_Direction:
+		read_set_enum<SortDirection>(
+			{ STRING(ascending), STRING(descending) },
+			{ SortDirection::asc, SortDirection::desc },
+			g_settings.defaultSortDirection
+		);
+		break;
+	case ID_Method:
+		g_settings.defaultSortMethod = settings_sort_switch();
+		break;
 	// Other
 	case ID_Proxy:
 		show_update_proxy();
@@ -453,12 +528,15 @@ void log_settings()
 		"lumalocalemode: %s, "
 		"checkForExtraContent: %s, "
 		"warnNoBase: %s, "
-		"maxExtraLogs: %u",
+		"maxExtraLogs: %u, "
+		"defaultSortMethod: %s, "
+		"defaultSortDirection: %s",
 			BOOL(isLightMode), BOOL(resumeDownloads), BOOL(loadFreeSpace),
 			BOOL(showBattery), BOOL(showNet), (int) g_settings.timeFormat,
 			g_settings.progloc == ProgressBarLocation::bottom ? "bottom" : "top",
 			i18n::langname(g_settings.language), localemode2str_en(g_settings.lumalocalemode),
-			BOOL(checkForExtraContent), BOOL(warnNoBase), g_settings.maxExtraLogs);
+			BOOL(checkForExtraContent), BOOL(warnNoBase), g_settings.maxExtraLogs,
+			method2str_en(g_settings.defaultSortMethod), direction2str_en(g_settings.defaultSortDirection));
 #undef BOOL
 }
 
@@ -493,6 +571,8 @@ void show_settings()
 		{ STRING(lumalocalemode) , STRING(lumalocalemode)      , ID_Localemode , true  },
 		{ STRING(proxy)          , STRING(proxy_desc)          , ID_Proxy      , true  },
 		{ STRING(max_elogs)      , STRING(max_elogs_desc)      , ID_MaxELogs   , true  },
+		{ STRING(def_sort_meth)  , STRING(def_sort_meth_desc)  , ID_Method     , true  },
+		{ STRING(def_sort_dir)   , STRING(def_sort_dir_desc)   , ID_Direction  , true  },
 	};
 
 	panic_assert(settingsInfo.size() > 0, "empty settings meta table");

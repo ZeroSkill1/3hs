@@ -182,6 +182,9 @@ static bool enable_gamepatching()
 
 void luma::maybe_set_gamepatching()
 {
+	/* disabled due to luma v11.0, may be re-implemented for config.ini at some point. */
+	return;
+
 	if(get_settings()->lumalocalemode == LumaLocaleMode::disabled)
 		return;
 

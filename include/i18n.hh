@@ -179,6 +179,14 @@ namespace str
 		filter_overlap = 129,
 		lgy_search = 130,
 		sure_reset = 131,
+		ascending = 132,
+		descending = 133,
+		alphabetical = 134,
+		downloads = 135,
+		def_sort_meth = 136,
+		def_sort_meth_desc = 137,
+		def_sort_dir = 138,
+		def_sort_dir_desc = 139,
 
 		_i_max,
 	};

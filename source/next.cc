@@ -20,6 +20,8 @@
 #include <ui/list.hh>
 #include <ui/base.hh>
 
+#include <ctype.h>
+
 #include "hsapi.hh"
 #include "queue.hh"
 #include "panic.hh"
@@ -113,6 +115,60 @@ const std::string *next::sel_sub(const std::string& cat, size_t *cursor)
 	return ret;
 }
 
+template <typename T>
+using sort_callback = bool (*) (T& a, T& b);
+
+static bool string_case_cmp(const std::string& a, const std::string& b, bool lt)
+{
+	for(size_t i = 0; i < a.size() && i < b.size(); ++i)
+	{
+		char cha = tolower(a[i]), chb = tolower(b[i]);
+		if(cha == chb) continue;
+		return lt ? cha < chb : cha > chb;
+	}
+	return lt ? a.size() < b.size() : a.size() > b.size();
+}
+
+static bool sort_alpha_desc(hsapi::Title& a, hsapi::Title& b) { return string_case_cmp(a.name, b.name, false); }
+static bool sort_tid_desc(hsapi::Title& a, hsapi::Title& b) { return a.tid > b.tid; }
+static bool sort_size_desc(hsapi::Title& a, hsapi::Title& b) { return a.size > b.size; }
+static bool sort_downloads_desc(hsapi::Title& a, hsapi::Title& b) { return a.dlCount > b.dlCount; }
+static bool sort_id_desc(hsapi::Title& a, hsapi::Title& b) { return a.id > b.id; }
+
+static bool sort_alpha_asc(hsapi::Title& a, hsapi::Title& b) { return string_case_cmp(a.name, b.name, true); }
+static bool sort_tid_asc(hsapi::Title& a, hsapi::Title& b) { return a.tid < b.tid; }
+static bool sort_size_asc(hsapi::Title& a, hsapi::Title& b) { return a.size < b.size; }
+static bool sort_downloads_asc(hsapi::Title& a, hsapi::Title& b) { return a.dlCount < b.dlCount; }
+static bool sort_id_asc(hsapi::Title& a, hsapi::Title& b) { return a.id < b.id; }
+
+static sort_callback<hsapi::Title> get_sort_callback(SortDirection dir, SortMethod method)
+{
+	switch(dir)
+	{
+	case SortDirection::asc:
+		switch(method)
+		{
+		case SortMethod::alpha: return sort_alpha_asc;
+		case SortMethod::tid: return sort_tid_asc;
+		case SortMethod::size: return sort_size_asc;
+		case SortMethod::downloads: return sort_downloads_asc;
+		case SortMethod::id: return sort_id_asc;
+		}
+		break;
+	case SortDirection::desc:
+		switch(method)
+		{
+		case SortMethod::alpha: return sort_alpha_desc;
+		case SortMethod::tid: return sort_tid_desc;
+		case SortMethod::size: return sort_size_desc;
+		case SortMethod::downloads: return sort_downloads_desc;
+		case SortMethod::id: return sort_id_desc;
+		}
+		break;
+	}
+	panic("invalid sort method/direction");
+}
+
 hsapi::hid next::sel_gam(std::vector<hsapi::Title>& titles, size_t *cursor)
 {
 	panic_assert(titles.size() > *cursor, "invalid cursor position");
@@ -121,6 +177,10 @@ hsapi::hid next::sel_gam(std::vector<hsapi::Title>& titles, size_t *cursor)
 	std::string desc = set_desc(STRING(select_title));
 	bool focus = set_focus(false);
 	hsapi::hid ret = next_gam_back;
+
+	SortDirection dir = get_settings()->defaultSortDirection;
+	SortMethod sortm = get_settings()->defaultSortMethod;
+	std::sort(titles.begin(), titles.end(), get_sort_callback(dir, sortm));
 
 	ui::RenderQueue queue;
 
@@ -152,6 +212,26 @@ hsapi::hid next::sel_gam(std::vector<hsapi::Title>& titles, size_t *cursor)
 		.connect(list_t::buttons, KEY_B | KEY_Y | KEY_START)
 		.x(5.0f).y(25.0f)
 		.add_to(&list, queue);
+
+	ui::builder<ui::ButtonCallback>(ui::Screen::top, KEY_L)
+		.connect(ui::ButtonCallback::kdown, [list, &dir, &sortm, &titles](u32) -> bool {
+			ui::RenderQueue::global()->render_and_then([list, &dir, &sortm, &titles]() -> void {
+				sortm = settings_sort_switch();
+				std::sort(titles.begin(), titles.end(), get_sort_callback(dir, sortm));
+				list->update();
+			});
+			return true;
+		}).add_to(queue);
+
+	ui::builder<ui::ButtonCallback>(ui::Screen::top, KEY_R)
+		.connect(ui::ButtonCallback::kdown, [list, &dir, &sortm, &titles](u32) -> bool {
+			ui::RenderQueue::global()->render_and_then([list, &dir, &sortm, &titles]() -> void {
+				dir = dir == SortDirection::asc ? SortDirection::desc : SortDirection::asc;
+				std::sort(titles.begin(), titles.end(), get_sort_callback(dir, sortm));
+				list->update();
+			});
+			return true;
+		}).add_to(queue);
 
 	if(cursor != nullptr) list->set_pos(*cursor);
 	queue.render_finite();
