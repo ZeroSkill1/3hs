@@ -1137,16 +1137,16 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::invalid_excludes] = "Filtre de excludere invalide",
 			[str::filter_overlap] = "A fost găsită o suprapunere a filtrelor de căutare",
 			[str::lgy_search] = "Căutare Clasică",
-			STUB(sure_reset),
-			STUB(ascending),
-			STUB(descending),
-			STUB(alphabetical),
-			STUB(downloads),
-			STUB(def_sort_meth),
-			STUB(def_sort_meth_desc),
-			STUB(def_sort_dir),
-			STUB(def_sort_dir_desc),
-			STUB(invalid_content_type),
+			[str::sure_reset] = "Sunteți sigur că vreți să resetați setările?",
+			[str::ascending] = "Crescător", /* nowrap, context: sort direction, in switcher in settings + if you press L in title select */
+			[str::descending] = "Descrescător", /* nowrap, context: sort direction, in switcher in settings + if you press L in title select */
+			[str::alphabetical] = "Alfabetic", /* nowrap, context: sort method, in switcher in settings */
+			[str::downloads] = "Descărcări", /* nowrap, context: sort method, in switcher in settings */
+			[str::def_sort_meth] = "Metoda de sortare implicită", /* scroll, context: setting title */
+			[str::def_sort_meth_desc] = "Specifică metoda de sortare implicită de folosit când vizionați o listă de titluri.", /* context: setting description */
+			[str::def_sort_dir] = "Direcția de sortare implicită", /* scroll, context: setting title */
+			[str::def_sort_dir_desc] = "Specifică direcția de sortare implicită de folosit când vizionați o listă de titluri.", /* context: setting description */
+			[str::invalid_content_type] = "Tip de conținut invalid", /* context: legacy search content type (see p: documentation on site) */
 		},
 
 	[lang::italian] =
@@ -1447,16 +1447,16 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::invalid_excludes] = "Filtros de exclusão inválidos",
 			[str::filter_overlap] = "Detetada uma sobreposição nos filtros de pesquisa utilizados",
 			[str::lgy_search] = "Pesquisa Clássica",
-			STUB(sure_reset),
-			STUB(ascending),
-			STUB(descending),
-			STUB(alphabetical),
-			STUB(downloads),
-			STUB(def_sort_meth),
-			STUB(def_sort_meth_desc),
-			STUB(def_sort_dir),
-			STUB(def_sort_dir_desc),
-			STUB(invalid_content_type),
+			[str::sure_reset] = "Tens certeza que queres resetar as suas definições?",
+			[str::ascending] = "Ascendente", /* nowrap, context: sort direction, in switcher in settings + if you press L in title select /
+			[str::descending] = "Descendente", / nowrap, context: sort direction, in switcher in settings + if you press L in title select /
+			[str::alphabetical] = "Alfabética", / nowrap, context: sort method, in switcher in settings /
+			[str::downloads] = "Downloads", / nowrap, context: sort method, in switcher in settings /
+			[str::def_sort_meth] = "Metodo de ordem predefinido", / scroll, context: setting title /
+			[str::def_sort_meth_desc] = "Especifica o metodo de ordem predefinido para usar durante a visualização de jogos.", / context: setting description /
+			[str::def_sort_dir] = "Direção de ordem predefinida", / scroll, context: setting title /
+			[str::def_sort_dir_desc] = "Especifica a direção da ordem predefinida para usar durante a visualização de jogos.", / context: setting description /
+			[str::invalid_content_type] = "Tipo de conteúdo invalido", / context: legacy search content type (see p: documentation on site) */
 		},
 
 	[lang::korean] =
