@@ -368,11 +368,11 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::descending] = "Dalend",
 			[str::alphabetical] = "Alfabetisch",
 			[str::downloads] = "Populariteit",
-			[str::def_sort_meth] = "Standaard sorteer methode"
-			STUB(def_sort_meth_desc),
-			STUB(def_sort_dir),
-			STUB(def_sort_dir_desc),
-			STUB(invalid_content_type),
+			[str::def_sort_meth] = "Standaard sorteer methode",
+			[str::def_sort_meth_desc] = "De standaard sorteer methode in gebruik tijdens het bekijken van titels.",
+			[str::def_sort_dir] = "Standaard sorteer richting",
+			[str::def_sort_dir_desc] = "De standaard sorteer richting in gebruik tijdens het bekijken van titels.",
+			[str::invalid_content_type] = "Ongeldige titel type",
 		},
 
 	[lang::german] =
