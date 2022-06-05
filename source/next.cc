@@ -218,17 +218,17 @@ hsapi::hid next::sel_gam(std::vector<hsapi::Title>& titles, size_t *cursor)
 			ui::RenderQueue::global()->render_and_then([list, &dir, &sortm, &titles]() -> void {
 				sortm = settings_sort_switch();
 				std::sort(titles.begin(), titles.end(), get_sort_callback(dir, sortm));
-				list->update();
 			});
 			return true;
 		}).add_to(queue);
 
 	ui::builder<ui::ButtonCallback>(ui::Screen::top, KEY_R)
-		.connect(ui::ButtonCallback::kdown, [list, &dir, &sortm, &titles](u32) -> bool {
-			ui::RenderQueue::global()->render_and_then([list, &dir, &sortm, &titles]() -> void {
+		.connect(ui::ButtonCallback::kdown, [list, &dir, &sortm, &titles, &meta](u32) -> bool {
+			ui::RenderQueue::global()->render_and_then([list, &dir, &sortm, &titles, &meta]() -> void {
 				dir = dir == SortDirection::asc ? SortDirection::desc : SortDirection::asc;
 				std::sort(titles.begin(), titles.end(), get_sort_callback(dir, sortm));
 				list->update();
+				meta->set_title(list->at(0));
 			});
 			return true;
 		}).add_to(queue);

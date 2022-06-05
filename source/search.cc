@@ -32,7 +32,7 @@
 #include "util.hh"
 #include "i18n.hh"
 
-static const char *short_keys[5] = { "i", "e", "sb", "sd", "t" };
+static const char *short_keys[6] = { "i", "e", "sb", "sd", "t", "p" };
 #define SHORT_KEYS_SIZE (sizeof(short_keys) / sizeof(const char *))
 
 static const std::unordered_map<std::string, std::string> keys =
@@ -50,6 +50,8 @@ static const std::unordered_map<std::string, std::string> keys =
 	{ "r"         , "sb" },
 	{ "titleid"   , "t"  },
 	{ "tid"       , "t"  },
+	{ "type"      , "p"  },
+	{ "typ"       , "p"  },
 };
 
 static const std::unordered_map<std::string, std::string> sort_by =
@@ -388,6 +390,12 @@ void legacy_search()
 		params["sd"] = sort_direction.at(params["sd"]);
 	}
 
+	if(has_key(params, "p") && (params["p"] != "legit" && params["p"] != "piratelegit" && params["p"] != "standard"))
+	{
+		error(STRING(invalid_content_type));
+		return;
+	}
+
 	std::string includes, excludes;
 	std::vector<std::string> include_cats, exclude_cats;
 
@@ -396,13 +404,14 @@ void legacy_search()
 		error(STRING(invalid_includes));
 		return;
 	}
-	if(!includes.empty()) params["i"] = includes;
 
 	if(has_e && !parse_filters(excludes, exclude_cats, params["e"]))
 	{
 		error(STRING(invalid_excludes));
 		return;
 	}
+
+	if(!includes.empty()) params["i"] = includes;
 	if(!excludes.empty()) params["e"] = excludes;
 
 	for(const std::string& include_cat : include_cats)

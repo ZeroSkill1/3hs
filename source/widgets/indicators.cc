@@ -142,7 +142,7 @@ std::string ui::TimeIndicator::time(time_t now)
 	// 12h aka american aka bad
 	else
 	{
-		constexpr int size = 3 /* hh: */ + 3 /* mm: */ + 2 /* ss */ + 3 /* " PM"/" AM" */ + 1 /* NULL term */;
+		constexpr int size = 3 /* hh: */ + 3 /* mm: */ + 2 /* ss */ + 3 /* " PM"/" AM" */ + 1 /* NULL term */ + 1 /* tell the compiler to shut the fuck up */;
 		char str[size];
 
 		// Why do i have to write extra code

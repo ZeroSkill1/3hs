@@ -517,16 +517,16 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::invalid_excludes] = "Ungültige Ausschließungsfilter",
 			[str::filter_overlap] = "Erkannte überschneidende Suchfilter",
 			[str::lgy_search] = "Klassische Suche",
-			STUB(sure_reset),
-			STUB(ascending),
-			STUB(descending),
-			STUB(alphabetical),
-			STUB(downloads),
-			STUB(def_sort_meth),
-			STUB(def_sort_meth_desc),
-			STUB(def_sort_dir),
-			STUB(def_sort_dir_desc),
-			STUB(invalid_content_type),
+			[str::sure_reset] = "Bist du sicher, dass du die Einstellungen zurücksetzen möchtest?",
+			[str::ascending] = "Aufsteigend",
+			[str::descending] = "Absteigend",
+			[str::alphabetical] = "Alphabetisch",
+			[str::downloads] = "Downloads",
+			[str::def_sort_meth] = "Standard-Sortiermethode",
+			[str::def_sort_meth_desc] = "Gibt an, welche Sortiermethode standardmäßig bei einer Titellistenansicht verwendet werden soll.",
+			[str::def_sort_dir] = "Standard-Sortierrichtung",
+			[str::def_sort_dir_desc] = "Gibt an, welche Sortierrichtung standardmäßig bei einer Titellistenansicht verwendet werden soll.",
+			[str::invalid_content_type] = "Ungültige Inhaltsart"
 		},
 
 	[lang::spanish] =
@@ -1921,7 +1921,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::alphabetical] = "Alfabetyczny", /* nowrap, context: sort method, in switcher in settings */
 			[str::downloads] = "Pobrane pliki", /* nowrap, context: sort method, in switcher in settings */
 			[str::def_sort_meth] = "Domyślna metoda sortowania", /* scroll, context: setting title */
-			[str::def_sort_meth_desc] = "Określa domyślną metodę sortowania używaną podczas przeglądania listy tytułów., /* context: setting description */
+			[str::def_sort_meth_desc] = "Określa domyślną metodę sortowania używaną podczas przeglądania listy tytułów.", /* context: setting description */
 			[str::def_sort_dir] = "Domyślny kierunek sortowania", /* scroll, context: setting title */
 			[str::def_sort_dir_desc] = "Określa domyślny kierunek sortowania używany podczas przeglądania listy tytułów.", /* context: setting description */
 			[str::invalid_content_type] = "nieprawidłowy typ pliku", /* context: legacy search content type (see p: documentation on site) */
