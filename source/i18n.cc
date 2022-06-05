@@ -208,15 +208,16 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::invalid_excludes] = "Invalid exclude filters", /* context: include legacy filter, includes a (sub)category */
 			[str::filter_overlap] = "Detected an overlap in the specified search filters", /* context: overlapping filters in legacy search, i.e. include:games exclude:games */
 			[str::lgy_search] = "Legacy Search", /* nowrap, context: "legacy" may be translated as "traditional", "old-school", "classic", you name it */
-			[str::sure_reset] = "Are you sure you want to reset configuration?",
+			[str::sure_reset] = "Are you sure you want to reset your settings?", /* context: prompt to reset settings */
 			[str::ascending] = "Ascending", /* nowrap, context: sort direction, in switcher in settings + if you press L in title select */
 			[str::descending] = "Descending", /* nowrap, context: sort direction, in switcher in settings + if you press L in title select */
 			[str::alphabetical] = "Alphabetical", /* nowrap, context: sort method, in switcher in settings */
-			[str::downloads] = "Downloads", /* nowrap, context: sort method, in switcher in settings */
+			[str::downloads] = "Downloads", /* nowrap, context: sort method, may be translated as "popularity", in switcher in settings */
 			[str::def_sort_meth] = "Default sort method", /* scroll, context: setting title */
 			[str::def_sort_meth_desc] = "Specifies the default sort method to use when viewing a list of titles.", /* context: setting description */
 			[str::def_sort_dir] = "Default sort direction", /* scroll, context: setting title */
 			[str::def_sort_dir_desc] = "Specifies the default sort direction to use when viewing a list of titles.", /* context: setting description */
+			[str::invalid_content_type] = "Invalid content type", /* context: legacy search content type (see p: documentation on site) */
 		},
 
 	[lang::dutch] =
@@ -324,7 +325,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::clear] = "Maak leeg",
 			[str::progbar_screen_desc] = "Het scherm om de laadbalk op te laten verschijnen",
 			[str::light_mode_desc] = "Zet lichte modus aan. Dit zal het uiterlijk van 3hs een lichte tint geven",
-			[str::resume_dl_desc] = "Hervat downloads wanneer zij onderbroken worden",
+			[str::resume_dl_desc] = "Hervat installaties wanneer zij onderbroken worden",
 			[str::load_space_desc] = "Laad de vrije opslag balk",
 			[str::show_battery_desc] = "Laat de status van de batterij zien",
 			[str::time_format_desc] = "Jouw favoriete tijd formaat. 24h of 12h. In Nederland wordt 24h het vaakst gebruikt",
@@ -363,14 +364,15 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::filter_overlap] = "Er is een overlap tussen de filters",
 			[str::lgy_search] = "Classieke zoekmethode",
 			[str::sure_reset] = "Weet je zeker dat je je instellingen wilt terugzetten?",
-			STUB(ascending),
-			STUB(descending),
-			STUB(alphabetical),
-			STUB(downloads),
-			STUB(def_sort_meth),
+			[str::ascending] = "Stijgend",
+			[str::descending] = "Dalend",
+			[str::alphabetical] = "Alfabetisch",
+			[str::downloads] = "Populariteit",
+			[str::def_sort_meth] = "Standaard sorteer methode"
 			STUB(def_sort_meth_desc),
 			STUB(def_sort_dir),
 			STUB(def_sort_dir_desc),
+			STUB(invalid_content_type),
 		},
 
 	[lang::german] =
@@ -524,6 +526,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			STUB(def_sort_meth_desc),
 			STUB(def_sort_dir),
 			STUB(def_sort_dir_desc),
+			STUB(invalid_content_type),
 		},
 
 	[lang::spanish] =
@@ -669,15 +672,16 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::invalid_excludes] = "Filtros de exclusión inválidos",
 			[str::filter_overlap] = "Se detectó una superposición en los filtros de búsqueda especificados",
 			[str::lgy_search] = "Búsqueda Clásica",
-			STUB(sure_reset),
-			STUB(ascending),
-			STUB(descending),
-			STUB(alphabetical),
-			STUB(downloads),
-			STUB(def_sort_meth),
-			STUB(def_sort_meth_desc),
-			STUB(def_sort_dir),
-			STUB(def_sort_dir_desc),
+			[str::sure_reset] = "¿Estás seguro de querer restablecer tu configuración?",
+			[str::ascending] = "Ascendiendo", /* nowrap, context: sort direction, in switcher in settings + if you press L in title select */
+			[str::descending] = "Descendiendo", /* nowrap, context: sort direction, in switcher in settings + if you press L in title select */
+			[str::alphabetical] = "Alfabético", /* nowrap, context: sort method, in switcher in settings */
+			[str::downloads] = "Descargas", /* nowrap, context: sort method, in switcher in settings */
+			[str::def_sort_meth] = "Método de organización predeterminado", /* scroll, context: setting title */
+			[str::def_sort_meth_desc] = "Especifica el método de organización predeterminado que se utilizará al ver una lista de títulos.", /* context: setting description */
+			[str::def_sort_dir] = "Dirección de organización por defecto", /* scroll, context: setting title */
+			[str::def_sort_dir_desc] = "Especifica la dirección de organización predeterminado que se utilizará al ver una lista de títulos.", /* context: setting description */
+			[str::invalid_content_type] = "Tipo de contenido inválido", /* context: legacy search content type (see p: documentation on site) */
 		},
 
 	[lang::french] =
@@ -736,7 +740,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::netcon_lost] = "La connexion internet a été perdue (%1).\nNouvelle tentative dans $t seconds...",
 			[str::about_app] = "A propos",
 			[str::help_manual] = "Aide/Manuel",
-			[str::find_missing_content] = "Trouver le contenu manquant",
+			[str::find_missing_content] = "Recherche de contenu manquant",
 			[str::press_a_exit] = "Appuyez sur " UI_GLYPH_A " pour quitter.",
 			[str::fatal_panic] = "Une erreur fatale est survenue.",
 			[str::failed_open_seeddb] = "Impossible d'ouvrir le seeddb.bin.",
@@ -823,15 +827,16 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::invalid_excludes] = "Filtres exclus invalide",
 			[str::filter_overlap] = "Chevauchement détecté dans les filtres de recherche spécifié",
 			[str::lgy_search] = "Recherche simple",
-			STUB(sure_reset),
-			STUB(ascending),
-			STUB(descending),
-			STUB(alphabetical),
-			STUB(downloads),
-			STUB(def_sort_meth),
-			STUB(def_sort_meth_desc),
-			STUB(def_sort_dir),
-			STUB(def_sort_dir_desc),
+			[str::sure_reset] = "Êtes vous sûr de réinitialiser cette configuration?",
+			[str::ascending] = "Croissant", /* nowrap, context: sort direction, in switcher in settings + if you press L in title select */
+			[str::descending] = "Décroissant", /* nowrap, context: sort direction, in switcher in settings + if you press L in title select */
+			[str::alphabetical] = "Alphabétique", /* nowrap, context: sort method, in switcher in settings */
+			[str::downloads] = "Téléchargements", /* nowrap, context: sort method, in switcher in settings */
+			[str::def_sort_meth] = "Méthode de tri par défaut", /* scroll, context: setting title */
+			[str::def_sort_meth_desc] = "Spécifie la méthode de tri par défaut en regardant une liste de titres.", /* context: setting description */
+			[str::def_sort_dir] = "Direction de tri par défaut", /* scroll, context: setting title */
+			[str::def_sort_dir_desc] = "Spécifie la direction de la méthode de tri par défaut en regardant une liste de titres.", /* context: setting description */
+			[str::invalid_content_type] = "Type de contenu invalide", /* context: legacy search content type (see p: documentation on site) */
 		},
 
 	[lang::french_canada] =
@@ -977,15 +982,16 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::invalid_excludes] = "Filtres d'exclusion invalides",
 			[str::filter_overlap] = "Chevauchement détecté dans les filtres de recherche spécifiés",
 			[str::lgy_search] = "Recherche héritée",
-			STUB(sure_reset),
-			STUB(ascending),
-			STUB(descending),
-			STUB(alphabetical),
-			STUB(downloads),
-			STUB(def_sort_meth),
-			STUB(def_sort_meth_desc),
-			STUB(def_sort_dir),
-			STUB(def_sort_dir_desc),
+			[str::sure_reset] = "Es-tu sûre d'éffacer tous tes paramètres?",
+			[str::ascending] ="Croissant",
+			[str::descending] = "Décroissant",
+			[str::alphabetical] = "Alphabétique",
+			[str::downloads] = "Téléchargements",
+			[str::def_sort_meth] = "Méthode de tirage par défault",
+			[str::def_sort_meth_desc] = "Spécifie la méthode de tirage par défault à utiliser quand tu regarde une liste de titres.",
+			[str::def_sort_dir] = "Direction du tirage par défault",
+			[str::def_sort_dir_desc] = "Spécifie la direction du tirage par défault à utiliser quand tu regarde une liste de titres.",
+			[str::invalid_content_type] = "Type de contenue invalide",
 		},
 
 	[lang::romanian] =
@@ -1140,6 +1146,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			STUB(def_sort_meth_desc),
 			STUB(def_sort_dir),
 			STUB(def_sort_dir_desc),
+			STUB(invalid_content_type),
 		},
 
 	[lang::italian] =
@@ -1294,6 +1301,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			STUB(def_sort_meth_desc),
 			STUB(def_sort_dir),
 			STUB(def_sort_dir_desc),
+			STUB(invalid_content_type),
 		},
 
 	[lang::portuguese] =
@@ -1448,6 +1456,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			STUB(def_sort_meth_desc),
 			STUB(def_sort_dir),
 			STUB(def_sort_dir_desc),
+			STUB(invalid_content_type),
 		},
 
 	[lang::korean] =
@@ -1603,6 +1612,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			STUB(def_sort_meth_desc),
 			STUB(def_sort_dir),
 			STUB(def_sort_dir_desc),
+			STUB(invalid_content_type),
 		},
 
 	[lang::greek] =
@@ -1748,15 +1758,16 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::invalid_excludes] = "Μη έγκυρα φίλτρα αποκλεισμού",
 			[str::filter_overlap] = "Εντοπίστηκε επικάλυψη στα καθορισμένα φίλτρα αναζήτησης",
 			[str::lgy_search] = "Αναζήτηση παλαιού τύπου",
-			STUB(sure_reset),
-			STUB(ascending),
-			STUB(descending),
-			STUB(alphabetical),
-			STUB(downloads),
-			STUB(def_sort_meth),
-			STUB(def_sort_meth_desc),
-			STUB(def_sort_dir),
-			STUB(def_sort_dir_desc),
+			[str::sure_reset] = "Είστε σίγουροι ότι θέλετε να επαναφέρετε τις ρυθμίσεις;",
+			[str::ascending] = "Αύξουσα",
+			[str::descending] = "Φθίνουσα",
+			[str::alphabetical] = "Αλφαβητική σειρά",
+			[str::downloads] = "Σειρά λήψεων",
+			[str::def_sort_meth] = "Προεπιλεγμένη μέθοδος ταξινόμησης",
+			[str::def_sort_meth_desc] = "Καθορίζει την προεπιλεγμένη μέθοδο ταξινόμησης που θα χρησιμοποιείται κατά την προβολή μιας λίστας τίτλων.",
+			[str::def_sort_dir] = "Προεπιλεγμένη φορά ταξινόμησης",
+			[str::def_sort_dir_desc] = "Καθορίζει την προεπιλεγμένη φορά ταξινόμησης που θα χρησιμοποιείται κατά την προβολή μιας λίστας τίτλων.",
+			[str::invalid_content_type] = "Μη έγκυρος τύπος περιεχομένου",
 		},
 
 	[lang::polish] =
@@ -1904,15 +1915,16 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::invalid_excludes] = "Nieprawidłowe filtry wykluczania",
 			[str::filter_overlap] = "Wykryto nakładanie się określonych filtrów wyszukiwania",
 			[str::lgy_search] = "Wyszukiwanie starsze",
-			STUB(sure_reset),
-			STUB(ascending),
-			STUB(descending),
-			STUB(alphabetical),
-			STUB(downloads),
-			STUB(def_sort_meth),
-			STUB(def_sort_meth_desc),
-			STUB(def_sort_dir),
-			STUB(def_sort_dir_desc),
+			[str::sure_reset] = "Czy na pewno chcesz zresetować konfigurację?",
+			[str::ascending] = "Większa Kolejność", /* nowrap, context: sort direction, in switcher in settings + if you press L in title select */
+			[str::descending] = "Kolejność malejąca", /* nowrap, context: sort direction, in switcher in settings + if you press L in title select */
+			[str::alphabetical] = "Alfabetyczny", /* nowrap, context: sort method, in switcher in settings */
+			[str::downloads] = "Pobrane pliki", /* nowrap, context: sort method, in switcher in settings */
+			[str::def_sort_meth] = "Domyślna metoda sortowania", /* scroll, context: setting title */
+			[str::def_sort_meth_desc] = "Określa domyślną metodę sortowania używaną podczas przeglądania listy tytułów., /* context: setting description */
+			[str::def_sort_dir] = "Domyślny kierunek sortowania", /* scroll, context: setting title */
+			[str::def_sort_dir_desc] = "Określa domyślny kierunek sortowania używany podczas przeglądania listy tytułów.", /* context: setting description */
+			[str::invalid_content_type] = "nieprawidłowy typ pliku", /* context: legacy search content type (see p: documentation on site) */
 		},
 
 	[lang::hungarian] =
@@ -2067,6 +2079,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			STUB(def_sort_meth_desc),
 			STUB(def_sort_dir),
 			STUB(def_sort_dir_desc),
+			STUB(invalid_content_type),
 		},
 
 	[lang::japanese] =
@@ -2221,6 +2234,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			STUB(def_sort_meth_desc),
 			STUB(def_sort_dir),
 			STUB(def_sort_dir_desc),
+			STUB(invalid_content_type),
 		}
 };
 #pragma GCC diagnostic pop

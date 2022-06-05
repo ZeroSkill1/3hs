@@ -187,6 +187,7 @@ namespace str
 		def_sort_meth_desc = 137,
 		def_sort_dir = 138,
 		def_sort_dir_desc = 139,
+		invalid_content_type = 140,
 
 		_i_max,
 	};
