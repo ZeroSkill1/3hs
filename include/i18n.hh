@@ -37,6 +37,8 @@
 #define LANGNAME_POLISH "Polski"
 #define LANGNAME_HUNGARIAN "Magyar"
 #define LANGNAME_JAPANESE "日本語"
+#define LANGNAME_RUSSIAN "Русский"
+#define LANGNAME_SPEARGLISH "Spearglish"
 
 // ParamSTRING
 #define PSTRING(x, ...) i18n::interpolate(str::x, __VA_ARGS__)
@@ -213,6 +215,8 @@ namespace lang
 		polish        = 11,
 		hungarian     = 12,
 		japanese      = 13,
+		russian       = 14,
+		spearglish    = 15,
 
 		_i_max,
 	};

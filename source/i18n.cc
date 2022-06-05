@@ -67,7 +67,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 {
 	[lang::english] =
 		{
-			[str::banner]  = "The ultimate 3DS content preservation service", /* unused */
+			[str::banner] = "The ultimate 3DS content preservation service", /* unused */
 			[str::loading] = "Loading...", /* nowrap, context: at the top of the screen during loading (the spinner) */
 			[str::luma_not_installed] = "An unsupported firmware was detected.",
 			[str::install_luma] = "3hs cannot be used on this system.", /* context: displayed under above string */
@@ -1448,15 +1448,15 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::filter_overlap] = "Detetada uma sobreposição nos filtros de pesquisa utilizados",
 			[str::lgy_search] = "Pesquisa Clássica",
 			[str::sure_reset] = "Tens certeza que queres resetar as suas definições?",
-			[str::ascending] = "Ascendente", /* nowrap, context: sort direction, in switcher in settings + if you press L in title select /
-			[str::descending] = "Descendente", / nowrap, context: sort direction, in switcher in settings + if you press L in title select /
-			[str::alphabetical] = "Alfabética", / nowrap, context: sort method, in switcher in settings /
-			[str::downloads] = "Downloads", / nowrap, context: sort method, in switcher in settings /
-			[str::def_sort_meth] = "Metodo de ordem predefinido", / scroll, context: setting title /
-			[str::def_sort_meth_desc] = "Especifica o metodo de ordem predefinido para usar durante a visualização de jogos.", / context: setting description /
-			[str::def_sort_dir] = "Direção de ordem predefinida", / scroll, context: setting title /
-			[str::def_sort_dir_desc] = "Especifica a direção da ordem predefinida para usar durante a visualização de jogos.", / context: setting description /
-			[str::invalid_content_type] = "Tipo de conteúdo invalido", / context: legacy search content type (see p: documentation on site) */
+			[str::ascending] = "Ascendente", /* nowrap, context: sort direction, in switcher in settings + if you press L in title select */
+			[str::descending] = "Descendente", /* nowrap, context: sort direction, in switcher in settings + if you press L in title select */
+			[str::alphabetical] = "Alfabética", /* nowrap, context: sort method, in switcher in settings */
+			[str::downloads] = "Downloads", /* nowrap, context: sort method, in switcher in settings */
+			[str::def_sort_meth] = "Metodo de ordem predefinido", /* scroll, context: setting title */
+			[str::def_sort_meth_desc] = "Especifica o metodo de ordem predefinido para usar durante a visualização de jogos.", /* context: setting description */
+			[str::def_sort_dir] = "Direção de ordem predefinida", /* scroll, context: setting title */
+			[str::def_sort_dir_desc] = "Especifica a direção da ordem predefinida para usar durante a visualização de jogos.", /* context: setting description */
+			[str::invalid_content_type] = "Tipo de conteúdo invalido", /* context: legacy search content type (see p: documentation on site) */
 		},
 
 	[lang::korean] =
@@ -2235,7 +2235,317 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			STUB(def_sort_dir),
 			STUB(def_sort_dir_desc),
 			STUB(invalid_content_type),
-		}
+		},
+
+	[lang::russian] =
+		{
+			[str::banner]  = "Лучший сервис загрузки контента для 3DS", /* unused */
+			[str::loading] = "Загрузка...",
+			[str::luma_not_installed] = "Обнаружена не поддерживаемая прошивка.",
+			[str::install_luma] = "3hs нельзя использовать в данной системе .",
+			[str::queue] = "Очередь",
+			[str::connect_wifi] = "Подключите Wi-Fi и перезапустите приложение.", /* unused */
+			[str::fail_init_networking] = "Ошибка инициализации сети",
+			[str::fail_fetch_index] = "Ошибка инициализации индекса\n%1", /* unused */
+			[str::credits_thanks] =
+				"Спасибо что используете 3hs, hShop клиент для 3DS.\n"
+				"Вы можете скачать контент по ссылке\n"
+				"https://hshop.erista.me/",
+			[str::credits_names] = "", /* unused */
+			[str::press_to_install] =
+				"Нажмите " UI_GLYPH_A " для установки.\n"
+				"Нажмите " UI_GLYPH_B " для возврата.",
+			[str::version] = "Версия",
+			[str::prodcode] = "Код продукта",
+			[str::size] = "Размер",
+			[str::name] = "Имя",
+			[str::tid] = "Title ID",
+			[str::category] = "Категория",
+			[str::landing_id] = "hShop ID",
+			[str::description] = "Описание",
+			[str::total_titles] = "Общее количество",
+			[str::select_cat] = "Выберите категорию",
+			[str::select_subcat] = "Выберите подкатегорию",
+			[str::select_title] = "Выберите",
+			[str::no_cats_index] = "Нет категории в индексе (?)", /* unused */
+			[str::empty_subcat] = "Пустая подкатегория (?)", /* unused */
+			[str::empty_cat] = "Пустая категория (?)", /* unused */
+			[str::fmt_24h] = "24 часа", /* context: time format */
+			[str::fmt_12h] = "12 часов", /* context: time format */
+			[str::unknown] = "Неизвестно", /* context: unknown setting */
+			[str::btrue] = "ВКЛ", /* unused, context: setting is set to ON */
+			[str::bfalse] = "ВЫКЛ", /* unused, context: setting is set to OFF */
+			[str::top] = "Верхний", /* context: top screen in progress bar location settings switcher */
+			[str::bottom] = "Нижний", /* context: bottom screen in progress bar location settings switcher */
+			[str::light_mode] = "Темная тема",
+			[str::resume_dl] = "Продолжить загрузку",
+			[str::load_space] = "Показать объем свободного места",
+			[str::show_battery] = "Показать уровень заряда",
+			[str::time_format] = "Формат времени",
+			[str::progbar_screen] = "Положение прогресс бара",
+			[str::language] = "Язык",
+			[str::value_x] = "Значение: %1", /* context: value of setting */
+			[str::back] = "Назад", /* context: back button */
+			[str::invalid] = "Недопустимо",
+			[str::title_doesnt_exist] = "Название не существует: %1", /* %1: title id */
+			[str::fail_create_tex] = "Ошибка создания файла", /* unused */
+			[str::fail_load_smdh_icon] = "load_smdh_icon(): invalid SMDHIconType", /* unused */
+			[str::netcon_lost] = "Соединение прервано (%1).\nПовтор через $t секунд...", /* %1: error code, $t: seconds remaining */
+			[str::about_app] = "Информация",
+			[str::help_manual] = "Помощь/Инструкция",
+			[str::find_missing_content] = "Найти недостающий контент",
+			[str::press_a_exit] = "Нажмите " UI_GLYPH_A " для выхода.", /* context: exit menu and sometimes application */
+			[str::fatal_panic] = "Критическая ошибка.", /* context: can also be translated as fatal error */
+			[str::failed_open_seeddb] = "Не удалось открыть seeddb.bin.",
+			[str::update_to] = "Обновить до %1?", /* %1: new version, i.e. 1.0.2 */
+			[str::search_content] = "Поиск",
+			[str::search_content_action] = "Поиск...",
+			[str::results_query] = "Результаты поиска \"%1\"", /* unused, %1: search query */
+			[str::result_code] = "Код результата: %1", /* %1: result code */
+			[str::level] = "Уровень: %1", /* %1: english level name (level code), context: used when displaying errors */
+			[str::summary] = "Сводка: %1", /* %1 english summary name (summary code), context: used when displaying errors */
+			[str::module] = "Модуль: %1", /* %1 english module name (module code), context: used when displaying errors */
+			[str::hs_bunny_found] = "Поздравляем! Вы нашли пасхалку!", /* context: easter egg, see also: gfx/img/bun.png */
+			[str::already_installed_reinstall] = "Уже установлено. Переустановить?",
+			[str::queue_empty] =
+				"Пусто\n"
+				"Нажмите " UI_GLYPH_A " для возврата.\n"
+				"Нажмите " UI_GLYPH_Y " чтобы добавить в очередь.",
+			[str::cancel] = "Закрыть",
+			[str::confirm] = "Готово",
+			[str::invalid_proxy] = "Неверные настройки прокси",
+			[str::more_about_content] = "Подробнее",
+			[str::lumalocalemode] = "Режим LumaLocale",
+			[str::automatic] = "авто",
+			[str::manual] = "вручную",
+			[str::disabled] = "отключено",
+			[str::patching_reboot] =
+				"Luma3DS Game Patching не активен.\n"
+				"Изменения вступят в силу после перезагрузки.",
+			[str::reboot_now] = "Перезагрузить сейчас?",
+			[str::this_version] = "Текущая версия 3hs %1", /* %1 = version int "version desc" */
+			[str::retry_req] = "Ошибка запроса. Повторить?", /* context: API request */
+			[str::search_zero_results] = "Поиск не дал результатов.\nНажмите " UI_GLYPH_A " для возврата.",
+			[str::credits] = "Credits",
+			[str::extra_content] = "Добавить доп. контент в очередь?", /* context: i.e. DLC/Updates */
+			[str::check_extra] = "Поиск доп. контента", /* context: i.e. DLC/Updates */
+			[str::no_req] = "Запросов не было", /* context: hlink requests */
+			[str::invalid_query] = "Ошибка запроса\nНажмите " UI_GLYPH_A " для возврата.",
+			[str::min_constraint] = "Текущая версия 3hs %1 ниже требуемой %2",
+			[str::proxy] = "Прокси",
+			[str::none] = "(не использовать)", /* context: used for no proxy set */
+			[str::press_a_to_view] = "Нажмите " UI_GLYPH_A " для просмотра.", /* context: view proxy settings */
+			[str::host] = "Хост", /* context: proxy */
+			[str::port] = "Порт", /* context: proxy */
+			[str::username] = "Имя", /* context: proxy */
+	 		[str::password] = "Пароль", /* context: proxy */
+			[str::clear] = "Стереть", /* context: clear the contents of a field */
+			[str::progbar_screen_desc] = "Выбрать позицию прогресс бара.",
+			[str::light_mode_desc] = "Вкл/Выкл Темной темы. Это изменит внешний вид интерфейса.",
+			[str::resume_dl_desc] = "Продолжить загрузку после сбоя сети.",
+			[str::load_space_desc] = "Изменить отображение свободного места.",
+			[str::show_battery_desc] = "Изменить отображение заряда батареи.",
+			[str::time_format_desc] = "Изменить формат времени.",
+			[str::language_desc] = "Выбор языка. Изменения вступят в силу после перезагрузки .",
+			[str::lumalocalemode_desc] = "Режим автоматического выбора языка. Или укажите регион самостоятельно ",
+			[str::check_extra_desc] = "Поиск доп. контента после установки.",
+			[str::proxy_desc] = "Настроить прокси. Для опытных пользователей.",
+			[str::install_all] = "Установить все", /* context: install all items in queue */
+			[str::install_no_base] = "Базовая игра не установлена. Продолжить?",
+			[str::warn_no_base] = "Предупредить если базовая игра не установлена",
+			[str::warn_no_base_desc] = "Уведомлять об отсутствии базовой игры при установке DLC или доп. контента.",
+			[str::replaying_errors] = "Воспроизведение ошибок, возникших при обработке очереди.",
+			[str::log] = "Логи", /* context: may also be translated as "manage logs" */
+			[str::upload_logs] = "Загрузить логи",
+			[str::clear_logs] = "Очистить логи",
+			[str::found_missing] = "Найдено %1 потерянных объектов\nПроверьте очередь для их установки.", // %1 = amount of titles found
+			[str::found_0_missing] = "Потерянных объектов не найдено.",
+			[str::max_elogs] = "Хранение лог-файлов",
+			[str::max_elogs_desc] = "Установите количество сохраняемых лог-файлов. Выберите число от 0 до 255, где 0 - не сохранять логи.",
+			[str::elogs_hint] = "Значение от 0 до 255",
+			[str::log_id] = "Используйте этот ID для получения поддержки:\n%1", /* %1 = id */
+			[str::block] = "блок", /* context: nintendo blocks, use official nintendo translation if available */
+			[str::blocks] = "блоков", /* context: see above, just in plural this time */
+			[str::search_text] = "Поиск по тексту",
+			[str::search_id] = "Поиск по hShop ID",
+			[str::search_tid] = "Поиск по Title ID",
+			[str::invalid_tid] = "Неверный Title ID",
+			[str::theme_installer_tid_bad] = "Пожалуйста, поищите темы самостоятельно",
+			[str::enter_lgy_query] = "Введите запрос устаревшего поиска", /* context: this is displayed in transparent letters on the keyboard */
+			[str::no_other_params_tid] = "Невозможно указать другие параметры для Title ID",
+			[str::both_sd_and_sb] = "При отображении результатов поиска необходимо указать метод сортировки",
+			[str::invalid_sb] = "Неверный метод сортировки",
+			[str::invalid_sd] = "Неверное направление сортировки", /* context: ascending/descending */
+			[str::invalid_includes] = "Недопустимое значение фильтров",
+			[str::invalid_excludes] = "Недопустимое исключение фильтров",
+			[str::filter_overlap] = "Обнаружено совпадение в указанных фильтрах",
+			[str::lgy_search] = "Устаревший поиск",
+			[str::sure_reset] = "Вы действительно хотите сбросить настройки?",
+			[str::ascending] = "По возрастанию", /* nowrap, context: sort direction, in switcher in settings + if you press L in title select */
+			[str::descending] = "По убыванию", /* nowrap, context: sort direction, in switcher in settings + if you press L in title select */
+			[str::alphabetical] = "По алфавиту", /* nowrap, context: sort method, in switcher in settings */
+			[str::downloads] = "По загрузкам", /* nowrap, context: sort method, in switcher in settings */
+			[str::def_sort_meth] = "По умолчанию", /* scroll, context: setting title */
+			[str::def_sort_meth_desc] = "Укажите метод сортировки контента.", /* context: setting description */
+			[str::def_sort_dir] = "Сортировать по умолчанию", /* scroll, context: setting title */
+			[str::def_sort_dir_desc] = "Укажите направление сортировки контента.", /* context: setting description */
+			[str::invalid_content_type] = "Неверный тип содержимого", /* context: legacy search content type (see p: documentation on site) */
+		},
+
+	[lang::spearglish] =
+		{
+			[str::banner]  = "The ultimate 3DS content pres'rvation s'rvice",
+			[str::loading] = "Loading...",
+			[str::luma_not_installed] = "An unsupp'rt'd firmware wast did detect",
+			[str::install_luma] = "3hs cannot beest hath used on this system",
+			[str::queue] = "Queueth",
+			[str::connect_wifi] = "Prithee connecteth to wi-fi and restart the app",
+			[str::fail_init_networking] = "Did fail to initialize netw'rking",
+			[str::fail_fetch_index] = "Did fail to fetcheth index\n%1",
+			[str::credits_thanks] =
+				"Thanketh thee f'r using 3hs, a 3ds client f'r hShop. \n"
+				"Thee can receiveth this software f'r free at\n"
+				"https://hshop.erista.me/",
+			[str::credits_names] = "",
+			[str::press_to_install] =
+				"Presseth " UI_GLYPH_A " to installeth this content. \n"
+				"Presseth " UI_GLYPH_B " to wend backeth",
+			[str::version] = "V'rsion",
+			[str::prodcode] = "Product Code",
+			[str::size] = "Size",
+			[str::name] = "Nameth",
+			[str::tid] = "Title ID",
+			[str::category] = "Categ'ry",
+			[str::landing_id] = "Landing ID",
+			[str::description] = "Description",
+			[str::total_titles] = "Total Titles",
+			[str::select_cat] = "Selecteth a categ'ry",
+			[str::select_subcat] = "Selecteth a subcateg'ry",
+			[str::select_title] = "Selecteth a title",
+			[str::no_cats_index] = "nay categ'ries in index (?)",
+			[str::empty_subcat] = "Exsufflicate subcateg'ry (?)",
+			[str::empty_cat] = "Exsufflicate categ'ry (?)",
+			[str::fmt_24h] = "24 hour",
+			[str::fmt_12h] = "12 hour",
+			[str::unknown] = "unknown",
+			[str::btrue] = "true",
+			[str::bfalse] = "false",
+			[str::top] = "top",
+			[str::bottom] = "bottom",
+			[str::light_mode] = "Lighteth mode",
+			[str::resume_dl] = "Resume downloads",
+			[str::load_space] = "Showeth free space indicat'r",
+			[str::show_battery] = "Showeth batt'ry leveleth indicat'r",
+			[str::time_format] = "Timeth f'rmat",
+			[str::progbar_screen] = "Progresseth bar position",
+			[str::language] = "Language",
+			[str::value_x] = "Value: %1",
+			[str::back] = "Backeth",
+			[str::invalid] = "invalid",
+			[str::title_doesnt_exist] = "Title doesn't existeth: %1",
+			[str::fail_create_tex] = "Did fail to maketh tex",
+			[str::fail_load_smdh_icon] = "load_smdh_icon(): invalid SMDHIconType",
+			[str::netcon_lost] = "Netw'rk connection hath lost (%1). \nRetrying in $t seconds",
+			[str::about_app] = "About",
+			[str::help_manual] = "Holp/manual",
+			[str::find_missing_content] = "Findeth missing content",
+			[str::press_a_exit] = "Presseth " UI_GLYPH_A " to exit.",
+			[str::fatal_panic] = "A fatal panic hast did occur",
+			[str::failed_open_seeddb] = "Did fail to ope seeddb.bin.",
+			[str::update_to] = "Doth thee wanteth to updateth to %1?",
+			[str::search_content] = "Searcheth f'r content",
+			[str::search_content_action] = "Searcheth f'r content...",
+			[str::results_query] = "Results f'r qu'ry \"%1\"",
+			[str::result_code] = "Result code: %1",
+			[str::level] = "Leveleth: %1",
+			[str::summary] = "Summary: %1",
+			[str::module] = "Module: %1",
+			[str::hs_bunny_found] = "Congrats! thee hath found the hShop bunny!",
+			[str::already_installed_reinstall] = "Title already did install.  Reinstall?",
+			[str::queue_empty] =
+				"Queueth is empty\n"
+				"Presseth " UI_GLYPH_A " to wend backeth. \n"
+				"Tipeth: presseth " UI_GLYPH_Y " to addeth a title to the queueth",
+			[str::cancel] = "Cancel",
+			[str::confirm] = "Confirm",
+			[str::invalid_proxy] = "Invalid proxy settings",
+			[str::more_about_content] = "M're about this content",
+			[str::lumalocalemode] = "LumaLocale mode",
+			[str::automatic] = "automatic",
+			[str::manual] = "manual",
+			[str::disabled] = "disabl'd",
+			[str::patching_reboot] =
+				"Luma3DS Game Patching is anon enabl'd. \n"
+				"The system might not but beest restarted\nf'r this changeth to taketh effect",
+			[str::reboot_now] = "Restart anon?",
+			[str::this_version] = "This is 3hs v'rsion %1", // %1 = version int "version desc"
+			[str::retry_req] = "Requesteth did fail.  Retry?",
+			[str::search_zero_results] = "Thy searcheth hath returned nay results. \npress " UI_GLYPH_A " to wend backeth",
+			[str::credits] = "Credits",
+			[str::extra_content] = "Addeth extra content to queueth?",
+			[str::check_extra] = "Searcheth f'r extra content",
+			[str::no_req] = "Nay requests madeth yet", /* context: hlink requests */
+			[str::invalid_query] = "Invalid qu'ry\npress " UI_GLYPH_A " to wend backeth",
+			[str::min_constraint] = "Current 3hs v'rsion %1 is base'r than the requir'd v'rsion %2",
+			[str::proxy] = "Proxy",
+			[str::none] = "(none)",
+			[str::press_a_to_view] = "Click " UI_GLYPH_A " to view.",
+			[str::host] = "Host",
+			[str::port] = "P'rt",
+			[str::username] = "Us'rname",
+			[str::password] = "Passw'rd",
+			[str::clear] = "Cleareth", /* context: clear the contents of a field */
+			[str::progbar_screen_desc] = "Selecteth the position of the progresseth bar",
+			[str::light_mode_desc] = "Enable/disable lighteth mode.  This shall changeth the way most UI elements behold",
+			[str::resume_dl_desc] = "Resume downloads aft'r a netw'rk int'rruption",
+			[str::load_space_desc] = "Toggle the free space indicat'r",
+			[str::show_battery_desc] = "Toggle the batt'ry leveleth indicat'r",
+			[str::time_format_desc] = "Selecteth the timeth f'rmat",
+			[str::language_desc] = "Setteth the language f'r 3hs.  The application wilt beest restart'd f'r the did select language to taketh effect",
+			[str::lumalocalemode_desc] = "Setteth the mode of the lumalocale autosett'r.  Automatic selects a language automatically.  If 't be true this is setteth to manual, 3hs shall prompt f'r a climature aft'r the installation of content",
+			[str::check_extra_desc] = "Searcheth f'r extra content aft'r installation",
+			[str::proxy_desc] = "Configure a proxy server for 3hs. This setting is for advanced users.",
+			[str::install_all] = "Installeth all", /* context: install all items in queue */
+			[str::install_no_base] = "The base game is not did install.  Continueth concluded, be it?",
+			[str::warn_no_base] = "Warneth if 't be true a base game is not did install",
+			[str::warn_no_base_desc] = "Shows a message bef're installing updateth 'r dlc content if 't be true the base game is not did install",
+			[str::replaying_errors] = "Replaying 'rr'rs encount'r'd while processing the queueth",
+			[str::log] = "Logs",
+			[str::upload_logs] = "Uploadeth logs",
+			[str::clear_logs] = "Cleareth logs",
+			[str::found_missing] = "Hath found %1 missing title(s)\ncheck the queueth to installeth those folk", // %1 = amount of titles found
+			[str::found_0_missing] = "Nay missing titles w're hath found",
+			[str::max_elogs] = "Maximum fusty logeth files",
+			[str::max_elogs_desc] = "Setteth the numb'r of logeth files to keepeth.  Possible values art 0 to 255, wh're 0 keeps nay additional logeth files",
+			[str::elogs_hint] = "Value between 0 and 255",
+			[str::log_id] = "Useth this id to receiveth supp'rt:\n%1", // %1 = id
+			[str::block] = "block",
+			[str::blocks] = "blocks",
+			[str::search_text] = "Searcheth by text",
+			[str::search_id] = "Searcheth by hShop ID",
+			[str::search_tid] = "Searcheth by Title ID",
+			[str::invalid_tid] = "Invalid Title ID",
+			[str::theme_installer_tid_bad] = "Prithee browse the Themes categ'ry manually to behold f'r Themes",
+			[str::enter_lgy_query] = "Ent'r a legacy searcheth qu'ry", /* context: this is displayed in transparent letters on the keyboard */
+			[str::no_other_params_tid] = "Cannot specifyeth any oth'r paramet'rs at which hour specifying a Title ID",
+			[str::both_sd_and_sb] = "Thee might not but specifyeth a s'rt method and a s'rt direction at which hour s'rting searcheth results",
+			[str::invalid_sb] = "Invalid s'rt method",
+			[str::invalid_sd] = "Invalid s'rt direction", /* context: ascending/descending */
+			[str::invalid_includes] = "Invalid includeth filt'rs",
+			[str::invalid_excludes] = "Invalid excludeth filt'rs",
+			[str::filter_overlap] = "Did detect an ov'rlap in the specifi'd searcheth filt'rs",
+			[str::lgy_search] = "Legacy searcheth",
+			STUB(sure_reset),
+			STUB(ascending),
+			STUB(descending),
+			STUB(alphabetical),
+			STUB(downloads),
+			STUB(def_sort_meth),
+			STUB(def_sort_meth_desc),
+			STUB(def_sort_dir),
+			STUB(def_sort_dir_desc),
+			STUB(invalid_content_type),
+		},
 };
 #pragma GCC diagnostic pop
 
@@ -2274,6 +2584,7 @@ const char *i18n::langname(lang::type id)
 	case lang::polish: return LANGNAME_POLISH;
 	case lang::hungarian: return LANGNAME_HUNGARIAN;
 	case lang::japanese: return LANGNAME_JAPANESE;
+	case lang::russian: return LANGNAME_RUSSIAN;
 	}
 
 	return "invalid";
@@ -2322,9 +2633,9 @@ lang::type i18n::default_lang()
 	case CFG_LANGUAGE_KO: return lang::korean;
 	case CFG_LANGUAGE_NL: return lang::dutch;
 	case CFG_LANGUAGE_PT: return lang::portuguese;
+	case CFG_LANGUAGE_RU: return lang::russian;
 	case CFG_LANGUAGE_EN: // fallthrough
 	case CFG_LANGUAGE_ZH: // fallthrough
-	case CFG_LANGUAGE_RU: // fallthrough
 	case CFG_LANGUAGE_TW: // fallthrough
 	default: return lang::english;
 	}

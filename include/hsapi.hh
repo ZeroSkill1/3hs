@@ -93,6 +93,9 @@ namespace hsapi
 
 		friend bool operator == (const Title& lhs, const Title& rhs)
 		{ return lhs.id == rhs.id; }
+
+		friend bool operator == (const Title& lhs, hsapi::hid rhs)
+		{ return lhs.id == rhs; }
 	} Title;
 
 	typedef struct FullTitle : public Title

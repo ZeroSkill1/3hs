@@ -214,21 +214,31 @@ hsapi::hid next::sel_gam(std::vector<hsapi::Title>& titles, size_t *cursor)
 		.add_to(&list, queue);
 
 	ui::builder<ui::ButtonCallback>(ui::Screen::top, KEY_L)
-		.connect(ui::ButtonCallback::kdown, [list, &dir, &sortm, &titles](u32) -> bool {
-			ui::RenderQueue::global()->render_and_then([list, &dir, &sortm, &titles]() -> void {
+		.connect(ui::ButtonCallback::kdown, [list, &dir, &sortm, &titles, meta](u32) -> bool {
+			ui::RenderQueue::global()->render_and_then([list, &dir, &sortm, &titles, meta]() -> void {
 				sortm = settings_sort_switch();
+				hsapi::hid curId = titles[list->get_pos()].id;
 				std::sort(titles.begin(), titles.end(), get_sort_callback(dir, sortm));
+				list->update();
+				auto it = std::find(titles.begin(), titles.end(), curId);
+				panic_assert(it != titles.end(), "failed to find previously selected title");
+				list->set_pos(it - titles.begin());
+				meta->set_title(*it);
 			});
 			return true;
 		}).add_to(queue);
 
 	ui::builder<ui::ButtonCallback>(ui::Screen::top, KEY_R)
-		.connect(ui::ButtonCallback::kdown, [list, &dir, &sortm, &titles, &meta](u32) -> bool {
-			ui::RenderQueue::global()->render_and_then([list, &dir, &sortm, &titles, &meta]() -> void {
+		.connect(ui::ButtonCallback::kdown, [list, &dir, &sortm, &titles, meta](u32) -> bool {
+			ui::RenderQueue::global()->render_and_then([list, &dir, &sortm, &titles, meta]() -> void {
 				dir = dir == SortDirection::asc ? SortDirection::desc : SortDirection::asc;
+				hsapi::hid curId = titles[list->get_pos()].id;
 				std::sort(titles.begin(), titles.end(), get_sort_callback(dir, sortm));
 				list->update();
-				meta->set_title(list->at(0));
+				auto it = std::find(titles.begin(), titles.end(), curId);
+				panic_assert(it != titles.end(), "failed to find previously selected title");
+				list->set_pos(it - titles.begin());
+				meta->set_title(*it);
 			});
 			return true;
 		}).add_to(queue);

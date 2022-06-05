@@ -267,9 +267,9 @@ builtin_controls_done:
 			this->keys |= k;
 		}
 
-		/* Amount of items visable
+		/* Amount of items visible
 		 **/
-		size_t visable()
+		size_t visible()
 		{
 			return this->lines.size() > this->amountRows
 				? this->amountRows : this->lines.size();
@@ -295,8 +295,9 @@ builtin_controls_done:
 		{
 			if(p < this->lines.size())
 			{
-				this->view = p > this->view + this->visable() ? (p > this->last_full_view() ? this->last_full_view() : p) : this->view;
+				this->view = this->min<size_t>(p > 2 ? p - 2 : p, this->last_full_view());
 				this->pos = p;
+				this->update_scrolldata();
 			}
 		}
 
@@ -325,7 +326,7 @@ builtin_controls_done:
 
 		int buttonTimeout; /* amount of frames that need to pass before the next button can be pressed */
 		size_t amountRows; /* amount of rows to be drawn */
-		size_t view; /* first visable element */
+		size_t view; /* first visible element */
 		size_t pos; /* cursor position */
 
 		struct ScrolldataContainer {
@@ -360,7 +361,7 @@ builtin_controls_done:
 			/* sh */
 			this->sh = this->min<float>(
 					ui::screen_height() - this->sy - this->y,
-					((float) this->visable() / (float) this->lines.size()) * this->height()
+					((float) this->visible() / (float) this->lines.size()) * this->height()
 				);
 
 			this->scrolldata = {
