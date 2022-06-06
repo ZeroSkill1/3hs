@@ -1603,16 +1603,16 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::invalid_excludes] = "사용할 수 없는 필터",
 			[str::filter_overlap] = "추가/제외 검색 필터가 겹침",
 			[str::lgy_search] = "구형 검색창",
-			STUB(sure_reset),
-			STUB(ascending),
-			STUB(descending),
-			STUB(alphabetical),
-			STUB(downloads),
-			STUB(def_sort_meth),
-			STUB(def_sort_meth_desc),
-			STUB(def_sort_dir),
-			STUB(def_sort_dir_desc),
-			STUB(invalid_content_type),
+			[str::sure_reset] = "정말로 설정을 초기화하시겠습니까?",
+			[str::ascending] = "오름차순", /* nowrap, context: sort direction, in switcher in settings + if you press L in title select */
+			[str::descending] = "내림차순", /* nowrap, context: sort direction, in switcher in settings + if you press L in title select */
+			[str::alphabetical] = "알파벳순", /* nowrap, context: sort method, in switcher in settings */
+			[str::downloads] = "다운로드수", /* nowrap, context: sort method, in switcher in settings */
+			[str::def_sort_meth] = "기본 정렬 방식", /* scroll, context: setting title */
+			[str::def_sort_meth_desc] = "타이틀 배열 시 사용되는 기본 배열방식을 설정", /* context: setting description */
+			[str::def_sort_dir] = "기본 배열 방향", /* scroll, context: setting title */
+			[str::def_sort_dir_desc] = "타이틀 배열 시 사용되는 기본 배열방향을 설정", /* context: setting description */
+			[str::invalid_content_type] = "일치하지 않는 콘텐츠 타입", /* context: legacy search content type (see p: documentation on site) */
 		},
 
 	[lang::greek] =

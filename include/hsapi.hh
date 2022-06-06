@@ -41,6 +41,16 @@ namespace hsapi
 	using htid       = uint64_t; /* title id type */
 	using hid        = int64_t;  /* landing id type */
 	using hprio      = uint32_t; /* priority */
+	using hflags     = uint32_t; /* flag */
+
+	namespace TitleFlag
+	{
+		enum TitleFlag {
+			is_ktr           = 0x1,
+			locale_emulation = 0x2,
+			installer        = 0x4,
+		};
+	}
 
 	namespace impl
 	{
@@ -105,6 +115,7 @@ namespace hsapi
 //		htimestamp updated; /* last updated timestamp */
 //		htimestamp added; /* added on timestamp */
 		hiver version; /* version int */
+		hflags flags; /* title flags */
 	} FullTitle;
 
 	typedef struct Related

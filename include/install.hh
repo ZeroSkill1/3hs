@@ -52,6 +52,8 @@ static inline Result httpcSetProxy(httpcContext *context, u16 port,
 	);
 }
 
+Result install_forwarder(u8 *data, size_t len);
+
 namespace install
 {
 	Result net_cia(get_url_func get_url, u64 tid, prog_func prog = default_prog_func,

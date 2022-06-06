@@ -257,6 +257,7 @@ static void serialize_full_title(hsapi::FullTitle& ret, json& j)
 	// now we serialize for the FullTitle exclusive fields
 	ret.prod = j["product_code"].get<std::string>();
 	ret.version = j["version"].get<hsapi::hiver>();
+	ret.flags = j["flags"].get<hsapi::hflags>();
 }
 
 static void serialize_full_titles(std::vector<hsapi::FullTitle>& rtitles, json& j)

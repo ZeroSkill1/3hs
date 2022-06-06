@@ -280,7 +280,7 @@ static Result i_install_resume_loop(get_url_func get_url, Handle ciaHandle, prog
 	return res;
 }
 
-static Result i_install_hs_cia(const hsapi::FullTitle& meta, prog_func prog, bool reinstallable)
+static Result i_install_hs_cia(const hsapi::FullTitle& meta, prog_func prog, bool reinstallable, bool isKtrHint = false)
 {
 	ctr::Destination media = ctr::detect_dest(meta.tid);
 	u64 freeSpace = 0;
@@ -297,7 +297,7 @@ static Result i_install_hs_cia(const hsapi::FullTitle& meta, prog_func prog, boo
 	if(R_FAILED(res = APT_CheckNew3DS(&isNew)))
 		return res;
 
-	if(!isNew && meta.prod.rfind("KTR-", 0) == 0)
+	if(!isNew && (isKtrHint || meta.prod.rfind("KTR-", 0) == 0))
 		return APPERR_NOSUPPORT;
 
 	return install::net_cia([meta](Result& res) -> std::string {
@@ -376,7 +376,12 @@ Result install::net_cia(get_url_func get_url, hsapi::htid tid, prog_func prog, b
 
 Result install::hs_cia(const hsapi::FullTitle& meta, prog_func prog, bool reinstallable)
 {
-	return i_install_hs_cia(meta, prog, reinstallable);
+	/* we instead want to use the theme installer installation method */
+	if(meta.flags & hsapi::TitleFlag::installer)
+	{
+
+	}
+	return i_install_hs_cia(meta, prog, reinstallable, meta.flags & hsapi::TitleFlag::is_ktr);
 }
 
 // HTTPC

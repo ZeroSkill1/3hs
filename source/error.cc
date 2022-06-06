@@ -145,6 +145,7 @@ static const std::unordered_map<Result, std::unordered_map<Result, const char *>
 			{ 8 , "Server didn't return status code 200"          },
 			{ 9 , "API failed to process request"                 },
 			{ 10, "Log was too large to upload"                   },
+			{ 11, "Failed to install file forwarder"              },
 		}
 	},
 });
