@@ -46,8 +46,10 @@
 #ifndef HS_SITE_LOC
 	/* do not translate this */
 	#define PAGE_3HS "(unset)"
+	#define PAGE_THEMES "(unset)"
 #else
-	#define PAGE_3HS HS_SITE_LOC "/3hs/"
+	#define PAGE_3HS HS_SITE_LOC "/3hs"
+	#define PAGE_THEMES HS_SITE_LOC "/wiki/theme-installation"
 #endif
 
 #include "settings.hh"
@@ -218,6 +220,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::def_sort_dir] = "Default sort direction", /* scroll, context: setting title */
 			[str::def_sort_dir_desc] = "Specifies the default sort direction to use when viewing a list of titles.", /* context: setting description */
 			[str::invalid_content_type] = "Invalid content type", /* context: legacy search content type (see p: documentation on site) */
+			[str::theme_installed] = "A theme was installed. Please see " PAGE_THEMES, /* context, shown after installation of anything in the themes category, PAGE_THEMES links to the theme installer wiki page */
+			[str::file_installed] = "A file was installed. These are not shown on the HOME Menu", /* context: shown after a file forwarder is installed that's not a theme, just here for future proofing */
 		},
 
 	[lang::dutch] =
@@ -373,6 +377,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::def_sort_dir] = "Standaard sorteer richting",
 			[str::def_sort_dir_desc] = "De standaard sorteer richting in gebruik tijdens het bekijken van titels.",
 			[str::invalid_content_type] = "Ongeldige titel type",
+			[str::theme_installed] = "Een thema was geïnstalleerd. Bekijk " PAGE_THEMES,
+			[str::file_installed] = "Een bestand was geïnstalleerd. Deze zullen niet op je HOME-menu komen",
 		},
 
 	[lang::german] =
@@ -526,7 +532,9 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::def_sort_meth_desc] = "Gibt an, welche Sortiermethode standardmäßig bei einer Titellistenansicht verwendet werden soll.",
 			[str::def_sort_dir] = "Standard-Sortierrichtung",
 			[str::def_sort_dir_desc] = "Gibt an, welche Sortierrichtung standardmäßig bei einer Titellistenansicht verwendet werden soll.",
-			[str::invalid_content_type] = "Ungültige Inhaltsart"
+			[str::invalid_content_type] = "Ungültige Inhaltsart",
+			[str::theme_installed] = "Ein Design wurde installiert. Siehe " PAGE_THEMES, /* context, shown after installation of anything in the themes category, PAGE_THEMES links to the theme installer wiki page */
+			[str::file_installed] = "Eine Datei wurde installiert. Dateien werden nicht auf dem HOME-Menü erscheinen", /* context: shown after a file forwarder is installed that's not a theme, just here for future proofing */
 		},
 
 	[lang::spanish] =
@@ -682,6 +690,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::def_sort_dir] = "Dirección de organización por defecto", /* scroll, context: setting title */
 			[str::def_sort_dir_desc] = "Especifica la dirección de organización predeterminado que se utilizará al ver una lista de títulos.", /* context: setting description */
 			[str::invalid_content_type] = "Tipo de contenido inválido", /* context: legacy search content type (see p: documentation on site) */
+			[str::theme_installed] = "Un tema fue instalado. Por favor, vea " PAGE_THEMES, /* context, shown after installation of anything in the themes category, PAGE_THEMES links to the theme installer wiki page */
+			[str::file_installed] = "Un archivo fue instalado. Estos no se muestran en el menú HOME", /* context: shown after a file forwarder is installed that's not a theme, just here for future proofing */
 		},
 
 	[lang::french] =
@@ -837,6 +847,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::def_sort_dir] = "Direction de tri par défaut", /* scroll, context: setting title */
 			[str::def_sort_dir_desc] = "Spécifie la direction de la méthode de tri par défaut en regardant une liste de titres.", /* context: setting description */
 			[str::invalid_content_type] = "Type de contenu invalide", /* context: legacy search content type (see p: documentation on site) */
+			[str::theme_installed] = "un thème a été installé. Merci de regarder " PAGE_THEMES, /* context, shown after installation of anything in the themes category, PAGE_THEMES links to the theme installer wiki page */
+			[str::file_installed] = "Un fichier a été installé. Ils ne seront pas visible sur le menu home", /* context: shown after a file forwarder is installed that's not a theme, just here for future proofing */
 		},
 
 	[lang::french_canada] =
@@ -992,6 +1004,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::def_sort_dir] = "Direction du tirage par défault",
 			[str::def_sort_dir_desc] = "Spécifie la direction du tirage par défault à utiliser quand tu regarde une liste de titres.",
 			[str::invalid_content_type] = "Type de contenue invalide",
+			[str::theme_installed] = "Un thème a été installé. S'il te-plaît regarde " 
+			[str::file_installed] = "Un fichier a été installé. Il ne sera visible que sur le menu HOME", 
 		},
 
 	[lang::romanian] =
@@ -1147,6 +1161,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::def_sort_dir] = "Direcția de sortare implicită", /* scroll, context: setting title */
 			[str::def_sort_dir_desc] = "Specifică direcția de sortare implicită de folosit când vizionați o listă de titluri.", /* context: setting description */
 			[str::invalid_content_type] = "Tip de conținut invalid", /* context: legacy search content type (see p: documentation on site) */
+			[str::theme_installed] = "O temă a fost instalată. Vă rugăm vedeți " PAGE_THEMES, /* context, shown after installation of anything in the themes category, PAGE_THEMES links to the theme installer wiki page */
+			[str::file_installed] = "Un fișier a fost instalat. Acestea nu sunt afișate pe Meniul Acasă", /* context: shown after a file forwarder is installed that's not a theme, just here for future proofing */
 		},
 
 	[lang::italian] =
@@ -1302,6 +1318,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			STUB(def_sort_dir),
 			STUB(def_sort_dir_desc),
 			STUB(invalid_content_type),
+			STUB(theme_installed),
+			STUB(file_installed),
 		},
 
 	[lang::portuguese] =
@@ -1457,6 +1475,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::def_sort_dir] = "Direção de ordem predefinida", /* scroll, context: setting title */
 			[str::def_sort_dir_desc] = "Especifica a direção da ordem predefinida para usar durante a visualização de jogos.", /* context: setting description */
 			[str::invalid_content_type] = "Tipo de conteúdo invalido", /* context: legacy search content type (see p: documentation on site) */
+			[str::theme_installed] = "Um tema foi instalado. Porfavor veja." PAGE_THEMES, /* context, shown after installation of anything in the themes category, PAGE_THEMES links to the theme installer wiki page */
+			[str::file_installed] = "Um ficheiro foi instalado. Eles não são mostrados no Menu Inicial.", /* context: shown after a file forwarder is installed that's not a theme, just here for future proofing */
 		},
 
 	[lang::korean] =
@@ -1613,6 +1633,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::def_sort_dir] = "기본 배열 방향", /* scroll, context: setting title */
 			[str::def_sort_dir_desc] = "타이틀 배열 시 사용되는 기본 배열방향을 설정", /* context: setting description */
 			[str::invalid_content_type] = "일치하지 않는 콘텐츠 타입", /* context: legacy search content type (see p: documentation on site) */
+			STUB(theme_installed),
+			STUB(file_installed),
 		},
 
 	[lang::greek] =
@@ -1767,7 +1789,9 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::def_sort_meth_desc] = "Καθορίζει την προεπιλεγμένη μέθοδο ταξινόμησης που θα χρησιμοποιείται κατά την προβολή μιας λίστας τίτλων.",
 			[str::def_sort_dir] = "Προεπιλεγμένη φορά ταξινόμησης",
 			[str::def_sort_dir_desc] = "Καθορίζει την προεπιλεγμένη φορά ταξινόμησης που θα χρησιμοποιείται κατά την προβολή μιας λίστας τίτλων.",
-			[str::invalid_content_type] = "Μη έγκυρος τύπος περιεχομένου",
+			[str::invalid_content_type] = "Μη γκυρος τύπος περιεχομένου",
+			STUB(theme_installed),
+			STUB(file_installed),
 		},
 
 	[lang::polish] =
@@ -1925,6 +1949,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::def_sort_dir] = "Domyślny kierunek sortowania", /* scroll, context: setting title */
 			[str::def_sort_dir_desc] = "Określa domyślny kierunek sortowania używany podczas przeglądania listy tytułów.", /* context: setting description */
 			[str::invalid_content_type] = "nieprawidłowy typ pliku", /* context: legacy search content type (see p: documentation on site) */
+			[str::theme_installed] = "Motyw został zainstalowany. Proszę zobaczyć " PAGE_THEMES, /* context, shown after installation of anything in the themes category, PAGE_THEMES links to the theme installer wiki page */
+			[str::file_installed] = "Zainstalowano plik. Nie są one wyświetlane w menu głównym", /* context: shown after a file forwarder is installed that's not a theme, just here for future proofing */
 		},
 
 	[lang::hungarian] =
@@ -2080,6 +2106,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::def_sort_dir] = "Alapértelmezett rendezési irány", /* scroll, context: setting title */
 			[str::def_sort_dir_desc] = "A címlista megtekintésekor használandó alapértelmezett rendezési irány.", /* context: setting description */
 			[str::invalid_content_type] = "Érvénytelen tartalomtípus", /* context: legacy search content type (see p: documentation on site) */
+			[str::theme_installed] = "A kinézet fel lett telepítve. Lásd az alábbi oldalt: " PAGE_THEMES, /* context, shown after installation of anything in the themes category, PAGE_THEMES links to the theme installer wiki page */
+			[str::file_installed] = "A fájl fel lett telepítve. Ezek a HOME Menüben nem fognak megjelenni", /* context: shown after a file forwarder is installed that's not a theme, just here for future proofing */
 		},
 
 	[lang::japanese] =
@@ -2235,6 +2263,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::def_sort_dir] = "デフォルトのソート方向",
 			[str::def_sort_dir_desc] = "タイトルのリストを表示するときに使用するデフォルトのソート方向を指定します。",
 			[str::invalid_content_type] = "無効なコンテンツタイプ",
+			STUB(theme_installed),
+			STUB(file_installed),
 		},
 
 	[lang::russian] =
@@ -2390,6 +2420,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::def_sort_dir] = "Сортировать по умолчанию", /* scroll, context: setting title */
 			[str::def_sort_dir_desc] = "Укажите направление сортировки контента.", /* context: setting description */
 			[str::invalid_content_type] = "Неверный тип содержимого", /* context: legacy search content type (see p: documentation on site) */
+			[str::theme_installed] = "Тема установлена. Посмотрите " PAGE_THEMES, /* context, shown after installation of anything in the themes category, PAGE_THEMES links to the theme installer wiki page */
+			[str::file_installed] = "Файл установлен. Он не отобразиться в меню HOME", /* context: shown after a file forwarder is installed that's not a theme, just here for future proofing */
 		},
 
 	[lang::spearglish] =
@@ -2545,6 +2577,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			STUB(def_sort_dir),
 			STUB(def_sort_dir_desc),
 			STUB(invalid_content_type),
+			STUB(theme_installed),
+			STUB(file_installed),
 		},
 };
 #pragma GCC diagnostic pop

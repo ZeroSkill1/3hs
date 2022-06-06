@@ -34,10 +34,21 @@ enum class ITC // inter thread communication
 	normal, exit, timeoutscr
 };
 
+enum class ActionType {
+	install,
+	download,
+};
+
+using content_type = std::basic_string<u8>;
+
 typedef struct cia_net_data
 {
-	// We write to this handle
-	Handle cia;
+	union {
+		// We write to this handle
+		Handle cia;
+		// Or write to this basic_string
+		content_type *content;
+	};
 	// At what index are we writing __the cia__ now?
 	u32 index = 0;
 	// Total cia size
@@ -48,6 +59,8 @@ typedef struct cia_net_data
 	u8 *buffer = nullptr;
 	// Tells second thread to wake up
 	Handle eventHandle;
+	// Type of action
+	ActionType type;
 } cia_net_data;
 
 
@@ -159,7 +172,10 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 		CHK_EXIT
 		dlog("Writing to cia handle, size=%lu,index=%lu,totalSize=%lu", dlnext, data->index, data->totalSize);
 		/* we don't need to add the FS_WRITE_FLUSH flag because AM just ignores write flags... */
-		res = FSFILE_Write(data->cia, &written, data->index, data->buffer, dlnext, 0);
+		if(data->type == ActionType::install)
+			res = FSFILE_Write(data->cia, &written, data->index, data->buffer, dlnext, 0);
+		else
+			data->content->append(data->buffer, dlnext);
 		remaining = data->totalSize - dled - from;
 		data->index += dlnext;
 		CHK_EXIT
@@ -170,6 +186,7 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 	}
 
 	svcSignalEvent(data->eventHandle);
+	httpcCancelConnection(pctx);
 	httpcCloseContext(pctx);
 	return 0;
 #undef CHECKRET
@@ -230,31 +247,29 @@ static void i_install_loop_thread_cb(Result& res, get_url_func get_url, cia_net_
 	}
 }
 
-static Result i_install_resume_loop(get_url_func get_url, Handle ciaHandle, prog_func prog)
+static Result i_install_resume_loop(get_url_func get_url, prog_func prog, cia_net_data *data)
 {
 	Result res;
-	cia_net_data data;
-	data.buffer = new u8[BUFSIZE];
-	data.cia = ciaHandle;
-	if(R_FAILED(res = svcCreateEvent(&data.eventHandle, RESET_STICKY)))
+	data->buffer = new u8[BUFSIZE];
+	if(R_FAILED(res = svcCreateEvent(&data->eventHandle, RESET_STICKY)))
 		return res;
 
 	httpcContext hctx;
 
 	// Install thread
 	ctr::thread<Result&, get_url_func, cia_net_data&, httpcContext&> th
-		(i_install_loop_thread_cb, res, get_url, data, hctx);
+		(i_install_loop_thread_cb, res, get_url, *data, hctx);
 
 	// UI Loop
 	while(!th.finished())
 	{
-		if(data.itc != ITC::timeoutscr)
+		if(data->itc != ITC::timeoutscr)
 		{
-			if(svcWaitSynchronization(data.eventHandle, 0) == 0)
+			if(svcWaitSynchronization(data->eventHandle, 0) == 0)
 			{
 				/* draw & clear event */
-				svcClearEvent(data.eventHandle);
-				prog(data.index, data.totalSize);
+				svcClearEvent(data->eventHandle);
+				prog(data->index, data->totalSize);
 			}
 
 			hidScanInput();
@@ -264,23 +279,92 @@ static Result i_install_resume_loop(get_url_func get_url, Handle ciaHandle, prog
 			if(!aptMainLoop() || (hidKeysDown() & (KEY_B | KEY_START)))
 			{
 				httpcCancelConnection(&hctx); /* aborts if in http  */
-				data.itc = ITC::exit;
+				data->itc = ITC::exit;
 				break;
 			}
 			gspWaitForVBlank();
 		}
 		else /* wait until timeout is done but don't clear event; we have to draw immediately after */
-			svcWaitSynchronization(data.eventHandle, U64_MAX);
+			svcWaitSynchronization(data->eventHandle, U64_MAX);
 	}
 
 	th.join();
-	svcCloseHandle(data.eventHandle);
+	svcCloseHandle(data->eventHandle);
 
-	delete [] data.buffer;
+	delete [] data->buffer;
 	return res;
 }
 
-static Result i_install_hs_cia(const hsapi::FullTitle& meta, prog_func prog, bool reinstallable, bool isKtrHint = false)
+static const char *dest2str(FS_MediaType dest)
+{
+	switch(dest)
+	{
+	case MEDIATYPE_GAME_CARD: return "GAME CARD";
+	case MEDIATYPE_NAND: return "NAND";
+	case MEDIATYPE_SD: return "SD";
+	}
+	return "INVALID VALUE";
+}
+
+static Result net_cia_impl(get_url_func get_url, hsapi::htid tid, bool reinstallable, prog_func prog, cia_net_data *data)
+{
+	FS_MediaType dest = ctr::mediatype_of(tid);
+	Result ret;
+	if(data->type == ActionType::install)
+	{
+		if(reinstallable)
+		{
+			// Ask ninty why this stupid restriction is in place
+			// Basically reinstalling the CURRENT cia requires you
+			// To NOT delete the cia but instead have a higher version
+			// and just install like normal
+			FS_MediaType selfmt;
+			u64 selftid;
+			if(R_FAILED(ret = APT_GetAppletInfo((NS_APPID) envGetAptAppId(), &selftid, (u8 *) &selfmt, nullptr, nullptr, nullptr)))
+				return ret;
+			if(envIsHomebrew() || selftid != tid || dest != selfmt)
+			{
+				if(R_FAILED(ret = ctr::delete_if_exist(tid, dest)))
+					return ret;
+			}
+		}
+		else
+		{
+			if(ctr::title_exists(tid, dest))
+				return APPERR_NOREINSTALL;
+		}
+
+		ilog("Installing %016llX to %s", tid, dest2str(dest));
+		ret = AM_StartCiaInstall(dest, &data->cia);
+		ilog("AM_StartCiaInstall(...): 0x%08lX", ret);
+		if(R_FAILED(ret)) return ret;
+	}
+
+	aptSetHomeAllowed(false);
+	float oldrate = C3D_FrameRate(2.0f);
+	ret = i_install_resume_loop(get_url, prog, data);
+	C3D_FrameRate(oldrate);
+	aptSetHomeAllowed(true);
+
+	if(data->type == ActionType::install)
+	{
+		if(R_FAILED(ret))
+		{
+			AM_CancelCIAInstall(data->cia);
+			svcCloseHandle(data->cia);
+			return ret;
+		}
+
+		ilog("Done writing all data to CIA handle, finishing up");
+		ret = AM_FinishCiaInstall(data->cia);
+		ilog("AM_FinishCiaInstall(...): 0x%08lX", ret);
+		svcCloseHandle(data->cia);
+	}
+
+	return ret;
+}
+
+static Result i_install_hs_cia(const hsapi::FullTitle& meta, prog_func prog, bool reinstallable, cia_net_data *data, bool isKtrHint = false)
 {
 	ctr::Destination media = ctr::detect_dest(meta.tid);
 	u64 freeSpace = 0;
@@ -300,88 +384,39 @@ static Result i_install_hs_cia(const hsapi::FullTitle& meta, prog_func prog, boo
 	if(!isNew && (isKtrHint || meta.prod.rfind("KTR-", 0) == 0))
 		return APPERR_NOSUPPORT;
 
-	return install::net_cia([meta](Result& res) -> std::string {
+	return net_cia_impl([meta](Result& res) -> std::string {
 		std::string ret;
 		if(R_FAILED(res = hsapi::get_download_link(ret, meta)))
 			return "";
 		ilog("Requested token: %s", ret.c_str());
 		return ret;
-	}, meta.tid, prog, reinstallable);
+	}, meta.tid, reinstallable, prog, data);
 }
 
-static const char *dest2str(FS_MediaType dest)
+Result install::net_cia(get_url_func get_url, u64 tid, prog_func prog, bool reinstallable)
 {
-	switch(dest)
-	{
-	case MEDIATYPE_GAME_CARD: return "GAME CARD";
-	case MEDIATYPE_NAND: return "NAND";
-	case MEDIATYPE_SD: return "SD";
-	}
-	return "INVALID VALUE";
-}
-
-// public api
-
-Result install::net_cia(get_url_func get_url, hsapi::htid tid, prog_func prog, bool reinstallable)
-{
-	FS_MediaType dest = ctr::mediatype_of(tid);
-	Result ret;
-	if(reinstallable)
-	{
-		// Ask ninty why this stupid restriction is in place
-		// Basically reinstalling the CURRENT cia requires you
-		// To NOT delete the cia but instead have a higher version
-		// and just install like normal
-		FS_MediaType selfmt;
-		u64 selftid;
-		if(R_FAILED(ret = APT_GetAppletInfo((NS_APPID) envGetAptAppId(), &selftid, (u8 *) &selfmt, nullptr, nullptr, nullptr)))
-			return ret;
-		if(envIsHomebrew() || selftid != tid || dest != selfmt)
-		{
-			if(R_FAILED(ret = ctr::delete_if_exist(tid, dest)))
-				return ret;
-		}
-	}
-	else
-	{
-		if(ctr::title_exists(tid, dest))
-			return APPERR_NOREINSTALL;
-	}
-
-	Handle cia;
-	ilog("Installing %016llX to %s", tid, dest2str(dest));
-	ret = AM_StartCiaInstall(dest, &cia);
-	ilog("AM_StartCiaInstall(...): 0x%08lX", ret);
-	if(R_FAILED(ret)) return ret;
-
-	aptSetHomeAllowed(false);
-	float oldrate = C3D_FrameRate(2.0f);
-	ret = i_install_resume_loop(get_url, cia, prog);
-	C3D_FrameRate(oldrate);
-	aptSetHomeAllowed(true);
-	if(R_FAILED(ret))
-	{
-		AM_CancelCIAInstall(cia);
-		svcCloseHandle(cia);
-		return ret;
-	}
-
-	ilog("Done writing all data to CIA handle, finishing up");
-	ret = AM_FinishCiaInstall(cia);
-	ilog("AM_FinishCiaInstall(...): 0x%08lX", ret);
-	svcCloseHandle(cia);
-
-	return ret;
+	cia_net_data data;
+	data.type = ActionType::install;
+	return net_cia_impl(get_url, tid, reinstallable, prog, &data);
 }
 
 Result install::hs_cia(const hsapi::FullTitle& meta, prog_func prog, bool reinstallable)
 {
+	cia_net_data data;
 	/* we instead want to use the theme installer installation method */
 	if(meta.flags & hsapi::TitleFlag::installer)
 	{
-
+		content_type content;
+		data.content = &content;
+		data.type = ActionType::download;
+		Result res;
+		if(R_FAILED(res = i_install_hs_cia(meta, prog, reinstallable, &data)))
+			return res;
+		/* trust me this'll be fine */
+		return install_forwarder((u8 *) content.c_str(), content.size());
 	}
-	return i_install_hs_cia(meta, prog, reinstallable, meta.flags & hsapi::TitleFlag::is_ktr);
+	data.type = ActionType::install;
+	return i_install_hs_cia(meta, prog, reinstallable, &data, meta.flags & hsapi::TitleFlag::is_ktr);
 }
 
 // HTTPC

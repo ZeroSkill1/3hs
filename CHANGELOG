@@ -2,10 +2,13 @@
 v1.2.1 "cotidie morimur":
  - Fix functionality of "find all missing"
  - Add ability to reset settings by pressing R on startup or R in settings
+ - Add ability to directly install themes to the SD card
  - Add ability to sort titles
  - Add Hungarian translation
  - Add Polish translation
  - Add Japanese translation
+ - Add Russian translation
+ - Add Spearglish (Old English) translation
 
 v1.2.0 "cotidie morimur":
  - Make text wrapping not use hyphens

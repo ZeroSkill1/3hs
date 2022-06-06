@@ -72,16 +72,30 @@ void queue_process_all()
 {
 	std::vector<Result> errs;
 	bool needsPatching = false;
+	enum InstallerWarning {
+	  WARN_NONE  = 0,
+		WARN_THEME = 1,
+		WARN_FILE  = 2,
+	}; int warnings = WARN_NONE;
 	for(hsapi::FullTitle& meta : g_queue)
 	{
 		ilog("Processing title with id=%llu", meta.id);
 		Result res = install::gui::hs_cia(meta, false);
 		ilog("Finished processing, res=%016lX", res);
-		needsPatching |= luma::set_locale(meta.tid);
 		if(R_FAILED(res)) errs.push_back(res);
+		else
+		{
+			needsPatching |= luma::set_locale(meta.tid);
+			if(meta.cat == THEMES_CATEGORY)
+				warnings |= WARN_THEME;
+			else if(meta.flags & (hsapi::TitleFlag::installer))
+				warnings |= WARN_FILE;
+		}
 	}
 
 	if(needsPatching) luma::maybe_set_gamepatching();
+	if(warnings & WARN_THEME) ui::notice(STRING(theme_installed));
+	if(warnings & WARN_FILE) ui::notice(STRING(file_installed));
 
 	if(errs.size() != 0)
 	{

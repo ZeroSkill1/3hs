@@ -144,6 +144,13 @@ start_install:
 		if(interactive) handle_error(err);
 	}
 	else finalize_install(meta.tid, interactive);
+	if(interactive && (meta.flags & hsapi::TitleFlag::installer))
+	{
+		if(meta.cat == THEMES_CATEGORY)
+			ui::notice(STRING(theme_installed));
+		else
+			ui::notice(STRING(file_installed));
+	}
 
 	set_focus(focus);
 	return res;

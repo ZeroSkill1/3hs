@@ -27,6 +27,8 @@
 #include "install.hh"
 #include "hsapi.hh"
 
+#define THEMES_CATEGORY "themes"
+
 
 namespace install
 {

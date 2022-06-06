@@ -190,6 +190,8 @@ namespace str
 		def_sort_dir = 138,
 		def_sort_dir_desc = 139,
 		invalid_content_type = 140,
+		theme_installed = 141,
+		file_installed = 142,
 
 		_i_max,
 	};

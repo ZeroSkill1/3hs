@@ -65,6 +65,7 @@ Result install_forwarder(u8 *data, size_t len)
 	if(nnc_cia_make_reader(&header, NNC_RSP(&cia), &kset, &reader) != NNC_R_OK) return APPERR_FILEFWD_FAIL;
 	if(nnc_cia_open_content(&reader, 0, &ncch0, NULL) != NNC_R_OK) goto fail;
 	if(nnc_read_ncch_header(NNC_RSP(&ncch0), &ncchHeader) != NNC_R_OK) goto fail;
+	/* we don't need a seeddb here since theme installers will never use a seed */
 	if(nnc_fill_keypair(&kpair, &kset, NULL, &ncchHeader) != NNC_R_OK) goto fail;
 	if(nnc_ncch_section_romfs(&ncchHeader, NNC_RSP(&ncch0), &kpair, &romfsSection)) goto fail;
 	if(nnc_init_romfs(NNC_RSP(&romfsSection), &romfs) != NNC_R_OK) goto fail;
