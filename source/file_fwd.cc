@@ -31,7 +31,7 @@ Result install_forwarder(u8 *data, size_t len)
 	nnc_keyset kset;
 	nnc_keyset_default(&kset, false);
 
-	nnc_memory cia, ncch;
+	nnc_memory cia;
 	nnc_mem_open(&cia, data, len);
 
 	nnc_cia_content_reader reader;
@@ -44,6 +44,7 @@ Result install_forwarder(u8 *data, size_t len)
 	nnc_keypair kpair;
 	nnc_romfs_info info;
 	nnc_subview sv;
+	nnc_ncch_header ncchHeader;
 	FILE *out = NULL;
 	std::string rdest;
 
@@ -55,13 +56,9 @@ Result install_forwarder(u8 *data, size_t len)
 	if(nnc_read_cia_header(NNC_RSP(&cia), &header) != NNC_R_OK) return APPERR_FILEFWD_FAIL;
 	if(nnc_cia_make_reader(&header, NNC_RSP(&cia), &kset, &reader) != NNC_R_OK) return APPERR_FILEFWD_FAIL;
 	if(nnc_cia_open_content(&reader, 0, &ncch0, NULL) != NNC_R_OK) goto fail;
-
-	if(!(contents = read_rs(NNC_RSP(&ncch0), &len))) goto fail;
-	nnc_mem_open(&ncch, contents, len);
-	nnc_ncch_header ncchHeader;
-	if(nnc_read_ncch_header(NNC_RSP(&ncch), &ncchHeader) != NNC_R_OK) goto fail;
+	if(nnc_read_ncch_header(NNC_RSP(&ncch0), &ncchHeader) != NNC_R_OK) goto fail;
 	if(nnc_fill_keypair(&kpair, &kset, NULL, &ncchHeader) != NNC_R_OK) goto fail;
-	if(nnc_ncch_section_romfs(&ncchHeader, NNC_RSP(&ncch), &kpair, &romfsSection)) goto fail;
+	if(nnc_ncch_section_romfs(&ncchHeader, NNC_RSP(&ncch0), &kpair, &romfsSection)) goto fail;
 	if(nnc_init_romfs(NNC_RSP(&romfsSection), &romfs) != NNC_R_OK) goto fail;
 
 	/* finally the actual parsing starts */
