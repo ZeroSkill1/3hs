@@ -15,6 +15,14 @@
  * installs the file in RomFS to the correct directory on the SD card
  */
 
+/** format:
+ *   - cia ncch0 romfs contains 2 files
+ *     - config.ini is a configuration file containing 2 lines
+ *       - destination=... # File destination on SD
+ *       - location=...    # The location in RomFS of the file being copied
+ *     - the other file has a variable name found in config.ini
+ */
+
 static u8 *read_rs(nnc_rstream *rs, size_t *len)
 {
 	*len = NNC_RS_PCALL0(rs, size);
@@ -64,7 +72,6 @@ Result install_forwarder(u8 *data, size_t len)
 	/* finally the actual parsing starts */
 	if(nnc_get_info(&romfs, &info, "/config.ini") != NNC_R_OK) goto fail2;
 	if(nnc_romfs_open_subview(&romfs, &sv, &info) != NNC_R_OK) goto fail2;
-	free(contents);
 	if(!(contents = read_rs(NNC_RSP(&sv), &len))) goto fail2;
 	contents_s = (char *) contents;
 	contents[len] = '\0';

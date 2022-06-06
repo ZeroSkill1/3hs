@@ -2059,27 +2059,27 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::search_text] = "Keresés szöveg alapján",
 			[str::search_id] = "Keresés hShop ID alapján",
 			[str::search_tid] = "Keresés Letöltési ID alapján",
-			[str::invalid_tid] = "Helytelen Letöltési ID",
+			[str::invalid_tid] = "Érvénytelen Letöltési ID",
 			[str::theme_installer_tid_bad] = "Kinézetekhez a Themes kategória manuális keresése szükséges",
 			[str::enter_lgy_query] = "Régimódú keresés paramétereinek megadása", /* context: this is displayed in transparent letters on the keyboard */
 			[str::no_other_params_tid] = "Több paraméter nem adható meg a Letöltési ID-n kívül.",
 			[str::both_sd_and_sb] = "Az eredmények sorbarendezéséhez egy mód és irány megadása szükséges",
-			[str::invalid_sb] = "Helytelen rendezési mód",
-			[str::invalid_sd] = "Helytelen rendezési irány", /* context: ascending/descending */
-			[str::invalid_includes] = "Helytelen tartalmazási szűrők",
-			[str::invalid_excludes] = "Helytelen kizárási szűrők",
+			[str::invalid_sb] = "Érvénytelen rendezési mód",
+			[str::invalid_sd] = "Érvénytelen rendezési irány", /* context: ascending/descending */
+			[str::invalid_includes] = "Érvénytelen tartalmazási szűrők",
+			[str::invalid_excludes] = "Érvénytelen kizárási szűrők",
 			[str::filter_overlap] = "Átfedés található a megadott keresési szűrők között",
 			[str::lgy_search] = "Régimódú Keresés",
-			STUB(sure_reset),
-			STUB(ascending),
-			STUB(descending),
-			STUB(alphabetical),
-			STUB(downloads),
-			STUB(def_sort_meth),
-			STUB(def_sort_meth_desc),
-			STUB(def_sort_dir),
-			STUB(def_sort_dir_desc),
-			STUB(invalid_content_type),
+			[str::sure_reset] = "Biztosan vissza akarod állítani az alapbeállításokat?",
+			[str::ascending] = "Növekvő sorrend", /* nowrap, context: sort direction, in switcher in settings + if you press L in title select */
+			[str::descending] = "Csökkenő sorrend", /* nowrap, context: sort direction, in switcher in settings + if you press L in title select */
+			[str::alphabetical] = "Ábécé sorrend", /* nowrap, context: sort method, in switcher in settings */
+			[str::downloads] = "Letöltések", /* nowrap, context: sort method, in switcher in settings */
+			[str::def_sort_meth] = "Alapértelmezett rendezési mód", /* scroll, context: setting title */
+			[str::def_sort_meth_desc] = "A címlista megtekintésekor használandó alapértelmezett rendezési mód.", /* context: setting description */
+			[str::def_sort_dir] = "Alapértelmezett rendezési irány", /* scroll, context: setting title */
+			[str::def_sort_dir_desc] = "A címlista megtekintésekor használandó alapértelmezett rendezési irány.", /* context: setting description */
+			[str::invalid_content_type] = "Érvénytelen tartalomtípus", /* context: legacy search content type (see p: documentation on site) */
 		},
 
 	[lang::japanese] =
@@ -2236,7 +2236,6 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::def_sort_dir_desc] = "タイトルのリストを表示するときに使用するデフォルトのソート方向を指定します。",
 			[str::invalid_content_type] = "無効なコンテンツタイプ",
 		},
-},
 
 	[lang::russian] =
 		{
@@ -2274,14 +2273,14 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::fmt_24h] = "24 часа", /* context: time format */
 			[str::fmt_12h] = "12 часов", /* context: time format */
 			[str::unknown] = "Неизвестно", /* context: unknown setting */
-			[str::btrue] = "ВКЛ", /* unused, context: setting is set to ON */
-			[str::bfalse] = "ВЫКЛ", /* unused, context: setting is set to OFF */
+			[str::btrue] = "ВКЛ.", /* unused, context: setting is set to ON */
+			[str::bfalse] = "ВЫКЛ.", /* unused, context: setting is set to OFF */
 			[str::top] = "Верхний", /* context: top screen in progress bar location settings switcher */
 			[str::bottom] = "Нижний", /* context: bottom screen in progress bar location settings switcher */
-			[str::light_mode] = "Темная тема",
+			[str::light_mode] = "Цветовая схема",
 			[str::resume_dl] = "Продолжить загрузку",
-			[str::load_space] = "Показать объем свободного места",
-			[str::show_battery] = "Показать уровень заряда",
+			[str::load_space] = "Объём свободного места",
+			[str::show_battery] = "Уровень заряда",
 			[str::time_format] = "Формат времени",
 			[str::progbar_screen] = "Положение прогресс бара",
 			[str::language] = "Язык",
@@ -2342,16 +2341,16 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 	 		[str::password] = "Пароль", /* context: proxy */
 			[str::clear] = "Стереть", /* context: clear the contents of a field */
 			[str::progbar_screen_desc] = "Выбрать позицию прогресс бара.",
-			[str::light_mode_desc] = "Вкл/Выкл Темной темы. Это изменит внешний вид интерфейса.",
+			[str::light_mode_desc] = "Выберете тёмную или светлую тему.",
 			[str::resume_dl_desc] = "Продолжить загрузку после сбоя сети.",
-			[str::load_space_desc] = "Изменить отображение свободного места.",
-			[str::show_battery_desc] = "Изменить отображение заряда батареи.",
-			[str::time_format_desc] = "Изменить формат времени.",
+			[str::load_space_desc] = "Вкл./Выкл. информации о свободном объёме.",
+			[str::show_battery_desc] = "Вкл./Выкл. информации о заряде батареи.",
+			[str::time_format_desc] = "Измените формат времени.",
 			[str::language_desc] = "Выбор языка. Изменения вступят в силу после перезагрузки .",
 			[str::lumalocalemode_desc] = "Режим автоматического выбора языка. Или укажите регион самостоятельно ",
 			[str::check_extra_desc] = "Поиск доп. контента после установки.",
-			[str::proxy_desc] = "Настроить прокси. Для опытных пользователей.",
-			[str::install_all] = "Установить все", /* context: install all items in queue */
+			[str::proxy_desc] = "Настроить прокси (для опытных пользователей).",
+			[str::install_all] = "Установить всё", /* context: install all items in queue */
 			[str::install_no_base] = "Базовая игра не установлена. Продолжить?",
 			[str::warn_no_base] = "Предупредить если базовая игра не установлена",
 			[str::warn_no_base_desc] = "Уведомлять об отсутствии базовой игры при установке DLC или доп. контента.",
@@ -2362,7 +2361,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::found_missing] = "Найдено %1 потерянных объектов\nПроверьте очередь для их установки.", // %1 = amount of titles found
 			[str::found_0_missing] = "Потерянных объектов не найдено.",
 			[str::max_elogs] = "Хранение лог-файлов",
-			[str::max_elogs_desc] = "Установите количество сохраняемых лог-файлов. Выберите число от 0 до 255, где 0 - не сохранять логи.",
+			[str::max_elogs_desc] = "Установите количество сохраняемых лог-файлов. Выберите число от 0 до 255 (0 - не сохранять логи).",
 			[str::elogs_hint] = "Значение от 0 до 255",
 			[str::log_id] = "Используйте этот ID для получения поддержки:\n%1", /* %1 = id */
 			[str::block] = "блок", /* context: nintendo blocks, use official nintendo translation if available */
