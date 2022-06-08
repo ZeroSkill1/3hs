@@ -19,6 +19,7 @@
 
 #include <functional>
 #include <3ds.h>
+#include "panic.hh"
 
 
 namespace ctr
@@ -45,6 +46,7 @@ namespace ctr
 
 			this->threadobj = threadCreate(&thread::_entrypoint, params, 64 * 1024, prio - 1,
 				-2, false);
+			panic_assert(this->threadobj != nullptr, "failed to create thread");
 		}
 
 		~thread()
@@ -56,14 +58,14 @@ namespace ctr
 		/* wait for the thread to finish */
 		void join()
 		{
-			if(this->threadobj != nullptr)
+			if(!this->finished())
 				threadJoin(this->threadobj, U64_MAX);
 		}
 
 		/* returns if the thread is done */
 		bool finished()
 		{
-			return this->threadobj == nullptr;
+			return this->isFinished;
 		}
 
 
@@ -78,11 +80,11 @@ namespace ctr
 		{
 			ThreadFuncParams *params = (ThreadFuncParams *) arg;
 			params->func();
-			params->self->threadobj = nullptr;
 			delete params;
 		}
 
 		Thread threadobj;
+		bool isFinished;
 
 
 	};

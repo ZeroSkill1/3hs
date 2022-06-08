@@ -1004,8 +1004,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::def_sort_dir] = "Direction du tirage par défault",
 			[str::def_sort_dir_desc] = "Spécifie la direction du tirage par défault à utiliser quand tu regarde une liste de titres.",
 			[str::invalid_content_type] = "Type de contenue invalide",
-			[str::theme_installed] = "Un thème a été installé. S'il te-plaît regarde " 
-			[str::file_installed] = "Un fichier a été installé. Il ne sera visible que sur le menu HOME", 
+			[str::theme_installed] = "Un thème a été installé. S'il te-plaît regarde ",
+			[str::file_installed] = "Un fichier a été installé. Il ne sera visible que sur le menu HOME",
 		},
 
 	[lang::romanian] =
@@ -1633,8 +1633,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::def_sort_dir] = "기본 배열 방향", /* scroll, context: setting title */
 			[str::def_sort_dir_desc] = "타이틀 배열 시 사용되는 기본 배열방향을 설정", /* context: setting description */
 			[str::invalid_content_type] = "일치하지 않는 콘텐츠 타입", /* context: legacy search content type (see p: documentation on site) */
-			STUB(theme_installed),
-			STUB(file_installed),
+			[str::theme_installed] = "새로운 테마를 설치했습니다. " PAGE_THEMES "에서 확인해주세요" , /* context, shown after installation of anything in the themes category, PAGE_THEMES links to the theme installer wiki page */
+			[str::file_installed] = "파일이 설치되었습니다. 이 파일은 메인메뉴에서 확인할 수 없습니다.", /* context: shown after a file forwarder is installed that's not a theme, just here for future proofing */
 		},
 
 	[lang::greek] =
@@ -1790,8 +1790,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::def_sort_dir] = "Προεπιλεγμένη φορά ταξινόμησης",
 			[str::def_sort_dir_desc] = "Καθορίζει την προεπιλεγμένη φορά ταξινόμησης που θα χρησιμοποιείται κατά την προβολή μιας λίστας τίτλων.",
 			[str::invalid_content_type] = "Μη γκυρος τύπος περιεχομένου",
-			STUB(theme_installed),
-			STUB(file_installed),
+			[str::theme_installed] = "Ένα θέμα εγκαταστάθηκε. Για περισσότερα δείτε" PAGE_THEMES,
+			[str::file_installed] = "Ένα αρχείο εγκαταστάθηκε. Δεν θα εμφανιστεί στην αρχική οθόνη",
 		},
 
 	[lang::polish] =
@@ -2263,8 +2263,8 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::def_sort_dir] = "デフォルトのソート方向",
 			[str::def_sort_dir_desc] = "タイトルのリストを表示するときに使用するデフォルトのソート方向を指定します。",
 			[str::invalid_content_type] = "無効なコンテンツタイプ",
-			STUB(theme_installed),
-			STUB(file_installed),
+			[str::theme_installed] = "テーマがインストールされました。 参照してください ",
+			[str::file_installed] = "ファイルがインストールされました。 これらはホームメニューには表示されません",
 		},
 
 	[lang::russian] =
