@@ -39,7 +39,7 @@ static void make_queue(ui::RenderQueue& queue, ui::ProgressBar **bar)
 static bool ask_reinstall(bool interactive)
 {
 	return interactive ?
-		false : ui::Confirm::exec(STRING(already_installed_reinstall));
+		ui::Confirm::exec(STRING(already_installed_reinstall)) : false;
 }
 
 static void finalize_install(u64 tid, bool interactive)

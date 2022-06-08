@@ -70,7 +70,11 @@ void queue_process(size_t index)
 
 void queue_process_all()
 {
-	std::vector<Result> errs;
+	struct errvec {
+		Result res;
+		hsapi::FullTitle *meta;
+	};
+	std::vector<errvec> errs;
 	bool needsPatching = false;
 	enum InstallerWarning {
 	  WARN_NONE  = 0,
@@ -82,7 +86,12 @@ void queue_process_all()
 		ilog("Processing title with id=%llu", meta.id);
 		Result res = install::gui::hs_cia(meta, false);
 		ilog("Finished processing, res=%016lX", res);
-		if(R_FAILED(res)) errs.push_back(res);
+		if(R_FAILED(res))
+		{
+			errvec ev;
+			ev.res = res; ev.meta = &meta;
+			errs.push_back(ev);
+		}
 		else
 		{
 			needsPatching |= luma::set_locale(meta.tid);
@@ -100,10 +109,10 @@ void queue_process_all()
 	if(errs.size() != 0)
 	{
 		ui::notice(STRING(replaying_errors));
-		for(Result res : errs)
+		for(errvec& ev : errs)
 		{
-			error_container err = get_error(res);
-			handle_error(err);
+			error_container err = get_error(ev.res);
+			handle_error(err, &ev.meta->name);
 		}
 	}
 

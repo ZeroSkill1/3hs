@@ -80,6 +80,7 @@ namespace ctr
 		{
 			ThreadFuncParams *params = (ThreadFuncParams *) arg;
 			params->func();
+			params->self->isFinished = true;
 			delete params;
 		}
 

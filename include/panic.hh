@@ -38,7 +38,7 @@
 # define panic_assert(...) (void)
 #endif
 
-void handle_error(const error_container& err);
+void handle_error(const error_container& err, const std::string *label = nullptr);
 
 [[noreturn]] void panic_impl(const std::string& caller, const std::string& msg);
 [[noreturn]] void panic_impl(const std::string& caller, Result res);

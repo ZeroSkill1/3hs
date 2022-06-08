@@ -74,11 +74,14 @@ static void pusha(ui::RenderQueue& queue)
 
 static void pusherror(const error_container& err, ui::RenderQueue& queue, float base)
 {
+	ui::Text *first;
+	ui::BaseWidget *back = queue.back();
 	ui::builder<ui::Text>(ui::Screen::top, format_err(err.sDesc, err.iDesc))
 		.x(ui::layout::center_x)
 		.y(base)
 		.wrap()
-		.add_to(queue);
+		.add_to(&first, queue);
+	if(base == 0.0f) first->set_y(ui::under(back, first));
 	ui::builder<ui::Text>(ui::Screen::top, PSTRING(result_code, "0x" + pad8code(err.full)))
 		.x(ui::layout::center_x)
 		.under(queue.back())
@@ -97,11 +100,21 @@ static void pusherror(const error_container& err, ui::RenderQueue& queue, float 
 		.add_to(queue);
 }
 
-void handle_error(const error_container& err)
+void handle_error(const error_container& err, const std::string *label)
 {
 	ui::RenderQueue queue;
 	pusha(queue);
-	pusherror(err, queue, 50.0f);
+	float base = 50.0f;
+	if(label)
+	{
+		ui::builder<ui::Text>(ui::Screen::top, *label)
+			.x(ui::layout::center_x)
+			.y(30.0f)
+			.wrap()
+			.add_to(queue);
+		base = 0.0f;
+	}
+	pusherror(err, queue, base);
 	queue.render_finite_button(KEY_A);
 }
 

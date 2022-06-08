@@ -66,8 +66,9 @@ typedef struct cia_net_data
 
 static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from, httpcContext *pctx)
 {
+	u32 status = 0, dled = from, remaining, dlnext, written;
 	Result res = 0;
-#define CHECKRET(expr) do { if(R_FAILED(res = ( expr ) )) { httpcCancelConnection(pctx); httpcCloseContext(pctx); return res; } } while(0)
+#define CHECKRET(expr) do { if(R_FAILED(res = ( expr ) )) goto err; } while(0)
 
 	/* configure */
 	if(R_FAILED(res = httpcOpenContext(pctx, HTTPC_METHOD_GET, url.c_str(), 0)))
@@ -85,7 +86,6 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 
 	CHECKRET(httpcBeginRequest(pctx));
 
-	u32 status = 0, dled = from;
 	CHECKRET(httpcGetResponseStatusCode(pctx, &status));
 	vlog("Download status code: %lu", status);
 
@@ -111,18 +111,17 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 		 * reason: status != 200 check was added later than range support */
 		if(status != 206)
 		{
-			httpcCancelConnection(pctx);
-			httpcCloseContext(pctx);
-			return APPERR_NORANGE;
+			elog("expected 206 but got %lu", status);
+			res = APPERR_NORANGE;
+			goto err;
 		}
 	}
 	// Bad status code
 	else if(status != 200)
 	{
 		elog("HTTP status was NOT 200 but instead %lu", status);
-		httpcCancelConnection(pctx);
-		httpcCloseContext(pctx);
-		return APPERR_NON200;
+		res = APPERR_NON200;
+		goto err;
 	}
 
 	if(from == 0)
@@ -137,16 +136,15 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 		buffer[total] = '\0';
 		dlog("API data on '%s' (probably json):\n%s", url.c_str(), buffer);
 #endif
-		httpcCancelConnection(pctx);
-		httpcCloseContext(pctx);
-		return APPERR_NOSIZE;
+		res = APPERR_NOSIZE;
+		goto err;
 	}
 	svcSignalEvent(data->eventHandle);
 
 	// Install.
-	u32 remaining = data->totalSize - from;
-	u32 dlnext = BUFSIZE > remaining ? remaining : BUFSIZE;
-	u32 written = 0;
+	remaining = data->totalSize - from;
+	dlnext = BUFSIZE > remaining ? remaining : BUFSIZE;
+	written = 0;
 
 	while(data->index != data->totalSize)
 	{
@@ -155,19 +153,13 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 			|| R_FAILED(res = httpcGetDownloadSizeState(pctx, &dled, nullptr)))
 		{
 			dlog("aborted http connection due to error: %08lX.", res);
-			svcSignalEvent(data->eventHandle);
-			httpcCancelConnection(pctx);
-			httpcCloseContext(pctx);
-			return res;
+			goto err;
 		}
 #define CHK_EXIT \
 		if(data->itc == ITC::exit) \
 		{ \
 			dlog("aborted http connection due to ITC::exit"); \
-			svcSignalEvent(data->eventHandle); \
-			httpcCancelConnection(pctx); \
-			httpcCloseContext(pctx); \
-			break; \
+			goto err; \
 		}
 		CHK_EXIT
 		dlog("Writing to cia handle, size=%lu,index=%lu,totalSize=%lu", dlnext, data->index, data->totalSize);
@@ -185,11 +177,15 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 		svcSignalEvent(data->eventHandle);
 	}
 
-	svcSignalEvent(data->eventHandle);
-	httpcCancelConnection(pctx);
+out:
 	httpcCloseContext(pctx);
-	return 0;
+	data->itc = ITC::exit;
+	svcSignalEvent(data->eventHandle);
+	return res;
 #undef CHECKRET
+err:
+	httpcCloseContext(pctx);
+	goto out;
 }
 
 static void i_install_loop_thread_cb(Result& res, get_url_func get_url, cia_net_data& data, httpcContext& hctx)
@@ -201,10 +197,10 @@ static void i_install_loop_thread_cb(Result& res, get_url_func get_url, cia_net_
 		if((url = get_url(res)) == "")
 		{
 			elog("failed to fetch url: %08lX", res);
-			return;
+			goto out;
 		}
 		res = i_install_net_cia(url, &data, 0, &hctx);
-		return;
+		goto out;
 	}
 
 	// install loop
@@ -213,13 +209,6 @@ static void i_install_loop_thread_cb(Result& res, get_url_func get_url, cia_net_
 		url = get_url(res);
 		if(R_SUCCEEDED(res))
 			res = i_install_net_cia(url, &data, data.index, &hctx);
-
-		// User pressed start
-		if(data.itc == ITC::exit)
-		{
-			res = APPERR_CANCELLED;
-			break;
-		}
 
 		if(R_FAILED(res)) { elog("Failed in install loop. ErrCode=0x%08lX", res); }
 		if(R_MODULE(res) == RM_HTTP)
@@ -232,7 +221,6 @@ static void i_install_loop_thread_cb(Result& res, get_url_func get_url, cia_net_
 			{
 				// this signals that we want to cancel the installation later on
 				res = APPERR_CANCELLED;
-				data.itc = ITC::exit;
 				break;
 			}
 
@@ -245,12 +233,16 @@ static void i_install_loop_thread_cb(Result& res, get_url_func get_url, cia_net_
 		// Installation was a fail or succeeded, so we stop
 		break;
 	}
+out:
+	data.itc = ITC::exit;
+	svcSignalEvent(data.eventHandle);
 }
 
 static Result i_install_resume_loop(get_url_func get_url, prog_func prog, cia_net_data *data)
 {
 	Result res;
 	data->buffer = new u8[BUFSIZE];
+
 	if(R_FAILED(res = svcCreateEvent(&data->eventHandle, RESET_STICKY)))
 		return res;
 
@@ -260,34 +252,40 @@ static Result i_install_resume_loop(get_url_func get_url, prog_func prog, cia_ne
 	ctr::thread<Result&, get_url_func, cia_net_data&, httpcContext&> th
 		(i_install_loop_thread_cb, res, get_url, *data, hctx);
 
-	// UI Loop
-	while(!th.finished())
-	{
-		if(data->itc != ITC::timeoutscr)
-		{
-			if(svcWaitSynchronization(data->eventHandle, 0) == 0)
-			{
-				/* draw & clear event */
-				svcClearEvent(data->eventHandle);
-				prog(data->index, data->totalSize);
-			}
+	Handle handles[6];
+	handles[0] = data->eventHandle;
+	extern Handle hidEvents[5];
+	memcpy(&handles[1], hidEvents, sizeof(hidEvents));
+	s32 outhandle;
 
+	// UI Loop
+	while(data->itc != ITC::exit)
+	{
+		svcWaitSynchronizationN(&outhandle, handles, 6, false, U64_MAX);
+		svcClearEvent(handles[outhandle]);
+		/* other thread signals state update */
+		if(outhandle == 0)
+		{
+			if(data->itc == ITC::exit)
+				break;
+			if(!aptMainLoop()) break;
+			if(data->itc != ITC::timeoutscr)
+				prog(data->index, data->totalSize);
+		}
+		/* hid event */
+		else
+		{
 			hidScanInput();
-			/* perhaps make this entire loop event-based?
-			 * extern Handle hidEvents[5];
-			 * svcWaitSynchronizationN() */
 			if(!aptMainLoop() || (hidKeysDown() & (KEY_B | KEY_START)))
 			{
 				httpcCancelConnection(&hctx); /* aborts if in http  */
-				data->itc = ITC::exit;
+				res = APPERR_CANCELLED;
 				break;
 			}
-			gspWaitForVBlank();
 		}
-		else /* wait until timeout is done but don't clear event; we have to draw immediately after */
-			svcWaitSynchronization(data->eventHandle, U64_MAX);
 	}
 
+	data->itc = ITC::exit;
 	th.join();
 	svcCloseHandle(data->eventHandle);
 
