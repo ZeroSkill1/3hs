@@ -116,6 +116,7 @@ void queue_process_all()
 		}
 	}
 
+	/* TODO: Only clear successful installs */
 	queue_clear();
 }
 
