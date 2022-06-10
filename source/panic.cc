@@ -20,11 +20,11 @@
 
 #include <ui/base.hh>
 
+#include "install.hh"
 #include "hsapi.hh"
 #include "i18n.hh"
 #include "util.hh"
 #include "log.hh"
-
 
 Result init_services(bool& isLuma)
 {
@@ -46,11 +46,23 @@ Result init_services(bool& isLuma)
 	if(R_FAILED(res = psInit())) return res;
 	if(R_FAILED(res = acInit())) return res;
 
+	/* basically ensures that we can use the network during sleep
+	 * thanks Kartik for the help */
+	aptSetSleepAllowed(false);
+	if(R_FAILED(res = ndmuInit())) return res;
+	if(R_FAILED(res = NDMU_EnterExclusiveState(NDM_EXCLUSIVE_STATE_INFRASTRUCTURE))) return res;
+	if(R_FAILED(res = NDMU_LockState())) return res;
+
 	return res;
 }
 
 void exit_services()
 {
+	NDMU_UnlockState();
+	NDMU_LeaveExclusiveState();
+	ndmuExit();
+	aptSetSleepAllowed(true);
+
 	mcuHwcExit();
 	httpcExit();
 	romfsExit();
@@ -60,6 +72,7 @@ void exit_services()
 	nsExit();
 	amExit();
 	psExit();
+	acExit();
 }
 
 

@@ -33,9 +33,6 @@
 #include <string>
 
 
-std::string trim(const std::string& str, const std::string& whitespace = " \t\n");
-std::string get_url_content(std::string from);
-std::string get_latest_version_string();
 bool update_app();
 
 #endif

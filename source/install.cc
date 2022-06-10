@@ -28,7 +28,6 @@
 
 #define BUFSIZE 0x80000
 
-
 enum class ITC // inter thread communication
 {
 	normal, exit, timeoutscr
@@ -148,13 +147,14 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 
 	while(data->index != data->totalSize)
 	{
-		if((R_FAILED(res = httpcReceiveDataTimeout(pctx, data->buffer, dlnext, 30000000000L))
-			&& res != (Result) HTTPC_RESULTCODE_DOWNLOADPENDING)
-			|| R_FAILED(res = httpcGetDownloadSizeState(pctx, &dled, nullptr)))
+		res = httpcReceiveDataTimeout(pctx, data->buffer, dlnext, 30000000000L);
+		vlog("httpcReceiveDataTimeout(): 0x%08lX", res);
+		if((R_FAILED(res) && res != (Result) HTTPC_RESULTCODE_DOWNLOADPENDING) || R_FAILED(res = httpcGetDownloadSizeState(pctx, &dled, nullptr)))
 		{
 			dlog("aborted http connection due to error: %08lX.", res);
 			goto err;
 		}
+
 #define CHK_EXIT \
 		if(data->itc == ITC::exit) \
 		{ \
@@ -165,8 +165,10 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 		dlog("Writing to cia handle, size=%lu,index=%lu,totalSize=%lu", dlnext, data->index, data->totalSize);
 		/* we don't need to add the FS_WRITE_FLUSH flag because AM just ignores write flags... */
 		if(data->type == ActionType::install)
+		{
 			if(R_FAILED(res = FSFILE_Write(data->cia, &written, data->index, data->buffer, dlnext, 0)))
 				goto err;
+		}
 		else
 			data->content->append(data->buffer, dlnext);
 		remaining = data->totalSize - dled - from;

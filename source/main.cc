@@ -104,16 +104,17 @@ private:
 
 static void deinit_all()
 {
-	log_exit();
 	hsapi::global_deinit();
 	ui::exit();
 	exit_services();
+	log_exit();
 }
 
 int main(int argc, char* argv[])
 {
 	((void) argc);
 	((void) argv);
+	Result res;
 
 	ensure_settings(); /* log_init() uses settings ... */
 	log_init();
@@ -127,11 +128,17 @@ int main(int argc, char* argv[])
 	log_settings();
 
 	bool isLuma = false;
-	panic_if_err_3ds(init_services(isLuma));
+	if(R_FAILED(res = init_services(isLuma)))
+	{
+		flog("init_services() failed, this should **never** happen (0x%08lX)", res);
+		log_exit();
+		exit(0);
+	}
 	if(!ui::init())
 	{
 		flog("ui::init() failed, this should **never** happen");
 		exit_services();
+		log_exit();
 		exit(0);
 	}
 
@@ -160,6 +167,7 @@ int main(int argc, char* argv[])
 		queue.render_finite_button(KEY_START | KEY_B);
 		ui::exit();
 		exit_services();
+		log_exit();
 		exit(0);
 	}
 #endif
@@ -288,8 +296,10 @@ int main(int argc, char* argv[])
 	if(!hsapi::global_init())
 	{
 		flog("hsapi::global_init() failed");
+		ui::exit();
+		exit_services();
+		log_exit();
 		panic(STRING(fail_init_networking));
-		exit(0);
 	}
 
 	atexit(deinit_all);
