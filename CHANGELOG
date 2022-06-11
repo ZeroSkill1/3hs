@@ -1,5 +1,5 @@
 
-v1.2.1 "cotidie morimur":
+v1.3.0 "libere dorme":
  - Fix functionality of "find all missing"
  - Fix issue where a large queue could not be installed
  - Add ability to reset settings by pressing R on startup or R in settings

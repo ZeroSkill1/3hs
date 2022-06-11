@@ -56,6 +56,8 @@ typedef struct cia_net_data
 	ITC itc = ITC::normal;
 	// Buffer. allocated on heap for extra storage
 	u8 *buffer = nullptr;
+	// amount of data in the buffer
+	u32 bufferSize;
 	// Tells second thread to wake up
 	Handle eventHandle;
 	// Type of action
@@ -144,16 +146,25 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 	remaining = data->totalSize - from;
 	dlnext = BUFSIZE > remaining ? remaining : BUFSIZE;
 	written = 0;
+	data->bufferSize = 0;
 
 	while(data->index != data->totalSize)
 	{
-		res = httpcReceiveDataTimeout(pctx, data->buffer, dlnext, 30000000000L);
+		res = httpcReceiveDataTimeout(pctx, &data->buffer[data->bufferSize], dlnext, 30000000000L);
 		vlog("httpcReceiveDataTimeout(): 0x%08lX", res);
 		if((R_FAILED(res) && res != (Result) HTTPC_RESULTCODE_DOWNLOADPENDING) || R_FAILED(res = httpcGetDownloadSizeState(pctx, &dled, nullptr)))
 		{
 			dlog("aborted http connection due to error: %08lX.", res);
 			goto err;
 		}
+		/* chunk was partially downloaded (how?) */
+		if(dled != data->index + dlnext)
+		{
+			data->bufferSize = dled - data->index;
+			dlnext = dlnext - data->bufferSize;
+			continue;
+		}
+		data->bufferSize = 0;
 
 #define CHK_EXIT \
 		if(data->itc == ITC::exit) \
