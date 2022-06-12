@@ -21,39 +21,33 @@
 
 #include <3ds.h>
 
-
-void ui::loading(ui::RenderQueue& queue, std::function<void()> callback)
+void ui::loading(std::function<void()> callback)
 {
 	std::string desc = ::set_desc(STRING(loading));
 	bool focus = ::set_focus(true);
 
+	/* static because ??? */
+	static bool spin_flag;
+	spin_flag = true;
+
 	aptSetHomeAllowed(false);
-	bool spinning = true;
-	ctr::thread<ui::RenderQueue&, bool&> th([](ui::RenderQueue& queue, bool& spinning) -> void {
-		ui::Keys keys = ui::RenderQueue::get_keys();
-		while(spinning && queue.render_frame(keys))
-			keys = ui::RenderQueue::get_keys();
-	}, queue, spinning);
+	ctr::thread<> th([]() -> void {
+		ui::RenderQueue queue;
+		ui::builder<ui::Spinner>(ui::Screen::top)
+			.x(ui::layout::center_x)
+			.y(ui::layout::center_y)
+			.add_to(queue);
+
+		while(spin_flag) queue.render_frame(ui::RenderQueue::get_keys());
+	});
 
 	/* */ callback();
-	spinning = false;
+	spin_flag = false;
 	th.join();
 	aptSetHomeAllowed(true);
 
 	::set_focus(focus);
 	::set_desc(desc);
-}
-
-void ui::loading(std::function<void()> callback)
-{
-	RenderQueue queue;
-
-	ui::builder<ui::Spinner>(ui::Screen::top)
-		.x(ui::layout::center_x)
-		.y(ui::layout::center_y)
-		.add_to(queue);
-
-	ui::loading(queue, callback);
 }
 
 /* class Spinner */

@@ -264,7 +264,7 @@ static Result i_install_resume_loop(get_url_func get_url, prog_func prog, cia_ne
 
 	// Install thread
 	ctr::thread<Result&, get_url_func, cia_net_data&, httpcContext&> th
-		(i_install_loop_thread_cb, res, get_url, *data, hctx);
+		(i_install_loop_thread_cb, res, std::move(get_url), *data, hctx);
 
 	Handle handles[6];
 	handles[0] = data->eventHandle;

@@ -2282,7 +2282,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::credits_thanks] =
 				"Спасибо что используете 3hs, hShop клиент для 3DS.\n"
 				"Вы можете скачать контент по ссылке\n"
-				"https://hshop.erista.me/",
+				PAGE_3HS,
 			[str::credits_names] = "", /* unused */
 			[str::press_to_install] =
 				"Нажмите " UI_GLYPH_A " для установки.\n"
@@ -2439,7 +2439,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::credits_thanks] =
 				"Thanketh thee f'r using 3hs, a 3ds client f'r hShop. \n"
 				"Thee can receiveth this software f'r free at\n"
-				"https://hshop.erista.me/",
+				PAGE_3HS,
 			[str::credits_names] = "",
 			[str::press_to_install] =
 				"Presseth " UI_GLYPH_A " to installeth this content. \n"
@@ -2755,7 +2755,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::credits_thanks] =
 				"Paldies, ka izmantojās 3hs, hShop 3DS klientu.\n"
 				"Jūs varat iegūt šo programmatūru bez maksas vietnē\n"
-				"https://hshop.erista.me/",
+				PAGE_3HS,
 			[str::credits_names] = "", /* unused */
 			[str::press_to_install] =
 				"Nospiediet " UI_GLYPH_A " lai instalētu šo saturu.\n"
