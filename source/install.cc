@@ -218,7 +218,7 @@ static void i_install_loop_thread_cb(Result& res, get_url_func get_url, cia_net_
 	}
 
 	// install loop
-	while(true)
+	while(data.itc != ITC::exit)
 	{
 		url = get_url(res);
 		if(R_SUCCEEDED(res))
@@ -264,7 +264,7 @@ static Result i_install_resume_loop(get_url_func get_url, prog_func prog, cia_ne
 
 	// Install thread
 	ctr::thread<Result&, get_url_func, cia_net_data&, httpcContext&> th
-		(i_install_loop_thread_cb, res, std::move(get_url), *data, hctx);
+		(i_install_loop_thread_cb, res, get_url, *data, hctx);
 
 	Handle handles[6];
 	handles[0] = data->eventHandle;
@@ -292,7 +292,6 @@ static Result i_install_resume_loop(get_url_func get_url, prog_func prog, cia_ne
 			hidScanInput();
 			if(!aptMainLoop() || (hidKeysDown() & (KEY_B | KEY_START)))
 			{
-				httpcCancelConnection(&hctx); /* aborts if in http  */
 				res = APPERR_CANCELLED;
 				break;
 			}
@@ -301,8 +300,8 @@ static Result i_install_resume_loop(get_url_func get_url, prog_func prog, cia_ne
 
 	data->itc = ITC::exit;
 	th.join();
-	svcCloseHandle(data->eventHandle);
 
+	svcCloseHandle(data->eventHandle);
 	delete [] data->buffer;
 	return res;
 }

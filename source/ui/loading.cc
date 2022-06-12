@@ -38,7 +38,8 @@ void ui::loading(std::function<void()> callback)
 			.y(ui::layout::center_y)
 			.add_to(queue);
 
-		while(spin_flag) queue.render_frame(ui::RenderQueue::get_keys());
+		while(spin_flag && queue.render_frame(ui::RenderQueue::get_keys()))
+			/* no-op */ ;
 	});
 
 	/* */ callback();
