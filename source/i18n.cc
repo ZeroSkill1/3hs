@@ -2937,6 +2937,7 @@ const char *i18n::langname(lang::type id)
 	case lang::hungarian: return LANGNAME_HUNGARIAN;
 	case lang::japanese: return LANGNAME_JAPANESE;
 	case lang::russian: return LANGNAME_RUSSIAN;
+	case lang::spearglish: return LANGNAME_SPEARGLISH;
 	case lang::ryukyuan: return LANGNAME_RYUKYUAN;
 	case lang::latavian: return LANGNAME_LATAVIAN;
 	}
