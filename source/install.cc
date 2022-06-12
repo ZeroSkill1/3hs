@@ -154,7 +154,7 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 		vlog("httpcReceiveDataTimeout(): 0x%08lX", res);
 		if((R_FAILED(res) && res != (Result) HTTPC_RESULTCODE_DOWNLOADPENDING) || R_FAILED(res = httpcGetDownloadSizeState(pctx, &dled, nullptr)))
 		{
-			dlog("aborted http connection due to error: %08lX.", res);
+			elog("aborted http connection due to error: %08lX.", res);
 			goto err;
 		}
 		/* chunk was partially downloaded (how?) */
@@ -174,9 +174,9 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 		}
 		CHK_EXIT
 		dlog("Writing to cia handle, size=%lu,index=%lu,totalSize=%lu", dlnext, data->index, data->totalSize);
-		/* we don't need to add the FS_WRITE_FLUSH flag because AM just ignores write flags... */
 		if(data->type == ActionType::install)
 		{
+			/* we don't need to add the FS_WRITE_FLUSH flag because AM just ignores write flags... */
 			if(R_FAILED(res = FSFILE_Write(data->cia, &written, data->index, data->buffer, dlnext, 0)))
 				goto err;
 		}

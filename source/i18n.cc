@@ -2121,7 +2121,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::fail_init_networking] = "ネットワークの初期化に失敗しました",
 			[str::fail_fetch_index] = "インデックスの取得に失敗しました\n%1",
 			[str::credits_thanks] =
-				"hShop用の3dsクライアントである3hsをご利用いただきありがとうございます！\n"
+				"hShop用の3DSクライアントである3hsをご利用いただきありがとうございます！\n"
 				"このソフトウェアは、\n"
 				PAGE_3HS,
 			[str::credits_names] = "",
@@ -2234,7 +2234,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::found_missing] ="%1個の不足しているタイトルが見つかりました\nキューをチェックしてインストールしてください。",
 			[str::found_0_missing] = "不足しているタイトルは見つかりませんでした。",
 			[str::max_elogs] = "古いログファイルの最大数",
-			[str::max_elogs_desc] = "保持するログファイルの数を設定します。 可能な値は0〜255で、0は追加のログファイルを保持しません。",
+			[str::max_elogs_desc] = "保持するログファイルの数を設定します。 可能な値は0~255で、0は追加のログファイルを保持しません。",
 			[str::elogs_hint] = "0から255までの値",
 			[str::log_id] = "このIDを使用してサポートを取得します：\n%1", /* %1 = id */
 			[str::block] = "ブロック",
@@ -2580,6 +2580,165 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			STUB(theme_installed),
 			STUB(file_installed),
 		},
+
+	[lang::ryukyuan] =
+		{
+			[str::banner]  = "ふぶまじりぬ3DSコンテンツ保存サービス",
+			[str::loading] = "ロード中...",
+			[str::luma_not_installed] = "サポートさりてぃうぅらんファームウェアぬ検出さりやびたん。",
+			[str::install_luma] = "くぬシステムっしぇー3hsー使用なやびらん。",
+			[str::queue] = "キュー",
+			[str::connect_wifi] = "Wi-Fiんかい接続し、アプリ再起動しくぃみそーれー。",
+			[str::fail_init_networking] = "ネットワークぬ初期化んかいしーやんじゃびたん",
+			[str::fail_fetch_index] = "インデックスぬ取得んかいしーやんじゃびたん\n%1",
+			[str::credits_thanks] =
+				"hShop用ぬ3DSクライアントやん3hsぐ利用いただちにふぇーでーびる！\n"
+				"くぬソフトウェアー、\n"
+				PAGE_3HS " うぅてぃ完全いちゃんだっし入手なやびーん。",
+			[str::credits_names] = "",
+			[str::press_to_install] =
+			UI_GLYPH_A " うち くぬコンテンツインストール\n"
+			UI_GLYPH_B " うち前ぬ画面んかいむどぅいん",
+			[str::version] = "バージョン",
+			[str::prodcode] = "プロダクトコード",
+			[str::size] = "サイズ",
+			[str::name] = "ゲーム名",
+			[str::tid] = "タイトルID",
+			[str::category] = "カテゴリー",
+			[str::landing_id] = "hShop ID",
+			[str::description] = "説明",
+			[str::total_titles] = "総タイトル数",
+			[str::select_cat] = "カテゴリー選択",
+			[str::select_subcat] = "サブカテゴリー選択",
+			[str::select_title] = "タイトル選択",
+			[str::no_cats_index] = "インデックスんかいカテゴリぬあいびらん (?)",
+			[str::empty_subcat] = "空ぬサブカテゴリー (?)",
+			[str::empty_cat] = "空ぬカテゴリー (?)",
+			[str::fmt_24h] = "24時間表記",
+			[str::fmt_12h] = "12時間表記",
+			[str::unknown] = "不明",
+			[str::btrue] = "はい",
+			[str::bfalse] = "うぅーうぅー",
+			[str::top] = "うぃー",
+			[str::bottom] = "しちゃ",
+			[str::light_mode] = "ライトモード",
+			[str::resume_dl] = "ダウンロード再開すん",
+			[str::load_space] = "空き領域インジケーター表示すん",
+			[str::show_battery] = "バッテリーレベルインジケーター表示すん",
+			[str::time_format] = "時間形式",
+			[str::progbar_screen] = "プログレスバーぬ位置",
+			[str::language] = "言語変更",
+			[str::value_x] = "値: %1",
+			[str::back] = "むどぅいん",
+			[str::invalid] = "無効",
+			[str::title_doesnt_exist] = "タイトルぬ存在さびらん: %1",
+			[str::fail_create_tex] = "texぬ作成んかいしーやんじゃびたん",
+			[str::fail_load_smdh_icon] = "load_smdh_icon()：無効なSMDHIconType",
+			[str::netcon_lost] = "ネットワーク接続ぬ失らりやびたん(%1)。\n$t秒っし再試行さびーん。..",
+			[str::about_app] = "3hsぬ詳細",
+			[str::help_manual] = "ヘルプ/マニュアル",
+			[str::find_missing_content] = "不足そーるコンテンツかめーいん",
+			[str::press_a_exit] = UI_GLYPH_A "うち終了さびーん。",
+			[str::fatal_panic] = "致命的なパニックぬ発生さびたん。",
+			[str::failed_open_seeddb] = "seeddb.binふぃらちゅるくとぅがなやびらんたん。",
+			[str::update_to] = "%1に更新さびーが？",
+			[str::search_content] = "コンテンツ検索すん",
+			[str::search_content_action] = "コンテンツ検索中...",
+			[str::results_query] = "クエリ\"%1\"ぬ結果",
+			[str::result_code] = "結果コード:%1",
+			[str::level] = "レベル: %1",
+			[str::summary] = "要約: %1",
+			[str::module] = "モジュール: %1",
+			[str::hs_bunny_found] = "かりーでーびる！ hShopバニー見ーちきやびたん！",
+			[str::already_installed_reinstall] = "タイトローしでぃにインストールさりとーいびーん。 再インストールさびーが？",
+			[str::queue_empty] =
+				"キューぬ空やいびーん\n"
+				UI_GLYPH_A "うち元ぬ画面んかいむどぅやびーん。\n"
+				"ヒント:" UI_GLYPH_Y "うち、キューんかいタイトルいりしーいびーん。",
+			[str::cancel] = "キャンセル",
+			[str::confirm] = "確認",
+			[str::invalid_proxy] = "プロキシ設定ぬ無効やいびーん",
+			[str::more_about_content] = "くぬコンテンツぬ詳細",
+			[str::lumalocalemode] = "LumaLocaleモード",
+			[str::automatic] = "自動",
+			[str::manual] = "マニュアル",
+			[str::disabled] = "無効",
+			[str::patching_reboot] =
+				"Luma3DSゲームパッチぬ有効なやびたん。\n"
+				"くぬ変更有効なすんがー、システム再起動するいりゆーぬあいびーん。",
+			[str::reboot_now] = "なまちゃーき再起動さびーが？",
+			[str::this_version] = "くれー3hsバージョン%1やいびーん",
+			[str::retry_req] = "要求ぬしーやんじゃびたん。 リトライさびーが？",
+			[str::search_zero_results] =
+				"検索結果がけーさりやびらんたん。\n"
+				UI_GLYPH_A "うちむどぅやびーん。",
+			[str::credits] = "クレジット",
+			[str::extra_content] = "キューんかいコンテンツいりしーいびーが？",
+			[str::check_extra] = "追加コンテンツ検索すん",
+			[str::no_req] = "なーらリクエストーあいびらん",
+			[str::invalid_query] = "無効なクエリ\nむどぅいんがー" UI_GLYPH_A "うちくぃみそーれー。",
+			[str::min_constraint] = "現在ぬ3hsバージョン%1ー、いりゆーなバージョン%2やかふぃくくなとーいびーん",
+			[str::proxy] = "プロキシー",
+			[str::none] = "(なし)",
+			[str::press_a_to_view] = UI_GLYPH_A "クリックし表示さびーん。",
+			[str::host] = "ホスト",
+			[str::port] = "ポート",
+			[str::username] = "ユーザー名",
+			[str::password] = "パスワード",
+			[str::clear] = "クリア",
+			[str::progbar_screen_desc] = "プログレスバーぬ位置選択さびーん。",
+			[str::light_mode_desc] = "ライトモード有効/無効なさびーん。 くりにゆり、ふとぅんどぅぬUIぬ外観ぬ変わやびーん。",
+			[str::resume_dl_desc] = "ネットワークぬ中断さる後、ダウンロード再開さびーん。",
+			[str::load_space_desc] = "空き領域インジケーター切り替いやびーん。",
+			[str::show_battery_desc] = "バッテリーレベルインジケーター切り替いやびーん。",
+			[str::time_format_desc] = "時間形式選択さびーん。",
+			[str::language_desc] = "3hsぬ言語変更さびーん。 選択さる言語有効なすんがー、アプリケーション再起動するいりゆーぬあいびーん。",
+			[str::lumalocalemode_desc] = "LumaLocaleオートセッターぬモード設定さびーん。 自動ー言語自動的に選択さびーん。 くりが手動んかい設定さりとーるばー、コンテンツぬインストール後、3hsっしリージョンぬ入力むとぅみららりやびーん。",
+			[str::check_extra_desc] = "インストール後に追加ぬコンテンツ検索さびーん。",
+			[str::proxy_desc] = "3hsぬプロキシサーバー構成さびーん。 くぬ設定ー上級ユーザー向きやいびーん。",
+			[str::install_all] = "まじりインストール",
+			[str::install_no_base] = "元とぅないるゲームぬインストールさりやびらん。 続きやびーが？",
+			[str::warn_no_base] = "元とぅないるゲームぬインストールさりてぃうぅらんばーに警告すん",
+			[str::warn_no_base_desc] = "元とぅないるゲームぬインストールさりてぃうぅらんばー、アップデートあらんでぃDLCコンテンツインストールする前にメッセージ表示さびーん。",
+			[str::replaying_errors] = "キューぬ処理中んかい発生さる再生エラー。",
+			[str::log] = "ログ",
+			[str::upload_logs] = "ログアップロードすん",
+			[str::clear_logs] = "ログクリアすん",
+			[str::found_missing] =" %1個ぬ不足そーるタイトルぬ見ちかやびたん\nキューチェックしインストールしくぃみそーれー。",
+			[str::found_0_missing] = "不足そーるタイトロー見ちかやびらんたん。",
+			[str::max_elogs] = "古さるログファイルぬ最大数",
+			[str::max_elogs_desc] = "保持するログファイルぬかじ設定さびーん。 可能な値ー0~255っし、0ー追加ぬログファイル保持さびらん。",
+			[str::elogs_hint] = "0から255までぃぬ値",
+			[str::log_id] = "くぬID使用しサポート取得さびーん：\n%1", /* %1 = id */
+			[str::block] = "ブロック",
+			[str::blocks] = "ブロック",
+			[str::search_text] = "テキストっし検索",
+			[str::search_id] = "hShop IDっし検索",
+			[str::search_tid] = "タイトルIDっし検索",
+			[str::invalid_tid] = "タイトルIDぬ無効やいびーん",
+			[str::theme_installer_tid_bad] = "テーマかめーいんがー、テーマカテゴリ参照しくぃみそーれー",
+			[str::enter_lgy_query] = "従来ぬ検索クエリ入力さびーん",
+			[str::no_other_params_tid] = "タイトルID指定するとぅちに他ぬパラメーター指定すしぇーなやびらん",
+			[str::both_sd_and_sb] = "検索結果並べいけーいるとぅちぇー、並べいけーい方法んでぃ並べいけーい方向指定するいりゆーぬあいびーん",
+			[str::invalid_sb] = "無効なソート方法",
+			[str::invalid_sd] = "ソート方向ぬ無効やいびーん",
+			[str::invalid_includes] = "ソート方向ぬ無効やいびーん",
+			[str::invalid_excludes] = "無効な除外フィルター",
+			[str::filter_overlap] = "指定さったる検索フィルターっし重複ぬ検出さりやびたん",
+			[str::lgy_search] = "レガシー検索",
+			[str::sure_reset] = "構成リセットしんゆたさいびーが？",
+			[str::ascending] = "昇順",
+			[str::descending] = "降順",
+			[str::alphabetical] = "アルファベット順",
+			[str::downloads] = "ダウンロード",
+			[str::def_sort_meth] = "デフォルトぬソート方法",
+			[str::def_sort_meth_desc] = "タイトルぬリスト表示するとぅちに使用するデフォルトぬ並べいけーい方法指定さびーん。",
+			[str::def_sort_dir] = "デフォルトぬソート方向",
+			[str::def_sort_dir_desc] = "タイトルぬリスト表示するとぅちに使用するデフォルトぬソート方向指定さびーん。",
+			[str::invalid_content_type] = "無効なコンテンツタイプ",
+			[str::theme_installed] = "テーマぬインストールさりやびたん。 参照しくぃみそーれー " ,
+			[str::file_installed] = "ファイルぬインストールさりやびたん。 くりらーホームメニューんかえー表示さりやびらん",
+		},
 };
 #pragma GCC diagnostic pop
 
@@ -2619,6 +2778,7 @@ const char *i18n::langname(lang::type id)
 	case lang::hungarian: return LANGNAME_HUNGARIAN;
 	case lang::japanese: return LANGNAME_JAPANESE;
 	case lang::russian: return LANGNAME_RUSSIAN;
+	case lang::ryukyuan: return LANGNAME_RYUKYUAN;
 	}
 
 	return "invalid";
@@ -2637,6 +2797,14 @@ namespace CountryCode
 	};
 }
 
+// Not documented so gotten through a test application
+namespace ProvinceCode
+{
+	enum _codes {
+		japan_okinawa = 48,
+	};
+}
+
 lang::type i18n::default_lang()
 {
 	u8 syslang = 0;
@@ -2645,7 +2813,10 @@ lang::type i18n::default_lang()
 		syslang = CFG_LANGUAGE_EN;
 	/* countryinfo */
 	if(R_FAILED(CFGU_GetConfigInfoBlk2(4, 0x000B0000, countryinfo)))
+	{
+		countryinfo[2] = 0;
 		countryinfo[3] = 0;
+	}
 
 	switch(countryinfo[3])
 	{
@@ -2657,7 +2828,9 @@ lang::type i18n::default_lang()
 
 	switch(syslang)
 	{
-	case CFG_LANGUAGE_JP: return lang::japanese;
+	case CFG_LANGUAGE_JP:
+		return countryinfo[2] == ProvinceCode::japan_okinawa
+			? lang::ryukyuan : lang::japanese;
 	case CFG_LANGUAGE_FR:
 		return countryinfo[3] == CountryCode::canada
 			? lang::french_canada : lang::french;
