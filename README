@@ -2,6 +2,8 @@
 
 Blobfrii 3ds client for erista's hShop.
 3hs is licensed under GPLv3 (see: LICENSE).
+Also included is a copy of the "file_forwarder" project, which is the source
+for the applications labelled as "installer" on the hShop website. It is also subject to the GPLv3.
 
   = = Special thanks to = =
 

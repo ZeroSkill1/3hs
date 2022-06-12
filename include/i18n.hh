@@ -40,6 +40,7 @@
 #define LANGNAME_RUSSIAN "Русский"
 #define LANGNAME_SPEARGLISH "Spearglish"
 #define LANGNAME_RYUKYUAN "琉球諸語"
+#define LANGNAME_LATAVIAN "Latviešu"
 
 // ParamSTRING
 #define PSTRING(x, ...) i18n::interpolate(str::x, __VA_ARGS__)
@@ -221,6 +222,7 @@ namespace lang
 		russian       = 14,
 		spearglish    = 15,
 		ryukyuan      = 16,
+		latavian      = 17,
 
 		_i_max,
 	};

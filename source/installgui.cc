@@ -136,20 +136,20 @@ start_install:
 			goto start_install;
 	}
 
-	if(R_SUCCEEDED(res)) res = add_seed(meta.tid);
-	if(R_FAILED(res))
+	if(R_SUCCEEDED(res))
 	{
-		error_container err = get_error(res);
-		report_error(err, "User was installing (" + ctr::tid_to_str(meta.tid) + ") (" + std::to_string(meta.id) + ")");
-		if(interactive) handle_error(err);
-	}
-	else finalize_install(meta.tid, interactive);
-	if(interactive && (meta.flags & hsapi::TitleFlag::installer))
-	{
+		res = add_seed(meta.tid);
+		finalize_install(meta.tid, interactive);
 		if(meta.cat == THEMES_CATEGORY)
 			ui::notice(STRING(theme_installed));
 		else
 			ui::notice(STRING(file_installed));
+	}
+	else
+	{
+		error_container err = get_error(res);
+		report_error(err, "User was installing (" + ctr::tid_to_str(meta.tid) + ") (" + std::to_string(meta.id) + ")");
+		if(interactive) handle_error(err);
 	}
 
 	set_focus(focus);
