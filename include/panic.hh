@@ -44,6 +44,8 @@ void handle_error(const error_container& err, const std::string *label = nullptr
 [[noreturn]] void panic_impl(const std::string& caller, Result res);
 [[noreturn]] void panic_impl(const std::string& caller);
 
+void gfx_was_init();
+
 Result init_services(bool& isLuma);
 void exit_services();
 

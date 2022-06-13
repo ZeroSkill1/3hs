@@ -123,12 +123,16 @@ Result install::gui::hs_cia(const hsapi::FullTitle& meta, bool interactive, bool
 	bool shouldReinstall = defaultReinstallable;
 	Result res = 0;
 
+	if(interactive) install::lock();
+
 start_install:
 	res = install::hs_cia(meta, [&queue, &bar](u64 now, u64 total) -> void {
 		bar->update(now, total);
 		bar->activate();
 		queue.render_frame();
 	}, shouldReinstall);
+
+	if(interactive) install::unlock();
 
 	if(res == APPERR_NOREINSTALL)
 	{
@@ -140,10 +144,13 @@ start_install:
 	{
 		res = add_seed(meta.tid);
 		finalize_install(meta.tid, interactive);
-		if(meta.cat == THEMES_CATEGORY)
-			ui::notice(STRING(theme_installed));
-		else
-			ui::notice(STRING(file_installed));
+		if(interactive)
+		{
+			if(meta.cat == THEMES_CATEGORY)
+				ui::notice(STRING(theme_installed));
+			else if(meta.flags & hsapi::TitleFlag::installer)
+				ui::notice(STRING(file_installed));
+		}
 	}
 	else
 	{

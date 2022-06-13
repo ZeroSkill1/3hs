@@ -417,6 +417,7 @@ Result install::hs_cia(const hsapi::FullTitle& meta, prog_func prog, bool reinst
 	/* we instead want to use the theme installer installation method */
 	if(meta.flags & hsapi::TitleFlag::installer)
 	{
+		ilog("installing installer content");
 		content_type content;
 		data.content = &content;
 		data.type = ActionType::download;
@@ -426,8 +427,27 @@ Result install::hs_cia(const hsapi::FullTitle& meta, prog_func prog, bool reinst
 		/* trust me this'll be fine */
 		return install_forwarder((u8 *) content.c_str(), content.size());
 	}
+	ilog("installing normal content");
 	data.type = ActionType::install;
 	return i_install_hs_cia(meta, prog, reinstallable, &data, meta.flags & hsapi::TitleFlag::is_ktr);
+}
+
+Result install::lock()
+{
+	/* basically ensures that we can use the network during sleep
+	 * thanks Kartik for the help */
+	aptSetSleepAllowed(false);
+	Result res;
+	if(R_FAILED(res = NDMU_EnterExclusiveState(NDM_EXCLUSIVE_STATE_INFRASTRUCTURE)))
+		return res;
+	return NDMU_LockState();
+}
+
+void install::unlock()
+{
+	NDMU_UnlockState();
+	NDMU_LeaveExclusiveState();
+	aptSetSleepAllowed(true);
 }
 
 // HTTPC

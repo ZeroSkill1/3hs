@@ -4,6 +4,9 @@ Blobfrii 3ds client for erista's hShop.
 3hs is licensed under GPLv3 (see: LICENSE).
 Also included is a copy of the "file_forwarder" project, which is the source
 for the applications labelled as "installer" on the hShop website. It is also subject to the GPLv3.
+There are 2 official distributions of this code, one is on the hShop website (main source), another
+is hosted on github (mirror source), at https://github.com/MyPasswordIsWeak/3hs.
+
 
   = = Special thanks to = =
 

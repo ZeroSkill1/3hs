@@ -2742,7 +2742,7 @@ static const char *strtab[lang::_i_max][str::_i_max] =
 			[str::file_installed] = "ファイルぬインストールさりやびたん。 くりらーホームメニューんかえー表示さりやびらん",
 		},
 
-	[lang::latavian] =
+	[lang::latvian] =
 		{
 			[str::banner]  = "Labākais 3DS satura saglabāšanas pakalpojums", /* unused */
 			[str::loading] = "Notiek ielāde...",
@@ -2939,7 +2939,7 @@ const char *i18n::langname(lang::type id)
 	case lang::russian: return LANGNAME_RUSSIAN;
 	case lang::spearglish: return LANGNAME_SPEARGLISH;
 	case lang::ryukyuan: return LANGNAME_RYUKYUAN;
-	case lang::latavian: return LANGNAME_LATAVIAN;
+	case lang::latvian: return LANGNAME_LATVIAN;
 	}
 
 	return "invalid";
@@ -2953,7 +2953,7 @@ namespace CountryCode
 		canada  = 18,
 		greece  = 79,
 		hungary = 80,
-		latavia = 84,
+		latvia  = 84,
 		poland  = 97,
 		romania = 99,
 	};
@@ -2984,7 +2984,7 @@ lang::type i18n::default_lang()
 	{
 	case CountryCode::hungary: return lang::hungarian;
 	case CountryCode::romania: return lang::romanian;
-	case CountryCode::latavia: return lang::latavian;
+	case CountryCode::latvia: return lang::latvian;
 	case CountryCode::poland: return lang::polish;
 	case CountryCode::greece: return lang::greek;
 	}
