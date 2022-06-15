@@ -54,9 +54,26 @@
 #define UI_GLYPH_R "\uE005"
 #define UI_GLYPH_DPAD "\uE006"
 
+#define UI_LED_MAKE_ANIMATION(delay, smoothing, loop_delay) \
+	((((delay) & 0xFF) << 24) | (((smoothing) & 0xFF) << 16) | (((loop_delay) & 0xFF) << 8))
 
 namespace ui
 {
+	namespace LED
+	{
+		typedef struct Pattern {
+			u32 animation;
+			u8 red_pattern[32];
+			u8 green_pattern[32];
+			u8 blue_pattern[32];
+		} Pattern;
+
+		void Solid(Pattern *info, u32 animation, u8 r, u8 g, u8 b);
+		Result SetSleepPattern(Pattern *info);
+		Result SetPattern(Pattern *info);
+		Result ResetPattern(void);
+	}
+
 	class BaseWidget; /* forward declaration */
 
 	enum class Screen

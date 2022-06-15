@@ -40,7 +40,9 @@ Result init_services(bool& isLuma)
 	// Doesn't work in citra
 	if(isLuma) if(R_FAILED(res = mcuHwcInit())) return res;
 	/* 1MiB */ if(R_FAILED(res = httpcInit(1024 * 1024))) return res;
+	if(R_FAILED(res = ptmSysmInit())) return res;
 	if(R_FAILED(res = romfsInit())) return res;
+	if(R_FAILED(res = ptmuInit())) return res;
 	if(R_FAILED(res = cfguInit())) return res;
 	if(R_FAILED(res = ndmuInit())) return res;
 	if(R_FAILED(res = aptInit())) return res;
@@ -57,7 +59,9 @@ void exit_services()
 {
 	mcuHwcExit();
 	httpcExit();
+	ptmSysmExit();
 	romfsExit();
+	ptmuExit();
 	cfguExit();
 	ndmuExit();
 	aptExit();

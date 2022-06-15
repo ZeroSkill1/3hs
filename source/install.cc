@@ -57,7 +57,7 @@ typedef struct cia_net_data
 	// Buffer. allocated on heap for extra storage
 	u8 *buffer = nullptr;
 	// amount of data in the buffer
-	u32 bufferSize;
+	u32 bufferSize = 0;
 	// Tells second thread to wake up
 	Handle eventHandle;
 	// Type of action
@@ -69,7 +69,7 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 {
 	u32 status = 0, dled = from, remaining, dlnext, written;
 	Result res = 0;
-#define CHECKRET(expr) do { if(R_FAILED(res = ( expr ) )) goto err; } while(0)
+#define CHECKRET(expr) if(R_FAILED(res = ( expr ) )) goto err
 
 	/* configure */
 	if(R_FAILED(res = httpcOpenContext(pctx, HTTPC_METHOD_GET, url.c_str(), 0)))
@@ -143,14 +143,17 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 	svcSignalEvent(data->eventHandle);
 
 	// Install.
+	panic_assert(data->totalSize > from, "invalid download start position");
 	remaining = data->totalSize - from;
 	dlnext = BUFSIZE > remaining ? remaining : BUFSIZE;
+	dlnext -= data->bufferSize;
+	if(dlnext == 0) goto immediate_install;
 	written = 0;
-	data->bufferSize = 0;
 
 	while(data->index != data->totalSize)
 	{
 		res = httpcReceiveDataTimeout(pctx, &data->buffer[data->bufferSize], dlnext, 30000000000L);
+immediate_install:
 		vlog("httpcReceiveDataTimeout(): 0x%08lX", res);
 		if((R_FAILED(res) && res != (Result) HTTPC_RESULTCODE_DOWNLOADPENDING) || R_FAILED(res = httpcGetDownloadSizeState(pctx, &dled, nullptr)))
 		{
@@ -193,13 +196,14 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 	}
 
 out:
+	httpcCancelConnection(pctx);
 	httpcCloseContext(pctx);
-	data->itc = ITC::exit;
+	if(data->index == data->totalSize)
+		data->itc = ITC::exit;
 	svcSignalEvent(data->eventHandle);
 	return res;
 #undef CHECKRET
 err:
-	httpcCloseContext(pctx);
 	goto out;
 }
 
@@ -223,7 +227,7 @@ static void i_install_loop_thread_cb(Result& res, get_url_func get_url, cia_net_
 	{
 		url = get_url(res);
 		if(R_SUCCEEDED(res))
-			res = i_install_net_cia(url, &data, data.index, &hctx);
+			res = i_install_net_cia(url, &data, data.index + data.bufferSize, &hctx);
 
 		if(R_FAILED(res)) { elog("Failed in install loop. ErrCode=0x%08lX", res); }
 		if(R_MODULE(res) == RM_HTTP)
@@ -283,6 +287,7 @@ static Result i_install_resume_loop(get_url_func get_url, prog_func prog, cia_ne
 		{
 			if(data->itc == ITC::exit)
 				break;
+			/* we want to actually cancel the handle so lets not exit() here already */
 			if(!aptMainLoop()) break;
 			if(data->itc != ITC::timeoutscr)
 				prog(data->index, data->totalSize);
@@ -431,24 +436,6 @@ Result install::hs_cia(const hsapi::FullTitle& meta, prog_func prog, bool reinst
 	ilog("installing normal content");
 	data.type = ActionType::install;
 	return i_install_hs_cia(meta, prog, reinstallable, &data, meta.flags & hsapi::TitleFlag::is_ktr);
-}
-
-Result install::lock()
-{
-	/* basically ensures that we can use the network during sleep
-	 * thanks Kartik for the help */
-	aptSetSleepAllowed(false);
-	Result res;
-	if(R_FAILED(res = NDMU_EnterExclusiveState(NDM_EXCLUSIVE_STATE_INFRASTRUCTURE)))
-		return res;
-	return NDMU_LockState();
-}
-
-void install::unlock()
-{
-	NDMU_UnlockState();
-	NDMU_LeaveExclusiveState();
-	aptSetSleepAllowed(true);
 }
 
 // HTTPC

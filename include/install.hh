@@ -60,9 +60,6 @@ namespace install
 		bool reinstallable = false);
 	Result hs_cia(const hsapi::FullTitle& meta, prog_func prog = default_prog_func,
 		bool reinstallable = false);
-
-	void unlock();
-	Result lock();
 }
 
 #endif

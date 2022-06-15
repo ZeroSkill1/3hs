@@ -70,7 +70,7 @@ void queue_process(size_t index)
 
 void queue_process_all()
 {
-	install::lock();
+	bool hasLock = R_SUCCEEDED(ctr::lockNDM());
 
 	struct errvec {
 		Result res;
@@ -119,7 +119,7 @@ void queue_process_all()
 		}
 	}
 
-	install::unlock();
+	if(hasLock) ctr::unlockNDM();
 	/* TODO: Only clear successful installs */
 	queue_clear();
 }

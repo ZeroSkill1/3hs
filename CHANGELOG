@@ -1,8 +1,10 @@
 
 v1.3.1 "libere dorme":
+ - Make LED turn red/green after install if lid is closed depending on success of installation
  - Fix error "0xD8A08012" when a download was cancelled
  - Fix queue "install all" button being easy to accidentally press when you want to access the queue
  - Add Japanese (Osaka dialect)
+ - General system stability improvements to enhance the user's experience
 
 v1.3.0 "libere dorme":
  - Fix functionality of "find all missing"

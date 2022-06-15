@@ -20,6 +20,7 @@
 #include "settings.hh"
 #include "i18n.hh"
 #include "log.hh"
+#include "ctr.hh"
 
 /* internal constants */
 #define SPRITESHEET_PATH "romfs:/gfx/next.t3x"
@@ -36,8 +37,26 @@ static bool g_inRender = false;
 
 static ui::SlotManager slotmgr { nullptr };
 
+enum LEDFlags_V {
+	LED_NONE          = 0,
+	LED_RESET_SLEEP   = 1,
+	LED_LOCK_ACQUIRED = 2,
+};
+static u8 LEDFlags = LED_NONE;
 
 /* helpers */
+
+static inline bool shell_is_open()
+{
+	u8 state;
+	Result res;
+	if(R_FAILED(res = PTMU_GetShellState(&state)))
+	{
+		elog("PTMU_GetShellState() failed: %08lX", res);
+		state = 1; /* just assume it's open... */
+	}
+	return state == 1;
+}
 
 static inline float center_pos(float max, float width)
 {
@@ -207,6 +226,14 @@ bool ui::RenderQueue::render_frame(const ui::Keys& keys)
 {
 	if(this->signalBit & ui::RenderQueue::signal_cancel)
 		return false;
+
+	if((LEDFlags & LED_RESET_SLEEP) && shell_is_open())
+	{
+		ui::LED::ResetPattern();
+		if(LEDFlags & LED_LOCK_ACQUIRED)
+			ctr::unlockNDM();
+		LEDFlags = LED_NONE;
+	}
 
 	if(!aptMainLoop())
 		::exit(0); /* finish */
@@ -952,5 +979,67 @@ bool ui::Toggle::render(const ui::Keys& keys)
 	C2D_DrawRectSolid(SLIDER_X(this), SLIDER_Y(this), this->z, SLIDER_WIDTH(this), SLIDER_HEIGHT(this), this->slots.get(2));
 
 	return true;
+}
+
+void ui::LED::Solid(ui::LED::Pattern *info, u32 animation, u8 r, u8 g, u8 b)
+{
+	info->animation = animation;
+	memset(info->red_pattern,   r, 32);
+	memset(info->green_pattern, g, 32);
+	memset(info->blue_pattern,  b, 32);
+}
+
+Result ui::LED::SetPattern(ui::LED::Pattern *info)
+{
+	if(!get_settings()->allowLEDChange)
+		return 0; /* no-op is success */
+
+	Result res;
+	u32 *cmdbuf = getThreadCommandBuffer();
+
+	cmdbuf[0] = 0x08010640; // https://www.3dbrew.org/wiki/PTMSYSM:SetInfoLEDPattern
+	cmdbuf[1] = info->animation;
+	memcpy(&cmdbuf[2],  info->red_pattern,   32);
+	memcpy(&cmdbuf[10], info->green_pattern, 32);
+	memcpy(&cmdbuf[18], info->blue_pattern , 32);
+
+	if(R_FAILED(res = svcSendSyncRequest(*ptmSysmGetSessionHandle())))
+		return res;
+	return (Result) cmdbuf[1];
+}
+
+Result ui::LED::SetSleepPattern(ui::LED::Pattern *info)
+{
+	bool locked = false;
+	if(R_SUCCEEDED(ctr::lockNDM()))
+	{
+		LEDFlags |= LED_LOCK_ACQUIRED;
+		locked = true;
+	}
+	if(shell_is_open())
+	{
+		if(locked)
+		{
+			LEDFlags &= ~LED_LOCK_ACQUIRED;
+			ctr::unlockNDM();
+		}
+		return 0; /* no-op is success */
+	}
+	Result res;
+	if(R_SUCCEEDED(res = ui::LED::SetPattern(info)))
+		LEDFlags |= LED_RESET_SLEEP;
+	else if(locked)
+	{
+		LEDFlags &= ~LED_LOCK_ACQUIRED;
+		ctr::unlockNDM();
+	}
+	return res;
+}
+
+Result ui::LED::ResetPattern()
+{
+	ui::LED::Pattern info;
+	memset(&info, 0, sizeof(info));
+	return ui::LED::SetPattern(&info);
 }
 

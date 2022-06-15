@@ -106,8 +106,9 @@ void ui::detail::TimeoutScreenHelper::setup(const std::string& fmt, size_t nsecs
 	this->nsecs = nsecs;
 
 	this->text.setup(ui::Screen::top, "");
-	this->text.ptr()->set_x(ui::layout::center_x);
-	this->text.ptr()->set_y(80.0f);
+	this->text->set_x(ui::layout::center_x);
+	this->text->set_y(80.0f);
+	this->text->autowrap();
 
 	this->update_text(this->startTime);
 }

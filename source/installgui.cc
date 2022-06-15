@@ -27,6 +27,7 @@
 #include "util.hh"
 #include "seed.hh"
 #include "ctr.hh"
+#include "log.hh"
 
 static void make_queue(ui::RenderQueue& queue, ui::ProgressBar **bar)
 {
@@ -121,9 +122,15 @@ Result install::gui::hs_cia(const hsapi::FullTitle& meta, bool interactive, bool
 	make_queue(queue, &bar);
 
 	bool shouldReinstall = defaultReinstallable;
+	bool hasLock = true;
 	Result res = 0;
 
-	if(interactive) install::lock();
+	if(interactive)
+		if(R_FAILED(res = ctr::lockNDM()))
+		{
+			hasLock = false;
+			elog("failed to acquire NDM lock: %08lX", res);
+		}
 
 start_install:
 	res = install::hs_cia(meta, [&queue, &bar](u64 now, u64 total) -> void {
@@ -132,7 +139,7 @@ start_install:
 		queue.render_frame();
 	}, shouldReinstall);
 
-	if(interactive) install::unlock();
+	if(interactive && hasLock) ctr::unlockNDM();
 
 	if(res == APPERR_NOREINSTALL)
 	{
@@ -151,12 +158,20 @@ start_install:
 			else if(meta.flags & hsapi::TitleFlag::installer)
 				ui::notice(STRING(file_installed));
 		}
+
+		ui::LED::Pattern pattern;                                   /* GREEN */
+		ui::LED::Solid(&pattern, UI_LED_MAKE_ANIMATION(0, 0xFF, 0), 0x00, 0xFF, 0x00);
+		ui::LED::SetSleepPattern(&pattern);
 	}
 	else
 	{
 		error_container err = get_error(res);
 		report_error(err, "User was installing (" + ctr::tid_to_str(meta.tid) + ") (" + std::to_string(meta.id) + ")");
 		if(interactive) handle_error(err);
+
+		ui::LED::Pattern pattern;                                   /* RED */
+		ui::LED::Solid(&pattern, UI_LED_MAKE_ANIMATION(0, 0xFF, 0), 0xFF, 0x00, 0x00);
+		ui::LED::SetSleepPattern(&pattern);
 	}
 
 	set_focus(focus);
