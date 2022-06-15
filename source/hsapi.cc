@@ -111,7 +111,7 @@ static Result basereq(const std::string& url, std::string& data, HTTPC_RequestMe
 		vlog("Redirected to %s", redir.c_str());
 		httpcCancelConnection(&ctx);
 		httpcCloseContext(&ctx);
-		return basereq(url, data, reqmeth);
+		return basereq(redir, data, reqmeth);
 	}
 
 	if(status != 200)
