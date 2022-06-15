@@ -827,9 +827,16 @@ bool ui::Button::render(const ui::Keys& keys)
 	if(this->showBg) C2D_DrawRectSolid(this->x, this->y, 0.1f, this->w, this->h, this->slots.get(1));
 	this->widget->render(keys);
 
-	if(keys.touch.px >= this->x && keys.touch.px <= this->ox &&
-			keys.touch.py >= this->y && keys.touch.py <= this->oy)
-		return this->on_click();
+	if(this->state == ST_PREVHELD)
+	{
+		this->state = ((keys.kDown | keys.kHeld) & KEY_TOUCH)
+			? ST_PREVHELD : ST_NONE;
+	}
+
+	if(this->state != ST_PREVHELD)
+		if(keys.touch.px >= this->x && keys.touch.px <= this->ox &&
+				keys.touch.py >= this->y && keys.touch.py <= this->oy)
+			return this->on_click();
 
 	return true;
 }

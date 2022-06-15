@@ -616,6 +616,10 @@ namespace ui
 		float w = 0.0f, h = 0.0f;
 
 		void readjust();
+		enum StateFlags {
+			ST_NONE,
+			ST_PREVHELD,
+		} state = ST_PREVHELD;
 
 
 	};

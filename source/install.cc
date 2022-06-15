@@ -170,6 +170,7 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 		if(data->itc == ITC::exit) \
 		{ \
 			dlog("aborted http connection due to ITC::exit"); \
+			res = APPERR_CANCELLED; \
 			goto err; \
 		}
 		CHK_EXIT

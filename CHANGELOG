@@ -1,4 +1,9 @@
 
+v1.3.1 "libere dorme":
+ - Fix error "0xD8A08012" when a download was cancelled
+ - Fix queue "install all" button being easy to accidentally press when you want to access the queue
+ - Add Japanese (Osaka dialect)
+
 v1.3.0 "libere dorme":
  - Fix functionality of "find all missing"
  - Fix issue where a large queue could not be installed
