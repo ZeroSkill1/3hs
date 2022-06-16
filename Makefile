@@ -159,13 +159,12 @@ endif
 #---------------------------------------------------------------------------------
 
 export OFILES_SOURCES 	:=	$(CPPFILES:.cc=.o) $(CFILES:.c=.o) $(SFILES:.s=.o)
-export LANG_FILES       :=  $(shell find $(TOPDIR)/lang/ -not -name '*.pl' -type f)
 
 export OFILES_BIN	:=	$(addsuffix .o,$(BINFILES)) \
 			$(PICAFILES:.v.pica=.shbin.o) $(SHLISTFILES:.shlist=.shbin.o) \
 			$(addsuffix .o,$(T3XFILES))
 
-export OFILES := $(OFILES_BIN) $(OFILES_SOURCES) hscert.o i18n_tab.o
+export OFILES := $(OFILES_BIN) $(OFILES_SOURCES) hscert.o
 
 export HFILES	:=	$(PICAFILES:.v.pica=_shbin.h) $(SHLISTFILES:.shlist=_shbin.h) \
 			$(addsuffix .h,$(subst .,_,$(BINFILES))) \
@@ -205,7 +204,7 @@ endif
 
 .PHONY: all clean
 
-INT_ALL 	:=	$(BUILD) $(GFXBUILD) $(DEPSDIR) $(ROMFS_T3XFILES) $(ROMFS_FONTFILES) $(T3XHFILES)
+INT_ALL 	:=	$(BUILD)/i18n_tab.cc $(BUILD) $(GFXBUILD) $(DEPSDIR) $(ROMFS_T3XFILES) $(ROMFS_FONTFILES) $(T3XHFILES)
 REAL_ALL	:=	$(INT_ALL)
 ifeq ($(RELEASE),)
 	REAL_ALL	:=	$(REAL_ALL) _build_all
@@ -235,6 +234,11 @@ cia: $(INT_ALL) $(BUILD)/banner.bnr $(BUILD)/icon.smdh $(BUILD)/romfs.bin
 	$(SILENTCMD) makerom -f cia -o $(TARGET).cia -target t -elf $(TARGET).elf -icon $(BUILD)/icon.smdh -banner $(BUILD)/banner.bnr -rsf $(CIA_PREFIX)/$(TARGET).rsf -romfs $(BUILD)/romfs.bin -ver $(VERSION)
 	$(SILENTMSG) built ... $(TARGET).cia
 
+$(BUILD)/i18n_tab.cc: $(shell find $(TOPDIR)/lang/ -not -name '*.pl' -type f)
+	$(SILENTCMD) mkdir -p $(BUILD)
+	$(SILENTCMD) cd $(TOPDIR); ./lang/make.pl
+	$(SILENTMSG) generated ... i18n_tab.cc
+	$(SILENTMSG) generated ... i18n_tab.hh
 
 $(BUILD):
 	@mkdir -p $@
@@ -342,11 +346,6 @@ hscert.o:
 	$(SILENTCMD)$(CXX) -MMD -MP -MF $(DEPSDIR)/$*.d $(CXXFLAGS) -c hscert.c -o hscert.o $(ERROR_FILTER)
 	$(SILENTMSG) hscert.o
 endif
-
-i18n_tab.o: $(LANG_FILES)
-	$(SILENTCMD) cd $(TOPDIR); ./lang/make.pl
-	$(SILENTMSG) generated ... i18n_tab.cc
-	$(SILENTMSG) generated ... i18n_tab.hh
 #---------------------------------------------------------------------------------
 %.t3x	%.h	:	%.t3s
 #---------------------------------------------------------------------------------
