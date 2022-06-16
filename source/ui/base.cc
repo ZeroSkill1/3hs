@@ -40,22 +40,22 @@ static ui::SlotManager slotmgr { nullptr };
 enum LEDFlags_V {
 	LED_NONE          = 0,
 	LED_RESET_SLEEP   = 1,
-	LED_LOCK_ACQUIRED = 2,
 };
 static u8 LEDFlags = LED_NONE;
 
 /* helpers */
 
-static inline bool shell_is_open()
+static inline Result shell_is_open(bool *is_open)
 {
-	u8 state;
 	Result res;
+	u8 state;
 	if(R_FAILED(res = PTMU_GetShellState(&state)))
 	{
 		elog("PTMU_GetShellState() failed: %08lX", res);
-		state = 1; /* just assume it's open... */
+		state = 0; /* just assume it's closed... */
 	}
-	return state == 1;
+	*is_open = state == 1;
+	return res;
 }
 
 static inline float center_pos(float max, float width)
@@ -227,24 +227,33 @@ bool ui::RenderQueue::render_frame(const ui::Keys& keys)
 	if(this->signalBit & ui::RenderQueue::signal_cancel)
 		return false;
 
-	if((LEDFlags & LED_RESET_SLEEP) && shell_is_open())
-	{
-		ui::LED::ResetPattern();
-		if(LEDFlags & LED_LOCK_ACQUIRED)
-			ctr::unlockNDM();
-		LEDFlags = LED_NONE;
-	}
-
 	if(!aptMainLoop())
 		::exit(0); /* finish */
 	if(g_inRender)
 	{
+		elog("illegal double render");
 		C3D_FrameEnd(0); /* we first need to finish because panic() will render */
 		g_inRender = false;
 		panic("illegal double render");
 	}
 
-	C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
+	bool isOpen;
+	if(R_SUCCEEDED(shell_is_open(&isOpen)) && isOpen)
+	{
+		if(LEDFlags & LED_RESET_SLEEP)
+		{
+			ui::LED::ResetPattern();
+			LEDFlags = LED_NONE;
+		}
+	}
+	/* not rendering if the shell is closed */
+	else return true;
+
+	if(!C3D_FrameBegin(C3D_FRAME_SYNCDRAW))
+	{
+		elog("failed to start frame");
+		return true; /* failed to start frame, let's just ignore this frame */
+	}
 	g_inRender = true;
 
 	C2D_TargetClear(g_top, slotmgr.get(0));
@@ -560,7 +569,6 @@ bool ui::Text::render(const ui::Keys& keys)
 		}
 		else if(this->doScroll)
 		{
-
 			C2D_DrawText(&this->lines[i], C2D_WithColor, this->sctx.rx,
 				this->y + (this->lineHeight * i), this->z, this->xsiz, this->ysiz, this->slots.get(1));
 		}
@@ -1010,29 +1018,12 @@ Result ui::LED::SetPattern(ui::LED::Pattern *info)
 
 Result ui::LED::SetSleepPattern(ui::LED::Pattern *info)
 {
-	bool locked = false;
-	if(R_SUCCEEDED(ctr::lockNDM()))
-	{
-		LEDFlags |= LED_LOCK_ACQUIRED;
-		locked = true;
-	}
-	if(shell_is_open())
-	{
-		if(locked)
-		{
-			LEDFlags &= ~LED_LOCK_ACQUIRED;
-			ctr::unlockNDM();
-		}
+	bool isOpen;
+	if(R_FAILED(shell_is_open(&isOpen)) || isOpen)
 		return 0; /* no-op is success */
-	}
 	Result res;
 	if(R_SUCCEEDED(res = ui::LED::SetPattern(info)))
 		LEDFlags |= LED_RESET_SLEEP;
-	else if(locked)
-	{
-		LEDFlags &= ~LED_LOCK_ACQUIRED;
-		ctr::unlockNDM();
-	}
 	return res;
 }
 

@@ -105,7 +105,7 @@ void ui::detail::TimeoutScreenHelper::setup(const std::string& fmt, size_t nsecs
 	this->shouldStop = shouldStop;
 	this->nsecs = nsecs;
 
-	this->text.setup(ui::Screen::top, "");
+	this->text.setup(ui::Screen::top);
 	this->text->set_x(ui::layout::center_x);
 	this->text->set_y(80.0f);
 	this->text->autowrap();
@@ -136,7 +136,7 @@ void ui::detail::TimeoutScreenHelper::update_text(time_t now)
 		}
 	}
 
-	this->text.ptr()->set_text(ntxt);
+	this->text->set_text(ntxt);
 }
 
 bool ui::detail::TimeoutScreenHelper::render(const ui::Keys& keys)
@@ -146,16 +146,16 @@ bool ui::detail::TimeoutScreenHelper::render(const ui::Keys& keys)
 		*this->shouldStop = true;
 		return false;
 	}
-
 	time_t now = time(NULL);
+
+	if(now - this->startTime >= this->nsecs)
+		return false;
+
 	if(this->lastCheck != now)
 	{
 		this->update_text(now);
 		this->lastCheck = now;
 	}
-
-	if(now - this->startTime >= this->nsecs)
-		return false;
 
 	return this->text->render(keys);
 }

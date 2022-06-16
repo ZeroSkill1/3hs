@@ -122,15 +122,7 @@ Result install::gui::hs_cia(const hsapi::FullTitle& meta, bool interactive, bool
 	make_queue(queue, &bar);
 
 	bool shouldReinstall = defaultReinstallable;
-	bool hasLock = true;
 	Result res = 0;
-
-	if(interactive)
-		if(R_FAILED(res = ctr::lockNDM()))
-		{
-			hasLock = false;
-			elog("failed to acquire NDM lock: %08lX", res);
-		}
 
 start_install:
 	res = install::hs_cia(meta, [&queue, &bar](u64 now, u64 total) -> void {
@@ -138,8 +130,6 @@ start_install:
 		bar->activate();
 		queue.render_frame();
 	}, shouldReinstall);
-
-	if(interactive && hasLock) ctr::unlockNDM();
 
 	if(res == APPERR_NOREINSTALL)
 	{

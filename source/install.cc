@@ -67,7 +67,7 @@ typedef struct cia_net_data
 
 static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from, httpcContext *pctx)
 {
-	u32 status = 0, dled = from, remaining, dlnext, written;
+	u32 status = 0, dled = 0, remaining, dlnext, written, rdl;
 	Result res = 0;
 #define CHECKRET(expr) if(R_FAILED(res = ( expr ) )) goto err
 
@@ -144,14 +144,16 @@ static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from
 
 	// Install.
 	panic_assert(data->totalSize > from, "invalid download start position");
-	remaining = data->totalSize - from;
-	dlnext = BUFSIZE > remaining ? remaining : BUFSIZE;
-	dlnext -= data->bufferSize;
+	remaining = data->totalSize - from - data->bufferSize;
+	dlnext = remaining < BUFSIZE ? remaining : BUFSIZE;
 	if(dlnext == 0) goto immediate_install;
 	written = 0;
 
 	while(data->index != data->totalSize)
 	{
+		dlog("receiving data, dlnext=%lu, progress is (session:%lu)%lu/%lu", dlnext, dled, data->index, data->totalSize);
+		panic_if(dlnext > BUFSIZE, "dlnext is invalid");
+		rdl = dled;
 		res = httpcReceiveDataTimeout(pctx, &data->buffer[data->bufferSize], dlnext, 30000000000L);
 immediate_install:
 		vlog("httpcReceiveDataTimeout(): 0x%08lX", res);
@@ -160,11 +162,12 @@ immediate_install:
 			elog("aborted http connection due to error: %08lX.", res);
 			goto err;
 		}
-		/* chunk was partially downloaded (how?) */
-		if(dled != data->index + dlnext)
+		rdl = dled - rdl;
+		if(rdl != dlnext)
 		{
-			data->bufferSize = dled - data->index;
-			dlnext = dlnext - data->bufferSize;
+			data->bufferSize = rdl;
+			dlnext -= data->bufferSize;
+			ilog("only a chunk was downloaded, retrying");
 			continue;
 		}
 		data->bufferSize = 0;
@@ -191,7 +194,7 @@ immediate_install:
 		CHK_EXIT
 #undef CHK_EXIT
 
-		dlnext = BUFSIZE > remaining ? remaining : BUFSIZE;
+		dlnext = remaining < BUFSIZE ? remaining : BUFSIZE;
 		svcSignalEvent(data->eventHandle);
 	}
 

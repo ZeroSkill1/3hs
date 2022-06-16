@@ -41,6 +41,7 @@
 #include "seed.hh"
 #include "util.hh"
 #include "log.hh"
+#include "ctr.hh"
 
 
 #ifndef RELEASE
@@ -129,6 +130,10 @@ int main(int argc, char* argv[])
 	atexit(ui::exit);
 	gfx_was_init();
 
+	if(R_SUCCEEDED(res = ctr::lockNDM()))
+		atexit(ctr::unlockNDM);
+	else elog("failed to lock NDM: %08lX", res);
+
 	hidScanInput();
 	if((hidKeysDown() | hidKeysHeld()) & KEY_R)
 		reset_settings();
@@ -162,7 +167,7 @@ int main(int argc, char* argv[])
 	osSetSpeedupEnable(true); // speedup for n3dses
 
 	/* new ui setup */
-	ui::builder<ui::Text>(ui::Screen::top, "") /* text is not immediately set */
+	ui::builder<ui::Text>(ui::Screen::top) /* text is not immediately set */
 		.x(ui::layout::center_x)
 		.y(4.0f)
 		.tag(ui::tag::action)
