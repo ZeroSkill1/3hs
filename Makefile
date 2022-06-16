@@ -159,12 +159,13 @@ endif
 #---------------------------------------------------------------------------------
 
 export OFILES_SOURCES 	:=	$(CPPFILES:.cc=.o) $(CFILES:.c=.o) $(SFILES:.s=.o)
+export LANG_FILES       :=  $(shell find $(TOPDIR)/lang/ -not -name '*.pl' -type f)
 
 export OFILES_BIN	:=	$(addsuffix .o,$(BINFILES)) \
 			$(PICAFILES:.v.pica=.shbin.o) $(SHLISTFILES:.shlist=.shbin.o) \
 			$(addsuffix .o,$(T3XFILES))
 
-export OFILES := $(OFILES_BIN) $(OFILES_SOURCES) hscert.o
+export OFILES := $(OFILES_BIN) $(OFILES_SOURCES) hscert.o i18n_tab.o
 
 export HFILES	:=	$(PICAFILES:.v.pica=_shbin.h) $(SHLISTFILES:.shlist=_shbin.h) \
 			$(addsuffix .h,$(subst .,_,$(BINFILES))) \
@@ -329,7 +330,7 @@ endef
 ifneq ($(wildcard ../hscert.der),)
 # If hscert.der exists we use that ...
 hscert.o: ../hscert.der
-	$(SILENTCMD) cd ..; xxd -i hscert.der > build/hscert.c; cd build
+	$(SILENTCMD) cd $(TOPDIR); xxd -i hscert.der > $(BUILD)/hscert.c
 	$(SILENTMSG) generated ... hscert.c
 	$(SILENTCMD)$(CXX) -MMD -MP -MF $(DEPSDIR)/$*.d $(CXXFLAGS) -c hscert.c -o hscert.o $(ERROR_FILTER)
 	$(SILENTMSG) hscert.o
@@ -341,6 +342,11 @@ hscert.o:
 	$(SILENTCMD)$(CXX) -MMD -MP -MF $(DEPSDIR)/$*.d $(CXXFLAGS) -c hscert.c -o hscert.o $(ERROR_FILTER)
 	$(SILENTMSG) hscert.o
 endif
+
+i18n_tab.o: $(LANG_FILES)
+	$(SILENTCMD) cd $(TOPDIR); ./lang/make.pl
+	$(SILENTMSG) generated ... i18n_tab.cc
+	$(SILENTMSG) generated ... i18n_tab.hh
 #---------------------------------------------------------------------------------
 %.t3x	%.h	:	%.t3s
 #---------------------------------------------------------------------------------

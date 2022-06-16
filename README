@@ -20,6 +20,7 @@ and Cremè, for making some nice art.
 
 Requirements:
  - mbedtls (for nnc, which is bundled)
+ - perl (to generate language file)
  - devkitarm
  - libctru
  - citro2d

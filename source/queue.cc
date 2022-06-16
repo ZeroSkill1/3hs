@@ -78,7 +78,7 @@ void queue_process_all()
 	};
 	std::vector<errvec> errs;
 	enum PostProcFlag {
-	  NONE       = 0,
+		NONE       = 0,
 		WARN_THEME = 1,
 		WARN_FILE  = 2,
 		SET_PATCH  = 4,
