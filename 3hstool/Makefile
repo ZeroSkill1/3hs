@@ -1,6 +1,6 @@
 
 OBJS = hlink.o main.o hstx.o
-CFLAGS = -pedantic -Wall -g
+CFLAGS = -pedantic -Wall -g -lm
 DESTDIR ?= /usr/local
 TARGET ?= 3hstool
 

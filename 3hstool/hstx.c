@@ -12,6 +12,10 @@
 #include <errno.h>
 #include <stdio.h>
 
+#define STB_IMAGE_IMPLEMENTATION
+#define STBI_FAILURE_USERMSG
+#include "./stb_image.h"
+
 typedef uint32_t u32;
 typedef uint16_t u16;
 typedef uint8_t  u8;
@@ -20,8 +24,10 @@ typedef uint8_t  u8;
 	#error "__BYTE_ORDER__ is not defined!"
 #endif
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+	#define U16(a) (__builtin_bswap16(a))
 	#define U32(a) (__builtin_bswap32(a))
 #elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+	#define U16(a) (a)
 	#define U32(a) (a)
 #else
 	#error "unknown __BYTE_ORDER__ value!"
@@ -67,7 +73,9 @@ bool dynbuf_cpy_alloc(struct dynbuf *blob, void *data, u32 len)
 	u32 npos = blob->pos + len;
 	if(npos >= blob->size)
 	{
-		blob->data = realloc(blob->data, blob->size *= 2);
+		blob->size += npos;
+		blob->size *= 2;
+		blob->data = realloc(blob->data, blob->size);
 		if(!blob->data) return false;
 	}
 	memcpy(&blob->data[blob->pos], data, len);
@@ -75,7 +83,7 @@ bool dynbuf_cpy_alloc(struct dynbuf *blob, void *data, u32 len)
 	return true;
 }
 
-static int make_hstx_impl(FILE *out, char *in_buf, struct dynbuf *blob)
+static int make_hstx_impl(FILE *out, char *in_buf, struct dynbuf *blob, const char *inpath)
 {
 	struct hstx_header {
 		char magic[4];
@@ -120,6 +128,13 @@ static int make_hstx_impl(FILE *out, char *in_buf, struct dynbuf *blob)
 		ID_LED_GREEN_CLR     = 0x1013,
 		ID_LED_RED_CLR       = 0x1014,
 		ID_SMDH_BORDER_CLR   = 0x1015,
+
+		ID_MORE_IMG          = 0x2001,
+		ID_BATTERY_IMG       = 0x2002,
+		ID_SEARCH_IMG        = 0x2003,
+		ID_SETTINGS_IMG      = 0x2004,
+		ID_SPINNER_IMG       = 0x2005,
+		ID_RANDOM_IMG        = 0x2006,
 	};
 
 
@@ -169,6 +184,48 @@ static int make_hstx_impl(FILE *out, char *in_buf, struct dynbuf *blob)
 				return 1;
 			}
 		}
+#define DEFIDESC(desc_key, desc_ident) \
+		else if(strcmp(key, desc_key) == 0) \
+		{ \
+			int w, h; \
+			char *path = malloc(strlen(inpath) + strlen(value) + 1); \
+			if(!path) \
+			{ \
+				fprintf(stderr, "failed to allocate memory for path!\n"); \
+				return 1; \
+			} \
+			char *slash = strrchr(inpath, '/'); \
+			int len = 1; \
+			if(slash) len = slash - inpath; \
+			else      inpath = "./"; \
+			sprintf(path, "%.*s/%s", len, inpath, value); \
+			u32 *data = (u32 *) stbi_load(path, &w, &h, NULL, 4); \
+			if(!data) \
+			{ \
+				fprintf(stderr, "failed to open image %s: %s\n", path, stbi_failure_reason()); \
+				free(path); \
+				return 1; \
+			} \
+			if(w > 400 || h > 360) \
+			{ \
+				fprintf(stderr, "image too large %s\n", path); \
+				free(path); \
+				return 1; \
+			} \
+			free(path); \
+			descriptors[num_descriptors].data.image.img_ptr = U32(blob->pos); \
+			if(!dynbuf_cpy_alloc(blob, data, w * h * 4)) \
+			{ \
+				fprintf(stderr, "failed to allocate additional blob data for image!\n"); \
+				free(data); \
+				return 1; \
+			} \
+			descriptors[num_descriptors].ident = U32(desc_ident); \
+			descriptors[num_descriptors].data.image.w = U16(w); \
+			descriptors[num_descriptors].data.image.h = U16(h); \
+			++num_descriptors; \
+			free(data); \
+		}
 #define DEFCDESC(desc_key, desc_ident) \
 	else if(strcmp(key, desc_key) == 0) \
 	{ \
@@ -200,7 +257,14 @@ static int make_hstx_impl(FILE *out, char *in_buf, struct dynbuf *blob)
 		DEFCDESC("led_success", ID_LED_GREEN_CLR)
 		DEFCDESC("led_failure", ID_LED_RED_CLR)
 		DEFCDESC("smdh_icon_border_color", ID_SMDH_BORDER_CLR)
+		DEFIDESC("more_image", ID_MORE_IMG)
+		DEFIDESC("battery_image", ID_BATTERY_IMG)
+		DEFIDESC("search_image", ID_SEARCH_IMG)
+		DEFIDESC("settings_image", ID_SETTINGS_IMG)
+		DEFIDESC("spinner_image", ID_SPINNER_IMG)
+		DEFIDESC("random_image", ID_RANDOM_IMG)
 #undef DEFCDESC
+#undef DEFIDESC
 	else
 	{
 		fprintf(stderr, "unrecognised key: %s (`%s')\n", key, value);
@@ -279,7 +343,7 @@ int make_hstx(const char *output, const char *cfgfile)
 		goto out;
 	}
 	in_buf[in_size] = '\0';
-	ret = make_hstx_impl(out, in_buf, &blob);
+	ret = make_hstx_impl(out, in_buf, &blob, cfgfile);
 out:
 	free(blob.data);
 	free(in_buf);
