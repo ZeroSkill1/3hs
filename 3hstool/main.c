@@ -1,5 +1,6 @@
 
 #include "./hlink.h"
+#include "./hstx.h"
 
 #include <stdint.h>
 #include <string.h>
@@ -38,7 +39,7 @@ static u64 gettid(const char *s)
 		? 0 : ret;
 }
 
-int main(int argc, char *argv[])
+static int hlink(int argc, char *argv[])
 {
 	if(argc < 2)
 	{
@@ -142,5 +143,30 @@ break_loop:
 
 	hl_destroylink(&link);
 	return 0;
+}
+
+static int maketheme(int argc, char *argv[])
+{
+	if(argc < 3)
+	{
+		fprintf(stderr, "Usage: maketheme [input-file] [output-file]\n");
+		return 1;
+	}
+	return make_hstx(argv[2], argv[1]);
+}
+
+int main(int argc, char *argv[])
+{
+	if(argc < 2)
+	{
+error:
+		fprintf(stderr, "Usage: %s [hlink | maketheme]\n", argv[0]);
+		return 1;
+	}
+	if(strcmp(argv[1], "hlink") == 0)
+		return hlink(argc - 1, &argv[1]);
+	if(strcmp(argv[1], "maketheme") == 0)
+		return maketheme(argc - 1, &argv[1]);
+	goto error;
 }
 
