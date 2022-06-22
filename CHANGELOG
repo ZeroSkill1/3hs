@@ -1,4 +1,9 @@
 
+v1.3.2 "libere dorme":
+ - Fix high battery usage in sleep mode
+ - Add theming support
+ - Add Chinese (Traditional and Simplified) translation
+
 v1.3.1 "libere dorme":
  - Make LED turn red/green after install if lid is closed depending on success of installation
  - Fix error "0xD8A08012" when a download was cancelled
