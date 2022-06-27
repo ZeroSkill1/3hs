@@ -1,6 +1,7 @@
 
 v1.3.2 "libere dorme":
  - Fix high battery usage in sleep mode
+ - Fix find missing content for some users
  - Add theming support
  - Add Chinese (Traditional and Simplified) translation
 
