@@ -53,7 +53,7 @@ APP_AUTHOR			:=	hShop
 ARCH	:=	-march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft
 
 CFLAGS	:= -pedantic -Wall -Wextra -mword-relocations \
-			-fcompare-debug-second -ffunction-sections $(ARCH) \
+			-fcompare-debug-second -ffunction-sections $(ARCH)
 
 CFLAGS	+=	$(INCLUDE) -DARM11 -D__3DS__ -D_3DS
 
