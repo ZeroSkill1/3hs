@@ -1,9 +1,10 @@
 
 v1.3.2 "libere dorme":
- - Fix high battery usage in sleep mode
  - Fix find missing content for some users
+ - Fix inability to input complex characters on CJK systems
  - Add theming support
  - Add Chinese (Traditional and Simplified) translation
+ - General system stability improvements to enhance the user's experience
 
 v1.3.1 "libere dorme":
  - Make LED turn red/green after install if lid is closed depending on success of installation
