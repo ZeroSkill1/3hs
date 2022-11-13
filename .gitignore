@@ -14,9 +14,10 @@ tags
 release/
 devids.json
 
-TODO
+Missing_characters.txt
 scripts/extract_seeddb
 scripts/seeddb*
+TODO
 
 # VSCode
 .vscode/
