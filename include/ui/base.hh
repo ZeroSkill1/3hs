@@ -22,6 +22,7 @@
 #include "build/next.h"
 
 #include <ui/theme.hh>
+#include <panic.hh>
 
 #include <citro3d.h>
 #include <citro2d.h>
@@ -280,6 +281,8 @@ namespace ui
 		virtual bool supports_theme_hook() { return false; }
 		virtual void update_theme_hook() { }
 
+		virtual void swap_slots(const StaticSlot& slot) { (void)slot; panic("swap_slots() called on widget that does not implement it"); }
+
 
 	protected:
 		ui::Screen screen;
@@ -485,7 +488,7 @@ namespace ui
 		/* sets the y of the building widget to the center of another one */
 		ui::builder<TWidget>& align_y_center(ui::BaseWidget *w) { this->el->set_y(ui::center_align_y(w, this->el)); return *this; }
 		/* swaps the slots for a widget */
-		ui::builder<TWidget>& swap_slots(const StaticSlot& slot) { this->el->slots = ui::ThemeManager::global()->get_slots(this->el, slot.id, slot.count, slot.getters); return *this; }
+		ui::builder<TWidget>& swap_slots(const StaticSlot& slot) { this->el->swap_slots(slot); return *this; }
 
 		/* Add the built widget to a RenderQueue */
 		void add_to(ui::RenderQueue& queue) { queue.push((ui::BaseWidget *) this->finalize()); }
@@ -595,6 +598,8 @@ namespace ui
 
 		enum connect_type { max_width };
 		void connect(connect_type, float);
+
+		void swap_slots(const StaticSlot&) override;
 
 		/* the slots may be overriden here */
 		UI_SLOTS_PROTO(Text_color, 1)
@@ -725,7 +730,7 @@ namespace ui
 
 		float textwidth();
 
-
+		void swap_slots(const StaticSlot&) override;
 	private:
 		UI_SLOTS_PROTO(Button_colors, 2)
 

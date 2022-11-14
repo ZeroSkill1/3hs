@@ -551,6 +551,9 @@ static void vec_erase_if(std::vector<T>& vec, std::function<bool(const T&)> func
 UI_CTHEME_GETTER(color_warning, ui::theme::warning_color)
 UI_STATIC_SLOTS(WarningColorSlot, "__nsearch_warning_color", color_warning)
 
+UI_CTHEME_GETTER(color_x, ui::theme::x_color)
+UI_STATIC_SLOTS(XColorSlot, "__nsearch_x_color", color_x)
+
 static std::string extract_category_from_filter(const std::string& filter)
 {
 	const char *str = filter.c_str();
@@ -943,6 +946,7 @@ static bool show_normal_search()
 				ui::builder<ui::Button>(ui::Screen::bottom, "X")
 					.size_children(0.45f) /* temp */
 					.wrap()
+					.swap_slots(XColorSlot)
 					.align_x(filterTexts[i][0], 4.0f)
 					/* y pos is set later */
 					.connect(ui::Button::nobg)
