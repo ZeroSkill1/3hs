@@ -784,3 +784,34 @@ Enter your query...
 - submit
 Submit
 
+# label for content type selector for normal search
+- content_type
+Content type
+
+# label for content type selector, to indicate that all content types are to be included
+- all
+All
+
+# label for checkbox list of categories to include in quick search
+- include_content
+Include content
+
+# label for checkbox list of regions to include in quick search
+- regions
+Regions
+
+# label for include filters of normal search
+- include_filters
+Include filters
+
+# label for exclude filters of normal search
+- exclude_filters
+Exclude filters
+
+# button, adds a filter in normal search
+- add
+Add
+
+# search menu option to open normal search
+- normal_search
+Normal search
