@@ -842,7 +842,7 @@ static bool show_normal_search()
 		.add_to(rq);
 	rq.group_last(ctypeSelGrp);
 
-	const std::vector<std::string> ctypeLabels = { STRING(all), TL("Legit"), TL("Pirate Legit"), TL("Standard") };
+	const std::vector<std::string> ctypeLabels = { STRING(all), "Legit"), TL("Pirate Legit"), TL("Standard" };
 	static const std::vector<ContentType> ctypeValues = { ContentType::All, ContentType::Legit, ContentType::PirateLegit, ContentType::Standard };
 	ui::builder<ui::Selector<ContentType>>(ui::Screen::bottom, ctypeLabels, ctypeValues, &ctype)
 		.size_children(0.50f)
@@ -871,11 +871,11 @@ static bool show_normal_search()
 				.add_to(rq); \
 			rq.group_last(groups[0]);
 
-		OPT(TL("Games"), &inc_games, align_x(rq.back(), 8.0f))
-		OPT(TL("Updates"), &inc_updates, align_x(inc_games))
-		OPT(TL("DLC"), &inc_dlc, align_x(inc_games))
-		OPT(TL("Virtual Console"), &inc_vc, align_x(inc_games))
-		OPT(TL("DSiWare"), &inc_dsi, align_x(inc_games))
+		OPT("Games", &inc_games, align_x(rq.back(), 8.0f))
+		OPT("Updates", &inc_updates, align_x(inc_games))
+		OPT("DLC", &inc_dlc, align_x(inc_games))
+		OPT("Virtual Console", &inc_vc, align_x(inc_games))
+		OPT("DSiWare", &inc_dsi, align_x(inc_games))
 		OPT(STRING(other), &inc_unofficial, align_x(inc_games))
 
 		bottomTab[0] = rq.back();
@@ -885,9 +885,9 @@ static bool show_normal_search()
 			.add_to(rq);
 		rq.group_last(groups[0]);
 
-		OPT(TL("North America"), &reg_usa, align_x(rq.back(), 8.0f))
-		OPT(TL("Europe"), &reg_eur, align_x(reg_usa))
-		OPT(TL("Japan"), &reg_jpn, align_x(reg_usa))
+		OPT("North America", &reg_usa, align_x(rq.back(), 8.0f))
+		OPT("Europe", &reg_eur, align_x(reg_usa))
+		OPT("Japan", &reg_jpn, align_x(reg_usa))
 		OPT(STRING(other), &reg_other, align_x(reg_usa))
 
 #undef OPT
