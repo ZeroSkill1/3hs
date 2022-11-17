@@ -653,7 +653,7 @@ static bool show_normal_search()
 
 	ui::CheckBox *inc_unofficial, *inc_games, *inc_updates, *inc_dlc, *inc_vc, *inc_dsi;
 	ui::CheckBox *reg_eur, *reg_usa, *reg_jpn, *reg_other;
-	ui::Text *cheading, *modehint, *include_content_txt;
+	ui::Text *cheading, *modehint, *widest_include_content;
 	ContentType ctype = ContentType::All;
 	ui::KBDEnabledButton *kbd;
 	size_t tabIndex = 0;
@@ -661,6 +661,9 @@ static bool show_normal_search()
 	ui::RenderQueue rq;
 
 	using kbd_checker_func = bool (*)(const std::string&);
+
+	constexpr float filter_padding = 5.0f;
+	constexpr float filter_div = (ui::screen_width(ui::Screen::bottom) - filter_padding * 2.0f) / 2.0f;
 
 	static constexpr int ntabs = 4;
 	static const kbd_checker_func checker_funcs[ntabs] = { is_valid_query, is_valid_query, is_tid, is_prod };
@@ -842,7 +845,7 @@ static bool show_normal_search()
 		.add_to(rq);
 	rq.group_last(ctypeSelGrp);
 
-	const std::vector<std::string> ctypeLabels = { STRING(all), "Legit"), TL("Pirate Legit"), TL("Standard" };
+	const std::vector<std::string> ctypeLabels = { STRING(all), "Legit", "Pirate Legit", "Standard" };
 	static const std::vector<ContentType> ctypeValues = { ContentType::All, ContentType::Legit, ContentType::PirateLegit, ContentType::Standard };
 	ui::builder<ui::Selector<ContentType>>(ui::Screen::bottom, ctypeLabels, ctypeValues, &ctype)
 		.size_children(0.50f)
@@ -855,8 +858,9 @@ static bool show_normal_search()
 
 	/* setup for the quick tab */
 		ui::builder<ui::Text>(ui::Screen::bottom, STRING(include_content))
-			.size(0.6f).x(5.0f).under(kbd)
-			.add_to(&include_content_txt, rq);
+			.size(0.6f).x(filter_padding).under(kbd)
+			.connect(ui::Text::max_width, filter_div)
+			.add_to(&widest_include_content, rq);
 		rq.group_last(groups[0]);
 
 #define OPT(label_content, output_var, ...)  \
@@ -881,7 +885,8 @@ static bool show_normal_search()
 		bottomTab[0] = rq.back();
 
 		ui::builder<ui::Text>(ui::Screen::bottom, STRING(regions))
-			.size(0.6f).right(include_content_txt, 20.0f).under(kbd)
+			.size(0.6f).x(filter_padding + filter_div).under(kbd)
+			.connect(ui::Text::max_width, filter_div)
 			.add_to(rq);
 		rq.group_last(groups[0]);
 
@@ -892,14 +897,12 @@ static bool show_normal_search()
 
 #undef OPT
 	/* setup for the filters tab */
-		constexpr float filter_padding = 5.0f;
-		constexpr float filter_div = (ui::screen_width(ui::Screen::bottom) - filter_padding * 2.0f) / 2.0f;
-
 		const char *filterLabels[] = { STRING(include_filters), STRING(exclude_filters) };
 		for(int i = 0; i < 2; ++i)
 		{
 			ui::builder<ui::Text>(ui::Screen::bottom, filterLabels[i])
 				.size(0.60f).x(filter_padding + filter_div*i)
+				.connect(ui::Text::max_width, filter_div)
 				.under(kbd)
 				.add_to(&filterTexts[i][0], rq);
 			rq.group_last(groups[1]);

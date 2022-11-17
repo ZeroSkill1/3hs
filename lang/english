@@ -656,12 +656,6 @@ Invalid product code
 - search_prod
 Search by product code
 
-# shown while installing any game
-#  %1 = current game title
-- installing_game
-Installing:
-%1
-
 # scroll, setting title
 - disable_graph
 Disable latency graph
@@ -815,3 +809,16 @@ Add
 # search menu option to open normal search
 - normal_search
 Normal search
+
+# Slides in screen when a new song is up
+#  %1 = song name
+- playing_x
+#Playing %1
+%1
+
+# Slides in screen when a new song is up and it has artist metadata
+#  %1 = song name
+#  %2 = artist name
+- playing_x_by_y
+#Playing %1 by %2
+%1 - %2
