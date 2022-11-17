@@ -830,7 +830,7 @@ void ui::Text::set_text(const std::string& label)
 
 void ui::Text::swap_slots(const StaticSlot& slot)
 {
-	this->slots = ui::ThemeManager::global()->get_slots(this, slot.id, slot.count, slot.getters);
+	UI_THIS_SWAP_SLOTS(slots);
 }
 
 /* core widget class Sprite */

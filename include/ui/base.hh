@@ -46,6 +46,9 @@
 #define UI_COLOR(r,g,b,a) \
 	0x##a##b##g##r
 
+#define UI_THIS_SWAP_SLOTS(slots) \
+	this->slots = ui::ThemeManager::global()->get_slots(this, (slot).id, (slot).count, (slot).getters);
+
 // Button glyphs
 #define UI_GLYPH_A               "\uE000"
 #define UI_GLYPH_B               "\uE001"
@@ -281,7 +284,11 @@ namespace ui
 		virtual bool supports_theme_hook() { return false; }
 		virtual void update_theme_hook() { }
 
-		virtual void swap_slots(const StaticSlot& slot) { (void)slot; panic("swap_slots() called on widget that does not implement it"); }
+		virtual void swap_slots(const StaticSlot& slot)
+		{
+			(void) slot;
+			panic("swap_slots() called on widget that does not implement it");
+		}
 
 
 	protected:
@@ -601,9 +608,9 @@ namespace ui
 
 		void swap_slots(const StaticSlot&) override;
 
-		/* the slots may be overriden here */
-		UI_SLOTS_PROTO(Text_color, 1)
 	private:
+		UI_SLOTS_PROTO(Text_color, 1)
+
 		void push_str(const std::string& str);
 		void prepare_arrays();
 		void reset_scroll();
@@ -730,7 +737,10 @@ namespace ui
 
 		float textwidth();
 
+		/* NOTE: This doesn't swap this->slots, but this->widget->slots...
+		 * TODO: There should probably be a way to swap this->slots */
 		void swap_slots(const StaticSlot&) override;
+
 	private:
 		UI_SLOTS_PROTO(Button_colors, 2)
 
