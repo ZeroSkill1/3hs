@@ -8,6 +8,7 @@ v1.4.0 "aequora viridia":
  - Fix battery indicator not turning red when only one bar is left
  - Make 3hs not remove every queue item if there was a failure, but only those that succeeded
  - Make 3hs always display the title currently being installed
+ - Make battery indicator show whether or not a charger is plugged in
  - Add a progress bar instead of spinner for deleting unused tickets
  - Add feature to place the cursor at the subcategory that matches the system region
  - Add support for the Luma3DS v11.0 configuration format

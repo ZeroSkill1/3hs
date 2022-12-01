@@ -59,35 +59,37 @@ struct hstx_descriptor {
 };
 
 enum hstx_ident {
-	ID_BG_CLR            = 0x1001,
-	ID_TEXT_CLR          = 0x1002,
-	ID_BTN_BG_CLR        = 0x1003,
-	ID_BTN_BORDER_CLR    = 0x1004,
-	ID_BATTERY_GREEN_CLR = 0x1005,
-	ID_BATTERY_RED_CLR   = 0x1006,
-	ID_TOGGLE_GREEN_CLR  = 0x1007,
-	ID_TOGGLE_RED_CLR    = 0x1008,
-	ID_TOGGLE_SLID_CLR   = 0x1009,
-	ID_PROGBAR_FG_CLR    = 0x1010,
-	ID_PROGBAR_BG_CLR    = 0x1011,
-	ID_SCROLLBAR_CLR     = 0x1012,
-	ID_LED_GREEN_CLR     = 0x1013,
-	ID_LED_RED_CLR       = 0x1014,
-	ID_SMDH_BORDER_CLR   = 0x1015,
-	ID_CHKBX_BORDER_CLR  = 0x1016,
-	ID_CHKBX_CHK_CLR     = 0x1017,
-	ID_GRAPH_LINE_CLR    = 0x1018,
-	ID_WARN_CLR          = 0x1019,
-	ID_X_CLR             = 0x101A,
+	ID_BG_CLR               = 0x1001,
+	ID_TEXT_CLR             = 0x1002,
+	ID_BTN_BG_CLR           = 0x1003,
+	ID_BTN_BORDER_CLR       = 0x1004,
+	ID_BATTERY_GREEN_CLR    = 0x1005,
+	ID_BATTERY_RED_CLR      = 0x1006,
+	ID_TOGGLE_GREEN_CLR     = 0x1007,
+	ID_TOGGLE_RED_CLR       = 0x1008,
+	ID_TOGGLE_SLID_CLR      = 0x1009,
+	ID_PROGBAR_FG_CLR       = 0x1010,
+	ID_PROGBAR_BG_CLR       = 0x1011,
+	ID_SCROLLBAR_CLR        = 0x1012,
+	ID_LED_GREEN_CLR        = 0x1013,
+	ID_LED_RED_CLR          = 0x1014,
+	ID_SMDH_BORDER_CLR      = 0x1015,
+	ID_CHKBX_BORDER_CLR     = 0x1016,
+	ID_CHKBX_CHK_CLR        = 0x1017,
+	ID_GRAPH_LINE_CLR       = 0x1018,
+	ID_WARN_CLR             = 0x1019,
+	ID_X_CLR                = 0x101A,
+	ID_BATTERY_CHARGING_CLR = 0x101B,
 
-	ID_MORE_IMG          = 0x2001,
-	ID_BATTERY_IMG       = 0x2002,
-	ID_SEARCH_IMG        = 0x2003,
-	ID_SETTINGS_IMG      = 0x2004,
-	ID_SPINNER_IMG       = 0x2005,
-	ID_RANDOM_IMG        = 0x2006,
-	ID_BG_TOP_IMG        = 0x2007,
-	ID_BG_BOT_IMG        = 0x2008,
+	ID_MORE_IMG             = 0x2001,
+	ID_BATTERY_IMG          = 0x2002,
+	ID_SEARCH_IMG           = 0x2003,
+	ID_SETTINGS_IMG         = 0x2004,
+	ID_SPINNER_IMG          = 0x2005,
+	ID_RANDOM_IMG           = 0x2006,
+	ID_BG_TOP_IMG           = 0x2007,
+	ID_BG_BOT_IMG           = 0x2008,
+	ID_BATTERY_CHARGING_IMG = 0x2009
 };
 
 static ui::ThemeManager manager;
@@ -257,6 +259,7 @@ bool ui::Theme::parse(std::function<bool(u8 *, u32)> read_data, size_t size, u8 
 		CVAL(ID_GRAPH_LINE_CLR, graph_line_color);
 		CVAL(ID_WARN_CLR, warning_color);
 		CVAL(ID_X_CLR, x_color);
+		CVAL(ID_BATTERY_CHARGING_CLR, battery_charging_color);
 #undef CVAL
 #define IVAL(fid, iid) case fid: \
 	offset = U32(descriptors[i].data.image.img_ptr); \
@@ -281,6 +284,7 @@ bool ui::Theme::parse(std::function<bool(u8 *, u32)> read_data, size_t size, u8 
 		IVAL(ID_RANDOM_IMG, random_image);
 		IVAL(ID_BG_TOP_IMG, background_top_image);
 		IVAL(ID_BG_BOT_IMG, background_bottom_image);
+		IVAL(ID_BATTERY_CHARGING_IMG, battery_charging_image);
 #undef IVAL
 		default:
 			elog("theme parser: unknown identifier %lu", ident);
