@@ -426,49 +426,38 @@ da %1
 - themes
 Temi
 
-# nowrap, burger menu item
 - delete_unused_tickets
 Rimuovi biglietti non utilizzati
 
-# asking user if they want to delete unused tickets, %1 = amount of unused tickets that were found
 - found_unused_tickets
 Trovato %1 biglietto/i non utilizzato/i. Vuoi rimuoverli?
 
-# informing user that no missing tickets were found
 - found_no_unused_tickets
 Non sono stati trovati biglietti inutilizzati.
 
-# don't translate "Enable developer UNITINFO", ENVINFO may be translated as configuration, retail may be translated as normal, unit may be translated as variant
 - dev_unitinfo
 Secondo questa console ENVINFO, questa è un'unità di sviluppo.
 3hs non funzionerà correttamente su questo sistema.
 Nel caso in cui hai un 3DS retail, assicurati che "Abilita lo sviluppatore UNITINFO" nella configurazione di Luma3DS sia disabilitato.
 
-# nowrap, used in for examples language select
 - hint_navigate
 UI_GLYPH_DPAD_CLEAR/UI_GLYPH_CPAD: naviga
 
-# %1 = theme author
 - made_by
 creato da %1
 
-# nowrap, burger menu item
 - themes
 Temi
 
-# nowrap, burger menu item
 - delete_unused_tickets
 Elimina i ticket inutilizzati
 
-# asking user if they want to delete unused tickets, %1 = amount of unused tickets that were found
 - found_unused_tickets
 Sono stati trovati %1 ticket non utilizzati. Li vuoi rimuovere?
 
-# informing user that no missing tickets were found
 - found_no_unused_tickets
 Non sono stati trovati ticket inutilizzati.
 
-# informing user that the preview image (for themes) that was on the server was unable to be displayed
 - invalid_theme_preview
 Anteprima del tema non valida!
 
@@ -478,30 +467,21 @@ UI_GLYPH_Y: Aggiungi alla coda
 - hint_preview_theme
 UI_GLYPH_X: Anteprima tema
 
-# used in extmeta for the alternative name, only used in japanese titles for now
 - alt_name
 Nome alternativo
 
-# setting title
 - show_alt
 Mostra nome alternativo
 
-# setting description
 - show_alt_desc
 Mostra nomi alternativi se disponibili
 
-# setting title
 - default_reinst
 Reinstalla automaticamente
 
-# setting description
 - default_reinst_desc
 Reinstalla automaticamente; non chiedere esplicitamente di eliminare un titolo già installato.
 
-# shown while installing a queue on the other screen
-#  %1 = current game title
-#  %2 = total titles
-#  %3 = current position in the queue
 - installing_game_x_of_y
 Processando fila: %2/%3
 %1
@@ -515,3 +495,121 @@ Codice prodotto non valido
 - search_prod
 Cerca per codice prodotto
 
+- disable_graph
+Disattiva grafico della latenza
+
+- disable_graph_desc
+Disattiva il grafico della latenza mostrato mentre installi un titolo.
+
+- goto_region
+Salta a sottosezione
+
+- goto_region_desc
+Salta alla corretta sottosezione nella selezione della sottocategoria se esiste.
+
+- add_music
+Non hai ancora aggiunto alcuna musica!
+Prova ad inserire musica in /3ds/3hs/music sulla tua scheda SD
+
+- add_playlist
+Devi ancora aggiungere playlist!
+Prova ad aggiungerle con l'opzione gestisci
+
+- add_file_act
+[ aggiungi file ]
+
+- add_playlist_act
+[ aggiungi playlist ]
+
+- new_playlist_name
+Nuovo nome playlist...
+
+- basic_options
+Opzioni base
+
+- randomize
+Randomize playlists
+Rendi casuali le playlist
+
+- repeat
+Ripeti playlist e canzoni
+
+- stereo
+Stereo
+
+- default_playlist
+Playlist predefinita
+
+- other
+Varie
+
+- select
+Seleziona...
+
+- playlist
+playlist
+
+- file
+file
+
+- save
+Salva
+
+- manage_playlists
+Gestisci playlist
+
+- audio
+Audio
+
+- everything
+Tutto in questa categoria
+
+- quick
+Veloce
+
+- filters
+Filtri
+
+- new_invalid_tid
+Errore: Inserito ID del titolo non valido
+Gli ID dei titoli sono solitamente strutturati così: 000400000008B500
+
+- new_invalid_prod
+Errore: inserito codice prodotto non valido
+I codici prodotto sono solitamente strutturati così: CTR-P-ABCD
+
+- press_to_switch
+Premi UI_GLYPH_L/UI_GLYPH_R per cambiare modalità
+
+- empty
+(vuoto)
+
+- enter_query
+Inserisci la tua domanda...
+
+- submit
+Invia
+
+- content_type
+Tipo di contenuto
+
+- all
+Tutti
+
+- include_content
+Includi contenuti
+
+- regions
+Regioni
+
+- include_filters
+Includi filtri
+
+- exclude_filters
+Escludi filtri
+
+- add
+Aggiungi
+
+- normal_search
+Ricerca normale
