@@ -177,7 +177,8 @@ extern "C" void font_merger_destroy(void);
 static void common_init()
 {
 	g_spritestore.open(SPRITESHEET_PATH);
-	/* TODO: Select correct theme */
+	/* This is always the correct theme: before calling ui::init() load_current_theme() is called
+	 * so that the selected theme is in the back of the themes() array */
 	ui::Theme::global()->replace_with(themes().back());
 	ui::ThemeManager::global()->reget();
 	top_background.setup(ui::Screen::top, ui::Sprite::theme, ui::theme::background_top_image);
@@ -229,10 +230,8 @@ ui::RenderQueue::~RenderQueue()
 
 void ui::RenderQueue::clear()
 {
-	for(ui::BaseWidget *wid : this->bot)
-	{ wid->destroy(); delete wid; }
-	for(ui::BaseWidget *wid : this->top)
-	{ wid->destroy(); delete wid; }
+	for(ui::BaseWidget *wid : this->bot) { wid->destroy(); delete wid; }
+	for(ui::BaseWidget *wid : this->top) { wid->destroy(); delete wid; }
 
 	this->signalBit = 0;
 
@@ -250,6 +249,8 @@ void ui::RenderQueue::push(ui::BaseWidget *wid)
 		this->bot.push_back(wid);
 	else if(wid->renders_on() == ui::Screen::top)
 		this->top.push_back(wid);
+	else
+		panic("Trying to push widget that renders on an unknown screen");
 	this->backPtr = wid;
 }
 

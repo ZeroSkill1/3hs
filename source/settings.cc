@@ -1042,7 +1042,6 @@ static void load_themes()
 	}
 }
 
-
 void show_theme_menu()
 {
 	if(g_avail_themes.size() == 1)

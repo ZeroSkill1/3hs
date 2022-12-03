@@ -193,7 +193,7 @@ void ui::BatteryIndicator::setup()
 	this->perc->resize(0.5f, 0.5f);
 	this->perc->set_y(5.0f);
 	this->perc->set_hidden(true);
-	
+
 	this->fg.setup(this->screen, ui::Sprite::theme, ui::theme::battery_image);
 	this->fg->set_x(ui::screen_width(ui::Screen::top) - 37.0f);
 	this->fg->set_y(5.0f);
@@ -208,7 +208,7 @@ void ui::BatteryIndicator::setup()
 void ui::BatteryIndicator::update()
 {
 	static time_t lastcheck = 0;
-	u8 nlvl = 0, charging = 0;
+	u8 nlvl = 0;
 
 	time_t now = time(NULL);
 	if(now - lastcheck < 2)
@@ -220,7 +220,6 @@ void ui::BatteryIndicator::update()
 		return;
 
 	this->level = nlvl;
-	this->charging = charging;
 
 	this->perc->set_text(std::to_string(this->level) + "%");
 	this->perc->set_x(ui::left(this->fg.ptr(), this->perc.ptr()));
