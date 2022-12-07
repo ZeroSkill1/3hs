@@ -995,8 +995,9 @@ void load_current_theme()
 		const u8 *data;
 		u32 size;
 	} sets[] = {
-		{ .name = SPECIAL_LIGHT, .data = light_hstx, .size = light_hstx_size },
+		/* keep in this order */
 		{ .name = SPECIAL_DARK, .data = dark_hstx, .size = dark_hstx_size },
+		{ .name = SPECIAL_LIGHT, .data = light_hstx, .size = light_hstx_size },
 	};
 
 	panic_assert(cthem.open(sets[1 - isDefaultLight].data, sets[1 - isDefaultLight].size, sets[1 - isDefaultLight].name, nullptr), "failed to parse built-in theme");
