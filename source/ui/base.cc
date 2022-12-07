@@ -1186,7 +1186,7 @@ void ui::WidgetGroup::position_under_horizontal(ui::BaseWidget *other, float pad
 	ui::BaseWidget *ui::WidgetGroup::func_name() \
 	{ \
 		if(!this->ws.size()) return nullptr; \
-		ui::BaseWidget *ret; float max = init_val, v; \
+		ui::BaseWidget *ret = nullptr; float max = init_val, v; \
 		for(ui::BaseWidget *w : this->ws) \
 			if((v = prop_get) cmp max) \
 			{ \
