@@ -495,121 +495,157 @@ Codice prodotto non valido
 - search_prod
 Cerca per codice prodotto
 
+# scroll, setting title
 - disable_graph
 Disattiva grafico della latenza
 
+# setting description
 - disable_graph_desc
 Disattiva il grafico della latenza mostrato mentre installi un titolo.
 
+# scroll, setting title
 - goto_region
-Salta a sottosezione
+Passa a sottosezione
 
+# setting description
 - goto_region_desc
-Salta alla corretta sottosezione nella selezione della sottocategoria se esiste.
+Passa alla corretta sottosezione nella selezione della sottocategoria se esiste.
 
 - add_music
-Non hai ancora aggiunto alcuna musica!
+Non hai ancora aggiunto musica!
 Prova ad inserire musica in /3ds/3hs/music sulla tua scheda SD
 
 - add_playlist
 Devi ancora aggiungere playlist!
 Prova ad aggiungerle con l'opzione gestisci
 
+# noscroll, Keep the [ ], it is used in a menu with other file names
 - add_file_act
 [ aggiungi file ]
 
+# noscroll, same as above
 - add_playlist_act
 [ aggiungi playlist ]
 
+# keyboard hint
 - new_playlist_name
 Nuovo nome playlist...
 
+# noscroll, Basic audio engine options (randomize, repeat, stereo)
 - basic_options
 Opzioni base
 
+# noscroll, audio engine option
 - randomize
-Randomize playlists
 Rendi casuali le playlist
 
+# noscroll, audio engine option
 - repeat
 Ripeti playlist e canzoni
 
+# noscroll, stereo ( = multichannel) audio option
 - stereo
 Stereo
 
+# noscroll, Default playlist audio option
 - default_playlist
 Playlist predefinita
 
+# noscroll, other audio engine options (select current file/playlist, manage playlists), may be translated as miscelaneous
 - other
 Varie
 
+# button, this string is followed by two buttons, one with "file" and another with "playlist", selects a playlist/file to play
 - select
 Seleziona...
 
+# button, keep lowercase, see comment on select
 - playlist
 playlist
 
+# button, keep lowercase, see comment on select
 - file
 file
 
+# button, save audio engine configuration
 - save
 Salva
 
+# button
 - manage_playlists
 Gestisci playlist
 
+# Button in more menu that leads to audio configuration.
 - audio
 Audio
 
+# button that adds everything in this category as a filter
 - everything
 Tutto in questa categoria
 
+# new search method, has the option of quick filtering of official content categories and the regions europe, north-america and japan
 - quick
 Veloce
 
+# new search method, has the option of filtering based on advanced filters like on the website
 - filters
 Filtri
 
+# Invalid title id error in new search
 - new_invalid_tid
 Errore: Inserito ID del titolo non valido
 Gli ID dei titoli sono solitamente strutturati così: 000400000008B500
 
+# Invalid product code error in new search
 - new_invalid_prod
 Errore: inserito codice prodotto non valido
 I codici prodotto sono solitamente strutturati così: CTR-P-ABCD
 
+# Subtitle of the new search methods
 - press_to_switch
 Premi UI_GLYPH_L/UI_GLYPH_R per cambiare modalità
 
+# Placeholder for empty search bar
 - empty
 (vuoto)
 
+# keyboard hint while filling the search bar for new search
 - enter_query
 Inserisci la tua domanda...
 
+# Submit new search and display resulst
 - submit
 Invia
 
+# label for content type selector for normal search
 - content_type
 Tipo di contenuto
 
+# label for content type selector, to indicate that all content types are to be included
 - all
 Tutti
 
+# label for checkbox list of categories to include in quick search
 - include_content
 Includi contenuti
 
+# label for checkbox list of regions to include in quick search
 - regions
 Regioni
 
+# label for include filters of normal search
 - include_filters
 Includi filtri
 
+# label for exclude filters of normal search
 - exclude_filters
 Escludi filtri
 
+# button, adds a filter in normal search
 - add
 Aggiungi
 
+# search menu option to open normal search
 - normal_search
 Ricerca normale
+
