@@ -34,7 +34,7 @@ namespace ui
 }
 
 //#define BUFSIZE 0x80000
-#define BUFSIZE 0x10000
+#define BUFSIZE 0x20000
 
 enum class ITC // inter thread communication
 {
@@ -75,6 +75,8 @@ typedef struct cia_net_data
 
 static Result i_install_net_cia(std::string url, cia_net_data *data, size_t from, httpcContext *pctx)
 {
+	vlog("Enter installation with url '%s'", url.c_str());
+
 	u32 status = 0, dled = 0, remaining, dlnext, written;
 	Result res = 0;
 #define CHECKRET(expr) if(R_FAILED(res = ( expr ) )) goto err
@@ -212,8 +214,11 @@ static void i_install_loop_thread_cb(Result& res, get_url_func get_url, cia_net_
 {
 	std::string url;
 
+	vlog("thread was launched");
+
 	if(!ISET_RESUME_DOWNLOADS)
 	{
+		vlog("attempting to get download URL... (resume downloads is OFF)");
 		if((url = get_url(res)) == "")
 		{
 			elog("failed to fetch url: %08lX", res);
@@ -224,8 +229,10 @@ static void i_install_loop_thread_cb(Result& res, get_url_func get_url, cia_net_
 	}
 
 	// install loop
+	vlog("Install loop START");
 	while(data.itc != ITC::exit)
 	{
+		vlog("attempting to get download URL... (resume downloads is ON)");
 		url = get_url(res);
 		if(R_SUCCEEDED(res))
 			res = i_install_net_cia(url, &data, data.index + data.bufferSize, &hctx);
@@ -256,6 +263,8 @@ out:
 
 static Result i_install_resume_loop(get_url_func get_url, prog_func prog, cia_net_data *data)
 {
+	vlog("Enter resume loop");
+
 	Result res;
 	data->buffer = new u8[BUFSIZE];
 
@@ -264,10 +273,7 @@ static Result i_install_resume_loop(get_url_func get_url, prog_func prog, cia_ne
 
 	httpcContext hctx;
 
-	// Install thread
-	ctr::thread<Result&, get_url_func, cia_net_data&, httpcContext&> th
-		(i_install_loop_thread_cb, 1, res, get_url, *data, hctx);
-
+	vlog("Setting up timer...");
 	Handle timer;
 	svcCreateTimer(&timer, RESET_ONESHOT);
 	/* fire the timer at least every 0.1 second */
@@ -276,6 +282,11 @@ static Result i_install_resume_loop(get_url_func get_url, prog_func prog, cia_ne
 	Handle handles[2] = { data->eventHandle, timer };
 	s32 outhandle;
 
+	// Install thread
+	vlog("Creating thread...");
+	ctr::thread<Result&, get_url_func, cia_net_data&, httpcContext&> th
+		(i_install_loop_thread_cb, 1, res, get_url, *data, hctx);
+
 	// UI Loop
 	while(data->itc != ITC::exit)
 	{
@@ -283,6 +294,7 @@ static Result i_install_resume_loop(get_url_func get_url, prog_func prog, cia_ne
 		/* other thread signals state update */
 		if(outhandle == 0)
 		{
+			vlog("Thread state updated");
 			if(data->itc == ITC::exit)
 				break;
 			if(data->itc == ITC::timeoutscr)
@@ -418,6 +430,7 @@ static Result i_install_hs_cia(const hsapi::FullTitle& meta, prog_func prog, boo
 
 	return net_cia_impl([meta](Result& res) -> std::string {
 		std::string ret;
+		vlog("Getting download URL for net_cia_impl()");
 		if(R_FAILED(res = hsapi::get_download_link(ret, meta)))
 			return "";
 		return ret;
