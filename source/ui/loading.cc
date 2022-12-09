@@ -24,6 +24,12 @@
 #include <unistd.h>
 #include <3ds.h>
 
+enum class SpinState {
+	ToSetup,
+	Spinning,
+	Idle,
+};
+
 void ui::loading(std::function<void()> callback)
 {
 	std::string desc = ::set_desc(STRING(loading));
@@ -31,8 +37,19 @@ void ui::loading(std::function<void()> callback)
 
 	bool spin_flag = true;
 
-	aptSetHomeAllowed(false);
-	ctr::thread<> th([&spin_flag]() -> void {
+	static LightLock is_spinning_lock;
+	static SpinState is_spinning = SpinState::ToSetup;
+	if(is_spinning == SpinState::ToSetup)
+	{
+		LightLock_Init(&is_spinning_lock);
+	}
+	LightLock_Lock(&is_spinning_lock);
+	SpinState spincopy = is_spinning;
+
+	ctr::thread<> th([&spin_flag, spincopy]() -> void {
+		if(spincopy == SpinState::Spinning)
+			return;
+
 		ui::RenderQueue queue;
 		ui::builder<ui::Spinner>(ui::Screen::top)
 			.x(ui::layout::center_x)
@@ -42,8 +59,14 @@ void ui::loading(std::function<void()> callback)
 		ui::Keys keys;
 		while(spin_flag && queue.render_frame((keys = ui::RenderQueue::get_keys())))
 			/* no-op */ ;
+
+		LightLock_Lock(&is_spinning_lock);
+		is_spinning = SpinState::Idle;
+		LightLock_Unlock(&is_spinning_lock);
 	}, -1);
 
+	is_spinning = SpinState::Spinning;
+	LightLock_Unlock(&is_spinning_lock);
 	/* */ callback();
 	spin_flag = false;
 	th.join();
