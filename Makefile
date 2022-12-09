@@ -37,7 +37,7 @@ BUILD			:=	build
 SOURCES		:= 	source source/ui source/widgets source/hlink 3rd/nnc/source source/audio
 DATA			:=	data
 INCLUDES	:=	include 3rd 3rd/3rd .
-GRAPHICS	:=	gfx gfx/bun
+GRAPHICS	:=	gfx
 ROMFS			:=	romfs
 GFXBUILD	:=	$(ROMFS)/gfx
 
@@ -64,6 +64,10 @@ CFLAGS += $(WRAPFLAGS)
 
 ASFLAGS	:=	$(ARCH)
 LDFLAGS	=	-specs=3dsx.specs $(ARCH) -Wl,-Map,$(notdir $*.map) $(WRAPFLAGS)
+
+ifneq ($(DEBUG),)
+	CFLAGS	+= -ggdb3 -DFULL_LOG
+endif
 
 ifneq ($(RELEASE),)
 	CFLAGS	+= -DRELEASE -O2
