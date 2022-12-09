@@ -47,6 +47,7 @@ static u32 my_kheld, my_kdown;
 static bool touch_locked = false;
 
 static LightLock render_and_then_lock;
+static LightLock in_render_lock;
 
 enum LEDFlags_V {
 	LED_NONE          = 0,
@@ -190,6 +191,7 @@ static void common_init()
 	slotmgr = ui::ThemeManager::global()->get_slots(nullptr, "__global_slot_manager", 1, slotmgr_getters);
 	panic_if_err_3ds(font_merger_run());
 	LightLock_Init(&render_and_then_lock);
+	LightLock_Init(&in_render_lock);
 }
 
 void ui::init(C3D_RenderTarget *top, C3D_RenderTarget *bot)
@@ -317,11 +319,13 @@ u32 ui::kDown() { return my_kdown; }
 
 void ui::maybe_end_frame()
 {
+	LightLock_Lock(&in_render_lock);
 	if(g_inRender)
 	{
 		C3D_FrameEnd(0);
 		g_inRender = false;
 	}
+	LightLock_Unlock(&in_render_lock);
 }
 
 void ui::background_rect(ui::Screen scr, float x, float y, float z, float w, float h)
@@ -361,12 +365,11 @@ void ui::RenderQueue::terminate_render()
 	\
 	if(!aptMainLoop()) \
 		::exit(0); /* finish */ \
+	LightLock_Lock(&in_render_lock); \
 	if(g_inRender) \
-	{ \
-		C3D_FrameEnd(0); \
-		g_inRender = false; \
 		panic("illegal double render"); \
-	} \
+	g_inRender = true; \
+	LightLock_Unlock(&in_render_lock); \
 	\
 	if(LEDFlags & LED_TIMEOUT) \
 		if(time(NULL) > LEDExpireTime) \
@@ -389,17 +392,15 @@ void ui::RenderQueue::terminate_render()
 	\
 	if(!C3D_FrameBegin(C3D_FRAME_SYNCDRAW)) \
 	{ \
-		elog("failed to start frame"); \
+		panic("failed to start frame"); \
 		return true; /* failed to start frame, let's just ignore this frame */ \
 	} \
-	g_inRender = true; \
 	\
 	C2D_TargetClear(g_top, slotmgr.get(0)); \
 	C2D_TargetClear(g_bot, slotmgr.get(0)); \
 
 #define rq_end_frame() \
-	C3D_FrameEnd(0); \
-	g_inRender = false; \
+	ui::maybe_end_frame(); \
 	\
 	if(g_renderqueue.after_render_complete != nullptr) \
 	{ \
