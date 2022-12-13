@@ -14,7 +14,7 @@
  * this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "update.hh" /* includes net constants */
+#include "httpclient.hh"
 #include "hsapi.hh"
 #include "error.hh"
 #include "proxy.hh"
@@ -58,13 +58,6 @@
 #define CHECKAPI(type) if((res = api_res_to_rc(j)) != OK) return res; TRYCHECK_##type(j, "value")
 #define OK 0
 
-extern "C" unsigned int hscert_der_len; /* hscert.c */
-extern "C" unsigned char hscert_der[];  /* hscert.c */
-
-extern "C" void        hsapi_password(char *); /* hsapi_auth.c */
-extern "C" const int   hsapi_password_length;  /* hsapi_auth.c */
-extern "C" const char *hsapi_user;             /* hsapi_auth.c */
-
 using json = nlohmann::json;
 
 static u32 *g_socbuf = nullptr;
@@ -106,90 +99,24 @@ bool hsapi::global_init()
 
 static Result basereq(const std::string& url, std::string& data, HTTPC_RequestMethod reqmeth = HTTPC_METHOD_GET, const char *postdata = nullptr, u32 postdata_len = 0)
 {
-	u32 dled = 0, status = 0, totalSize = 0;
-	std::string redir;
-	char buffer[4096];
-	httpcContext ctx;
-	Result res = OK;
-	char *password;
-	ui::Keys k;
+	http::ResumableDownload downloader;
+	downloader.set_postdata(postdata, postdata_len);
+	downloader.set_target(url, reqmeth);
+	downloader.requires_authentication();
 
-#define TRY(expr) if(R_FAILED(res = ( expr ) )) goto out
-	if(R_FAILED(res = httpcOpenContext(&ctx, reqmeth, url.c_str(), 0)))
-		return res;
-	TRY(httpcSetSSLOpt(&ctx, SSLCOPT_DisableVerify));
-	TRY(httpcSetKeepAlive(&ctx, HTTPC_KEEPALIVE_ENABLED));
-	TRY(httpcAddRequestHeaderField(&ctx, "Connection", "Keep-Alive"));
-	TRY(httpcAddRequestHeaderField(&ctx, "User-Agent", USER_AGENT));
-	TRY(httpcAddRequestHeaderField(&ctx, "X-Auth-User", hsapi_user));
-/*TRY(httpcAddRequestHeaderField(&ctx, "X-Auth-Password", password));*/password=(char*)malloc(hsapi_password_length+1);hsapi_password(password);password[hsapi_password_length]=0;TRY(httpcAddRequestHeaderField(&ctx,"X-Auth-Password",password));memset(password,0,hsapi_password_length);free(password);
-	if(hscert_der_len && url.find("https") == 0) // only use certs on https
-		TRY(httpcAddTrustedRootCA(&ctx, hscert_der, hscert_der_len));
-	if(postdata && postdata_len != 0)
-		/* for some reason postdata is a u32 instead of u8.... */
-		TRY(httpcAddPostDataRaw(&ctx, (const u32 *) postdata, postdata_len));
-	TRY(proxy::apply(&ctx));
+	downloader.on_total_size_try_get([&]() -> Result {
+		if(downloader.maybe_total_size())
+			data.reserve(downloader.maybe_total_size());
+		return 0;
+	});
 
-	TRY(httpcBeginRequest(&ctx));
+	downloader.on_chunk([&](size_t chunk_size) -> void {
+		data += std::string(downloader.data_buffer<char>(), chunk_size);
+	});
 
-	TRY(httpcGetResponseStatusCode(&ctx, &status));
-	vlog("API status code on %s: %lu", url.c_str(), status);
-
-	// Do we want to redirect?
-	if(status / 100 == 3)
-	{
-		TRY(httpcGetResponseHeader(&ctx, "location", buffer, sizeof(buffer)));
-		redir = buffer;
-
-		vlog("Redirected to %s", redir.c_str());
-		httpcCancelConnection(&ctx);
-		httpcCloseContext(&ctx);
-		return basereq(redir, data, reqmeth);
-	}
-
-	if(status != 200)
-	{
-		elog("HTTP status was NOT 200 but instead %lu", status);
-#ifdef RELEASE
-		// We _may_ require a different 3hs version
-		if(status == 400)
-		{
-			/* we can assume it doesn't have the header if this fails */
-			if(R_SUCCEEDED(httpcGetResponseHeader(&ctx, "x-minimum", buffer, sizeof(buffer))))
-			{
-				httpcCancelConnection(&ctx);
-				httpcCloseContext(&ctx);
-				ui::RenderQueue::terminate_render();
-				ui::notice(PSTRING(min_constraint, VVERSION, buffer));
-				exit(1);
-			}
-		}
-#endif
-		res = status == 413 ? APPERR_TOO_LARGE : APPERR_NON200;
-		goto out;
-	}
-
-	TRY(httpcGetDownloadSizeState(&ctx, nullptr, &totalSize));
-	if(totalSize != 0) data.reserve(totalSize);
-
-	do {
-		res = httpcDownloadData(&ctx, (unsigned char *) buffer, sizeof(buffer), &dled);
-		k = ui::RenderQueue::get_keys();
-		if(R_SUCCEEDED(res) && ((k.kDown | k.kHeld) & (KEY_B | KEY_START)))
-			res = APPERR_CANCELLED;
-		// Other type of fail
-		if(R_FAILED(res) && res != (Result) HTTPC_RESULTCODE_DOWNLOADPENDING)
-			goto out;
-		data += std::string(buffer, dled);
-	} while(res == (Result) HTTPC_RESULTCODE_DOWNLOADPENDING);
-
-	vlog("API data gotten:\n%s", data.c_str());
-
-out:
-	httpcCancelConnection(&ctx);
-	httpcCloseContext(&ctx);
+	Result res = downloader.execute_once();
+	vlog("Got API data:\n%s", data.c_str());
 	return res;
-#undef TRY
 }
 
 static Result api_res_to_rc(json& j)

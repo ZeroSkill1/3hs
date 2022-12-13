@@ -1,0 +1,86 @@
+
+#ifndef inc_httpclient_hh
+#define inc_httpclient_hh
+
+#include <functional>
+#include <string>
+#include <3ds.h>
+
+
+namespace http
+{
+
+	class ResumableDownload
+	{
+	public:
+		static constexpr size_t ChunkMaxSize = 0x20000;
+
+		ResumableDownload();
+		~ResumableDownload();
+
+		/* Tries to execute the download, once, when called
+		 * again it continues the download if there was still
+		 * data left to download
+		 */
+		Result execute_once();
+
+		void abort();
+
+		void requires_authentication() { this->flags |= http::ResumableDownload::flag_auth; }
+		void on_total_size_try_get(std::function<Result()> func) { this->on_total_size_try_get_ = func; }
+		void on_chunk(std::function<void(size_t)> func) { this->on_chunk_ = func; }
+
+		/* 0 if total size is not known (yet), after on_total_size_try_get() it is known
+		 * if the total size is known */
+		u32 maybe_total_size() { return this->totalSize; }
+		/* returns the amount of bytes downloaded since the creation of this object */
+		u32 downloaded() { return this->downloadedSize; }
+		/* returns the temporary buffer where data is downloaded in, should be used
+		 * in on_chunk(size_t buffer_size), the parameter is the usable byte count in
+		 * the buffer returned by data_buffer() */
+		template <typename T>
+		const T *data_buffer() { return (T *) this->buffer; }
+
+		/* the data pointer must remain valid as long as the ResumableDownload is */
+		void set_postdata(const void *data, u32 len)
+		{
+			this->postdataPtr = data;
+			this->postdataLen = len;
+		}
+
+		void set_target(const std::string& url, HTTPC_RequestMethod method)
+		{
+			this->url = url;
+			this->method = method;
+		}
+
+	private:
+		std::function<Result()> on_total_size_try_get_ = []() -> Result { return 0; };
+		std::function<void(size_t)> on_chunk_ = [](size_t) -> void { };
+
+		void *buffer;
+
+		u32 totalSize = 0, downloadedSize = 0;
+
+		HTTPC_RequestMethod method;
+		std::string url;
+
+		Result perform_execute_once(const char *url, int redirection_depth);
+		Result setup_handle(const char *url);
+		void close_handle();
+
+		const void *postdataPtr = nullptr;
+		u32 postdataLen = 0;
+
+		httpcContext hctx;
+
+		enum {
+			flag_active = 1,
+			flag_exit   = 2,
+			flag_auth   = 4,
+		}; int flags = 0;
+	};
+}
+
+#endif
+
