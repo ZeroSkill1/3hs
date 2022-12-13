@@ -1,0 +1,17 @@
+
+0. finish features for the release
+1. update the version constants in include/update.hh
+2. do testing:
+	1. test if all main features are still working
+		1. find_missing
+		2. installation of game
+		3. installation of games through queue
+	2. test for speed regressions
+		1. compare to FBI
+		2. compare to previous release
+	3. test if a default configuration crashes the console
+	4. test if sleep mode still works
+3. release to the public with with ./scripts/publish_release --no-webhook
+4. test if the release installs correctly
+5. notify the discord of the new release with ./scripts/publish_release --no-files --no-api
+

@@ -33,7 +33,6 @@ namespace ui
 	u32 kHeld();
 }
 
-//#define BUFSIZE 0x80000
 #define BUFSIZE 0x20000
 
 enum class ITC // inter thread communication
@@ -366,7 +365,7 @@ static Result net_cia_impl(get_url_func get_url, hsapi::htid tid, bool reinstall
 					return ret;
 				if(envIsHomebrew() || selftid != tid || dest != selfmt)
 				{
-					if(R_FAILED(ret = ctr::delete_title(tid, dest, true, true)))
+					if(R_FAILED(ret = ctr::delete_title(tid, dest, ctr::DeleteTitleFlag::DeleteTicket | ctr::DeleteTitleFlag::CheckExistance)))
 						return ret;
 
 					// reload dbs
@@ -421,11 +420,7 @@ static Result i_install_hs_cia(const hsapi::FullTitle& meta, prog_func prog, boo
 		return APPERR_NOSPACE;
 
 	// Check if we are NOT on a n3ds and the game is n3ds exclusive
-	bool isNew = false;
-	if(R_FAILED(res = APT_CheckNew3DS(&isNew)))
-		return res;
-
-	if(!isNew && (isKtrHint || meta.prod.rfind("KTR-", 0) == 0))
+	if(!ctr::running_on_new_series() && (isKtrHint || meta.prod.rfind("KTR-", 0) == 0))
 		return APPERR_NOSUPPORT;
 
 	return net_cia_impl([meta](Result& res) -> std::string {

@@ -218,6 +218,7 @@ bool ui::timeoutscreen(Result res, size_t nsecs, bool allowCancel)
 		ui::builder<ui::detail::TimeoutScreenHelper>(ui::Screen::top, res, nsecs, allowCancel ? &ret : nullptr)
 			.add_to(queue);
 
+		/* TODO: There should probably be some mechanism for the timer to go on anyway when sleep is triggered here */
 		queue.render_finite();
 	} else {
 		/* if the lid is closed don't try to use ui as it'll wait until the lid is opened */

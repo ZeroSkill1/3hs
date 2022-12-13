@@ -235,14 +235,14 @@ bool ctr::ticket_exists(u64 tid)
 	return R_SUCCEEDED(AM_GetTicketInfo(&count, 1, tid, 0, &entry)) && count == 1;
 }
 
-Result ctr::delete_title(u64 tid, FS_MediaType media, bool and_ticket, bool check_exist)
+Result ctr::delete_title(u64 tid, FS_MediaType media, DeleteTitleFlag::Type flags)
 {
 	Result res = 0;
 
-	if(and_ticket && (!check_exist || ctr::ticket_exists(tid)) && R_FAILED(res = AM_DeleteTicket(tid)))
+	if((flags & ctr::DeleteTitleFlag::DeleteTicket) && (!(flags & ctr::DeleteTitleFlag::CheckExistance) || ctr::ticket_exists(tid)) && R_FAILED(res = AM_DeleteTicket(tid)))
 		return res;
 
-	if((!check_exist || (ctr::title_exists(tid, media))) && R_FAILED(res = AM_DeleteTitle(media, tid)))
+	if((!(flags & ctr::DeleteTitleFlag::CheckExistance) || (ctr::title_exists(tid, media))) && R_FAILED(res = AM_DeleteTitle(media, tid)))
 		return res;
 
 	return 0;
@@ -305,4 +305,20 @@ void ctr::delete_sleep_lock()
 	}
 }
 
+bool ctr::running_on_new_series()
+{
+	static enum {
+		No,
+		Yes,
+		Unchecked,
+	} state = Unchecked;
+	if(state == Unchecked)
+	{
+		bool result;
+		if(R_FAILED(res = APT_CheckNew3DS(&isNew)))
+			result = false;
+		state = result ? Yes : No;
+	}
+	return state == Yes;
+}
 
