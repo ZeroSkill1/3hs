@@ -1,3 +1,18 @@
+/* This file is part of 3hs
+ * Copyright (C) 2021-2022 hShop developer team
+ *
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program. If not, see <https://www.gnu.org/licenses/>.
+ */
 
 #ifndef inc_httpclient_hh
 #define inc_httpclient_hh
@@ -26,19 +41,26 @@ namespace http
 
 		void abort();
 
-		void requires_authentication() { this->flags |= http::ResumableDownload::flag_auth; }
 		void on_total_size_try_get(std::function<Result()> func) { this->on_total_size_try_get_ = func; }
-		void on_chunk(std::function<void(size_t)> func) { this->on_chunk_ = func; }
+		void requires_authentication() { this->flags |= http::ResumableDownload::flag_auth; }
+		void on_chunk(std::function<Result(size_t)> func) { this->on_chunk_ = func; }
 
+		/* Event that is signaled when the state changes, it is the equivalent of
+		 * signalling the event in both on_chunk() and on_total_size_try_get(), additionally
+		 * it also signals when the download is completed
+		 * Note that this event is signaled *after* the callbacks are called */
+		void set_notify_event(LightEvent *event) { this->notify_event = event; }
 		/* 0 if total size is not known (yet), after on_total_size_try_get() it is known
 		 * if the total size is known */
 		u32 maybe_total_size() { return this->totalSize; }
-		/* returns the amount of bytes downloaded since the creation of this object */
+		/* returns the amount of bytes downloaded since the creation of this object
+		 * note that this count is only increment *after* on_chunk() is called and the
+		 * notification event is signaled */
 		u32 downloaded() { return this->downloadedSize; }
 		/* returns the temporary buffer where data is downloaded in, should be used
 		 * in on_chunk(size_t buffer_size), the parameter is the usable byte count in
 		 * the buffer returned by data_buffer() */
-		template <typename T>
+		template <typename T = u8>
 		const T *data_buffer() { return (T *) this->buffer; }
 
 		/* the data pointer must remain valid as long as the ResumableDownload is */
@@ -56,7 +78,7 @@ namespace http
 
 	private:
 		std::function<Result()> on_total_size_try_get_ = []() -> Result { return 0; };
-		std::function<void(size_t)> on_chunk_ = [](size_t) -> void { };
+		std::function<Result(size_t)> on_chunk_ = [](size_t) -> Result { return 0; };
 
 		void *buffer;
 
@@ -64,6 +86,8 @@ namespace http
 
 		HTTPC_RequestMethod method;
 		std::string url;
+
+		LightEvent *notify_event = nullptr;
 
 		Result perform_execute_once(const char *url, int redirection_depth);
 		Result setup_handle(const char *url);

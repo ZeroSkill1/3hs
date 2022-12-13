@@ -110,8 +110,9 @@ static Result basereq(const std::string& url, std::string& data, HTTPC_RequestMe
 		return 0;
 	});
 
-	downloader.on_chunk([&](size_t chunk_size) -> void {
-		data += std::string(downloader.data_buffer<char>(), chunk_size);
+	downloader.on_chunk([&](size_t chunk_size) -> Result {
+		data.append(downloader.data_buffer<char>(), chunk_size);
+		return 0;
 	});
 
 	Result res = downloader.execute_once();

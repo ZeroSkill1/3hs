@@ -56,7 +56,7 @@ Result http::ResumableDownload::perform_execute_once(const char *url, int redire
 {
 	u32 pos, prev_pos = 0;
 	size_t chunk_size;
-	Result res;
+	Result res, nres;
 	u32 status;
 
 	if(R_FAILED(res = this->setup_handle(url)))
@@ -125,6 +125,8 @@ Result http::ResumableDownload::perform_execute_once(const char *url, int redire
 		TRYJ(httpcGetDownloadSizeState(&this->hctx, nullptr, &this->totalSize));
 		if(R_FAILED(res = this->on_total_size_try_get_()))
 			goto fail;
+		if(this->notify_event)
+			LightEvent_Signal(this->notify_event);
 	}
 
 	panic_assert(this->buffer, "buffer should be allocated");
@@ -134,7 +136,9 @@ Result http::ResumableDownload::perform_execute_once(const char *url, int redire
 		res = httpcReceiveDataTimeout(&this->hctx, (u8 *) this->buffer, http::ResumableDownload::ChunkMaxSize, HTTP_REQ_TIMEOUT);
 		if(this->flags & http::ResumableDownload::flag_exit) goto cancel;
 
-		if((R_FAILED(res) && res != (Result) HTTPC_RESULTCODE_DOWNLOADPENDING) || R_FAILED(res = httpcGetDownloadSizeState(&this->hctx, &pos, nullptr)))
+		nres = httpcGetDownloadSizeState(&this->hctx, &pos, nullptr);
+		if(R_FAILED(nres)) res = nres;
+		if((R_FAILED(res) && res != (Result) HTTPC_RESULTCODE_DOWNLOADPENDING))
 		{
 			elog("aborted http connection due to error: %08lX.", res);
 			goto fail;
@@ -142,9 +146,18 @@ Result http::ResumableDownload::perform_execute_once(const char *url, int redire
 		if(res == (Result) HTTPC_RESULTCODE_DOWNLOADPENDING)
 			panic_assert(pos == prev_pos + http::ResumableDownload::ChunkMaxSize, "partial chunk when full expected");
 		chunk_size = pos - prev_pos;
-		this->on_chunk_(chunk_size);
+		nres = this->on_chunk_(chunk_size);
+		/* we can't just assign res = nres becaues res may be either
+		 * HTTPC_RESULTCODE_DOWNLOADPENDING or 0, which we can't discard */
+		if(R_FAILED(nres)) res = nres;
+		if(this->notify_event)
+			LightEvent_Signal(this->notify_event);
+		this->downloadedSize += chunk_size;
 		prev_pos = pos;
 	} while(res == (Result) HTTPC_RESULTCODE_DOWNLOADPENDING);
+
+	if(res == 0 && this->notify_event)
+		LightEvent_Signal(this->notify_event);
 
 fail:
 	this->close_handle();

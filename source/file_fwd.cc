@@ -49,7 +49,7 @@ static u8 *read_rs(nnc_rstream *rs, size_t *len)
 	return contents;
 }
 
-/* prototyped in install.hh */
+/* prototyped in install.cc */
 Result install_forwarder(u8 *data, size_t len)
 {
 	nnc_keyset kset;

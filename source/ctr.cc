@@ -248,6 +248,11 @@ Result ctr::delete_title(u64 tid, FS_MediaType media, DeleteTitleFlag::Type flag
 	return 0;
 }
 
+Result ctr::delete_ticket(u64 tid)
+{
+	return AM_DeleteTicket(tid);
+}
+
 u8 ctr::get_system_region()
 {
 	static u8 reg = CTR_REGION_UNSET;
@@ -315,7 +320,7 @@ bool ctr::running_on_new_series()
 	if(state == Unchecked)
 	{
 		bool result;
-		if(R_FAILED(res = APT_CheckNew3DS(&isNew)))
+		if(R_FAILED(APT_CheckNew3DS(&result)))
 			result = false;
 		state = result ? Yes : No;
 	}

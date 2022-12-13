@@ -2,6 +2,7 @@
 v1.4.1 "aequaora viridia":
  - Fix issue where 3hs would freeze when sleep mode was triggered
  - Improve stability of the api network requests
+ - Improve installation speed (?)
 
 v1.4.0 "aequora viridia":
  - Fix issue where an unlisted title would crash 3hs

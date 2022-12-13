@@ -141,7 +141,8 @@ namespace ctr {
 		using Type = u32;
 	}
 
-	Result delete_title(u64 tid, FS_MediaType media = MEDIATYPE_SD, DeleteTitleFlag::Type flags);
+	Result delete_title(u64 tid, FS_MediaType media, DeleteTitleFlag::Type flags);
+	Result delete_ticket(u64 tid);
 
 	// tid stuff, can be inlined
 
