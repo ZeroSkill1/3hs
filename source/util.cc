@@ -99,6 +99,9 @@ bool StatusLine::render(ui::Keys& keys)
 
 bool set_focus(bool focus)
 {
+	/* panic() called before core global widgets are setup */
+	if(!ui::RenderQueue::global()->find_tag(ui::tag::action))
+		return false;
 	bool ret = ui::RenderQueue::global()->find_tag(ui::tag::action)->is_hidden();
 	ui::RenderQueue::global()->find_tag(ui::tag::settings)->set_hidden(focus);
 	ui::RenderQueue::global()->find_tag(ui::tag::search)->set_hidden(focus);

@@ -257,22 +257,52 @@ u8 ctr::get_system_region()
 	return reg;
 }
 
-Result ctr::lockNDM()
+static u32 sleep_lock_refcount = 0;
+enum {
+	NoLock         = 0,
+	SleepAllowed   = 1,
+	ExclusiveState = 2,
+	LockState      = 4,
+};
+int sleep_lock_state = NoLock;
+
+Result ctr::increase_sleep_lock_ref()
 {
-	/* basically ensures that we can use the network during sleep
-	 * thanks Kartik for the help */
-	aptSetSleepAllowed(false);
-	Result res;
-	if(R_FAILED(res = NDMU_EnterExclusiveState(NDM_EXCLUSIVE_STATE_INFRASTRUCTURE)))
-		return res;
-	return NDMU_LockState();
+	if(!sleep_lock_refcount++)
+	{
+		/* basically ensures that we can use the network during sleep
+		 * thanks Kartik for the help */
+		aptSetSleepAllowed(false);
+		sleep_lock_state |= SleepAllowed;
+		Result res;
+		if(R_FAILED(res = NDMU_EnterExclusiveState(NDM_EXCLUSIVE_STATE_INFRASTRUCTURE)))
+			return res;
+		sleep_lock_state |= ExclusiveState;
+		if(R_FAILED(res = NDMU_LockState()))
+			return res;
+		sleep_lock_state |= LockState;
+	}
+	return 0;
 }
 
-void ctr::unlockNDM()
+void ctr::decrease_sleep_lock_ref()
 {
-	NDMU_UnlockState();
-	NDMU_LeaveExclusiveState();
-	aptSetSleepAllowed(true);
+	if(sleep_lock_refcount && !--sleep_lock_refcount)
+	{
+		if(sleep_lock_state & LockState) NDMU_UnlockState();
+		if(sleep_lock_state & ExclusiveState) NDMU_LeaveExclusiveState();
+		if(sleep_lock_state & SleepAllowed) aptSetSleepAllowed(true);
+		sleep_lock_state = NoLock;
+	}
+}
+
+void ctr::delete_sleep_lock()
+{
+	if(sleep_lock_refcount)
+	{
+		sleep_lock_refcount = 1;
+		ctr::decrease_sleep_lock_ref();
+	}
 }
 
 

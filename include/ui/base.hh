@@ -412,6 +412,9 @@ namespace ui
 		std::list<ui::BaseWidget *> bot;
 
 	private:
+		int enter_frame();
+		bool exit_frame();
+
 		std::function<bool()> *after_render_complete = nullptr;
 		ui::BaseWidget *backPtr = nullptr;
 		u8 signalBit = 0;

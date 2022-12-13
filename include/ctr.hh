@@ -187,8 +187,18 @@ namespace ctr {
 
 	u8 get_system_region();
 
-	Result lockNDM();
-	void unlockNDM();
+	Result increase_sleep_lock_ref();
+	void decrease_sleep_lock_ref();
+	void delete_sleep_lock();
+
+	class LockedInScope
+	{
+	public:
+		LockedInScope(LightLock *lock) { LightLock_Lock(this->lock = lock); }
+		~LockedInScope() { LightLock_Unlock(this->lock); }
+	private:
+		LightLock *lock;
+	};
 }
 
 #endif

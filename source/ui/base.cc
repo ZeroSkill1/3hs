@@ -352,68 +352,133 @@ void ui::background_rect(ui::Screen scr, float x, float y, float z, float w, flo
 
 void ui::RenderQueue::terminate_render()
 {
+	int counter = 0;
 	/* works by telling the global render queue to stop signaling other threads to stop
 	 * and then wait 0.1 seconds so the currently being rendered frame is for sure done */
 	ui::RenderQueue::global()->signal(ui::RenderQueue::signal_cancel);
-	while(g_inRender) svcSleepThread(100000000ULL); /* 0.1 seconds */
+	while(g_inRender && counter++ < 10) svcSleepThread(100000000ULL); /* 0.1 seconds */
 	ui::RenderQueue::global()->unsignal(ui::RenderQueue::signal_cancel);
+	/* after a second we can safely say it was a recursive panic or whatnot */
+	ui::maybe_end_frame();
 }
 
-#define rq_start_frame() \
-	if((this->signalBit | g_renderqueue.signalBit) & ui::RenderQueue::signal_cancel) \
-		return false; \
-	\
-	if(!aptMainLoop()) \
-		::exit(0); /* finish */ \
-	LightLock_Lock(&in_render_lock); \
-	if(g_inRender) \
-		panic("illegal double render"); \
-	g_inRender = true; \
-	LightLock_Unlock(&in_render_lock); \
-	\
-	if(LEDFlags & LED_TIMEOUT) \
-		if(time(NULL) > LEDExpireTime) \
-		{ \
-			ui::LED::ResetPattern(); \
-			ui::LED::ClearResetFlags(); \
-		} \
-	\
-	bool isOpen; \
-	if(R_SUCCEEDED(ui::shell_is_open(&isOpen)) && isOpen) \
-	{ \
-		if(LEDFlags & LED_RESET_SLEEP) \
-		{ \
-			ui::LED::ResetPattern(); \
-			ui::LED::ClearResetFlags(); \
-		} \
-	} \
-	/* not rendering if the shell is closed */ \
-	else return true; \
-	\
-	if(!C3D_FrameBegin(C3D_FRAME_SYNCDRAW)) \
-	{ \
-		panic("failed to start frame"); \
-		return true; /* failed to start frame, let's just ignore this frame */ \
-	} \
-	\
-	C2D_TargetClear(g_top, slotmgr.get(0)); \
-	C2D_TargetClear(g_bot, slotmgr.get(0)); \
+#ifndef RELEASE
+static ui::RenderQueue *bound_queue = nullptr;
+static std::string last_queue_desc;
 
-#define rq_end_frame() \
-	ui::maybe_end_frame(); \
-	\
-	if(g_renderqueue.after_render_complete != nullptr) \
-	{ \
-		std::function<bool()> *func = g_renderqueue.after_render_complete; \
-		g_renderqueue.after_render_complete = nullptr; \
-		ret &= (*func)(); \
-		delete func; \
+static std::string widget_to_string(ui::BaseWidget *widget)
+{
+	if(widget->get_id() == ui::Text::id)
+	{
+		ui::Text *text = (ui::Text *) widget;
+		return "Text(\"" + text->get_text() + "\")";
+	}
+	else
+		return std::string(widget->get_id()) + "()";
+}
+
+static void swap_last_queue_desc(ui::RenderQueue *queue)
+{
+	if(bound_queue == queue) return;
+	bound_queue = queue;
+
+	last_queue_desc = "dump for render queue @ " + std::to_string((u32) queue) + ":\n";
+	for(ui::BaseWidget *t : queue->top)
+		last_queue_desc += " => (Top) " + widget_to_string(t) + "\n";
+	for(ui::BaseWidget *t : queue->bot)
+		last_queue_desc += " => (Bottom) " + widget_to_string(t) + "\n";
+}
+
+static void log_additional_dren_info(ui::RenderQueue *curqueue)
+{
+	dlog("previous queue:\n%s", last_queue_desc.c_str());
+	swap_last_queue_desc(curqueue);
+	dlog("current queue:\n%s", last_queue_desc.c_str());
+}
+#else
+	#define swap_last_queue_desc(this)
+	#define log_additional_dren_info(this)
+#endif
+
+/*
+enum enter_frame_ret {
+	ParentReturnsFalse = 0
+	ParentReturnsTrue = 1
+	ParentContinues = 2
+}
+*/
+
+#define RQ_ENTER_FRAME() \
+	switch(this->enter_frame()) { \
+		case 0: return false; \
+		case 1: return true; \
+		default: case 2: break; \
+	} \
+
+/* call with RQ_ENTER_FRAME() */
+int ui::RenderQueue::enter_frame()
+{
+	if((this->signalBit | g_renderqueue.signalBit) & ui::RenderQueue::signal_cancel)
+		return 0;
+
+	/* this means the application was closed from the home menu and HMM is waiting for
+	 * the application to gracefully die */
+	if(!aptMainLoop())
+		::exit(0);
+
+	bool isOpen;
+
+	{
+		ctr::LockedInScope scope_lock { &in_render_lock };
+		if(g_inRender)
+		{
+			log_additional_dren_info(this);
+			panic("illegal double render");
+		}
+		swap_last_queue_desc(this);
+
+		/* not rendering if the shell is closed */
+		if(R_SUCCEEDED(ui::shell_is_open(&isOpen)) && !isOpen)
+			return 1;
+
+		g_inRender = true;
 	}
 
+	if((isOpen && (LEDFlags & LED_RESET_SLEEP)) || ((LEDFlags & LED_TIMEOUT) && time(NULL) > LEDExpireTime))
+	{
+		ui::LED::ResetPattern();
+		ui::LED::ClearResetFlags();
+	}
+
+	if(!C3D_FrameBegin(C3D_FRAME_SYNCDRAW))
+		panic("failed to start frame");
+
+	C2D_TargetClear(g_top, slotmgr.get(0));
+	C2D_TargetClear(g_bot, slotmgr.get(0));
+
+	return 2;
+}
+
+/* AND this with the ret variable */
+bool ui::RenderQueue::exit_frame()
+{
+	ui::maybe_end_frame();
+	bool ret = true;
+
+	if(g_renderqueue.after_render_complete != nullptr)
+	{
+		std::function<bool()> *func = g_renderqueue.after_render_complete;
+		g_renderqueue.after_render_complete = nullptr;
+		ret &= (*func)();
+		delete func;
+	}
+
+	return ret;
+}
 
 bool ui::RenderQueue::render_exclusive_frame(ui::Keys& keys)
 {
-	rq_start_frame();
+	RQ_ENTER_FRAME();
 	bool ret = true;
 
 	C2D_SceneBegin(g_top);
@@ -428,13 +493,13 @@ bool ui::RenderQueue::render_exclusive_frame(ui::Keys& keys)
 	for(ui::BaseWidget *wid : this->bot)
 		if(!wid->is_hidden()) ret &= wid->render(keys);
 
-	rq_end_frame();
+	ret &= this->exit_frame();
 	return ret;
 }
 
 bool ui::RenderQueue::render_frame(ui::Keys& keys)
 {
-	rq_start_frame();
+	RQ_ENTER_FRAME();
 	bool ret = true;
 
 	C2D_SceneBegin(g_top);
@@ -451,7 +516,7 @@ bool ui::RenderQueue::render_frame(ui::Keys& keys)
 		if(!wid->is_hidden()) ret &= wid->render(keys);
 	ret &= g_renderqueue.render_bottom(keys);
 
-	rq_end_frame();
+	ret &= this->exit_frame();
 	return ret;
 }
 
