@@ -170,18 +170,17 @@ const char *log_filename()
 
 void log_flush()
 {
-#if DEBUG_FEATURES
 	fflush(log_file);
-#endif
 }
 
 extern "C" void _logf(const char *fnname, const char *filen,
 	size_t line, LogLevel lvl, const char *fmt, ...)
 {
-#if DEBUG_FEATURES
+	/* early log, we can't log yet */
+	if(file_lock == -1)
+		return;
 //	if(lvl > MAX_LVL)
 //		return; /* check is done in header */
-#endif
 
 	const char *lvl_s;
 	switch(lvl)

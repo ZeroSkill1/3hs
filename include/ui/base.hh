@@ -290,6 +290,9 @@ namespace ui
 			panic("swap_slots() called on widget that does not implement it");
 		}
 
+		virtual bool processes_in_sleep() { return false; }
+		virtual bool process_in_sleep() { return true; }
+
 
 	protected:
 		ui::Screen screen;
@@ -408,6 +411,7 @@ namespace ui
 
 		enum signal { signal_cancel = 1 };
 
+		std::list<ui::BaseWidget *> sleepProcessors;
 		std::list<ui::BaseWidget *> top;
 		std::list<ui::BaseWidget *> bot;
 

@@ -28,7 +28,10 @@ namespace http
 	class ResumableDownload
 	{
 	public:
+		static constexpr u64 DefaultTimeout = 10000000000L; /* 10 seconds */
 		static constexpr size_t ChunkMaxSize = 0x20000;
+
+		static void global_abort();
 
 		ResumableDownload();
 		~ResumableDownload();
@@ -76,9 +79,16 @@ namespace http
 			this->method = method;
 		}
 
+		void set_timeout(u64 ntm)
+		{
+			this->timeout = ntm;
+		}
+
 	private:
 		std::function<Result()> on_total_size_try_get_ = []() -> Result { return 0; };
 		std::function<Result(size_t)> on_chunk_ = [](size_t) -> Result { return 0; };
+
+		u64 timeout = DefaultTimeout;
 
 		void *buffer;
 
@@ -103,6 +113,9 @@ namespace http
 			flag_exit   = 2,
 			flag_auth   = 4,
 		}; int flags = 0;
+
+		/* linked list for the global current downloads list */
+		http::ResumableDownload *next, *prev;
 	};
 }
 

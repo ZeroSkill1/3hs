@@ -23,8 +23,6 @@
 #include "panic.hh"
 #include "log.hh"
 
-#define BASE_THEME "romfs:/light.hstx"
-
 #define VERSION_INT ((VERSION_MAJOR << 20) | (VERSION_MINOR << 10) | (VERSION_PATCH))
 /* 3DS is Little Endian ... */
 #define U16(a) (__builtin_bswap16(a))
@@ -164,6 +162,7 @@ void ui::Theme::replace_with(ui::Theme& other)
 
 void ui::Theme::replace_without_meta(ui::Theme& other)
 {
+	vlog("Sharing resources with %s (%s)", other.name.c_str(), other.id.c_str());
 	/* this memcpy will only copy the images as a reference, and colors entirely */
 	memcpy(this->image_descriptors, other.image_descriptors, sizeof(this->image_descriptors));
 	memcpy(this->color_descriptors, other.color_descriptors, sizeof(this->color_descriptors));
@@ -265,11 +264,11 @@ bool ui::Theme::parse(std::function<bool(u8 *, u32)> read_data, size_t size, u8 
 	offset = U32(descriptors[i].data.image.img_ptr); \
 	w = U16(descriptors[i].data.image.w); h = U16(descriptors[i].data.image.h); \
 	isize = w * h * 4; \
-	ptr = (u32 *) GETBLOBADDR(offset); \
 	if(offset + isize > blob_size || !offset) { \
 		elog("theme parser: invalid blob offset (got: %lu-%lu, max is %lu)", offset, offset + isize, blob_size); \
 		continue; \
 	} \
+	ptr = (u32 *) GETBLOBADDR(offset); \
 	rgba_to_abgr(ptr, w, h); \
 	isReplacing = this->image_descriptors[ui::theme::iid].actual_image.tex != NULL && this->image_descriptors[ui::theme::iid].isOwn; \
 	if(isReplacing) delete_image_data(this->image_descriptors[ui::theme::iid].actual_image); \
@@ -349,24 +348,29 @@ ui::SlotManager ui::ThemeManager::get_slots(ui::BaseWidget *that, const char *id
 
 void ui::ThemeManager::reget(const char *id)
 {
-	auto it = this->slots.find(id);
-	if(it == this->slots.end())
-		panic(std::string(id) + ": not found");
-	if(it->second.len)
-		fill_colors(it->second);
-	for(ui::BaseWidget *w : it->second.slaves)
-		w->update_theme_hook();
+	ui::RenderQueue::global()->render_and_then([this, id]() -> void {
+		auto it = this->slots.find(id);
+		if(it == this->slots.end())
+			panic(std::string(id) + ": not found");
+		if(it->second.len)
+			fill_colors(it->second);
+		for(ui::BaseWidget *w : it->second.slaves)
+			w->update_theme_hook();
+	});
 }
 
 void ui::ThemeManager::reget()
 {
-	for(auto& it : this->slots)
-	{
-		if(it.second.len)
-			fill_colors(it.second);
-		for(size_t i = 0; i < it.second.slaves.size(); ++i)
-			it.second.slaves[i]->update_theme_hook();
-	}
+	/* this should probably be wrapped only if !g_isRender, whatever */
+	ui::RenderQueue::global()->render_and_then([this]() -> void {
+		for(auto& it : this->slots)
+		{
+			if(it.second.len)
+				fill_colors(it.second);
+			for(size_t i = 0; i < it.second.slaves.size(); ++i)
+				it.second.slaves[i]->update_theme_hook();
+		}
+	});
 }
 
 void ui::ThemeManager::unregister(ui::BaseWidget *w)

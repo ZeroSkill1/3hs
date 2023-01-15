@@ -23,6 +23,7 @@
 
 #include "hsapi.hh"
 
+#define CIA_HANDLE_INVALID UINT32_MAX
 
 typedef std::function<void(u64 /* done */, u64 /* total */)> prog_func;
 typedef std::function<Result(std::string&)> get_url_func;
@@ -38,10 +39,18 @@ static inline get_url_func makeurlwrap(const std::string& url)
 
 namespace install
 {
+	void global_abort();
+
 	Result net_cia(get_url_func get_url, u64 tid, prog_func prog = default_prog_func,
 		bool reinstallable = false);
 	Result hs_cia(const hsapi::FullTitle& meta, prog_func prog = default_prog_func,
 		bool reinstallable = false);
+
+	inline bool is_in_progress()
+	{
+		extern Handle active_cia_handle;
+		return active_cia_handle != CIA_HANDLE_INVALID;
+	}
 }
 
 #endif

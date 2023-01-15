@@ -23,47 +23,83 @@
 #include "ctr.hh"
 #include <string.h>
 
-#define TRYJ( expr ) if(R_FAILED(res = ( expr ))) goto fail
-#define HTTP_REQ_TIMEOUT  5000000000L /* 5 seconds */
-#define HTTP_MAX_REDIRECT 10
+#include "build/hscert_der.h"
 
-extern "C" unsigned int hscert_der_len; /* hscert.c */
-extern "C" unsigned char hscert_der[];  /* hscert.c */
+#define TRYJ( expr ) if(R_FAILED(res = ( expr ))) goto fail
+#define HTTP_MAX_REDIRECT 10
 
 extern "C" void        hsapi_password(char *); /* hsapi_auth.c */
 extern "C" const int   hsapi_password_length;  /* hsapi_auth.c */
 extern "C" const char *hsapi_user;             /* hsapi_auth.c */
 
+static http::ResumableDownload *current_download = nullptr;
+
+void http::ResumableDownload::global_abort()
+{
+	for(http::ResumableDownload *dl = current_download; dl; dl = dl->next)
+	{
+		dl->abort();
+		dl->close_handle();
+	}
+}
+
 http::ResumableDownload::ResumableDownload()
 {
 	this->buffer = malloc(http::ResumableDownload::ChunkMaxSize);
 	panic_assert(this->buffer, "failed to allocate for download buffer");
+
+	if(current_download)
+	{
+		this->next = current_download->next;
+		this->prev = current_download;
+		current_download->next = this;
+	}
+	else
+	{
+		this->next = this->prev = nullptr;
+		current_download = this;
+	}
 }
 
 http::ResumableDownload::~ResumableDownload()
 {
 	free(this->buffer);
+
+	if(this->next) this->next->prev = this->prev;
+	if(this->prev) this->prev->next = this->next;
+	if(current_download == this)
+	{
+		panic_assert(!this->prev, "invalid state");
+		current_download = this->next;
+	}
+
+	this->abort();
+	this->close_handle();
 }
 
 void http::ResumableDownload::close_handle()
 {
-	/* TODO: Figure out exactly what the difference is between these two... */
-	httpcCancelConnection(&this->hctx);
-	httpcCloseContext(&this->hctx);
+	if(this->flags & http::ResumableDownload::flag_active)
+	{
+		if(!(this->flags & http::ResumableDownload::flag_exit))
+			httpcCancelConnection(&this->hctx);
+		httpcCloseContext(&this->hctx);
+	}
 }
 
 Result http::ResumableDownload::perform_execute_once(const char *url, int redirection_depth)
 {
 	u32 pos, prev_pos = 0;
 	size_t chunk_size;
-	Result res, nres;
+	Result res = 0, nres;
 	u32 status;
 
 	if(R_FAILED(res = this->setup_handle(url)))
 		return res;
 
 	TRYJ(httpcBeginRequest(&this->hctx));
-	TRYJ(httpcGetResponseStatusCodeTimeout(&this->hctx, &status, HTTP_REQ_TIMEOUT));
+	TRYJ(httpcGetResponseStatusCodeTimeout(&this->hctx, &status, this->timeout));
+
 #ifdef FULL_LOG
 	{
 		const char *mstr = nullptr;
@@ -103,10 +139,9 @@ Result http::ResumableDownload::perform_execute_once(const char *url, int redire
 		// We _may_ require a different 3hs version
 		if(status == 400)
 		{
-			/* TODO: Allocate this buffer in this */
 			char buffer[1024];
 			/* we can assume it doesn't have the header if this fails */
-			if(R_SUCCEEDED(httpcGetResponseHeader(&ctx, "x-minimum", buffer, sizeof(buffer))))
+			if(R_SUCCEEDED(httpcGetResponseHeader(&this->hctx, "x-minimum", buffer, sizeof(buffer))))
 			{
 				this->close_handle();
 				ui::RenderQueue::terminate_render();
@@ -133,7 +168,7 @@ Result http::ResumableDownload::perform_execute_once(const char *url, int redire
 
 	do {
 		if(this->flags & http::ResumableDownload::flag_exit) goto cancel;
-		res = httpcReceiveDataTimeout(&this->hctx, (u8 *) this->buffer, http::ResumableDownload::ChunkMaxSize, HTTP_REQ_TIMEOUT);
+		res = httpcReceiveDataTimeout(&this->hctx, (u8 *) this->buffer, http::ResumableDownload::ChunkMaxSize, this->timeout);
 		if(this->flags & http::ResumableDownload::flag_exit) goto cancel;
 
 		nres = httpcGetDownloadSizeState(&this->hctx, &pos, nullptr);
@@ -186,8 +221,8 @@ Result http::ResumableDownload::setup_handle(const char *url)
 
 	/* the last argument is use_default_proxy, we don't want that since we set it ourselves later */
 	TRYJ(httpcOpenContext(&this->hctx, this->method, url, 0));
-	if(hscert_der_len && strncmp(url, "https:", 6) == 0)
-		TRYJ(httpcAddTrustedRootCA(&this->hctx, hscert_der, hscert_der_len));
+	if(hscert_der_bin_size && strncmp(url, "https:", 6) == 0)
+		TRYJ(httpcAddTrustedRootCA(&this->hctx, hscert_der_bin, hscert_der_bin_size));
 	TRYJ(httpcSetSSLOpt(&this->hctx, SSLCOPT_DisableVerify));
 	TRYJ(httpcAddRequestHeaderField(&this->hctx, "User-Agent", USER_AGENT));
 	if(this->flags & http::ResumableDownload::flag_auth)

@@ -21,6 +21,7 @@
 #include <ui/base.hh>
 
 #include "audio/player.h"
+#include "httpclient.hh"
 #include "install.hh"
 #include "hsapi.hh"
 #include "i18n.hh"
@@ -64,6 +65,8 @@ void exit_services()
 {
 	/* not really appropriate here, but whatever */
 	ctr::delete_sleep_lock();
+	http::ResumableDownload::global_abort();
+	install::global_abort();
 
 	if(ns_was_init)
 		nsExit();

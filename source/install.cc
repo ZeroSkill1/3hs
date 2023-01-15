@@ -27,8 +27,6 @@
 
 #include <3ds.h>
 
-#define HANDLE_INVALID UINT32_MAX
-
 namespace ui
 {
 	void scan_keys();
@@ -37,6 +35,9 @@ namespace ui
 }
 
 using expandable_binary_data_type = std::basic_string<u8>;
+
+namespace install { Handle active_cia_handle = CIA_HANDLE_INVALID; }
+using install::active_cia_handle;
 
 /* defined in file_fwd.cc */
 Result install_forwarder(u8 *data, size_t len);
@@ -138,10 +139,8 @@ static Result install_generic(http::ResumableDownload *downloader, get_url_func 
 		/* the install thread wants us to display a timeout to the user */
 		else if(data.state == ThreadState::Timeout)
 		{
-			if(ui::timeoutscreen(data.last_result, 10))
-				data.state = ThreadState::Abort;
-			else
-				data.state = ThreadState::Installing;
+			if(ui::timeoutscreen(data.last_result, 10)) data.state = ThreadState::Abort;
+			else                                        data.state = ThreadState::Installing;
 			(*on_progress)(downloader->downloaded(), downloader->maybe_total_size());
 			LightEvent_Signal(&data.ui_to_thread_event);
 		}
@@ -152,6 +151,8 @@ static Result install_generic(http::ResumableDownload *downloader, get_url_func 
 		/* TODO: Ideally we'd subscribe to an event that tells us when
 		 *       a button is pressed... */
 		ui::scan_keys();
+		/* The abort() will cause the ResumableDownload to return APPERR_CANCELLED, which in
+		 * turn is futher thrown down more to cause an abort when ready to cancel */
 		if(!aptMainLoop() || ((ui::kDown() | ui::kHeld()) & (KEY_B | KEY_START)))
 			downloader->abort();
 	}
@@ -166,39 +167,66 @@ static bool have_enough_space(ctr::Destination dest, u32 min_space)
 	Result res;
 	if(R_FAILED(res = ctr::get_free_space(dest, &freeSpace)))
 		return false;
-	return min_space > freeSpace;
+	return min_space <= freeSpace;
 }
 
-static Result install_generic_cia(get_url_func *get_url, u64 tid, bool reinstallable, prog_func *on_progress, bool isKTR)
+void install::global_abort()
 {
+	if(active_cia_handle != CIA_HANDLE_INVALID)
+	{
+		AM_CancelCIAInstall(active_cia_handle);
+		svcCloseHandle(active_cia_handle);
+	}
+}
+
+struct TitleInformation {
+	u64 tid;
+	bool isKTR;
+	u16 version;
+};
+
+static Result install_generic_cia(get_url_func *get_url, prog_func *on_progress, bool reinstallable, const TitleInformation& info)
+{
+	panic_assert(active_cia_handle == CIA_HANDLE_INVALID, "May only install one CIA at a time");
+
 	/* firstly we perform the prerequisite checks */
-	FS_MediaType dest = ctr::mediatype_of(tid);
+	FS_MediaType dest = ctr::mediatype_of(info.tid);
 	Result res;
 
 	/* check if the title is already installed and perhaps reinstall */
-	bool has_ticket = ctr::ticket_exists(tid);
-	bool has_title  = ctr::title_exists(tid, dest);
+	bool has_ticket = ctr::ticket_exists(info.tid);
+	bool has_title  = ctr::title_exists(info.tid, dest);
 	if(has_ticket && !has_title)
-		ctr::delete_ticket(tid);
-	if((reinstallable || ISET_DEFAULT_REINSTALL) && has_title)
 	{
-		FS_MediaType mydest;
-		u64 mytid;
-		if(R_FAILED(res = APT_GetAppletInfo((NS_APPID) envGetAptAppId(), &mytid, (u8 *) &mydest, nullptr, nullptr, nullptr)))
-			return res;
-		/* we can only delete titles that are not ourselves */
-		if(envIsHomebrew() || mytid != tid || mydest != dest)
-		{
-			if(R_FAILED(res = ctr::delete_title(tid, dest, ctr::DeleteTitleFlag::DeleteTicket | ctr::DeleteTitleFlag::CheckExistance)))
-				return res;
-			/* reload dbs */
-			AM_QueryAvailableExternalTitleDatabase(NULL);
-		}
+		ctr::delete_ticket(info.tid);
+		/* reload dbs */
+		AM_QueryAvailableExternalTitleDatabase(NULL);
 	}
-	else if(has_title) return APPERR_NOREINSTALL;
+	AM_TitleEntry entry;
+	/* only reinstall if we want to update */
+	/* TODO: We should probably attempt to get this info from the CIA when the first chunk downloads */
+	if(has_title && !(R_FAILED(ctr::get_title_entry(info.tid, entry)) || entry.version > info.version))
+	{
+		if(reinstallable || ISET_DEFAULT_REINSTALL)
+		{
+			FS_MediaType mydest;
+			u64 mytid;
+			if(R_FAILED(res = APT_GetAppletInfo((NS_APPID) envGetAptAppId(), &mytid, (u8 *) &mydest, nullptr, nullptr, nullptr)))
+				return res;
+			/* we can only delete titles that are not ourselves */
+			if(envIsHomebrew() || mytid != info.tid || mydest != dest)
+			{
+				if(R_FAILED(res = ctr::delete_title(info.tid, dest, ctr::DeleteTitleFlag::DeleteTicket | ctr::DeleteTitleFlag::CheckExistance)))
+					return res;
+				/* reload dbs */
+				AM_QueryAvailableExternalTitleDatabase(NULL);
+			}
+		}
+		else return APPERR_NOREINSTALL;
+	}
 
 	/* check if the title is meant exclusively for the "new" series */
-	if(!ctr::running_on_new_series() && isKTR)
+	if(info.isKTR && !ctr::running_on_new_series())
 		return APPERR_NOSUPPORT;
 
 	/* we can only start the CIA installation a bit later due to
@@ -206,20 +234,21 @@ static Result install_generic_cia(get_url_func *get_url, u64 tid, bool reinstall
 	 * downloader.on_total_size_try_get() */
 
 	http::ResumableDownload downloader;
-	Handle ciaHandle = HANDLE_INVALID;
+	Handle ciaHandle = CIA_HANDLE_INVALID;
 	u32 written;
 
 	downloader.on_total_size_try_get([&]() -> Result {
 		if(!downloader.maybe_total_size())
 			return APPERR_NOSIZE;
 		/* we do a little "do we have the required size" check before we do the actual work */
-		ctr::Destination dest = ctr::detect_dest(tid);
+		ctr::Destination dest = ctr::detect_dest(info.tid);
 		if(!have_enough_space(dest, downloader.maybe_total_size()))
 			return APPERR_NOSPACE;
 
 		/* just here can we actually start installing */
 		res = AM_StartCiaInstall(ctr::to_mediatype(dest), &ciaHandle);
-		if(R_FAILED(res)) ciaHandle = HANDLE_INVALID;
+		if(R_FAILED(res)) ciaHandle = CIA_HANDLE_INVALID;
+		active_cia_handle = ciaHandle;
 		return res;
 	});
 
@@ -232,12 +261,13 @@ static Result install_generic_cia(get_url_func *get_url, u64 tid, bool reinstall
 	ilog("install_generic returned %08lX", res);
 
 	/* finalize install */
-	if(ciaHandle != HANDLE_INVALID)
+	if(ciaHandle != CIA_HANDLE_INVALID)
 	{
 		if(R_FAILED(res)) AM_CancelCIAInstall(ciaHandle);
 		else              res = AM_FinishCiaInstall(ciaHandle);
 		svcCloseHandle(ciaHandle);
 	}
+	active_cia_handle = CIA_HANDLE_INVALID;
 
 	ilog("final return of install_generic_cia is %08lX", res);
 	return res;
@@ -245,7 +275,7 @@ static Result install_generic_cia(get_url_func *get_url, u64 tid, bool reinstall
 
 Result install::net_cia(get_url_func get_url, u64 tid, prog_func prog, bool reinstallable)
 {
-	return install_generic_cia(&get_url, tid, reinstallable, &prog, false);
+	return install_generic_cia(&get_url, &prog, reinstallable, { tid, false, 0 });
 }
 
 Result install::hs_cia(const hsapi::FullTitle& meta, prog_func prog, bool reinstallable)
@@ -283,8 +313,10 @@ Result install::hs_cia(const hsapi::FullTitle& meta, prog_func prog, bool reinst
 	}
 	else
 	{
-		res = install_generic_cia(&get_url, meta.tid, reinstallable, &prog,
-			(meta.flags & hsapi::TitleFlag::is_ktr) || strncmp(meta.prod.c_str(), "KTR-", 4) == 0);
+		res = install_generic_cia(&get_url, &prog, reinstallable,
+			{ meta.tid,
+			  (meta.flags & hsapi::TitleFlag::is_ktr) || strncmp(meta.prod.c_str(), "KTR-", 4) == 0,
+			  meta.version });
 	}
 	return res;
 }

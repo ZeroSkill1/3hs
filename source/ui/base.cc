@@ -254,6 +254,8 @@ void ui::RenderQueue::push(ui::BaseWidget *wid)
 	else
 		panic("Trying to push widget that renders on an unknown screen");
 	this->backPtr = wid;
+	if(wid->processes_in_sleep())
+		this->sleepProcessors.push_back(wid);
 }
 
 void ui::set_select_command_handler(select_command_handler handler)
@@ -438,16 +440,24 @@ int ui::RenderQueue::enter_frame()
 		swap_last_queue_desc(this);
 
 		/* not rendering if the shell is closed */
-		if(R_SUCCEEDED(ui::shell_is_open(&isOpen)) && !isOpen)
-			return 1;
+		if(R_SUCCEEDED(ui::shell_is_open(&isOpen)))
+		{
+			/* this must be here due to LEDExpireTime; it must work during sleep */
+			if((isOpen && (LEDFlags & LED_RESET_SLEEP)) || ((LEDFlags & LED_TIMEOUT) && time(NULL) > LEDExpireTime))
+			{
+				ui::LED::ResetPattern();
+				ui::LED::ClearResetFlags();
+			}
+			if(!isOpen)
+			{
+				bool ret = true;
+				for(ui::BaseWidget *wid : this->sleepProcessors)
+					ret &= wid->process_in_sleep();
+				return ret ? 1 : 0;
+			}
+		}
 
 		g_inRender = true;
-	}
-
-	if((isOpen && (LEDFlags & LED_RESET_SLEEP)) || ((LEDFlags & LED_TIMEOUT) && time(NULL) > LEDExpireTime))
-	{
-		ui::LED::ResetPattern();
-		ui::LED::ClearResetFlags();
 	}
 
 	if(!C3D_FrameBegin(C3D_FRAME_SYNCDRAW))

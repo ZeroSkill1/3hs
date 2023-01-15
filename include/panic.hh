@@ -45,6 +45,7 @@ public:
 		return SourceLocation { nullptr, nullptr, 0 };
 	}
 
+	const char *function_name() const { return this->function; }
 	void log(const char *msg = "called") const;
 	std::string to_string() const;
 

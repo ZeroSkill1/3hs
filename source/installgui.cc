@@ -77,7 +77,8 @@ static void finalize_install(u64 tid, bool interactive)
 	// Prompt to ask for extra content
 	if(interactive && tid_can_have_missing(tid) && ISET_SEARCH_ECONTENT)
 	{
-		ssize_t added = show_find_missing(tid);
+		size_t added;
+		show_find_missing(tid, added);
 		if(added > 0) ui::notice(PSTRING(found_missing, added));
 	}
 

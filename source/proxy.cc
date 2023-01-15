@@ -65,7 +65,6 @@ static inline Result httpcSetProxy(httpcContext *context, u16 port,
 Result proxy::apply(httpcContext *context)
 {
 	NewSettings *ns = get_nsettings();
-	ilog("proxy is%s set", ns->proxy_port ? "" : " not");
 	if(ns->proxy_port)
 	{
 		return httpcSetProxy(context, ns->proxy_port, ns->proxy_host,
@@ -88,7 +87,7 @@ static void put_colonsep(const std::string& buf, std::string& p1, std::string& p
 		panic(STRING(invalid_proxy));
 
 	p1 = buf.substr(0, colon);
-	// +1 to remove colon 
+	// +1 to remove colon
 	p2 = buf.substr(colon + 1);
 }
 

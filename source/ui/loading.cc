@@ -184,9 +184,9 @@ void ui::detail::TimeoutScreenHelper::update_text(time_t now)
 	this->text->set_text(PSTRING(netcon_lost, this->res, this->nsecs - (now - this->startTime)));
 }
 
-bool ui::detail::TimeoutScreenHelper::render(ui::Keys& keys)
+bool ui::detail::TimeoutScreenHelper::perform_frame_setup(ui::Keys *keys)
 {
-	if((keys.kDown & (KEY_START | KEY_B)) && this->shouldStop)
+	if(keys && (keys->kDown & (KEY_START | KEY_B)) && this->shouldStop)
 	{
 		*this->shouldStop = true;
 		return false;
@@ -202,28 +202,23 @@ bool ui::detail::TimeoutScreenHelper::render(ui::Keys& keys)
 		this->lastCheck = now;
 	}
 
-	return this->text->render(keys);
+	return true;
 }
+
+bool ui::detail::TimeoutScreenHelper::render(ui::Keys& keys) { return this->perform_frame_setup(&keys) && this->text->render(keys); }
+bool ui::detail::TimeoutScreenHelper::process_in_sleep() { return this->perform_frame_setup(nullptr); }
 
 // timeoutscreen()
 
 bool ui::timeoutscreen(Result res, size_t nsecs, bool allowCancel)
 {
-	bool isOpen;
 	bool ret = false;
-	if(R_SUCCEEDED(ui::shell_is_open(&isOpen)) && isOpen)
-	{
-		ui::RenderQueue queue;
 
-		ui::builder<ui::detail::TimeoutScreenHelper>(ui::Screen::top, res, nsecs, allowCancel ? &ret : nullptr)
-			.add_to(queue);
+	ui::RenderQueue queue;
+	ui::builder<ui::detail::TimeoutScreenHelper>(ui::Screen::top, res, nsecs, allowCancel ? &ret : nullptr)
+		.add_to(queue);
+	queue.render_finite();
 
-		/* TODO: There should probably be some mechanism for the timer to go on anyway when sleep is triggered here */
-		queue.render_finite();
-	} else {
-		/* if the lid is closed don't try to use ui as it'll wait until the lid is opened */
-		sleep(nsecs);
-	}
 	return ret;
 }
 

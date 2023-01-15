@@ -94,15 +94,18 @@ bool hsapi::global_init()
 		elog("failed to initialize SOC");
 		return false;
 	}
+	ilog("%susing proxy", get_nsettings()->proxy_port ? "" : "not ");
 	return true;
 }
 
-static Result basereq(const std::string& url, std::string& data, HTTPC_RequestMethod reqmeth = HTTPC_METHOD_GET, const char *postdata = nullptr, u32 postdata_len = 0)
+static Result basereq(const std::string& url, std::string& data, HTTPC_RequestMethod reqmeth = HTTPC_METHOD_GET, const char *postdata = nullptr, u32 postdata_len = 0, bool disableTimeout = false)
 {
 	http::ResumableDownload downloader;
 	downloader.set_postdata(postdata, postdata_len);
 	downloader.set_target(url, reqmeth);
 	downloader.requires_authentication();
+	if(disableTimeout)
+		downloader.set_timeout(-1);
 
 	downloader.on_total_size_try_get([&]() -> Result {
 		if(downloader.maybe_total_size())
@@ -139,16 +142,20 @@ static Result api_res_to_rc(json& j)
 }
 
 template <typename J>
-static Result basereq(const std::string& url, J& j, HTTPC_RequestMethod reqmeth = HTTPC_METHOD_GET, const char *postdata = nullptr, u32 postdata_len = 0)
+static Result basereq(const std::string& url, J& j, HTTPC_RequestMethod reqmeth = HTTPC_METHOD_GET, const char *postdata = nullptr, u32 postdata_len = 0, bool disableTimeout = false, const SourceLocation& sl = SourceLocation::Caller())
 {
+	ilog("Requesting JSON for %s", sl.function_name());
 	std::string data;
-	Result res = basereq(url, data, reqmeth, postdata, postdata_len);
+	Result res = basereq(url, data, reqmeth, postdata, postdata_len, disableTimeout);
 	if(R_FAILED(res)) return res;
+	if(!data.size())
+	{
+		elog("Got null data");
+		return APPERR_JSON_FAIL;
+	}
 
 	j = J::parse(data, nullptr, false);
-	if(j == J::value_t::discarded)
-		return APPERR_JSON_FAIL;
-	return OK;
+	return j == J::value_t::discarded ? APPERR_JSON_FAIL : OK;
 }
 
 static Result serialize_subcategories(std::vector<hsapi::Subcategory>& rscats, const std::string& cat, json& scats)
@@ -334,7 +341,6 @@ Result hsapi::fetch_index()
 	if(g_indexLoaded) return OK;
 #endif
 
-	ilog("calling api");
 	json j;
 	Result res;
 	if(R_FAILED(res = basereq<json>(HS_BASE_LOC "/title-index", j)))
@@ -359,7 +365,6 @@ Result hsapi::fetch_index()
 
 Result hsapi::titles_in(std::vector<hsapi::Title>& ret, const std::string& cat, const std::string& scat)
 {
-	ilog("calling api");
 	json j;
 	Result res;
 	if(R_FAILED(res = basereq<json>(HS_BASE_LOC "/title/category/" + cat + "/" + scat, j)))
@@ -371,7 +376,6 @@ Result hsapi::titles_in(std::vector<hsapi::Title>& ret, const std::string& cat, 
 
 Result hsapi::title_meta(hsapi::FullTitle& ret, hsapi::hid id)
 {
-	ilog("calling api");
 	json j;
 	Result res;
 	if(R_FAILED(res = basereq<json>(HS_BASE_LOC "/title/" + std::to_string(id), j)))
@@ -383,7 +387,6 @@ Result hsapi::title_meta(hsapi::FullTitle& ret, hsapi::hid id)
 
 Result hsapi::get_download_link(std::string& ret, const hsapi::Title& meta)
 {
-	ilog("calling api");
 	json j;
 	Result res;
 	if(R_FAILED(res = basereq<json>(HS_CDN_BASE "/content/" + std::to_string(meta.id) + "/request", j)))
@@ -397,7 +400,6 @@ Result hsapi::get_download_link(std::string& ret, const hsapi::Title& meta)
 
 Result hsapi::search(std::vector<hsapi::Title>& ret, const std::unordered_map<std::string, std::string>& params)
 {
-	ilog("calling api");
 	json j;
 	Result res;
 	if(R_FAILED(res = basereq<json>(gen_url(HS_BASE_LOC "/title/search", params), j)))
@@ -409,7 +411,6 @@ Result hsapi::search(std::vector<hsapi::Title>& ret, const std::unordered_map<st
 
 Result hsapi::random(hsapi::FullTitle& ret)
 {
-	ilog("calling api");
 	json j;
 	Result res;
 	if(R_FAILED(res = basereq<json>(HS_BASE_LOC "/title/random", j)))
@@ -421,7 +422,6 @@ Result hsapi::random(hsapi::FullTitle& ret)
 
 Result hsapi::upload_log(const char *contents, u32 size, std::string& logid)
 {
-	ilog("calling api");
 	json j;
 	Result res;
 	if(R_FAILED(res = basereq<json>(HS_SITE_LOC "/log", j, HTTPC_METHOD_POST, contents, size)))
@@ -432,9 +432,8 @@ Result hsapi::upload_log(const char *contents, u32 size, std::string& logid)
 	return OK;
 }
 
-Result hsapi::batch_related(hsapi::BatchRelated& ret, const std::vector<hsapi::htid>& tids)
+Result hsapi::batch_related(std::vector<hsapi::FullTitle>& ret, const std::vector<hsapi::htid>& tids)
 {
-	ilog("calling api");
 	if(tids.size() == 0) return OK;
 
 	std::string url = HS_BASE_LOC "/title/related/batch?title_ids=" + ctr::tid_to_str(tids[0]);
@@ -444,23 +443,14 @@ Result hsapi::batch_related(hsapi::BatchRelated& ret, const std::vector<hsapi::h
 	Result res = OK;
 	if(R_FAILED(res = basereq<json>(url, j)))
 		return res;
-	CHECKAPI(OBJ);
-	j = j["value"];
-
-	for(json::iterator it = j.begin(); it != j.end(); ++it)
-	{
-		htid tid = ctr::str_to_tid(it.key());
-		if(serialize_full_titles(ret[tid], it.value()) != OK)
-			return APPERR_JSON_FAIL;
-	}
-
-	return OK;
+	CHECKAPI(A);
+	return serialize_full_titles(ret, j["value"]);
 }
 
 Result hsapi::get_latest_version_string(std::string& ret)
 {
-	ilog("calling api");
 	Result res = OK;
+	ilog("Getting latest version");
 	if(R_FAILED(res = basereq(HS_UPDATE_BASE "/version", ret)))
 		return res;
 	trim(ret, " \t\n");
@@ -469,7 +459,6 @@ Result hsapi::get_latest_version_string(std::string& ret)
 
 Result hsapi::get_by_title_id(std::vector<Title>& ret, const std::string& title_id)
 {
-	ilog("calling api");
 	json j;
 	Result res = OK;
 	if(R_FAILED(res = basereq<json>(HS_BASE_LOC "/title/id/" + title_id, j)))
@@ -481,7 +470,7 @@ Result hsapi::get_by_title_id(std::vector<Title>& ret, const std::string& title_
 
 Result hsapi::get_theme_preview_png(std::string& ret, hsapi::hid id)
 {
-	ilog("calling api");
+	ilog("Getting theme preview");
 	Result res = OK;
 	if(R_FAILED(res = basereq(HS_BASE_LOC "/title/" + std::to_string(id) + "/theme-preview", ret)))
 		return res;

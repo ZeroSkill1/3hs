@@ -1,3 +1,4 @@
+.build-stage/
 romfs/gfx/
 build/
 dumps/
