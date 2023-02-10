@@ -22,7 +22,9 @@
 
 #include "nb.hh"
 
-namespace nbt /* nbType */
+#define override
+
+namespace nb /* nbType */
 {
 	// title
 
@@ -85,6 +87,7 @@ namespace nbt /* nbType */
 			return nb::StatusCode::SUCCESS;
 		}
 	};
+	static_assert(sizeof(Title) == sizeof(NbTitle<std::string>));
 
 	// category
 
@@ -197,18 +200,14 @@ namespace nbt /* nbType */
 			this->Changelog = std::string(&strdata[rhdr->Changelog]);
 			this->DownloadURL = std::string(&strdata[rhdr->DownloadURL]);
 			this->SourceURL = std::string(&strdata[rhdr->SourceURL]);
-				
+
 			return nb::StatusCode::SUCCESS;
 		}
 	};
 
 	// ID pairs
 
-	struct NbIDPair
-	{
-		u64 TitleID;
-		u32 ID;
-	};
+	struct NbIDPair { u64 TitleID; u32 ID; };
 
 	class IDPair : NbIDPair, public nb::INbDeserializable
 	{
@@ -251,8 +250,7 @@ namespace nbt /* nbType */
 			NbResult<nb::BlobPtr> *rhdr = (NbResult<nb::BlobPtr> *)header;
 
 			this->ResultCode = rhdr->ResultCode;
-			if (rhdr->ErrorMessage)
-				this->ErrorMessage = std::string((char *)&blob[rhdr->ErrorMessage]);
+			if (rhdr->ErrorMessage) this->ErrorMessage = std::string((char *)&blob[rhdr->ErrorMessage]);
 
 			return nb::StatusCode::SUCCESS;
 		}
@@ -260,11 +258,11 @@ namespace nbt /* nbType */
 
 	// log results
 
-	struct NbThsLogResult	
+	struct NbThsLogResult
 	{
 		u32 ID;
 		u64 ValidityDuration;
-	};		
+	};
 
 	class ThsLogResult : nb::INbDeserializable, public NbThsLogResult
 	{
@@ -295,7 +293,7 @@ namespace nbt /* nbType */
 		TString Token;
 	};
 
-	class DLToken : nb::INbDeserializable, NbDLToken<std::string>
+	class DLToken : nb::INbDeserializable, public NbDLToken<std::string>
 	{
 	public:
 		static constexpr const char *magic = "TOKN";
@@ -457,6 +455,84 @@ namespace nbt /* nbType */
 			return nb::StatusCode::SUCCESS;
 		}
 	};
+
+	template <typename TString>
+	struct NbTopTitle
+	{
+		u32 ID;
+		u64 DownloadCount;
+		TString Name;
+		TString AlternativeName;
+	};
+
+	class TopTitle : nb::INbDeserializable, public NbTopTitle<std::string>
+	{
+	public:
+		nb::StatusCode deserialize(u8 *header, u32 header_size, u8 *blob, u32 blob_size) override
+		{
+			if (header_size <= sizeof(NbTopTitle<nb::BlobPtr>))
+				return nb::StatusCode::INPUT_DATA_TOO_SHORT;
+
+			NbTopTitle<nb::BlobPtr> *thdr = (NbTopTitle<nb::BlobPtr> *)header;
+
+			this->ID = thdr->ID;
+			this->DownloadCount = thdr->DownloadCount;
+
+			char *strdata = (char *)blob;
+
+			this->Name = std::string(&strdata[thdr->Name]);
+			if (thdr->AlternativeName) this->AlternativeName = std::string(&strdata[thdr->AlternativeName]);
+
+			return nb::StatusCode::SUCCESS;
+		}
+	};
+
+	template <typename TString>
+	struct NbSimpleTitle
+	{
+		u64 TitleID;
+		u64 Size;
+		u64 Flags;
+		u32 ID;
+		TString Name;
+		TString AlternativeName;
+		TString ProductCode;
+		u16 Version;
+		u8 ContentType;
+		u8 CategoryID;
+		u8 SubcategoryID;
+	};
+
+	class SimpleTitle : nb::INbDeserializable, public NbSimpleTitle<std::string>
+	{
+	public:
+		nb::StatusCode deserialize(u8 *header, u32 header_size, u8 *blob, u32 blob_size) override
+		{
+			if (header_size <= sizeof(NbSimpleTitle<nb::BlobPtr>))
+				return nb::StatusCode::INPUT_DATA_TOO_SHORT;
+
+			NbSimpleTitle<nb::BlobPtr> *sthdr = (NbSimpleTitle<nb::BlobPtr> *)header;
+
+			this->TitleID = sthdr->TitleID;
+			this->Size = sthdr->Size;
+			this->Flags = sthdr->Flags;
+			this->ID = sthdr->ID;
+			this->Version = sthdr->Version;
+			this->ContentType = sthdr->ContentType;
+			this->CategoryID = sthdr->CategoryID;
+			this->SubcategoryID = sthdr->SubcategoryID;
+
+			char *strdata = (char *)blob;
+
+			this->Name = std::string(&strdata[sthdr->Name]);
+			this->ProductCode = std::string(&strdata[sthdr->ProductCode]);
+			if (sthdr->AlternativeName) this->AlternativeName = std::string(&strdata[sthdr->AlternativeName]);
+
+			return nb::StatusCode::SUCCESS;
+		}
+	};
 }
+
+#undef override
 
 #endif
