@@ -321,13 +321,12 @@ u32 ui::kDown() { return my_kdown; }
 
 void ui::maybe_end_frame()
 {
-	LightLock_Lock(&in_render_lock);
+	ctr::LockedInScope { &in_render_lock };
 	if(g_inRender)
 	{
 		C3D_FrameEnd(0);
 		g_inRender = false;
 	}
-	LightLock_Unlock(&in_render_lock);
 }
 
 void ui::background_rect(ui::Screen scr, float x, float y, float z, float w, float h)
