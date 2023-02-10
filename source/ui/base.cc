@@ -918,6 +918,7 @@ void ui::Sprite::setup(std::function<void(C2D_Sprite&, u32)> get_cb, u32 data)
 	memset(&this->sprite.params, 0, sizeof(C2D_DrawParams));
 	this->unspecified_data = data;
 	this->get_sprite_func = get_cb;
+	this->set_center(0.0f, 0.0f);
 	this->update_theme_hook();
 }
 
@@ -975,7 +976,6 @@ void ui::Sprite::set_center(float x, float y)
 void ui::Sprite::update_theme_hook()
 {
 	this->get_sprite_func(this->sprite, this->unspecified_data);
-	this->set_center(0.0f, 0.0f);
 }
 
 /* core widget class Button */
