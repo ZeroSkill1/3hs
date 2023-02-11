@@ -139,6 +139,23 @@ static Result nbreq(const std::string& url, T& obj, HTTPC_RequestMethod reqm = H
 	if(R_FAILED(res)) return res;
 
 	nb::StatusCode sc = parse_func(obj, (u8 *) data.c_str(), data.size(), nullptr);
+
+	switch (sc)
+	{
+	case nb::StatusCode::SUCCESS:
+		dlog("nb parse: success");
+		break;
+	case nb::StatusCode::NO_INPUT_DATA:
+		dlog("nb parse: no input data");
+		break;
+	case nb::StatusCode::MAGIC_MISMATCH:
+		dlog("nb parse: magic mismatch");
+		break;
+	case nb::StatusCode::INPUT_DATA_TOO_SHORT:
+		dlog("nb parse: input data too short");
+		break;
+	}
+
 	if(sc == nb::StatusCode::MAGIC_MISMATCH)
 	{
 		/* We may have an nb::Result */
@@ -299,7 +316,7 @@ Result hsapi::batch_related(std::vector<hsapi::Title>& ret, const std::vector<hs
 	std::string url = HS_NB_LOC "/title/related/batch?title_ids=" + ctr::tid_to_str(tids[0]);
 	url.reserve((tids.size() - 1) * (16 + 1));
 	for(size_t i = 1; i < tids.size(); ++i)
-		url += ctr::tid_to_str(tids[i]);
+		url += "," + ctr::tid_to_str(tids[i]);
 
 	return nbreqa<hsapi::Title>(url, ret);
 }
@@ -318,7 +335,7 @@ Result hsapi::upload_log(const char *contents, u32 size, std::string& logid)
 {
 	ilog("Uploading log");
 	nb::ThsLogResult logres;
-	Result res = nbreq<nb::ThsLogResult>(HS_SITE_LOC "/loc", logres, HTTPC_METHOD_POST, contents, size);
+	Result res = nbreq<nb::ThsLogResult>(HS_SITE_LOC "/nblog", logres, HTTPC_METHOD_POST, contents, size);
 	if(R_FAILED(res)) return res;
 	char hex[9];
 	snprintf(hex, 9, "%08X", logres.id);
@@ -356,7 +373,7 @@ Result hsapi::get_download_link(std::string& ret, const Title& meta)
 	Result res = nbreq<nb::DLToken>(HS_CDN_BASE "/nbcontent/" + std::to_string(meta.id) + "/request", tok);
 	if(R_FAILED(res)) return res;
 
-	ret = HS_CDN_BASE "/content" + std::to_string(meta.id) + "?token=" + tok.token;
+	ret = HS_CDN_BASE "/nbcontent/" + std::to_string(meta.id) + "?token=" + tok.token;
 	return OK;
 }
 
