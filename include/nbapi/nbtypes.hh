@@ -326,8 +326,6 @@ namespace nb /* nbType */
 		u64 downloads;
 	};
 
-	const int a = sizeof(NbIndexMeta);
-
 	template <typename TString>
 	struct NbIndexCategoryBase
 	{
