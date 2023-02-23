@@ -5,9 +5,9 @@
 	1. test if all main features are still working
 		1. find_missing
 		2. installation of game
-			1. while sleeping + LED
+			+ while sleeping + LED
 		3. installation of games through queue
-			1. while sleeping + LED flash
+			+ while sleeping + LED flash
 	2. test for speed regressions
 		1. compare to FBI
 		2. compare to previous release
