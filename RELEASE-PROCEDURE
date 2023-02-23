@@ -8,10 +8,12 @@
 			+ while sleeping + LED
 		3. installation of games through queue
 			+ while sleeping + LED flash
+		4. installation of themes
+			+ test if theme preview still works
 	2. test for speed regressions
 		1. compare to FBI
 		2. compare to previous release
-	3. test if a default configuration crashes the console
+	3. test if a default configuration (both audio and normal!) crashes the console
 	4. test if sleep mode still works
 	5. test if music still works
 	6. test if themes still work
