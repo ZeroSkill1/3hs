@@ -1,7 +1,7 @@
 
 0. finish features for the release
 1. update the version constants in include/update.hh
-2. do testing:
+2. do testing (on a release build; ./build.pl --target prerelease):
 	1. test if all main features are still working
 		1. find_missing
 		2. installation of game
@@ -21,5 +21,6 @@
 	8. let some other people test it
 3. release to the public with with ./scripts/publish_release --no-webhook
 4. test if the release installs correctly
-5. notify the discord of the new release with ./scripts/publish_release --no-files --no-api
+5. check on the 3hs page if the version number updated
+6. notify the discord of the new release with ./scripts/publish_release --no-files --no-api
 
