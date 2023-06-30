@@ -402,13 +402,6 @@ int main(int argc, char* argv[])
 		if(kDown & KEY_X) { player_halt(); reset_status(); }
 	});
 
-	if(!hsapi::global_init())
-	{
-		flog("hsapi::global_init() failed");
-		panic(STRING(fail_init_networking));
-	}
-	atexit(hsapi::global_deinit);
-
 #ifdef RELEASE
 	// If we updated ...
 	ilog("Checking for updates");

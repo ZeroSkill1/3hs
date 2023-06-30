@@ -155,6 +155,7 @@ static const std::unordered_map<Result, std::unordered_map<Result, const char *>
 			{ 15, "Maximum HTTP redirects followed"               },
 			{ 16, "Failed to parse NBAPI data"                    },
 			{ 17, "Battery entered critical condition"            },
+			{ 18, "CURL error (shouldn't appear; debug only)"     },
 		}
 	},
 });

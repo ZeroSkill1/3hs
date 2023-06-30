@@ -5,6 +5,7 @@ use strict;
 
 sub getconf;
 sub hasconf;
+sub error;
 
 # = Project configuration ==================================== #
 
@@ -77,9 +78,22 @@ sub configure {
 	my $cdnbase   = getconf "cdn_base", "HS_CDN_BASE";
 	my $siteloc   = getconf "site_url", "HS_WEBSITE";
 	my $nbloc     = getconf "nb_base", "HS_NB_BASE";
+	my $htbackend = getconf "http_backend" || 'httpc';
 
-	die "Must provide hShop server URLs, see the README"
+	error "Must provide hShop server URLs, see the README"
 		unless $upbase && ($dserv || ($cdnbase && $siteloc && $nbloc));
+
+	error "http_backend must be either 'system' or 'curl'!"
+		unless $htbackend eq 'system' || $htbackend eq 'curl';
+
+	my $htbackend_enum_val;
+	if ($htbackend eq 'httpc' || $htbackend eq 'system') {
+		$htbackend_enum_val = "HTTP_BACKEND_HTTPC";
+	} elsif ($htbackend eq 'curl') {
+		$htbackend_enum_val = "HTTP_BACKEND_CURL";
+	} else {
+		error "http_backend must be 'httpc', 'system' or 'curl'!";
+	}
 
 	my $cflags = "";
 	$cflags .= " -DFULL_LOG=1" if $full_log;
@@ -91,10 +105,16 @@ sub configure {
 	$cflags .= " -DHS_NB_BASE=\\\"$nbloc\\\"" if $nbloc;
 	$cflags .= " -DHS_CDN_BASE=\\\"$cdnbase\\\"" if $cdnbase;
 	$cflags .= " -DHS_SITE_LOC=\\\"$siteloc\\\"" if $siteloc;
+	$cflags .= " -DHTTP_BACKEND=\"$htbackend_enum_val\"";
+
+	my $libs = "";
+	$libs .= "-lcurl -lz -lmbedx509 -lmbedtls" if $htbackend eq 'curl';
 
 	return <<EOF;
 CFLAGS   :=$cflags
 CXXFLAGS := \$(CFLAGS)
+
+LIBS := $libs
 
 PREDEPS := \$(BUILD)/i18n_tab.cc data/dark.hstx data/light.hstx
 EOF
@@ -118,6 +138,21 @@ data/dark.hstx data/light.hstx: 3hstool/3hstool 3hstool/dark.cfg 3hstool/light.c
 EOF
 }
 
+sub configure_help {
+	return <<EOF;
+  debug, DEBUG=1                        enable debug flags (default when the release flag is not present)
+  release, RELEASE=1                    enable optimization + some minor changes for production
+  http_backend, HTTP_BACKEND [backend]  http backend, either httpc/system or curl
+  full_log, FUL_LOG=1                   enable full logging capabilities (default when release flag is not present)
+  device_id, DEVICE_ID [device-id]      sets the device id for device-specific builds
+  debug_server, HS_DEBUG_SERVER [url]   sets the debug server url
+  update_base, HS_UPDATE_BASE [url]     sets the update base url
+  nb_base, HS_NB_BASE [url]             sets the NBAPI base url
+  cdn_base, HS_CDN_BASE [url]           sets the CDN base url
+  site_url, HS_SITE_URL [url]           sets the site base url
+EOF
+}
+
 # ============================================================ #
 
 use Getopt::Long qw(:config no_auto_abbrev no_ignore_case bundling);
@@ -128,21 +163,69 @@ use File::Basename;
 my $build_dir = ".build-stage";
 my $update_file_list = 0;
 my $config_string = 0;
+my $target_opt = 0;
 my $target = 0;
 my $explicit_init = 0;
 my $new_default = 0;
 my $jobs = int `nproc`;
+my $help = 0;
+my $list_targets = 0;
+
+
+sub do_help {
+	my ($error_msg) = @_;
+
+	my $proj_help = configure_help;
+	my $msg = <<EOF;
+Usage: build.pl [options...] [build-targets...]
+Options:
+  --build, -b [DIR]         set build directory
+  --update-file-list, -u    update the source files list
+  --init, -i                initialize the build system
+  --set-default-target [T]  set the default build target
+  --target, -t [T]          build target T instead of the default
+  --jobs, -j [N]            build with N jobs instead of the result of \`nproc\`
+  --list-targets, -l        list all available targets
+  --configure, -c           configure a target, also requires --init or --target
+  --help, -h                display this message
+
+General environment variables:
+  VERSION [version]  sets the cia version
+
+General configure options:
+  targets, TARGETS [build-targets]  sets a list of targets to build by default, a space seperated list of these: elf, 3dsx, cia, 3dslink, citra
+
+Project configure options:
+$proj_help
+EOF
+
+	if ($error_msg) {
+		print STDERR "error: $error_msg\n\n";
+		print STDERR $msg;
+		exit 1;
+	} else {
+		print $msg;
+		exit 0;
+	}
+}
+
+sub error {
+	do_help $_[0] || 'failed to configure';
+}
 
 GetOptions(
 	"build|b=s", \$build_dir,
 	"update-file-list|u", \$update_file_list,
 	"init|i", \$explicit_init,
 	"set-default-target=s", \$new_default,
-	"target|t=s", \$target,
+	"target|t=s", \$target_opt,
 	"configure|c=s", \$config_string,
 	"jobs|j=i", \$jobs,
-) or die "couldn't parse options";
+	"help|h", \$help,
+	"list-targets|l", \$list_targets,
+) or do_help "couldn't parse options";
 
+$target = $target_opt;
 if (!$target && -f "$build_dir/default-target.txt") {
 	open my $fh, "$build_dir/default-target.txt" or die $!;
 	$target = <$fh>;
@@ -261,7 +344,9 @@ EOF
 	mkdir "$build_dir/$name";
 }
 
-if (! -d $build_dir || $explicit_init) {
+if ($help) {
+	do_help;
+} elsif (! -d $build_dir || $explicit_init) {
 	if (!exists $ENV{DEVKITPRO}) {
 		print STDERR "Please set DEVKITPRO in your environment. export DEVKITPRO=<path to>devkitPro\n";
 		exit 1;
@@ -405,10 +490,28 @@ EOF
 	close $deffh;
 	make_target $target;
 	execute_make if !$explicit_init;
-}
-elsif ($update_file_list) {
+} elsif ($list_targets) {
+	open my $fh, "$build_dir/default-target.txt" or die $!;
+	my $default_target = <$fh>;
+	close $fh;
+
+	my @targets;
+	find { wanted => sub { push @targets, $_ if /\.target\.mk$/; } }, $build_dir;
+
+	for my $target (@targets) {
+		$target =~ s/\.target\.mk$//;
+		print " => $target";
+		if ($default_target eq $target) {
+			print " [default]";
+		}
+		print "\n";
+	}
+} elsif ($update_file_list) {
 	make_file_list;
 } elsif ($config_string) {
+	if (!$target_opt) {
+		do_help "must specify configuration target";
+	}
 	make_target $target;
 } else {
 	make_target $target unless -f "$build_dir/$target.target.mk";

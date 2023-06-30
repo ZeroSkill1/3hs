@@ -36,6 +36,7 @@ Variables used in the building process:
  - targets,TARGETS=targets-list                  list of targets, these values seperated by spaces: elf, 3dsx, cia, 3dslink
  - debug,DEBUG=1                                 enable debug flags (default when the release flag is not present)
  - release,RELEASE=1                             enable optimization + some minor changes for production
+ - http_backend,HTTP_BACKEND=backend             http backend, either system (httpc) or curl
  - full_log,FUL_LOG=1
  - device_id,DEVICE_ID=device-id-int
  - debug_server,HS_DEBUG_SERVER="debug-server"

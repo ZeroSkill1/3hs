@@ -26,10 +26,6 @@
 #include <nbapi/nb.hh>
 
 #include <algorithm>
-#include <malloc.h>
-
-#define SOC_ALIGN       0x100000
-#define SOC_BUFFERSIZE  0x20000
 
 #if defined(HS_DEBUG_SERVER)
 	#define HS_NB_BASE  HS_DEBUG_SERVER ":5000/nbapi"
@@ -41,41 +37,6 @@
 #endif
 
 #define OK 0
-
-/* {{{1 de/initialization */
-
-static u32 *g_socbuf = nullptr;
-
-bool hsapi::global_init()
-{
-	Result res;
-	if(!(g_socbuf = (u32 *) memalign(SOC_ALIGN, SOC_BUFFERSIZE)))
-	{
-		elog("failed to allocate buffer of %X (aligned %X) for SOC", SOC_BUFFERSIZE, SOC_ALIGN);
-		return false;
-	}
-	if(R_FAILED((res = socInit(g_socbuf, SOC_BUFFERSIZE))))
-	{
-		free(g_socbuf);
-		g_socbuf = nullptr;
-		elog("failed to initialize SOC: %08lX", res);
-		return false;
-	}
-	ilog("%susing proxy for API", get_nsettings()->proxy_port ? "" : "not ");
-	return true;
-}
-
-void hsapi::global_deinit()
-{
-	if(g_socbuf != nullptr)
-	{
-		socExit();
-		free(g_socbuf);
-		g_socbuf = nullptr;
-	}
-}
-
-/* 1}}} */
 
 /* {{{1 Network primitives */
 
