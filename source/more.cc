@@ -16,8 +16,6 @@
 
 #include "more.hh"
 
-#include "hlink/hlink_view.hh"
-
 #include "find_missing.hh"
 #include "audio_cfg.hh"
 #include "sysmanage.hh"
@@ -47,9 +45,6 @@ void show_more()
 		.connect(ui::MenuSelect::add, STRING(themes), []() -> bool { show_theme_menu(); return true; })
 		.connect(ui::MenuSelect::add, STRING(delete_unused_tickets), []() -> bool { show_delete_unused_tickets(); return true; })
 		.connect(ui::MenuSelect::add, STRING(audio), []() -> bool { show_audio_config(); return true; })
-#ifndef RELEASE
-		.connect(ui::MenuSelect::add, "hLink", []() -> bool { show_hlink(); return true; })
-#endif
 		.add_to(queue);
 	ui::builder<ui::ButtonCallback>(ui::Screen::top, KEY_START)
 		.connect(ui::ButtonCallback::kdown, [](u32) -> bool { exit(0); return false; })
