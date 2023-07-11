@@ -67,7 +67,8 @@ my $app_jingle = "cia_stuff/audio.cwav";
 #  and should contain additional configuration (i.e. set CFLAGS, LDFLAGS, etc)
 #  special: you can set PREDEPS to define additional dependencies for the ELF file
 #  which will be execute *before* the objects compile
-#  you can also set EXTRA_CLEAN to add extra files to delete with `./build.pl clean`
+#  you can also set EXTRA_CLEAN to add extra files to delete with `./build.pl clean` or
+#  CLEAN_DEPS to set dependencies for the `clean` build target
 sub configure {
 	my $debug     = hasconf "debug";
 	my $full_log  = hasconf "full_log";
@@ -82,9 +83,6 @@ sub configure {
 
 	error "Must provide hShop server URLs, see the README"
 		unless $upbase && ($dserv || ($cdnbase && $siteloc && $nbloc));
-
-	error "http_backend must be either 'system' or 'curl'!"
-		unless $htbackend eq 'system' || $htbackend eq 'curl';
 
 	my $htbackend_enum_val;
 	if ($htbackend eq 'httpc' || $htbackend eq 'system') {
@@ -108,15 +106,15 @@ sub configure {
 	$cflags .= " -DHTTP_BACKEND=\"$htbackend_enum_val\"";
 
 	my $libs = "";
-	$libs .= "-lcurl -lz -lmbedx509 -lmbedtls" if $htbackend eq 'curl';
+	$libs .= " -lcurl -lz -lmbedx509 -lmbedtls" if $htbackend eq 'curl';
 
 	return <<EOF;
 CFLAGS   :=$cflags
 CXXFLAGS := \$(CFLAGS)
+LIBS     :=$libs
 
-LIBS := $libs
-
-PREDEPS := \$(BUILD)/i18n_tab.cc data/dark.hstx data/light.hstx
+PREDEPS    := \$(BUILD)/i18n_tab.cc data/dark.hstx data/light.hstx
+CLEAN_DEPS := clean-3hstool
 EOF
 }
 
@@ -135,9 +133,15 @@ data/dark.hstx data/light.hstx: 3hstool/3hstool 3hstool/dark.cfg 3hstool/light.c
 
 3hstool/3hstool:
 	\$(SILENT)cd 3hstool; make -f Makefile
+
+.PHONY: 3hstool clean-3hstool
+3hstool: 3hstool/3hstool
+clean-3hstool:
+	\$(SILENT)cd 3hstool; make -f Makefile clean
 EOF
 }
 
+# Configure help subroutine, this subroutine should return the help for your project specific configuration
 sub configure_help {
 	return <<EOF;
   debug, DEBUG=1                        enable debug flags (default when the release flag is not present)
@@ -264,10 +268,12 @@ sub make_file_list {
 	find { no_chdir => 1, wanted => sub { push @files, $_ if /\.(cpp|cc|c)$/; } }, @source_directories;
 	find { no_chdir => 1, wanted => sub { push @data_files, $_ if -f; } }, @data_directories;
 	find { no_chdir => 1, wanted => sub { push @gfx_files, $_ if -f; } }, $graphics_directory;
+
 	my $str = "\nSOURCE_FILES := \\\n";
 	for my $f (@files) {
 		$str .= "\t$f \\\n";
 	}
+
 	$str .= "\nOBJECT_FILES := \\\n";
 	for my $f (@files) {
 		$f =~ s/\.(cpp|cc|c)/\.o/;
@@ -282,8 +288,36 @@ sub make_file_list {
 		}
 	}
 	$str .= "\nDATA_OBJECTS := \\\n";
-	rmtree "$build_dir/build";
+
+	# We only have to delete files with dead files (i.e. real file doesn't exist anymore)
+	#  in order to not cause needless rebuilds
 	mkdir "$build_dir/build";
+	find { wanted => sub {
+		if (-l $_ && $_ =~ /\.bin$/) {
+			my $filename = $_ =~ s/\.bin$//r;
+			my $filename_escaped = $filename =~ s/\./_/r;
+			my $header = "${filename_escaped}.h";
+			my $object = "${filename}.o";
+
+			# Only erase if we know this data file is not in our data objects anymore
+			unless (grep $object, @data_files) {
+				unlink $_;      # symlink
+				unlink $header; # header file
+				unlink $object; # object file
+
+				print $_, " ", $header, " ", $object, "\n";
+			}
+		} elsif ($_ =~ /\.h$/) {
+			my $proposed_bin = $_;
+			# This is not entirely right... good enough for now
+			$proposed_bin =~ s/_?([^_]+)\.h$/.$1.bin/g;
+			my $t3x = $_ =~ s/\.h$/\.t3x/r;
+			unless (-f $proposed_bin || grep $t3x, @gfx_files) {
+				unlink $_;
+			}
+		}
+	} }, "$build_dir/build";
+
 	for my $f (@data_files) {
 		my $name = basename $f;
 		symlink "../../$f", "$build_dir/build/$name.bin";
@@ -421,7 +455,7 @@ endif
 
 .PHONY: all clean clean-data
 all: \$(TARGETS)
-clean:
+clean: \$(CLEAN_DEPS)
 	\$(SILENT)rm -f \$(OBJECT_FILES) \$(DATA_OBJECTS) \$(GRAPHICS) \$(EXTRA_CLEAN)
 clean-data:
 	\$(SILENT)rm -f \$(DATA_OBJECTS)
