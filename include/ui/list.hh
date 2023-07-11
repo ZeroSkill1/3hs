@@ -58,7 +58,7 @@ namespace ui
 			this->view = 0;
 			this->pos = 0;
 
-			this->sx = ui::screen_width(this->screen) - scrollbar_width - 5.0f;
+			this->sx = ui::screen_width(this->screen) - List::scrollbar_width - 5.0f;
 
 			static ui::slot_color_getter getters[] = {
 				color_text, color_scrollbar
@@ -79,7 +79,8 @@ namespace ui
 			/* handle input */
 			u32 effective = keys.kDown | keys.kHeld;
 
-			if(this->buttonTimeout != 0) {
+			if(this->buttonTimeout != 0)
+			{
 				--this->buttonTimeout;
 				// please don't scream at me for using goto as a convenience
 				goto builtin_controls_done;
@@ -87,7 +88,7 @@ namespace ui
 
 			if(effective & KEY_UP)
 			{
-				this->buttonTimeout = button_timeout;
+				this->buttonTimeout = List::button_timeout;
 				if(this->pos > 0)
 				{
 					if(this->pos == this->view)
@@ -105,7 +106,7 @@ namespace ui
 
 			if(effective & KEY_DOWN)
 			{
-				this->buttonTimeout = button_timeout;
+				this->buttonTimeout = List::button_timeout;
 				size_t old = this->pos;
 				if(this->pos < this->lines.size() - 1)
 				{
@@ -127,7 +128,7 @@ namespace ui
 
 			if(effective & KEY_LEFT)
 			{
-				this->buttonTimeout = button_timeout;
+				this->buttonTimeout = List::button_timeout;
 				this->view -= this->min<int>(this->amountRows, this->view);
 				this->pos -= this->min<int>(this->amountRows, this->pos);
 				this->on_change_(this, this->pos);
@@ -136,7 +137,7 @@ namespace ui
 
 			if(effective & KEY_RIGHT)
 			{
-				this->buttonTimeout = button_timeout;
+				this->buttonTimeout = List::button_timeout;
 				this->view = this->min<size_t>(this->view + this->amountRows - 1, this->last_full_view());
 				this->pos = this->min<size_t>(this->pos + this->amountRows - 1, this->lines.size() - 1);
 				this->on_change_(this, this->pos);
@@ -144,7 +145,7 @@ namespace ui
 			}
 
 			if(keys.kHeld & (KEY_UP | KEY_DOWN | KEY_LEFT | KEY_RIGHT))
-				this->buttonTimeout = button_timeout_held; /* the timeout is a bit less if we want to hold */
+				this->buttonTimeout = List::button_timeout_held; /* the timeout is a bit less if we want to hold */
 
 builtin_controls_done:
 
@@ -165,15 +166,15 @@ builtin_controls_done:
 				float ofs = 0;
 				if(i == this->pos)
 				{
-					float ypos = this->y + text_spacing * j + selector_offset;
+					float ypos = this->y + List::text_spacing * j + List::selector_offset;
 					/* update offsets */
 					if(this->scrolldata.shouldScroll)
 					{
 						ofs = this->scrolldata.xof;
-						ui::background_rect(this->screen, 0.0f, ypos - 5.0f, this->z + 0.1f, this->x + text_offset, this->selh + 1.0f);
+						ui::background_rect(this->screen, 0.0f, ypos - 5.0f, this->z + 0.1f, this->x + List::text_offset, this->selh + 1.0f);
 						if(this->scrolldata.framecounter <= 60)
 							++this->scrolldata.framecounter;
-						else if(ui::screen_width(this->screen) - this->x - text_offset + ofs > this->selw + 10.0f)
+						else if(ui::screen_width(this->screen) - this->x - List::text_offset + ofs > this->selw + 10.0f)
 						{
 							if(this->scrolldata.framecounter > 120)
 							{
@@ -185,12 +186,12 @@ builtin_controls_done:
 						else this->scrolldata.xof += 0.2f;
 					}
 					C2D_DrawLine(this->x, ypos,
-						color, this->x, this->y + text_spacing * j + this->selh - selector_offset,
+						color, this->x, this->y + List::text_spacing * j + this->selh - List::selector_offset,
 						color, 1.5f, this->z + 0.2f);
 				}
 
-				C2D_DrawText(&this->lines[i], C2D_WithColor, this->x + text_offset - ofs,
-					this->y + text_spacing * j, this->z, text_size, text_size,
+				C2D_DrawText(&this->lines[i], C2D_WithColor, this->x + List::text_offset - ofs,
+					this->y + List::text_spacing * j, this->z, List::text_size, List::text_size,
 					color);
 			}
 
@@ -202,13 +203,13 @@ builtin_controls_done:
 		float height() override
 		{
 			return this->lines.size() < this->amountRows
-				? this->lines.size() * text_spacing
-				: this->amountRows * text_spacing;
+				? this->lines.size() * List::text_spacing
+				: this->amountRows * List::text_spacing;
 		}
 
 		float width() override
 		{
-			return this->sx + scrollbar_width - this->x;
+			return this->sx + List::scrollbar_width - this->x;
 		}
 
 		void connect(connect_type t, on_select_type cb)
@@ -351,7 +352,7 @@ builtin_controls_done:
 		void update_scrolldata()
 		{
 			/* selw, selh */
-			C2D_TextGetDimensions(&this->lines[this->pos], text_size, text_size,
+			C2D_TextGetDimensions(&this->lines[this->pos], List::text_size, List::text_size,
 				&this->selw, &this->selh);
 			/* sy */
 			this->sy = ((float) this->view / (float) this->lines.size()) * this->height()
@@ -363,7 +364,7 @@ builtin_controls_done:
 				);
 
 			this->scrolldata = {
-				ui::screen_width(this->screen) - this->x - text_offset < this->selw,
+				ui::screen_width(this->screen) - this->x - List::text_offset < this->selw,
 				0, 0
 			};
 		}

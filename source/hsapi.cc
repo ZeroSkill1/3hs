@@ -350,7 +350,7 @@ std::string hsapi::format_category_and_subcategory(hsapi::hcid cid, hsapi::hcid 
 }
 
 template <typename T>
-std::string real_title_name(const T& title)
+static std::string real_title_name(const T& title)
 {
 	const std::string& base = ISET_SHOW_ALT ? (title.alt.size() ? title.alt : title.name) : title.name;
 
