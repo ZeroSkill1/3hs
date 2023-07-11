@@ -618,7 +618,7 @@ static void show_update_proxy()
 		.y(10.0f)
 		.add_to(queue);
 	ui::builder<ui::Button>(ui::Screen::bottom)
-		.connect(ui::Button::click, BASIC_CALLBACK(host))
+		.when_clicked(BASIC_CALLBACK(host))
 		.size(w, h)
 		.x(ui::layout::center_x)
 		.under(queue.back())
@@ -629,7 +629,7 @@ static void show_update_proxy()
 		.under(queue.back())
 		.add_to(queue);
 	ui::builder<ui::Button>(ui::Screen::bottom)
-		.connect(ui::Button::click, [&port]() -> bool {
+		.when_clicked([&port]() -> bool {
 			ui::RenderQueue::global()->render_and_then([&port]() -> void {
 				SwkbdButton btn;
 				uint64_t val = ui::numpad([](ui::AppletSwkbd *swkbd) -> void {
@@ -655,7 +655,7 @@ static void show_update_proxy()
 		.under(queue.back())
 		.add_to(queue);
 	ui::builder<ui::Button>(ui::Screen::bottom)
-		.connect(ui::Button::click, BASIC_CALLBACK(username))
+		.when_clicked(BASIC_CALLBACK(username))
 		.size(w, h)
 		.x(ui::layout::center_x)
 		.under(queue.back())
@@ -666,14 +666,14 @@ static void show_update_proxy()
 		.under(queue.back())
 		.add_to(queue);
 	ui::builder<ui::Button>(ui::Screen::bottom)
-		.connect(ui::Button::click, BASIC_CALLBACK(password))
+		.when_clicked(BASIC_CALLBACK(password))
 		.size(w, h)
 		.x(ui::layout::center_x)
 		.under(queue.back())
 		.add_to(&password, queue);
 
 	ui::builder<ui::Button>(ui::Screen::bottom, STRING(clear))
-		.connect(ui::Button::click, [host, port, username, password]() -> bool {
+		.when_clicked([host, port, username, password]() -> bool {
 			g_nsettings.proxy_username = "";
 			g_nsettings.proxy_password = "";
 			g_nsettings.proxy_host = "";
@@ -681,7 +681,7 @@ static void show_update_proxy()
 			UPDATE_LABELS();
 			return true;
 		})
-		.connect(ui::Button::nobg)
+		.disable_background()
 		.x(10.0f)
 		.y(210.0f)
 		.wrap()
@@ -961,8 +961,8 @@ void show_settings()
 		.add_to(&toggle, queue);
 
 	ui::builder<list_t>(ui::Screen::top, &settingsInfo)
-		.connect(list_t::to_string, [](const SettingInfo& entry) -> std::string { return entry.name; })
-		.connect(list_t::select, [value, toggle, &dirty](list_t *self, size_t i, u32 kDown) -> bool {
+		.to_string([](const SettingInfo& entry) -> std::string { return entry.name; })
+		.when_select([value, toggle, &dirty](list_t *self, size_t i, u32 kDown) -> bool {
 			(void) kDown;
 			dirty = true;
 			ui::RenderQueue::global()->render_and_then([self, i, value, toggle]() -> void {
@@ -972,7 +972,7 @@ void show_settings()
 			});
 			return true;
 		})
-		.connect(list_t::change, [value, toggle, desc, &current_setting](list_t *self, size_t i) -> void {
+		.when_change([value, toggle, desc, &current_setting](list_t *self, size_t i) -> void {
 			const SettingInfo& set = self->at(i);
 			current_setting = set.ID;
 			display_setting_value(set, value, toggle);
@@ -999,8 +999,7 @@ void show_settings()
 	};
 
 	ui::builder<ui::ButtonCallback>(ui::Screen::top, KEY_R)
-		.connect(ui::ButtonCallback::kdown, reset_settings_local)
-		.connect(ui::ButtonCallback::kheld, reset_settings_local)
+		.when_kdown(reset_settings_local)
 		.add_to(queue);
 
 	queue.render_finite_button(KEY_B);
@@ -1109,13 +1108,13 @@ void show_theme_menu()
 		.add_to(&author, queue);
 
 	ui::builder<ui::MenuSelect>(ui::Screen::bottom)
-		.connect(ui::MenuSelect::on_select, [&ms]() -> bool {
+		.when_select([&ms]() -> bool {
 			ui::Theme::global()->replace_with(g_avail_themes[ms->pos()]);
 			g_nsettings.theme_path = g_avail_themes[ms->pos()].id;
 			ui::ThemeManager::global()->reget();
 			return true;
 		})
-		.connect(ui::MenuSelect::on_move, [&ms, author, name]() -> bool {
+		.when_changed([&ms, author, name]() -> bool {
 			ui::Theme& theme = g_avail_themes[ms->pos()];
 			author->set_text(PSTRING(made_by, theme.author));
 			name->set_text(theme.name);

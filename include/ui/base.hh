@@ -373,6 +373,7 @@ namespace ui
 		}
 
 		/* builder for a ui::BaseWidget derivative */
+
 		template <typename TWidget, typename TRV, typename TBase = ui::BaseWidget>
 		class builder
 		{
@@ -384,9 +385,11 @@ namespace ui
 				this->el->setup(args...);
 			}
 
+			builder(TWidget *nel) : el(nel), leaked(true) { }
+
 			~builder()
 			{
-				if(this->el != nullptr)
+				if(!this->leaked && this->el != nullptr)
 					delete this->el;
 			}
 
@@ -404,12 +407,6 @@ namespace ui
 			TRV& border() { this->el->set_border(true); return this->return_value(); }
 			/* Makes the widget scroll. Not supported by all widgets */
 			TRV& scroll() { this->el->scroll(); return this->return_value(); }
-			/* Connects a type and argument, effect depends on the widget.
-			 * Not supported by all widgets */
-			template <typename T = TWidget /* weird template is so that builder works on types without T::connect_type */,
-				typename ... Ts> TRV& connect(typename T::connect_type type, Ts&& ... args)
-					{ this->el->connect(type, args...); return this->return_value(); }
-
 			/* Do a manual configuration with a callback */
 			TRV& configure(std::function<void(TWidget*)> conf) { conf(this->el); return this->return_value(); }
 			/* Hide/unhide the widget */
@@ -459,6 +456,7 @@ namespace ui
 		protected:
 			virtual TRV& return_value() = 0;
 			TWidget *el = nullptr;
+			bool leaked = false;
 
 		};
 	}
@@ -636,8 +634,16 @@ namespace ui
 		/* gets the current text of the widget */
 		const std::string& get_text();
 
-		enum connect_type { max_width };
-		void connect(connect_type, float);
+		UI_BUILDER_EXTENSIONS()
+		{
+			UI_USING_BUILDER()
+		public:
+			ReturnValue max_width(float w)
+			{
+				this->instance().maxw = w;
+				return this->return_value();
+			}
+		};
 
 		void swap_slots(const StaticSlot&) override;
 
@@ -762,11 +768,22 @@ namespace ui
 		/* get the label, if the subwidget is not a ui::Text this probably crashes */
 		const std::string& get_label();
 
-		enum connect_type { click, nobg };
-		/* click */
-		void connect(connect_type type, click_cb_t callback);
-		/* nobg */
-		void connect(connect_type type);
+		UI_BUILDER_EXTENSIONS()
+		{
+			UI_USING_BUILDER()
+		public:
+			ReturnValue when_clicked(click_cb_t cb)
+			{
+				this->instance().on_click = cb;
+				return this->return_value();
+			}
+
+			ReturnValue disable_background()
+			{
+				this->instance().showBg = false;
+				return this->return_value();
+			}
+		};
 
 		float textwidth();
 
@@ -799,19 +816,41 @@ namespace ui
 		float height() override { return 0.0f; }
 		float width() override { return 0.0f; }
 
-		enum connect_type {
-			none,
-			kdown,
-			kheld,
-			kup,
+		enum class ListenerType {
+			down,
+			held,
+			up,
 		};
-		/* activate */
-		void connect(connect_type type, std::function<bool(u32)> cb);
 
+		using on_activate_type = std::function<bool(u32)>;
+
+		UI_BUILDER_EXTENSIONS()
+		{
+			UI_USING_BUILDER()
+		public:
+			ReturnValue when_kdown(on_activate_type cb)
+			{
+				this->instance().cb_down = cb;
+				return this->return_value();
+			}
+
+			ReturnValue when_kheld(on_activate_type cb)
+			{
+				this->instance().cb_held = cb;
+				return this->return_value();
+			}
+
+			ReturnValue when_kup(on_activate_type cb)
+			{
+				this->instance().cb_up = cb;
+				return this->return_value();
+			}
+		};
 
 	private:
-		std::function<bool(u32)> cb = [](u32) -> bool { return true; };
-		connect_type type = none;
+		on_activate_type cb_down = [](u32) -> bool { return true; };
+		on_activate_type cb_held = [](u32) -> bool { return true; };
+		on_activate_type cb_up   = [](u32) -> bool { return true; };
 		u32 keys;
 
 

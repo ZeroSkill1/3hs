@@ -264,11 +264,11 @@ int main(int argc, char* argv[])
 
 	/* buttons */
 	ui::builder<ui::Button>(ui::Screen::bottom, ui::Sprite::theme, ui::theme::settings_image)
-		.connect(ui::Button::click, []() -> bool {
+		.when_clicked([]() -> bool {
 			ui::RenderQueue::global()->render_and_then(show_settings);
 			return true;
 		})
-		.connect(ui::Button::nobg)
+		.disable_background()
 		.wrap()
 		.x(5.0f)
 		.y(210.0f)
@@ -276,11 +276,11 @@ int main(int argc, char* argv[])
 		.add_to(ui::RenderQueue::global());
 
 	ui::builder<ui::Button>(ui::Screen::bottom, ui::Sprite::theme, ui::theme::more_image)
-		.connect(ui::Button::click, []() -> bool {
+		.when_clicked([]() -> bool {
 			ui::RenderQueue::global()->render_and_then(show_more);
 			return true;
 		})
-		.connect(ui::Button::nobg)
+		.disable_background()
 		.wrap()
 		.right(ui::RenderQueue::global()->back())
 		.y(210.0f)
@@ -288,11 +288,11 @@ int main(int argc, char* argv[])
 		.add_to(ui::RenderQueue::global());
 
 	ui::builder<ui::Button>(ui::Screen::bottom, ui::Sprite::theme, ui::theme::search_image)
-		.connect(ui::Button::click, []() -> bool {
+		.when_clicked([]() -> bool {
 			ui::RenderQueue::global()->render_and_then(show_search);
 			return true;
 		})
-		.connect(ui::Button::nobg)
+		.disable_background()
 		.wrap()
 		.right(ui::RenderQueue::global()->back())
 		.y(210.0f)
@@ -301,7 +301,7 @@ int main(int argc, char* argv[])
 
 	static bool isInRand = false;
 	ui::builder<ui::Button>(ui::Screen::bottom, ui::Sprite::theme, ui::theme::random_image)
-		.connect(ui::Button::click, []() -> bool {
+		.when_clicked([]() -> bool {
 			ui::RenderQueue::global()->render_and_then([]() -> void {
 				if(isInRand) return;
 				isInRand = true;
@@ -312,7 +312,7 @@ int main(int argc, char* argv[])
 			});
 			return true;
 		})
-		.connect(ui::Button::nobg)
+		.disable_background()
 		.wrap()
 		.right(ui::RenderQueue::global()->back())
 		.y(210.0f)
@@ -320,11 +320,11 @@ int main(int argc, char* argv[])
 		.add_to(ui::RenderQueue::global());
 
 	ui::builder<ui::Button>(ui::Screen::bottom, STRING(queue))
-		.connect(ui::Button::click, []() -> bool {
+		.when_clicked([]() -> bool {
 			ui::RenderQueue::global()->render_and_then(show_queue);
 			return true;
 		})
-		.connect(ui::Button::nobg)
+		.disable_background()
 		.wrap()
 		.right(ui::RenderQueue::global()->back())
 		.y(210.0f)

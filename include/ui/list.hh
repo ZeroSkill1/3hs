@@ -44,7 +44,34 @@ namespace ui
 		static constexpr float text_offset = 6.0f;
 		static constexpr float text_size = 0.65;
 
-		enum connect_type { select, change, to_string, buttons };
+		UI_BUILDER_EXTENSIONS()
+		{
+			UI_USING_BUILDER()
+		public:
+			ReturnValue when_select(on_select_type cb)
+			{
+				this->instance().on_select_ = cb;
+				return this->return_value();
+			}
+
+			ReturnValue when_change(on_change_type cb)
+			{
+				this->instance().on_change_ = cb;
+				return this->return_value();
+			}
+
+			ReturnValue to_string(to_string_type cb)
+			{
+				this->instance().to_string_ = cb;
+				return this->return_value();
+			}
+
+			ReturnValue buttons(u32 k)
+			{
+				this->instance().keys |= k;
+				return this->return_value();
+			}
+		};
 
 		void setup(std::vector<T> *items)
 		{
@@ -210,30 +237,6 @@ builtin_controls_done:
 		float width() override
 		{
 			return this->sx + List::scrollbar_width - this->x;
-		}
-
-		void connect(connect_type t, on_select_type cb)
-		{
-			panic_assert(t == select, "EINVAL");
-			this->on_select_ = cb;
-		}
-
-		void connect(connect_type t, on_change_type cb)
-		{
-			panic_assert(t == change, "EINVAL");
-			this->on_change_ = cb;
-		}
-
-		void connect(connect_type t, to_string_type cb)
-		{
-			panic_assert(t == to_string, "EINVAL");
-			this->to_string_ = cb;
-		}
-
-		void connect(connect_type t, u32 k)
-		{
-			panic_assert(t == buttons, "EINVAL");
-			this->keys |= k;
 		}
 
 		/* Rerenders all items in the list
