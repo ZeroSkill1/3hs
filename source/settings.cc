@@ -41,7 +41,6 @@
 #define SPECIAL_LIGHT     "special:light"
 #define SPECIAL_DARK      "special:dark"
 #define SPECIAL_PREFIX    "special:"
-#define THEMES_EXT        ".hstx"
 
 enum migrations {
 	migration_initial           = 0,
@@ -60,11 +59,12 @@ static std::vector<ui::Theme> g_avail_themes;
 static NewSettings g_nsettings;
 static int light_theme_index;
 static bool g_loaded = false;
+static bool settings_dirtied = false;
 
 NewSettings *get_nsettings()
 { return &g_nsettings; }
 
-static void write_settings()
+static void write_settings_to_file()
 {
 	mkdir("/3ds", 0777);
 	mkdir("/3ds/3hs", 0777); /* ensure these dirs exist */
@@ -93,6 +93,24 @@ static void write_settings()
 	}
 
 	fclose(f);
+}
+
+static void write_settings()
+{
+#ifdef RELEASE
+	settings_dirtied = true;
+#else
+	write_settings_to_file();
+#endif
+}
+
+void settings_sync()
+{
+	if(settings_dirtied)
+	{
+		settings_dirtied = false;
+		write_settings_to_file();
+	}
 }
 
 static void migrate_settings(u8 *buf)
@@ -186,7 +204,7 @@ void reset_settings(bool set_default_lang)
 	                   | FLAG0_SEARCH_ECONTENT            | FLAG0_WARN_NO_BASE
 	                   | FLAG0_ALLOW_LED;
 
-	g_nsettings.max_elogs = 0;
+	g_nsettings.max_elogs = 0; /* memory log by default */
 	g_nsettings.theme_path = SPECIAL_LIGHT;
 	g_nsettings.proxy_port = 0; /* disable proxy by default */
 	g_nsettings.migration = LATEST_MIGRATION;

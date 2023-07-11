@@ -171,6 +171,7 @@ int main(int argc, char* argv[])
 	Result res;
 
 	ensure_settings(); /* log_init() uses settings ... */
+	atexit(settings_sync);
 	log_init();
 	atexit(log_exit);
 #ifdef RELEASE

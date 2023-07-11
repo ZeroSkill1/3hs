@@ -102,6 +102,7 @@ void load_current_theme();
 void ensure_settings();
 void show_theme_menu();
 void cleanup_themes();
+void settings_sync();
 void show_settings();
 void log_settings();
 
