@@ -79,7 +79,7 @@ sub configure {
 	my $cdnbase   = getconf "cdn_base", "HS_CDN_BASE";
 	my $siteloc   = getconf "site_url", "HS_WEBSITE";
 	my $nbloc     = getconf "nb_base", "HS_NB_BASE";
-	my $htbackend = getconf "http_backend" || 'httpc';
+	my $htbackend = getconf("http_backend") || 'httpc';
 
 	error "Must provide hShop server URLs, see the README"
 		unless $upbase && ($dserv || ($cdnbase && $siteloc && $nbloc));
@@ -147,7 +147,7 @@ sub configure_help {
   debug, DEBUG=1                        enable debug flags (default when the release flag is not present)
   release, RELEASE=1                    enable optimization + some minor changes for production
   http_backend, HTTP_BACKEND [backend]  http backend, either httpc/system or curl
-  full_log, FUL_LOG=1                   enable full logging capabilities (default when release flag is not present)
+  full_log, FULL_LOG=1                  enable full logging capabilities (default when release flag is not present)
   device_id, DEVICE_ID [device-id]      sets the device id for device-specific builds
   debug_server, HS_DEBUG_SERVER [url]   sets the debug server url
   update_base, HS_UPDATE_BASE [url]     sets the update base url
