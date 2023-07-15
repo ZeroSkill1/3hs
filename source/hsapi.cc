@@ -59,7 +59,6 @@ static Result basereq(const std::string& url, std::string& data, HTTPC_RequestMe
 	});
 
 	Result res = downloader.execute_once();
-	ilog("Got API data header: %.4s", data.c_str());
 	return res;
 }
 
@@ -76,6 +75,8 @@ static Result nbreq(const std::string& url, T& obj, HTTPC_RequestMethod reqm = H
 	Result res = basereq(url, data, reqm, postdata, size);
 	if(R_FAILED(res)) return res;
 
+	ilog("Got API data header: %.4s", data.c_str());
+
 	nb::StatusCode sc = parse_func(obj, (u8 *) data.c_str(), data.size(), nullptr);
 
 	switch(sc)
@@ -84,13 +85,13 @@ static Result nbreq(const std::string& url, T& obj, HTTPC_RequestMethod reqm = H
 		dlog("nb parse: success");
 		break;
 	case nb::StatusCode::NO_INPUT_DATA:
-		dlog("nb parse: no input data");
+		elog("nb parse: no input data");
 		break;
 	case nb::StatusCode::MAGIC_MISMATCH:
-		dlog("nb parse: magic mismatch");
+		elog("nb parse: magic mismatch");
 		break;
 	case nb::StatusCode::INPUT_DATA_TOO_SHORT:
-		dlog("nb parse: input data too short");
+		elog("nb parse: input data too short");
 		break;
 	}
 
@@ -103,7 +104,10 @@ static Result nbreq(const std::string& url, T& obj, HTTPC_RequestMethod reqm = H
 			res = handle_nb_result(nres);
 	}
 	if(sc != nb::StatusCode::SUCCESS)
-		res = APPERR_INVALID_NB;
+	{
+		res = APPERR_INVALID_NB; /* TODO: Ideally this log should be a dlog() but hidden behind some runtime trigger... */
+		elog("full failed nb data: %.*s", (int) data.size(), data.c_str());
+	}
 
 	return res;
 }
