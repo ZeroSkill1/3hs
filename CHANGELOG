@@ -1,4 +1,7 @@
 
+v1.4.6 "fiat lux":
+ - Fix issue where 3hs would display a black screen at boot in some cases
+
 v1.4.5 "fiat lux":
  - Fix crash that would occur while installing with low battery, instead turning it into an error
  - Make log files not saved to the SD card by default
