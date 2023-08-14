@@ -170,7 +170,8 @@ int main(int argc, char* argv[])
 	((void) argv);
 	Result res;
 
-	ensure_settings(); /* log_init() uses settings ... */
+	/* If the settings were reset by ensure_settings() the language was detected */
+	bool languageDetected = ensure_settings(); /* log_init() uses settings ... */
 	atexit(settings_sync);
 	log_init();
 	atexit(log_exit);
@@ -197,10 +198,28 @@ int main(int argc, char* argv[])
 
 	hidScanInput();
 	if((hidKeysDown() | hidKeysHeld()) & KEY_R)
+	{
 		reset_settings();
+		languageDetected = false;
+	}
 
 	if(get_nsettings()->lang == lang::spanish)
 		brick_negro();
+
+	/* Checking if the user actually speaks the target language should be done before any other string is display by the user */
+	if(languageDetected && get_nsettings()->lang != lang::english)
+	{
+		/* These strings must be in English */
+		std::string lang = i18n::langname(get_nsettings()->lang);
+		std::string string = PSTRING(automatically_detected, lang);
+		string += "\n3hs has automatically detected the system language is ";
+		string += lang;
+		string += ". Press " UI_GLYPH_B " to reset to English.";
+
+		/* TODO: The confirmation menu perhaps needs some more work */
+		if(!ui::Confirm::exec("Is this correct?", string))
+			get_nsettings()->lang = lang::english;
+	}
 
 #if VERSION_CHECK
 	// Check if we are under system version 9.6 (9.6 added seed support, which is essential for most new titles)

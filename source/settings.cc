@@ -308,13 +308,15 @@ struct ths_settings {
 }
 */
 
-void ensure_settings()
+bool ensure_settings()
 {
-	if(g_loaded) return; /* finished */
+	if(g_loaded) return false; /* finished */
 	g_loaded = true; /* we'll always write _something_ to settings after this point */
 
+	bool ret = false;
+
 	FILE *settings_f = fopen(SETTINGS_LOCATION, "r");
-	if(!settings_f) { reset_settings(true); return; }
+	if(!settings_f) { reset_settings(true); return true; }
 	fseek(settings_f, 0, SEEK_END);
 	size_t size = ftell(settings_f);
 	fseek(settings_f, 0, SEEK_SET);
@@ -359,9 +361,11 @@ void ensure_settings()
 	goto out;
 default_settings:
 	reset_settings(true);
+	ret = true;
 out:
 	fclose(settings_f);
 	free((void *) buf);
+	return ret;
 }
 
 bool settings_are_ready()
