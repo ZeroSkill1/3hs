@@ -65,6 +65,10 @@ void report_error(error_container& container, std::string note = "");
 std::string format_err(const std::string& msg, Result code);
 error_container get_error(Result res);
 std::string pad8code(Result code);
+
+/** Presents an error code to the user
+ */
+void edisp(Result code);
 #endif
 
 #endif
