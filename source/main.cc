@@ -432,7 +432,7 @@ cat:
 		// User wants to exit app
 		if(cat == next_cat_exit) break;
 		ilog("NEXT(c): %s", hsapi::category(cat).name.c_str());
-		/* we need to reset this since we've changed categories, meaning 
+		/* we need to reset this since we've changed categories, meaning
 		 * the subcategory data is invalid */
 		if(cat != associatedcat)
 		{
@@ -460,6 +460,7 @@ sub:
 		associatedsub = sub;
 
 gam:
+//		hsapi::hid id = next::sel_icon_gam(titles, hsapi::category(cat), hsapi::subcategory(cat, sub)); //&grdata, visited_gam);
 		hsapi::hid id = next::sel_gam(titles, &grdata, visited_gam);
 		if(id == next_gam_back) goto sub;
 		if(id == next_gam_exit) break;

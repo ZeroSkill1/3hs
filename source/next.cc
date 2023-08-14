@@ -223,42 +223,6 @@ struct hsApiImageLoader {
 
 	using Provider = ui::PassiveImageProvider<hsApiImageLoader>;
 
-	void entrypoint(ui::PassiveImageProvider<hsApiImageLoader>::Context& ctx)
-	{
-		while(ctx.await_event())
-		{
-			hsapi::stream_icons(ctx.data(), [&ctx](hsapi::hid id, auto data) -> void {
-				ctx.load(id, data);
-			});
-		}
-	}
-
-	void unload()
-	{
-	}
-};
-#endif
-
-#if 0
-hsapi::hid next::sel_gam(std::vector<hsapi::PartialTitle>& titles, struct gam_reenter_data *rdata, bool visited)
-{
-	using grid_t = ui::IconGrid<hsApiImageLoader::Provider>;
-
-	grid->loader().add_to_load_queue(titles[0].id);
-	grid->loader().add_to_load_queue(titles[1].id);
-	grid->loader().add_to_load_queue(titles[2].id);
-	grid->loader().add_to_load_queue(titles[3].id);
-	grid->loader().add_to_load_queue(titles[4].id);
-	grid->loader().add_to_load_queue(titles[5].id);
-}
-#endif
-
-struct hsApiImageLoader {
-	using DataType = const hsapi::PartialTitle&;
-	using DataTypeRef = const hsapi::PartialTitle&;
-
-	using Provider = ui::BatchLazyImageProvider<hsApiImageLoader>;
-
 	static void batch_load(std::list<size_t> ids, Provider::Context& ctx)
 	{
 		C2D_Image img;
@@ -278,16 +242,17 @@ struct hsApiImageLoader {
 			rgba_to_abgr((u32 *) bitmap, x, y);
 			load_abgr8(&img, (u32 *) bitmap, x, y);
 			ctx.loaded_for(id, img);
+			free(bitmap);
 		}
 	}
 
-	static void unload(C2D_Image img)
+	void unload(C2D_Image img)
 	{
 		delete_image(img);
 	}
 };
 
-hsapi::hid next::sel_icon_gam(std::vector<hsapi::PartialTitle>& titles)
+hsapi::hid next::sel_icon_gam(std::vector<hsapi::PartialTitle>& titles, const hsapi::IndexCategory& cat, const hsapi::IndexSubcategory& subcat)
 {
 	using IconGridType = ui::IconGrid<hsApiImageLoader::Provider>;
 
@@ -295,6 +260,8 @@ hsapi::hid next::sel_icon_gam(std::vector<hsapi::PartialTitle>& titles)
 	ui::RenderQueue queue;
 	ui::TitleMeta *meta;
 	IconGridType *grid;
+
+	titles.erase(titles.begin() + 10, titles.end());
 
 	ui::builder<ui::TitleMeta>(ui::Screen::bottom, titles[0])
 		.add_to(&meta, queue);
@@ -304,7 +271,7 @@ hsapi::hid next::sel_icon_gam(std::vector<hsapi::PartialTitle>& titles)
 	ui::builder<IconGridType>(ui::Screen::top)
 		.x(20.0f)
 		.y(40.0f)
-		.when_more_requested([](IconGridType *grid) -> bool {
+		.when_more_requested([cat, subcat](IconGridType *grid) -> bool {
 			return false;
 		})
 		.when_selected([&ret](IconGridType *grid, size_t i, u32 keys) -> bool {
@@ -346,6 +313,7 @@ hsapi::hid next::sel_icon_gam(std::vector<hsapi::PartialTitle>& titles)
 
 	return ret;
 }
+#endif
 
 hsapi::hid next::sel_gam(std::vector<hsapi::PartialTitle>& titles, struct gam_reenter_data *rdata, bool visited)
 {
