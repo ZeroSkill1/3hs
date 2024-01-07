@@ -387,6 +387,7 @@ if ($help) {
 	}
 
 	my $devkitpro = $ENV{DEVKITPRO};
+	my $devkitarm = $ENV{DEVKITARM} || "$devkitpro/devkitARM";
 	my $portlibs_path = "$devkitpro/portlibs/3ds";
 	my $libctru_path  = "$devkitpro/libctru";
 
@@ -437,7 +438,7 @@ LIBS += $libraries -lcitro2d -lcitro3d -lctru -lm -L$portlibs_path/lib -L$libctr
 # end
 
 # Tools setup
-export PATH := $devkitpro/tools/bin:$devkitpro/portlibs/3ds/bin:\$(PATH)
+export PATH := $devkitarm/bin/:$devkitpro/tools/bin:$devkitpro/portlibs/3ds/bin:\$(PATH)
 
 ifeq (\$(VERSION),)
 	VERSION := 0
@@ -508,10 +509,12 @@ $binary_name.elf: \$(PREDEPS) \$(GRAPHICS) \$(DATA_OBJECTS) \$(OBJECT_FILES)
 
 $graphics_output/%.t3x $data_build/%.h: $graphics_directory/%.t3s
 	\@echo \$(notdir \$<)
+	\$(SILENT)mkdir -p \$(dir \$@)
 	\$(SILENT)$tex3ds -i \$< -H $data_build/\$*.h -o $graphics_output/\$*.t3x
 
 $data_build/%.o: $data_build/%.bin
 	\@echo `basename \$< | sed 's/\.bin//'`
+	\$(SILENT)mkdir -p \$(dir \$@)
 	\$(SILENT)$bin2s -a 4 -H $data_build/`echo \$* | tr . _`.h \$< | $as -o \$@
 
 -include \$(OBJECT_FILES:.o=.d)
@@ -547,6 +550,7 @@ EOF
 		do_help "must specify configuration target";
 	}
 	make_target $target;
+	execute_make;
 } else {
 	make_target $target unless -f "$build_dir/$target.target.mk";
 	execute_make;

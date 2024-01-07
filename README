@@ -37,7 +37,7 @@ Variables used in the building process:
  - debug,DEBUG=1                                 enable debug flags (default when the release flag is not present)
  - release,RELEASE=1                             enable optimization + some minor changes for production
  - http_backend,HTTP_BACKEND=backend             http backend, either system (httpc) or curl
- - full_log,FUL_LOG=1
+ - full_log,FULL_LOG=1
  - device_id,DEVICE_ID=device-id-int
  - debug_server,HS_DEBUG_SERVER="debug-server"
  - update_base,HS_UPDATE_BASE="update-url"
@@ -47,6 +47,17 @@ Variables used in the building process:
 
 To successfully build you need
   update_base && (debug_server || (api_base && cdn_base && site_url))
+
+Concretely this means that to compile using the official hShop servers you would
+need to run a command like the following (adapt as you feel needed):
+
+ debug + curl (for Citra testing, recommended for development):
+   ./build.pl --configure 'debug,http_backend=curl,update_base=http://download2.mariko.you/3hs,nb_base=https://hshop.mariko.you/nbapi,cdn_base=http://download4.mariko.you,site_url=https://hshop.mariko.you'
+
+ release:
+   ./build.pl --target release --configure 'release,update_base=http://download2.mariko.you/3hs,nb_base=https://hshop.mariko.you/nbapi,cdn_base=http://download4.mariko.you,site_url=https://hshop.mariko.you'
+
+Substiting "mariko.you" by the official hShop domain.
 
 Additionally you need a file called source/hsapi_auth.c with the following contents
  #include <string.h>
