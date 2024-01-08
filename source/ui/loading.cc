@@ -44,10 +44,9 @@ void ui::loading(std::function<void()> callback)
 		LightLock_Init(&is_spinning_lock);
 	}
 	LightLock_Lock(&is_spinning_lock);
-	SpinState spincopy = is_spinning;
 
-	ctr::thread<> th([&spin_flag, spincopy]() -> void {
-		if(spincopy == SpinState::Spinning)
+	ctr::thread<bool&, SpinState> th([](bool& spin_flag, SpinState before) -> void {
+		if(before == SpinState::Spinning)
 			return;
 
 		ui::RenderQueue queue;
@@ -63,7 +62,7 @@ void ui::loading(std::function<void()> callback)
 		LightLock_Lock(&is_spinning_lock);
 		is_spinning = SpinState::Idle;
 		LightLock_Unlock(&is_spinning_lock);
-	}, -1);
+	}, -1, spin_flag, (SpinState) is_spinning);
 
 	is_spinning = SpinState::Spinning;
 	LightLock_Unlock(&is_spinning_lock);

@@ -492,7 +492,7 @@ gam:
 		 * this will get set to false if we re-enter */
 		visited_gam = true;
 
-		ilog("NEXT(g): %lli", id);
+		ilog("NEXT(g): %u", id);
 
 		hsapi::Title meta;
 		if(show_extmeta_lazy(titles, id, &meta))

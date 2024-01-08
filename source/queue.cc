@@ -95,7 +95,7 @@ void queue_process_all()
 	}; int procflag = NONE;
 	for(i = 0; i < g_queue.size(); ++i)
 	{
-		ilog("Processing title with id=%llu", g_queue[i].id);
+		ilog("Processing title with id=%u", g_queue[i].id);
 		res = install::gui::hs_cia(g_queue[i], false, false, PSTRING(installing_game_x_of_y,
 			hsapi::title_name(g_queue[i]), i + 1, g_queue.size()));
 		ilog("Finished processing, res=%016lX", res);

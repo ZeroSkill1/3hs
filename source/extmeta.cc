@@ -293,20 +293,16 @@ bool show_extmeta_lazy(const hsapi::PartialTitle& base, hsapi::Title *full)
 	ui::RenderQueue queue;
 	bool ret = true;
 
-	std::string version, prodcode, alt;
+	hsapi::Title stack_title;
+	if(!full) full = &stack_title;
 
-	ctr::thread<std::string&, std::string&, std::string&, ui::RenderQueue&, hsapi::Title *> th([&base]
-			(std::string& version, std::string& prodcode, std::string& alt, ui::RenderQueue& queue, hsapi::Title *fullptr) -> void {
-		hsapi::Title full;
-		if(R_FAILED(hsapi::title_meta(full, base.id)))
-			return;
-		if(fullptr != nullptr)
-			*fullptr = full;
-		version = hsapi::parse_vstring(full.version) + " (" + std::to_string(full.version) + ")";
-		prodcode = full.prod;
-		alt = full.alt;
-		queue.signal(ui::RenderQueue::signal_cancel);
-	}, -1, version, prodcode, alt, queue, std::move(full));
+	hsapi::hid id = base.id;
+
+	ctr::thread<ui::RenderQueue&, hsapi::hid, hsapi::Title&> th([](ui::RenderQueue& queue, hsapi::hid id, hsapi::Title& full) -> void {
+		/* Only force stop the queue if we have something loading */
+		if(R_SUCCEEDED(hsapi::title_meta(full, id)))
+			queue.signal(ui::RenderQueue::signal_cancel);
+	}, -1, queue, (hsapi::hid) id, *full);
 
 	extmeta_return res = extmeta(queue, base, STRING(loading), STRING(loading));
 	/* second thread returned more data */
@@ -314,7 +310,10 @@ bool show_extmeta_lazy(const hsapi::PartialTitle& base, hsapi::Title *full)
 	{
 		dlog("Lazy load finished before choice was made.");
 		queue.clear();
-		res = extmeta(queue, base, version, prodcode);
+
+		res = extmeta(queue, base,
+			hsapi::parse_vstring(full->version) + " (" + std::to_string(full->version) + ")",
+			full->prod);
 	}
 	ret = to_bool(res);
 
