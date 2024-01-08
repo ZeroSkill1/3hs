@@ -80,10 +80,21 @@ void ui::KBDEnabledButton::setup(const std::string& default_label, const std::st
 			SwkbdResult res;
 			SwkbdButton btn;
 
-			std::string query = ui::keyboard([this](ui::AppletSwkbd *swkbd) -> void {
-				swkbd->init_text(this->value());
-				swkbd->hint(this->hint);
-			}, &btn, &res);
+			std::string query;
+			if(this->doNumpad)
+			{
+				/* This is bad, but whatever */
+				uint64_t num = ui::numpad([this](ui::AppletSwkbd *swkbd) -> void {
+					swkbd->init_text(this->value());
+					swkbd->hint(this->hint);
+				}, &btn, &res);
+				query = std::to_string(num);
+			}
+			else
+				query = ui::keyboard([this](ui::AppletSwkbd *swkbd) -> void {
+					swkbd->init_text(this->value());
+					swkbd->hint(this->hint);
+				}, &btn, &res);
 
 			if(btn != SWKBD_BUTTON_CONFIRM || res == SWKBD_INVALID_INPUT || res == SWKBD_OUTOFMEM || res == SWKBD_BANNED_INPUT)
 				return;

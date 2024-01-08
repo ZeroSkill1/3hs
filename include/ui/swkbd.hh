@@ -93,6 +93,8 @@ namespace ui
 		float get_x() override { return this->btn->get_x(); }
 		float get_y() override { return this->btn->get_y(); }
 
+		void set_numpad(bool enable) { this->doNumpad = enable; }
+
 		void set(const std::string& val);
 		const std::string& value();
 
@@ -105,6 +107,12 @@ namespace ui
 				this->instance().update_cb = cb;
 				return this->return_value();
 			}
+
+			ReturnValue numpad(bool enable)
+			{
+				this->instance().set_numpad(enable);
+				return this->return_value();
+			}
 		};
 
 		bool is_empty() { return !this->hasValue; }
@@ -112,9 +120,9 @@ namespace ui
 	private:
 		update_callback_type update_cb = nullptr;
 		ui::ScopedWidget<ui::Button> btn;
+		bool hasValue, doNumpad = false;
 		std::string empty, hint;
 		size_t min_len;
-		bool hasValue;
 
 	};
 
