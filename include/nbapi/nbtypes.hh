@@ -406,7 +406,7 @@ namespace nb /* nbType */
 	struct NbIndex
 	{
 		NbIndexMeta meta;
-		u64 Date;
+		u64 date;
 	};
 
 	class Index : public NbIndex

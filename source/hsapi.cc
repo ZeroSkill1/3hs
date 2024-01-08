@@ -93,6 +93,9 @@ static Result nbreq(const std::string& url, T& obj, HTTPC_RequestMethod reqm = H
 	case nb::StatusCode::INPUT_DATA_TOO_SHORT:
 		elog("nb parse: input data too short");
 		break;
+	case nb::StatusCode::UNALIGNED:
+		elog("nb parse: data unaligned");
+		break;
 	}
 
 	if(sc == nb::StatusCode::MAGIC_MISMATCH)

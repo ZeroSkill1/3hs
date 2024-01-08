@@ -50,6 +50,7 @@ namespace nb
 		NO_INPUT_DATA        = 1,
 		MAGIC_MISMATCH       = 2,
 		INPUT_DATA_TOO_SHORT = 3,
+		UNALIGNED            = 4,
 	};
 
 	template <typename T>
@@ -57,6 +58,9 @@ namespace nb
 	{
 		if (!data || !size)
 			return nb::StatusCode::NO_INPUT_DATA;
+
+		if ((u32) data & 3)
+				return nb::StatusCode::UNALIGNED;
 
 		if (memcmp(T::magic, data, 4) != 0)
 			return nb::StatusCode::MAGIC_MISMATCH;
@@ -83,6 +87,9 @@ namespace nb
 		if (!data || !size)
 			return nb::StatusCode::NO_INPUT_DATA;
 
+		if ((u32) data & 3)
+				return nb::StatusCode::UNALIGNED;
+
 		if (memcmp(nb::ArrayMagic, data, 4) != 0)
 			return nb::StatusCode::MAGIC_MISMATCH;
 
@@ -91,6 +98,9 @@ namespace nb
 
 		nb::ArrayHeader *hdr = (nb::ArrayHeader *)data;
 		size_t total_objects_size = hdr->object_count * hdr->object_headers_size;
+
+		if (hdr->object_headers_size & 3)
+				return nb::StatusCode::UNALIGNED;
 
 		if (hdr->array_header_size + total_objects_size + hdr->shared_blob_size > size)
 			return nb::StatusCode::INPUT_DATA_TOO_SHORT;
