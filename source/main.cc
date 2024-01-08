@@ -221,11 +221,31 @@ int main(int argc, char* argv[])
 			get_nsettings()->lang = lang::english;
 	}
 
+	if(!(ENVINFO & 1))
+	{
+		flog("Detected dev ENVINFO, aborting startup");
+
+		ui::RenderQueue queue;
+
+		ui::builder<ui::Text>(ui::Screen::top, STRING(dev_unitinfo))
+			.x(ui::layout::center_x).y(45.0f)
+			.wrap()
+			.add_to(queue);
+
+		queue.render_finite_button(KEY_START | KEY_B);
+		exit(0);
+	}
+
 #if VERSION_CHECK
 	// Check if we are under system version 9.6 (9.6 added seed support, which is essential for most new titles)
-	OS_VersionBin version;
-	if(R_SUCCEEDED(osGetSystemVersionData(nullptr, &version)))
-		if(SYSTEM_VERSION(version.mainver, version.minor, version.build) < SYSTEM_VERSION(9, 6, 0))
+	OS_VersionBin version, ignore;
+	if(R_SUCCEEDED(osGetSystemVersionData(&ignore, &version)))
+		/* it seems devkits are cursed, they all have versions < 1.0.0, so we'll allow that specific intel lists 0.24.38 as the
+		 * first devkit with seed support but i haven't tested so i'll keep it like this for now. From these two sources
+		 *  https://gbatemp.net/attachments/complete_ctr_systemupdater_list-png.391094/
+		 *  https://en-americas-support.nintendo.com/app/answers/detail/a_id/667/~/nintendo-3ds-system-update-history */
+		if( SYSTEM_VERSION(version.mainver, version.minor, version.build) > SYSTEM_VERSION(1,0,0)
+		 && SYSTEM_VERSION(version.mainver, version.minor, version.build) < SYSTEM_VERSION(9,6,0))
 		{
 			flog("User is on an unsupported system version: %d.%d.%d", version.mainver, version.minor, version.build);
 			ui::notice(STRING(outdated_system));
@@ -255,21 +275,6 @@ int main(int argc, char* argv[])
 		exit(0);
 	}
 #endif
-
-	if(!(ENVINFO & 1))
-	{
-		flog("Detected dev ENVINFO, aborting startup");
-
-		ui::RenderQueue queue;
-
-		ui::builder<ui::Text>(ui::Screen::top, STRING(dev_unitinfo))
-			.x(ui::layout::center_x).y(45.0f)
-			.wrap()
-			.add_to(queue);
-
-		queue.render_finite_button(KEY_START | KEY_B);
-		exit(0);
-	}
 
 	osSetSpeedupEnable(true); // speedup for n3dses
 
