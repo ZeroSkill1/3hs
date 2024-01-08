@@ -92,6 +92,8 @@ static const std::unordered_map<std::string, std::string> sort_direction =
 	{ "desc"       , "descending" },
 };
 
+using SearchParams = std::unordered_map<std::string, std::string>;
+
 static bool is_tid(const std::string& str)
 {
 	if(str.size() != 16) return false;
@@ -114,6 +116,15 @@ static bool is_prod(const std::string& str)
 	for(size_t i = 0; i < str.size(); ++i)
 		/* [A-Za-z0-9-] */
 		if(!((str[i] >= 'A' && str[i] <= 'Z') || (str[i] >= 'a' && str[i] <= 'z') || (str[i] >= '0' && str[i] <= '9') || str[i] == '-'))
+			return false;
+	return true;
+}
+
+static bool is_numeric(const std::string& str)
+{
+	if(str.size() == 0) return false;
+	for(size_t i = 0; i < str.size(); ++i)
+		if(!(str[i] >= '0' && str[i] <= '9'))
 			return false;
 	return true;
 }
@@ -238,163 +249,9 @@ static void error(const std::string& msg)
 	queue.render_finite_button(KEY_A | KEY_B | KEY_START);
 }
 
-static bool show_searchbar_search()
+/* Returns NULL if success or an error string if the input couldn't be parsed */
+static const char *parse_legacy_search_query(const std::string& input, SearchParams& out_params)
 {
-	SwkbdResult res;
-	SwkbdButton btn;
-
-	std::string query = ui::keyboard([](ui::AppletSwkbd *swkbd) -> void {
-		swkbd->hint(STRING(search_content_action));
-		swkbd->valid(SWKBD_NOTEMPTY_NOTBLANK);
-	}, &btn, &res);
-
-	if(btn != SWKBD_BUTTON_CONFIRM)
-		return true;
-
-	if(query.size() < 3 || res == SWKBD_INVALID_INPUT || res == SWKBD_OUTOFMEM || res == SWKBD_BANNED_INPUT)
-	{
-		error(STRING(invalid_query));
-		return true;
-	}
-
-	std::vector<hsapi::PartialTitle> titles;
-	Result rres = hsapi::call<std::vector<hsapi::PartialTitle>&, const std::unordered_map<std::string, std::string>&>(hsapi::search, titles, { { "q", query }, { "qt", "Text" } });
-	if(R_FAILED(rres)) return true;
-
-	if(titles.size() == 0)
-	{
-		error(STRING(search_zero_results));
-		return true;
-	}
-
-	next::maybe_install_gam(titles);
-	return true;
-}
-
-static bool show_id_search()
-{
-	SwkbdResult res;
-	SwkbdButton btn;
-
-	uint64_t id = ui::numpad([](ui::AppletSwkbd *swkbd) -> void {
-		swkbd->hint(STRING(search_id));
-	}, &btn, &res, 16);
-
-	if(btn != SWKBD_BUTTON_CONFIRM || res == SWKBD_INVALID_INPUT || res == SWKBD_OUTOFMEM || res == SWKBD_BANNED_INPUT)
-		return true;
-
-	hsapi::Title title;
-	Result rres = hsapi::call<hsapi::Title&, hsapi::hid>(hsapi::title_meta, title, id);
-	if(R_FAILED(rres)) return true;
-
-	if(show_extmeta(title))
-		install::gui::hs_cia(title);
-	return true;
-}
-
-static bool show_tid_search()
-{
-	SwkbdResult res;
-	SwkbdButton btn;
-
-	std::string title_id = ui::keyboard([](ui::AppletSwkbd *swkbd) -> void {
-		swkbd->hint(STRING(search_tid));
-	}, &btn, &res, 16);
-
-	if(btn != SWKBD_BUTTON_CONFIRM || res == SWKBD_INVALID_INPUT || res == SWKBD_OUTOFMEM || res == SWKBD_BANNED_INPUT)
-		return true;
-
-	if(!is_tid(title_id))
-	{
-		error(STRING(invalid_tid));
-		return true;
-	}
-
-	if(title_id == "0004000001111100")
-	{
-		error(STRING(theme_installer_tid_bad));
-		return true;
-	}
-
-	std::vector<hsapi::Title> titles;
-	Result rres = hsapi::call<std::vector<hsapi::Title>&, const std::string&>(hsapi::get_by_title_id, titles, title_id);
-	if(R_FAILED(rres))
-		return true;
-
-	if(titles.size() == 0)
-	{
-		error(STRING(search_zero_results));
-		return true;
-	}
-
-	/* we have to "demote" to PartialTitles here */
-	std::vector<hsapi::PartialTitle> ptitles;
-	ptitles.reserve(titles.size());
-	for(hsapi::Title& title : titles)
-	{
-		ptitles.emplace_back();
-		hsapi::PartialTitle& ptitle = ptitles.back();
-		ptitle.tid = title.tid;
-		ptitle.size = title.size;
-		ptitle.flags = title.flags;
-		ptitle.id = title.id;
-		ptitle.name = title.name;
-		ptitle.alt = title.alt;
-		ptitle.prod = title.prod;
-		ptitle.version = title.version;
-		ptitle.contentType = title.contentType;
-		ptitle.cat = title.cat;
-		ptitle.subcat = title.subcat;
-	}
-
-	next::maybe_install_gam(ptitles);
-	return true;
-}
-
-static bool show_prod_search()
-{
-	SwkbdResult res;
-	SwkbdButton btn;
-
-	std::string prod = ui::keyboard([](ui::AppletSwkbd *swkbd) -> void {
-		swkbd->hint(STRING(search_prod));
-	}, &btn, &res, 16);
-
-	if(btn != SWKBD_BUTTON_CONFIRM || res == SWKBD_INVALID_INPUT || res == SWKBD_OUTOFMEM || res == SWKBD_BANNED_INPUT)
-		return true;
-
-	if(!is_prod(prod))
-	{
-		error(STRING(invalid_prod));
-		return true;
-	}
-
-	std::vector<hsapi::PartialTitle> titles;
-	Result rres = hsapi::call<std::vector<hsapi::PartialTitle>&, const std::unordered_map<std::string, std::string>&>(hsapi::search, titles, { { "q", prod }, { "qt", "ProductCode" } });
-	if(R_FAILED(rres)) return true;
-
-	if(titles.size() == 0)
-	{
-		error(STRING(search_zero_results));
-		return true;
-	}
-
-	next::maybe_install_gam(titles);
-	return true;
-}
-
-static bool legacy_search()
-{
-	SwkbdResult res;
-	SwkbdButton btn;
-
-	std::string input = ui::keyboard([](ui::AppletSwkbd *swkbd) -> void {
-		swkbd->hint(STRING(enter_lgy_query));
-	}, &btn, &res, 1024);
-
-	if(btn != SWKBD_BUTTON_CONFIRM || res == SWKBD_INVALID_INPUT || res == SWKBD_OUTOFMEM || res == SWKBD_BANNED_INPUT)
-		return true;
-
 	std::unordered_map<std::string, std::string> params;
 	std::vector<std::string> parts;
 	std::string query = "";
@@ -411,134 +268,85 @@ static bool legacy_search()
 			query += part + " ";
 			continue;
 		}
-		params[short_key ? param_pair[0] : keys.at(param_pair[0])] = param_pair[1];
+		out_params[short_key ? param_pair[0] : keys.at(param_pair[0])] = param_pair[1];
 	}
 
 	trim(query, " ");
 
 	if(!query.empty())
 	{
-		params["q"] = query;
-		params["qt"] = "Text";
+		out_params["q"] = query;
+		out_params["qt"] = "Text";
 	}
 
-	bool has_tid = has_key(params, "t");
-	bool has_prod = has_key(params, "pr");
+	bool has_tid = has_key(out_params, "t");
+	bool has_prod = has_key(out_params, "pr");
 
 	if(has_tid)
 	{
-		if(params.size() > 1)
-		{
-			error(STRING(no_other_params_tid));
-			return true;
-		}
-		if(!is_tid(params["t"]))
-		{
-			error(STRING(invalid_tid));
-			return true;
-		}
-		params["q"] = params["t"];
-		params["qt"] = "TitleID";
-		params.erase("t");
+		if(out_params.size() > 1)    return STRING(no_other_params_tid);
+		if(!is_tid(out_params["t"])) return STRING(invalid_tid);
+		out_params["q"] = out_params["t"];
+		out_params["qt"] = "TitleID";
+		out_params.erase("t");
 	}
 
 	if(has_prod)
 	{
-		if(params.size() > 1)
-		{
-			error(STRING(no_other_params_prod));
-			return true;
-		}
-		if(!is_prod(params["pr"]))
-		{
-			error(STRING(invalid_prod));
-			return true;
-		}
-		params["q"] = params["pr"];
-		params["qt"] = "ProductCode";
-		params.erase("pr");
+		if(out_params.size() > 1)      return STRING(no_other_params_prod);
+		if(!is_prod(out_params["pr"])) return STRING(invalid_prod);
+
+		out_params["q"] = out_params["pr"];
+		out_params["qt"] = "ProductCode";
+		out_params.erase("pr");
 	}
 
+	/* This error message isn't entirely correct but good enough */
 	if(!has_tid && !has_prod && query.size() < 3)
-	{
-		error(STRING(invalid_query));
-		return true;
-	}
-	bool has_sb = has_key(params, "sb");
-	bool has_sd = has_key(params, "sd");
-	bool has_e = has_key(params, "e");
-	bool has_i = has_key(params, "i");
+		return STRING(query_too_short);
+
+	bool has_sb = has_key(out_params, "sb");
+	bool has_sd = has_key(out_params, "sd");
+	bool has_e = has_key(out_params, "e");
+	bool has_i = has_key(out_params, "i");
 
 	if((has_sb && !has_sd) || (has_sd && !has_sb))
-	{
-		error(STRING(both_sd_and_sb));
-		return true;
-	}
+		return STRING(both_sd_and_sb);
 
 	if(has_sb)
 	{
-		if(!has_key(sort_by, params["sb"]))
-		{
-			error(STRING(invalid_sb));
-			return true;
-		}
-		params["sb"] = sort_by.at(params["sb"]);
+		if(!has_key(sort_by, out_params["sb"]))
+			return STRING(invalid_sb);
+
+		out_params["sb"] = sort_by.at(out_params["sb"]);
 	}
 
 	if(has_sd)
 	{
-		if(!has_key(sort_direction, params["sd"]))
-		{
-			error(STRING(invalid_sd));
-			return true;
-		}
-		params["sd"] = sort_direction.at(params["sd"]);
+		if(!has_key(sort_direction, out_params["sd"]))
+			return STRING(invalid_sd);
+
+		out_params["sd"] = sort_direction.at(out_params["sd"]);
 	}
 
-	if(has_key(params, "p") && (params["p"] != "legit" && params["p"] != "piratelegit" && params["p"] != "standard"))
-	{
-		error(STRING(invalid_content_type));
-		return true;
-	}
+	if(has_key(out_params, "p") && (out_params["p"] != "legit" && out_params["p"] != "piratelegit" && out_params["p"] != "standard"))
+		return STRING(invalid_content_type);
 
 	std::string includes, excludes;
 	std::vector<std::string> include_cats, exclude_cats;
 
-	if(has_i && !parse_filters(includes, include_cats, params["i"]))
-	{
-		error(STRING(invalid_includes));
-		return true;
-	}
+	if(has_i && !parse_filters(includes, include_cats, out_params["i"])) return STRING(invalid_includes);
+	if(has_e && !parse_filters(excludes, exclude_cats, out_params["e"])) return STRING(invalid_excludes);
 
-	if(has_e && !parse_filters(excludes, exclude_cats, params["e"]))
-	{
-		error(STRING(invalid_excludes));
-		return true;
-	}
-
-	if(!includes.empty()) params["i"] = includes;
-	if(!excludes.empty()) params["e"] = excludes;
+	if(!includes.empty()) out_params["i"] = includes;
+	if(!excludes.empty()) out_params["e"] = excludes;
 
 	for(const std::string& include_cat : include_cats)
 		for(const std::string& exclude_cat : exclude_cats)
 			if(include_cat == exclude_cat)
-			{
-				error(STRING(filter_overlap));
-				return true;
-			}
+				return STRING(filter_overlap);
 
-	std::vector<hsapi::PartialTitle> titles;
-	Result rres = hsapi::call<std::vector<hsapi::PartialTitle>&, const std::unordered_map<std::string, std::string>&>(hsapi::search, titles, params);
-	if(R_FAILED(rres)) return true;
-
-	if(titles.size() == 0)
-	{
-		error(STRING(search_zero_results));
-		return true;
-	}
-
-	next::maybe_install_gam(titles);
-	return true;
+	return NULL;
 }
 
 enum class ContentType {
@@ -666,13 +474,21 @@ static bool show_filter_select(std::string& ret, filterTextsType filterTexts, in
 
 #define TAB_QUICK    0
 #define TAB_FILTERED 1
-#define TAB_TID      2
-#define TAB_PROD     3
-#define TAB_LGY      4 /* TODO */
+#define TAB_LGY      2 /* TODO */
+#define TAB_TID      3
+#define TAB_PROD     4
+#define TAB_HSID     5 /* TODO */
 
-static bool show_normal_search()
+void show_search()
 {
-	/* normal search may be the most complicated ui code in the whole 3hs project */
+	static bool in_search = false;
+
+	if(in_search) return;
+	in_search = true;
+
+	bool focus = set_focus(true);
+
+	/* search may be the most complicated ui code in the whole 3hs project */
 
 	ui::CheckBox *inc_unofficial, *inc_games, *inc_updates, *inc_dlc, *inc_vc, *inc_dsi;
 	ui::CheckBox *reg_eur, *reg_usa, *reg_jpn, *reg_other;
@@ -688,9 +504,10 @@ static bool show_normal_search()
 	constexpr float filter_padding = 5.0f;
 	constexpr float filter_div = (ui::screen_width(ui::Screen::bottom) - filter_padding * 2.0f) / 2.0f;
 
-	static constexpr int ntabs = 4;
-	static const kbd_checker_func checker_funcs[ntabs] = { is_valid_query, is_valid_query, is_tid, is_prod };
-	const char *headings[ntabs] = { STRING(quick), STRING(filters), STRING(tid), STRING(prodcode) };
+	static constexpr int ntabs = 6;
+	/* TODO: implement checker func for legacy, no checker func for ID search, should be numpad */
+	static const kbd_checker_func checker_funcs[ntabs] = { is_valid_query, is_valid_query, nullptr, is_tid, is_prod, is_numeric };
+	const char *headings[ntabs] = { STRING(quick), STRING(filters), STRING(legacy_search_tab), STRING(tid), STRING(prodcode), STRING(landing_id) };
 	ui::BaseWidget *bottomTab[ntabs];
 	ui::WidgetGroup groups[ntabs];
 	ui::WidgetGroup ctypeSelGrp;
@@ -699,16 +516,37 @@ static bool show_normal_search()
 	int filterCount[2] = { 0, 0 };
 	ui::Button *addButtons[2];
 	ui::Text *invalidInput;
+	hsapi::hid landing_id;
 
-	auto perform_check = [&kbd, &submit, &invalidInput](size_t idx) -> void {
-		bool yes = checker_funcs[idx](kbd->value());
-		submit->set_hidden(!yes);
+	SearchParams legacy_params;
+
+	auto perform_check = [&kbd, &submit, &invalidInput, &legacy_params](size_t idx) -> void {
 		const char *text = nullptr;
-		if(idx == TAB_TID && !yes)
-			text = STRING(new_invalid_tid);
-		else if(idx == TAB_PROD && !yes)
-			text = STRING(new_invalid_prod);
+		bool yes;
+		if(idx == TAB_LGY)
+		{
+			/* The check actually parses the error... */
+			legacy_params.clear();
+			text = parse_legacy_search_query(kbd->value(), legacy_params);
+			yes = !text;
+		}
+		else
+		{
+			yes = checker_funcs[idx](kbd->value());
+			if(idx == TAB_TID && !yes)
+				text = STRING(new_invalid_tid);
+			else if(idx == TAB_PROD && !yes)
+				text = STRING(new_invalid_prod);
+			/* TODO: Find a way to display this error */
+			/*
+			else if((idx == TAB_QUICK || idx == TAB_FILTERED) && !yes)
+				text = STRING(query_too_short);
+			*/
+		}
 
+		submit->set_hidden(!yes);
+
+		/* If we want to display an error text we can */
 		if(!kbd->is_empty() && text)
 		{
 			invalidInput->set_text(text);
@@ -727,7 +565,7 @@ static bool show_normal_search()
 		.add_to(&invalidInput, rq);
 
 	ui::builder<ui::ButtonCallback>(ui::Screen::none, KEY_L | KEY_R)
-		.when_kdown([&tabIndex, &groups, &headings, &cheading, &modehint, &perform_check, &bottomTab, &ctypeSelGrp, &filterGroups, &filterCount, &addButtons](u32 keys) -> bool {
+		.when_kdown([&](u32 keys) -> bool {
 			size_t newIndex;
 			if(keys & KEY_R) newIndex = tabIndex == ntabs - 1 ? 0 : tabIndex + 1;
 			else if(keys & KEY_L) newIndex = tabIndex == 0 ? ntabs - 1 : tabIndex - 1;
@@ -743,7 +581,7 @@ static bool show_normal_search()
 			}
 			else ctypeSelGrp.set_hidden(true);
 			/* slightly cursed, we need to hide some filterGroup elements */
-			if(newIndex == 1)
+			if(newIndex == TAB_FILTERED)
 				for(int i = 0; i < 2; ++i)
 				{
 					for(int j = filterCount[i]; j < MAX_TYPE_FILTER; ++j)
@@ -751,8 +589,9 @@ static bool show_normal_search()
 					if(filterCount[i] == MAX_TYPE_FILTER)
 						addButtons[i]->set_hidden(true);
 				}
+			kbd->set_numpad(newIndex == TAB_HSID);
 			/* the input may be invalid for the new mode... */
-			perform_check(newIndex);
+			perform_check(newIndex); /* TODO */
 			tabIndex = newIndex;
 			return true;
 		})
@@ -774,8 +613,8 @@ static bool show_normal_search()
 		.x(ui::layout::center_x)
 		.under(rq.back(), 5.0f)
 		.when_update([&tabIndex, &perform_check](ui::KBDEnabledButton *) -> void {
-			/* set the submit button hidden for invalid input */
-			perform_check(tabIndex);
+			/* set the submit button hidden for invalid input/reparse input (legacy) */
+			perform_check(tabIndex); /* TODO */
 		})
 		.add_to(&kbd, rq);
 
@@ -788,9 +627,21 @@ static bool show_normal_search()
 			ui::RenderQueue::global()->render_and_then([&]() -> void {
 				std::unordered_map<std::string, std::string> params;
 				std::vector<hsapi::PartialTitle> titles;
-				if(ctype != ContentType::All) params["p"] = content_type_tab[(int) ctype];
-				params["qt"] = (tabIndex == TAB_QUICK || tabIndex == TAB_FILTERED) ? "Text" : (tabIndex == TAB_TID ? "TitleID" : "ProductCode");
-				params["q"] = kbd->value();
+
+				if(tabIndex == TAB_LGY)
+				{
+					/* It is a bit of a waste to copy, but whatever */
+					params = legacy_params;
+				}
+				else
+				{
+					if((tabIndex == TAB_QUICK || tabIndex == TAB_FILTERED) && ctype != ContentType::All)
+						params["p"] = content_type_tab[(int) ctype];
+
+					params["qt"] = (tabIndex == TAB_QUICK || tabIndex == TAB_FILTERED) ? "Text" : (tabIndex == TAB_TID ? "TitleID" : "ProductCode");
+					params["q"] = kbd->value();
+				}
+
 				/* both quick(0) and filtered(1) have additional parameters that we need to set */
 				if(tabIndex == TAB_QUICK)
 				{
@@ -886,7 +737,7 @@ static bool show_normal_search()
 			.size(0.6f).x(filter_padding).under(kbd)
 			.max_width(filter_div)
 			.add_to(&widest_include_content, rq);
-		rq.group_last(groups[0]);
+		rq.group_last(groups[TAB_QUICK]);
 
 #define OPT(label_content, output_var, ...)  \
 			ui::builder<ui::CheckBox>(ui::Screen::bottom, true) \
@@ -898,7 +749,7 @@ static bool show_normal_search()
 				.right(rq.back()).align_y(rq.back()).middle(rq.back()) \
 				.size(0.5f) \
 				.add_to(rq); \
-			rq.group_last(groups[0]);
+			rq.group_last(groups[TAB_QUICK]);
 
 		OPT("Games", &inc_games, align_x(rq.back(), 8.0f))
 		OPT("Updates", &inc_updates, align_x(inc_games))
@@ -907,13 +758,13 @@ static bool show_normal_search()
 		OPT("DSiWare", &inc_dsi, align_x(inc_games))
 		OPT(STRING(other), &inc_unofficial, align_x(inc_games))
 
-		bottomTab[0] = rq.back();
+		bottomTab[TAB_QUICK] = rq.back();
 
 		ui::builder<ui::Text>(ui::Screen::bottom, STRING(regions))
 			.size(0.6f).x(filter_padding + filter_div).under(kbd)
 			.max_width(filter_div)
 			.add_to(rq);
-		rq.group_last(groups[0]);
+		rq.group_last(groups[TAB_QUICK]);
 
 		OPT("North America", &reg_usa, align_x(rq.back(), 8.0f))
 		OPT("Europe", &reg_eur, align_x(reg_usa))
@@ -949,7 +800,7 @@ static bool show_normal_search()
 				.max_width(filter_div)
 				.under(kbd)
 				.add_to(&filterTexts[i][0], rq);
-			rq.group_last(groups[1]);
+			rq.group_last(groups[TAB_FILTERED]);
 
 			ui::builder<ui::Button>(ui::Screen::bottom, STRING(add))
 				.align_x(rq.back()).under(rq.back()).wrap()
@@ -983,7 +834,7 @@ static bool show_normal_search()
 					return true;
 				})
 				.add_to(&addButtons[i], rq);
-			rq.group_last(groups[1]);
+			rq.group_last(groups[TAB_FILTERED]);
 		}
 
 		for(int i = 0; i < 2; ++i)
@@ -1019,7 +870,7 @@ static bool show_normal_search()
 					})
 					.hide()
 					.add_to(rq);
-				rq.group_last(groups[1]);
+				rq.group_last(groups[TAB_FILTERED]);
 				rq.group_last(filterGroups[i][j]);
 				ui::builder<ui::Text>(ui::Screen::bottom)
 					.size(0.45f)
@@ -1028,17 +879,18 @@ static bool show_normal_search()
 					.max_width(filter_div - 4.0f*3.0f /* padding */)
 					.wrap().hide()
 					.add_to(&filterTexts[i][j + 1], rq);
-				rq.group_last(groups[1]);
+				rq.group_last(groups[TAB_FILTERED]);
 				rq.group_last(filterGroups[i][j]);
 			}
 
 		/* by default there are no filters: the add button will be the bottom widget */
-		bottomTab[1] = addButtons[FILTER_INCLUDE];
+		bottomTab[TAB_FILTERED] = addButtons[FILTER_INCLUDE];
 
-	/* the other 2 don't require a content type filter, so it'll be disabled */
-	bottomTab[2] = bottomTab[3] = nullptr;
+	/* the others don't require a content type filter, so it'll be disabled */
+	bottomTab[TAB_LGY]  = bottomTab[TAB_TID]  = nullptr;
+	bottomTab[TAB_PROD] = bottomTab[TAB_HSID] = nullptr;
 
-	ctypeSelGrp.position_under(bottomTab[0]);
+	ctypeSelGrp.position_under(bottomTab[TAB_QUICK]);
 	for(int i = 1; i < ntabs; ++i)
 		groups[i].set_hidden(true);
 
@@ -1047,37 +899,6 @@ static bool show_normal_search()
 		.add_to(rq);
 
 	rq.render_finite_button(KEY_B | KEY_START);
-
-	return true;
-}
-
-void show_search()
-{
-	static bool in_search = false;
-
-	if(in_search) return;
-	in_search = true;
-
-	std::string desc = set_desc(STRING(search_content));
-	bool focus = set_focus(true);
-
-	/* TODO: All of these should be merged inside 'normal search', currently only 'legacy search' is not included */
-
-	ui::RenderQueue queue;
-	ui::builder<ui::MenuSelect>(ui::Screen::bottom)
-		.add_row(STRING(normal_search), show_normal_search)
-		.add_row(STRING(search_text), show_searchbar_search)
-		.add_row(STRING(search_id), show_id_search)
-		.add_row(STRING(search_tid), show_tid_search)
-		.add_row(STRING(search_prod), show_prod_search)
-		.add_row(STRING(lgy_search), legacy_search)
-		.add_to(queue);
-
-	queue.render_finite_button(KEY_B);
-
-	set_focus(focus);
-	set_desc(desc);
-
 	in_search = false;
 }
 

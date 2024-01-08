@@ -855,3 +855,11 @@ Press UI_GLYPH_B to continue.
 - error_occurred
 An error occurred
 
+# New search method, same as legacy search on the site
+- legacy_search_tab
+Legacy
+
+# Error message for search
+- query_too_short
+Query must be at least 3 characters
+
