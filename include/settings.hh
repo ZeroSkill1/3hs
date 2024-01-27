@@ -98,6 +98,7 @@ SortMethod settings_sort_switch();
 NewSettings *get_nsettings();
 bool settings_are_ready();
 void load_current_theme();
+void show_set_language();
 /* returns true if settings were reset */
 bool ensure_settings();
 void show_theme_menu();

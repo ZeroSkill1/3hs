@@ -131,9 +131,12 @@ namespace ui
 
 	namespace layer
 	{
-		constexpr float middle = 0.5f;
-		constexpr float top    = 0.9f;
-		constexpr float bottom = 0.1f;
+		constexpr float bottom      = 0.1f;
+		constexpr float middle      = 0.5f;
+		constexpr float under_image = 0.80f;
+		constexpr float image       = 0.81f;
+		constexpr float above_image = 0.82f;
+		constexpr float top         = 0.9f;
 	}
 
 	namespace tag
@@ -148,6 +151,8 @@ namespace ui
 		constexpr int random         = -8;  /* random button */
 		constexpr int status         = -9;  /* status line */
 		constexpr int net_indicator  = -10; /* network indicator */
+		constexpr int obscure_bottom = -11; /* bottom obscurer */
+		constexpr int obscure_top    = -12; /* top obscurer */
 	};
 
 	/* holds sprite ids used for ui::SpriteStore::get_by_id() */
@@ -262,6 +267,20 @@ namespace ui
 		ui::BaseWidget *rightmost();
 		ui::BaseWidget *leftmost();
 
+		inline ui::BaseWidget *back() { return this->size() == 0 ? nullptr : this->ws[this->size() - 1]; }
+		inline std::vector<ui::BaseWidget *>& widgets() { return this->ws; }
+		inline size_t size() { return this->ws.size(); }
+
+		/* Calls render(ui::Keys&) on all widgets that render on screen. Returns false if
+		 * one of the widgets also returns false. */
+		bool render_all(ui::Screen, ui::Keys&);
+		/* Calls render(ui::Keys&) on all widgets. If the group contains a widget that does
+		 * not render on the current screen the render will break. Returns false if one
+		 * of the widgets also returns false. */
+		bool render_all(ui::Keys&);
+		/* Calls destroy() on all widgets and deletes the memory. */
+		void destroy_all();
+
 	private:
 		std::vector<ui::BaseWidget *> ws;
 
@@ -280,6 +299,8 @@ namespace ui
 
 		/* push a new widget into the queue */
 		void push(ui::BaseWidget *wid);
+		/* Remove a widget from the queue. Musn't be called while rendering a frame. */
+		void remove(ui::BaseWidget *wid);
 		/* render forever */
 		void render_forever();
 		/* render until render_frame() returns false */
@@ -343,6 +364,10 @@ namespace ui
 			group.add(this->backPtr);
 		}
 
+		/* This only has effect on the global render queue */
+		void set_exclusive_input(bool e) { this->exclusiveInput = e; }
+		bool is_exclusive_input() { return this->exclusiveInput; }
+
 		/* Gets the global RenderQueue */
 		static ui::RenderQueue *global();
 		/* Gets the pressed keys */
@@ -355,11 +380,14 @@ namespace ui
 		std::list<ui::BaseWidget *> bot;
 
 	private:
+		bool render_list(std::list<ui::BaseWidget *>&, ui::Keys&);
+
 		int enter_frame();
 		bool exit_frame();
 
 		std::function<bool()> *after_render_complete = nullptr;
 		ui::BaseWidget *backPtr = nullptr;
+		bool exclusiveInput = false;
 		u8 signalBit = 0;
 
 
@@ -393,6 +421,13 @@ namespace ui
 					delete this->el;
 			}
 
+			/* move constructor, used when you want to return a ui::builder in a function */
+			builder(builder&& other)
+				: el(other.el), leaked(other.leaked)
+			{
+				other.el = nullptr;
+			}
+
 			/* Sets the size of a widget. Not supported by all widgets */
 			TRV& size(float x, float y) { this->el->resize(x, y); return this->return_value(); }
 			/* Sets the size of a widget. Not supported by all widgets */
@@ -413,6 +448,10 @@ namespace ui
 			TRV& hide(bool hidden = true) { this->el->set_hidden(hidden); return this->return_value(); }
 			/* Set the tag of the widget */
 			TRV& tag(int t) { this->el->set_tag(t); return this->return_value(); }
+			/* Set maximum width of the widget */
+			TRV& max_width(float v) { this->el->set_max_width(v); return this->return_value(); }
+			/* Set maximum height of the widget */
+			TRV& max_height(float v) { this->el->set_max_height(v); return this->return_value(); }
 			/* Set x position. note: you most likely want to call this last */
 			TRV& x(float v) { this->el->set_x(v); return this->return_value(); }
 			/* Set y position. note: you most likely want to call this last */
@@ -441,6 +480,8 @@ namespace ui
 			TRV& align_y_center(TBase *w) { this->el->set_y(ui::center_align_y(w, this->el)); return this->return_value(); }
 			/* swaps the slots for a widget */
 			TRV& swap_slots(const StaticSlot& slot) { this->el->swap_slots(slot); return this->return_value(); }
+			/* marks the widget for exclusive input */
+			TRV& exclusive_input() { this->el->set_exclusive_input(true); return this->return_value(); }
 
 			/* Add the built widget to a RenderQueue */
 			void add_to(ui::RenderQueue& queue) { queue.push((TBase *) this->finalize()); }
@@ -453,10 +494,23 @@ namespace ui
 			/* finalize the built widget and return a pointer to it */
 			TWidget *finalize() { this->el->finalize(); TWidget *ret = this->el; this->el = nullptr; return ret; }
 
+			/* Add the built widget to a Group */
+			template <typename T> void add_to(T& groupish) { groupish.add((TBase *) this->finalize()); }
+			/* Add the built widget to a Group */
+			template <typename T> void add_to(T *groupish) { groupish->add((TBase *) this->finalize()); }
+			/* Add the built widget to a Group and your own pointer */
+			template <typename T> void add_to(TWidget **ret, T& groupish) { *ret = this->finalize(); groupish.add((TBase *) *ret); }
+			/* Add the built widget to a Group and your own pointer */
+			template <typename T> void add_to(TWidget **ret, T *groupish) { *ret = this->finalize(); groupish->add((TBase *) *ret); }
+
 		protected:
 			virtual TRV& return_value() = 0;
 			TWidget *el = nullptr;
 			bool leaked = false;
+
+		private:
+			/* builders shouldn't be copied */
+			builder operator = (const builder& other) = delete;
 
 		};
 	}
@@ -489,6 +543,9 @@ namespace ui
 			if(x == ui::layout::center_x) this->set_center_x();
 			else this->x = ui::transform(this, x);
 		}
+
+		virtual void set_max_height(float) { }
+		virtual void set_max_width(float) { }
 
 		void set_raw_x(float x) { this->x = x; }
 		void set_raw_y(float y) { this->y = y; }
@@ -532,10 +589,14 @@ namespace ui
 		virtual bool processes_in_sleep() { return false; }
 		virtual bool process_in_sleep() { return true; }
 
+		void set_exclusive_input(bool e) { this->exclusiveInput = e; }
+		bool has_exclusive_input() { return this->exclusiveInput; }
+
 
 	protected:
 		ui::Screen screen;
 		float z = ui::layer::middle;
+		bool exclusiveInput = false;
 		bool hidden = false;
 		float x = 0, y = 0;
 		int tag = 0;
@@ -623,7 +684,9 @@ namespace ui
 		float height() override;
 		float width() override;
 
+		void set_max_width(float w) override;
 		void resize(float x, float y);
+		void finalize() override;
 		void autowrap();
 		void scroll(); /* only supported with !center(), doesn't look amazing with multiline text but works */
 
@@ -633,17 +696,6 @@ namespace ui
 		void set_text(const std::string& label);
 		/* gets the current text of the widget */
 		const std::string& get_text();
-
-		UI_BUILDER_EXTENSIONS()
-		{
-			UI_USING_BUILDER()
-		public:
-			ReturnValue max_width(float w)
-			{
-				this->instance().maxw = w;
-				return this->return_value();
-			}
-		};
 
 		void swap_slots(const StaticSlot&) override;
 
@@ -874,6 +926,31 @@ namespace ui
 		u64 last_touch_toggle;
 
 	};
+
+	namespace detail
+	{
+		class BackgroundObscurer : public ui::BaseWidget
+		{ UI_WIDGET("BackgroundObscurer")
+		public:
+			void setup(float opacity = 0.60f);
+
+			float height() override { return 0.0f; }
+			float width() override { return 0.0f; }
+			bool render(ui::Keys&) override;
+
+			void set_opacity(float);
+
+		private:
+			u32 colour;
+
+		};
+	}
+
+	bool is_exclusive_input();
+	bool is_obscured();
+
+	void exclusive_input(bool = true);
+	void obscure(bool = true);
 
 	template <typename T>
 	std::string floating_prec(T inte, int prec = 2)

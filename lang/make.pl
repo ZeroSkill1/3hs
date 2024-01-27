@@ -109,6 +109,7 @@ sub parse_lang_file {
 	open my $fh, "$lang_dir/$lang_name" or die "failed to open $lang_name file.";
 	my $is_reference_lang = @string_ids == 0;
 	my %functions_codegen;
+	my $do_linebreak = 1;
 	my %functions;
 	my %strings;
 	my $extline;
@@ -134,13 +135,11 @@ sub parse_lang_file {
 				if($current_id eq "native_name") {
 					$native_name = $string_content;
 				} elsif($current_id) {
-					$current_id  =~ /([^ ]+)/i;
+					$current_id  =~ /^([^ ]+)/i;
 					my $real_id  = $1;
-					if($current_id  =~ /(\+code\(.*\))/) {
+					if($current_id  =~ /\+code\((.*)\)/) {
 						my $code_bit = $1;
 						$functions{$real_id} = $string_content;
-						$code_bit =~ s/^\+code\(//;
-						$code_bit =~ s/\)$//;
 						my @params = split ", ", $code_bit;
 						my $genned_code = "";
 						for my $i (0..$#params) {
@@ -164,10 +163,11 @@ sub parse_lang_file {
 				$string_content = "";
 				$current_id = $line;
 				$current_id =~ s/^- //;
+				$do_linebreak = !($current_id =~ /\+nobreak/);
 			}
 			elsif($line =~ /[^\s]/) {
 				$line =~ s/#{2}/#/g;
-				if($next_line_append) {
+				if($next_line_append || !$do_linebreak) {
 					$string_content and $string_content .= " ";
 					$next_line_append = 0;
 				}
@@ -182,7 +182,9 @@ sub parse_lang_file {
 			}
 		}
 
-		$current_id and $strings{$current_id} = $string_content;
+		die "Last string of file can't contain code!" if $current_id =~ /\+code/;
+		$current_id  =~ /^([^ ]+)/i;
+		$current_id and $strings{$1} = $string_content;
 		$next_line_append = 0;
 		$string_content = "";
 		$current_id = "";

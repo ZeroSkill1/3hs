@@ -726,7 +726,7 @@ SortMethod settings_sort_switch()
 	return ret;
 }
 
-static void show_langs()
+static void show_set_language_core()
 {
 	ui::RenderQueue queue;
 	ui::MenuSelect *ms;
@@ -740,6 +740,13 @@ static void show_langs()
 #undef ITER
 
 	queue.render_finite_button(KEY_B);
+}
+
+void show_set_language()
+{
+	bool focus = set_focus(true);
+	show_set_language_core();
+	set_focus(focus);
 }
 
 static void update_settings_ID(SettingsId ID)
@@ -812,7 +819,7 @@ static void update_settings_ID(SettingsId ID)
 		break;
 	}
 	case ID_Language:
-		show_langs();
+		show_set_language_core();
 		break;
 	case ID_Localemode:
 	{

@@ -863,3 +863,13 @@ Legacy
 - query_too_short
 Query must be at least 3 characters
 
+# This string is special as it's the only string that should contain
+# English text in your translation. The first line should be kept English,
+# but put the English name of the language instead of "English". The second line
+# should be translated but put your language name instead of "English". In the
+# third line only the second "Is this correct?" should be translated.
+- language_detected
+Detected language English
+Detected language English
+Is this correct? Is this correct?
+

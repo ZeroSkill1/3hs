@@ -192,6 +192,9 @@ static void common_init()
 	panic_if_err_3ds(font_merger_run());
 	LightLock_Init(&render_and_then_lock);
 	LightLock_Init(&in_render_lock);
+
+	ui::builder<ui::detail::BackgroundObscurer>(ui::Screen::bottom).hide().tag(ui::tag::obscure_bottom).add_to(g_renderqueue);
+	ui::builder<ui::detail::BackgroundObscurer>(ui::Screen::top).hide().tag(ui::tag::obscure_top).add_to(g_renderqueue);
 }
 
 void ui::init(C3D_RenderTarget *top, C3D_RenderTarget *bot)
@@ -256,6 +259,23 @@ void ui::RenderQueue::push(ui::BaseWidget *wid)
 	this->backPtr = wid;
 	if(wid->processes_in_sleep())
 		this->sleepProcessors.push_back(wid);
+}
+
+void ui::RenderQueue::remove(ui::BaseWidget *wid)
+{
+	if(wid->renders_on() == ui::Screen::bottom || wid->renders_on() == ui::Screen::none)
+		this->bot.remove(wid);
+	else if(wid->renders_on() == ui::Screen::top)
+		this->top.remove(wid);
+	else
+		panic("Trying to remove widget that renders on an unknown screen");
+
+	if(wid->processes_in_sleep())
+		this->sleepProcessors.remove(wid);
+
+	/* We can't forget to actually call the dtor or we'll leak memory */
+	wid->destroy();
+	delete wid;
 }
 
 void ui::set_select_command_handler(select_command_handler handler)
@@ -493,14 +513,12 @@ bool ui::RenderQueue::render_exclusive_frame(ui::Keys& keys)
 	C2D_SceneBegin(g_top);
 	if(top_background->has_image())
 		top_background->render(keys);
-	for(ui::BaseWidget *wid : this->top)
-		if(!wid->is_hidden()) ret &= wid->render(keys);
+	ret &= this->render_top(keys);
 
 	C2D_SceneBegin(g_bot);
 	if(bottom_background->has_image())
 		bottom_background->render(keys);
-	for(ui::BaseWidget *wid : this->bot)
-		if(!wid->is_hidden()) ret &= wid->render(keys);
+	ret &= this->render_bottom(keys);
 
 	ret &= this->exit_frame();
 	return ret;
@@ -514,15 +532,13 @@ bool ui::RenderQueue::render_frame(ui::Keys& keys)
 	C2D_SceneBegin(g_top);
 	if(top_background->has_image())
 		top_background->render(keys);
-	for(ui::BaseWidget *wid : this->top)
-		if(!wid->is_hidden()) ret &= wid->render(keys);
+	ret &= this->render_top(keys);
 	ret &= g_renderqueue.render_top(keys);
 
 	C2D_SceneBegin(g_bot);
 	if(bottom_background->has_image())
 		bottom_background->render(keys);
-	for(ui::BaseWidget *wid : this->bot)
-		if(!wid->is_hidden()) ret &= wid->render(keys);
+	ret &= this->render_bottom(keys);
 	ret &= g_renderqueue.render_bottom(keys);
 
 	ret &= this->exit_frame();
@@ -567,20 +583,29 @@ bool ui::RenderQueue::render_screen(ui::Keys& keys, ui::Screen screen)
 	return screen == ui::Screen::top ? this->render_top(keys) : this->render_bottom(keys);
 }
 
+bool ui::RenderQueue::render_list(std::list<ui::BaseWidget *>& list, ui::Keys& keys)
+{
+	static ui::Keys zeroKeys = { };
+
+	bool ret = true;
+	for(ui::BaseWidget *wid : list)
+		if(!wid->is_hidden())
+		{
+			ret &= wid->render(g_renderqueue.exclusiveInput
+				? (wid->has_exclusive_input() ? keys : zeroKeys)
+				: keys);
+		}
+	return ret;
+}
+
 bool ui::RenderQueue::render_bottom(ui::Keys& keys)
 {
-	bool ret = true;
-	for(ui::BaseWidget *wid : this->bot)
-		if(!wid->is_hidden()) ret &= wid->render(keys);
-	return ret;
+	return this->render_list(this->bot, keys);
 }
 
 bool ui::RenderQueue::render_top(ui::Keys& keys)
 {
-	bool ret = true;
-	for(ui::BaseWidget *wid : this->top)
-		if(!wid->is_hidden()) ret &= wid->render(keys);
-	return ret;
+	return this->render_list(this->top, keys);
 }
 
 void ui::RenderQueue::render_forever()
@@ -650,10 +675,15 @@ C2D_Sprite ui::SpriteStore::get_by_id(ui::sprite id)
 UI_SLOTS(ui::Text_color, color_text)
 
 void ui::Text::setup(const std::string& label)
-{ this->set_text(label); }
+{
+	this->text = label;
+	this->prepare_arrays();
+}
 
 void ui::Text::setup()
-{ this->set_text(""); }
+{
+	this->prepare_arrays();
+}
 
 void ui::Text::prepare_arrays()
 {
@@ -670,7 +700,7 @@ void ui::Text::prepare_arrays()
 		this->lines.clear();
 	}
 
-	int width = this->maxw ? this->maxw : ui::screen_width(this->screen) - this->x;
+	float width = this->maxw ? this->maxw : ui::screen_width(this->screen) - this->x;
 
 	float curWidth = 0;
 	char codepoint[5] = { 0x00, 0x00, 0x00, 0x00, 0x00 };
@@ -780,10 +810,8 @@ static float get_center_x(C2D_Text *txt, float xsiz, float ysiz, ui::Screen scre
 	return ((ui::screen_width(screen) / 2) - (width / 2.0f));
 }
 
-bool ui::Text::render(ui::Keys& keys)
+bool ui::Text::render(ui::Keys&)
 {
-	((void) keys);
-
 	if(this->doScroll)
 	{
 		if(this->sctx.offset > this->sctx.width)
@@ -805,26 +833,21 @@ bool ui::Text::render(ui::Keys& keys)
 		ui::background_rect(this->screen, 0, this->y, 0.1f, this->x, this->sctx.height);
 	}
 
+	float xd = this->doScroll ? this->sctx.rx : this->x;
 	for(size_t i = 0; i < this->lines.size(); ++i)
 	{
 		if(this->drawCenter)
 		{
-			 float center = get_center_x(&this->lines[i], this->xsiz, this->ysiz,
-				this->screen);
+			float width;
+			C2D_TextGetDimensions(&this->lines[i], this->xsiz, this->ysiz, &width, nullptr);
+			xd = (this->maxw ? this->maxw : ui::screen_width(this->screen)) / 2.0f - width / 2.0f;
+			/* If maxw is set let's just assume it's a box and that we don't still want the
+			 * screen center to be screen_width / 2 */
+			if(this->maxw) xd += this->x;
 
-			C2D_DrawText(&this->lines[i], C2D_WithColor, center,
-				this->y + (this->lineHeight * i), this->z, this->xsiz, this->ysiz, this->slots[0]);
 		}
-		else if(this->doScroll)
-		{
-			C2D_DrawText(&this->lines[i], C2D_WithColor, this->sctx.rx,
-				this->y + (this->lineHeight * i), this->z, this->xsiz, this->ysiz, this->slots[0]);
-		}
-		else
-		{
-			C2D_DrawText(&this->lines[i], C2D_WithColor, this->x,
-				this->y + (this->lineHeight * i), this->z, this->xsiz, this->ysiz, this->slots[0]);
-		}
+		C2D_DrawText(&this->lines[i], C2D_WithColor, xd,
+			this->y + (this->lineHeight * i), this->z, this->xsiz, this->ysiz, this->slots[0]);
 	}
 
 	return true;
@@ -842,6 +865,10 @@ void ui::Text::reset_scroll()
 void ui::Text::autowrap()
 {
 	this->doAutowrap = true;
+}
+
+void ui::Text::finalize()
+{
 	this->prepare_arrays();
 }
 
@@ -887,6 +914,11 @@ void ui::Text::resize(float x, float y)
 		C2D_TextGetDimensions(&this->lines.front(), this->xsiz, this->ysiz, nullptr,
 			&this->lineHeight);
 	}
+}
+
+void ui::Text::set_max_width(float w)
+{
+	this->maxw = w;
 }
 
 const std::string& ui::Text::get_text()
@@ -985,7 +1017,7 @@ void ui::Button::setup(std::function<void(C2D_Sprite&, u32)> get_image_cb, u32 d
 {
 	ui::Sprite *label = new ui::Sprite(this->screen);
 	label->setup(get_image_cb, data);
-	label->set_z(1.0f);
+	label->set_z(ui::layer::image);
 	label->finalize();
 
 	this->widget = label;
@@ -1057,7 +1089,7 @@ void ui::Button::set_y(float y)
 void ui::Button::set_z(float z)
 {
 	this->z = z;
-	this->widget->set_z(z);
+	this->widget->set_z(z + 0.1f);
 }
 
 void ui::Button::set_border(bool b)
@@ -1169,7 +1201,9 @@ bool ui::Toggle::render(ui::Keys& keys)
 /* WidgetGroup */
 
 void ui::WidgetGroup::add(ui::BaseWidget *w)
-{ this->ws.push_back(w); }
+{
+	this->ws.push_back(w);
+}
 
 void ui::WidgetGroup::set_hidden(bool b)
 {
@@ -1239,6 +1273,32 @@ void ui::WidgetGroup::translate(float x, float y)
 	}
 }
 
+bool ui::WidgetGroup::render_all(ui::Screen screen, ui::Keys& keys)
+{
+	bool ret = true;
+	for(ui::BaseWidget *w : this->ws)
+		if(w->renders_on() == screen)
+			ret &= w->render(keys);
+	return ret;
+}
+
+bool ui::WidgetGroup::render_all(ui::Keys& keys)
+{
+	bool ret = true;
+	for(ui::BaseWidget *w : this->ws)
+		ret &= w->render(keys);
+	return ret;
+}
+
+void ui::WidgetGroup::destroy_all()
+{
+	for(ui::BaseWidget *w : this->ws)
+	{
+		w->destroy();
+		delete w;
+	}
+}
+
 /* LED */
 
 void ui::LED::Solid(ui::LED::Pattern *info, u32 animation, u8 r, u8 g, u8 b)
@@ -1298,3 +1358,41 @@ Result ui::LED::ResetPattern()
 	return ui::LED::SetPattern(&info);
 }
 
+/* BackgroundObscurer */
+
+void ui::detail::BackgroundObscurer::setup(float opacity)
+{
+	/* highest byte is the alpha component */
+	this->colour = (u32) (opacity * 0xFF) << 24;
+}
+
+bool ui::detail::BackgroundObscurer::render(ui::Keys&)
+{
+	C2D_DrawRectSolid(0.0f, 0.0f, ui::layer::under_image, ui::screen_width(this->screen), ui::screen_height(), this->colour);
+	return true;
+}
+
+bool ui::is_obscured()
+{
+	return !g_renderqueue.find_tag(ui::tag::obscure_bottom)->is_hidden();
+}
+
+void ui::obscure(bool enable)
+{
+	ui::detail::BackgroundObscurer
+		*bottom = g_renderqueue.find_tag<ui::detail::BackgroundObscurer>(ui::tag::obscure_bottom),
+		*top = g_renderqueue.find_tag<ui::detail::BackgroundObscurer>(ui::tag::obscure_top);
+
+	bottom->set_hidden(!enable);
+	top->set_hidden(!enable);
+}
+
+bool ui::is_exclusive_input()
+{
+	return g_renderqueue.is_exclusive_input();
+}
+
+void ui::exclusive_input(bool enable)
+{
+	g_renderqueue.set_exclusive_input(enable);
+}

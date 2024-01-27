@@ -16,7 +16,7 @@
 
 #include <3ds.h>
 
-#include <ui/list.hh>
+#include <ui/popup.hh>
 #include <ui/base.hh>
 
 #include <widgets/indicators.hh>
@@ -209,16 +209,61 @@ int main(int argc, char* argv[])
 	/* Checking if the user actually speaks the target language should be done before any other string is display by the user */
 	if(languageDetected && get_nsettings()->lang != lang::english)
 	{
-		/* These strings must be in English */
-		std::string lang = i18n::langname(get_nsettings()->lang);
-		std::string string = PSTRING(automatically_detected, lang);
-		string += "\n3hs has automatically detected the system language is ";
-		string += lang;
-		string += ". Press " UI_GLYPH_B " to reset to English.";
+		ui::PopUp::pop_up(ui::Screen::bottom, ui::PopUp::ClaimScreen, [](ui::PopUp *pop_up) -> void {
+			pop_up->make_builder<ui::Text>(STRING(language_detected))
+				.size(0.36f).wrap().x(ui::layout::center_x)
+				.add_to(pop_up);
+			pop_up->fit_to_content();
 
-		/* TODO: The confirmation menu perhaps needs some more work */
-		if(!ui::Confirm::exec("Is this correct?", string))
-			get_nsettings()->lang = lang::english;
+			ui::Button *ok, *not_ok;
+
+			pop_up->make_builder<ui::Button>(UI_GLYPH_A " OK")
+				.when_clicked([pop_up]() -> bool {
+					ui::RenderQueue::global()->render_and_then([pop_up]() -> void {
+						pop_up->hide();
+					});
+					return true;
+				})
+				.wrap().under(pop_up->back())
+				.disable_background()
+				.size_children(0.36f)
+				.add_to(&ok, pop_up);
+
+			pop_up->make_builder<ui::Button>(UI_GLYPH_B " Not OK")
+				.when_clicked([pop_up]() -> bool {
+					ui::RenderQueue::global()->render_and_then([pop_up]() -> void {
+						pop_up->hide();
+						show_set_language();
+					});
+					return true;
+				})
+				.wrap().align_y(pop_up->back())
+				.disable_background()
+				.size_children(0.36f)
+				.add_to(&not_ok, pop_up);
+
+			/* TODO: This shouldn't have to be inlined, we should be able to use builder::next_center() */
+			float w1 = ok->width();
+			float w2 = not_ok->width();
+			float total = w1 + w2 + 3.0f;
+
+			float start = pop_up->width() / 2.0f - total / 2.0f;
+			ok->set_x(start);
+			not_ok->set_x(start + w1 + 3.0f);
+
+			pop_up->fit_to_content();
+
+			pop_up->make_builder<ui::ButtonCallback>(KEY_A | KEY_B)
+				.when_kdown([pop_up](u32 keys) -> bool {
+					ui::RenderQueue::global()->render_and_then([pop_up, keys]() -> void {
+						pop_up->hide();
+						if(keys & KEY_B)
+							show_set_language();
+					});
+					return true;
+				})
+				.add_to(pop_up);
+		});
 	}
 
 	if(!(ENVINFO & 1))
