@@ -18,6 +18,7 @@ devids.json
 Missing_characters.txt
 scripts/extract_seeddb
 scripts/seeddb*
+scripts/
 TODO
 
 # VSCode
